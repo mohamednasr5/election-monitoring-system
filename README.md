@@ -1,0 +1,52 @@
+# نظام مراقبة وحصر العملية الانتخابية
+
+## Professional Election Monitoring and Statistics System
+
+### الميزات الرئيسية:
+
+#### صفحة الإدخال (index.html)
+- تسجيل اسم الناخب (إجباري)
+- تسجيل تلقائي لوقت التصويت
+- اختيار مرشحين (2 من 15)
+- تحديد حالة الصوت (صحيح/باطل)
+- تأكيد قبل الحفظ
+- تنبيه من التكرار
+- حماية برقم سري (521988)
+
+#### صفحة الإحصائيات (statistics.html)
+- تحديث لحظي للنتائج
+- رسم بياني شريطي
+- عرض النسبة المئوية لكل مرشح
+- متوسط الأصوات بالدقيقة
+- تصفية (صحيح/باطل)
+- تصدير Excel
+- حماية برقم سري (521988)
+
+### التقنيات المستخدمة:
+- HTML5
+- CSS3 (تصميم عصري ومتجاوب)
+- JavaScript (ES6 Modules)
+- Firebase Realtime Database
+- Chart.js
+
+### إعدادات Firebase:
+استخدمت بيانات Firebase الخاصة بـ elahmadiya:
+- apiKey: AIzaSyCxxXV_6CEo1fTp3rRbfwfYbe7WH0Cyg38
+- authDomain: elahmadiya.firebaseapp.com
+- databaseURL: https://elahmadiya-default-rtdb.firebaseio.com
+
+### رابط المستودع:
+https://github.com/mohamednasr5/election-monitoring-system
+
+### كيفية الاستخدام:
+1. افتح index.html في المتصفح
+2. أدخل الرقم السري: 521988
+3. أدخل بيانات الناخب والمرشحين
+4. للإحصائيات، افتح statistics.html وأدخل نفس الرقم السري
+
+### المطور:
+مهندس محمد حماد
+تم برمجة هذا النظام بالكامل بكل حب
+
+---
+**ملاحظة:** جميع البيانات محمية برقم سري وتُحفظ بشكل آمن في Firebase.
