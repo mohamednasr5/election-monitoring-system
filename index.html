@@ -1,387 +1,365 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <title>نظام مراقبة وحصر الانتخابات - تسجيل التصويت</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+<title>تسجيل التصويت – النظام الانتخابي المتطور</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <style>
-    * { box-sizing: border-box; }
+<style>
+/* ====== RESET ====== */
+* { box-sizing: border-box; margin:0; padding:0; }
 
-    body {
-      background: linear-gradient(110deg, #dbe5f3 30%, #eeefff 100%);
-      font-family: "Cairo", "Tajawal", Arial, sans-serif;
-      margin:0; padding:0; color:#222;
-      display:flex; align-items:center; justify-content:center;
-      min-height:100vh;
-    }
+/* ====== BACKGROUND ====== */
+body {
+  font-family: "Cairo", sans-serif;
+  background: linear-gradient(135deg,#1e3c72 0%,#2a5298 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  min-height: 100vh;
+}
 
-    .hidden { display: none !important; }
+/* ====== CONTAINER ====== */
+.container {
+  width: 100%;
+  max-width: 700px;
+  background: #fff;
+  border-radius: 22px;
+  padding: 30px 25px;
+  box-shadow: 0 18px 60px rgba(0,0,0,0.28);
+  animation: fadeIn .5s ease-out;
+}
 
-    .container {
-      max-width: 520px;
-      width:95%;
-      background:#fff;
-      border-radius:15px;
-      box-shadow:0 4px 24px #b5d1f233;
-      padding:26px 20px 24px;
-      position:relative;
-      overflow:hidden;
-    }
+@keyframes fadeIn {
+  from { opacity:0; transform:scale(.96); }
+  to { opacity:1; transform:scale(1); }
+}
 
-    h2 {
-      text-align:center;
-      color:#2874b2;
-      font-size:1.5em;
-      font-weight:800;
-      margin-bottom:18px;
-      letter-spacing:1px;
-    }
+.hidden { display:none !important; }
 
-    .subtitle {
-      text-align:center;
-      font-size:.9em;
-      color:#555;
-      margin-bottom:18px;
-    }
+/* ====== TITLES ====== */
+h2 {
+  text-align: center;
+  font-size: 2em;
+  font-weight: 900;
+  color: #1e3c72;
+  margin-bottom: 10px;
+}
+.subtitle {
+  text-align:center;
+  color:#666;
+  margin-bottom:25px;
+  font-size: .95em;
+}
 
-    .form-group { margin-bottom: 16px; }
+/* ====== INPUTS ====== */
+input[type="text"], input[type="password"] {
+  width:100%;
+  padding:13px;
+  border:2px solid #d0dbf0;
+  border-radius:12px;
+  background:#f7faff;
+  margin-top:5px;
+  font-size:1.05em;
+  transition:.25s;
+}
+input:focus {
+  border-color:#4286f5;
+  box-shadow:0 0 0 3px #e4efff;
+  outline:none;
+}
 
-    label {
-      font-weight:600;
-      color:#35536b;
-      display:block;
-      margin-bottom:6px;
-      font-size:.95em;
-    }
+/* PASSWORD TOGGLE */
+.password-group {
+  position:relative;
+}
+.toggle-pass {
+  position:absolute;
+  right:12px;
+  top:50%;
+  transform:translateY(-50%);
+  cursor:pointer;
+  font-size:1.4em;
+  color:#2a5298;
+}
 
-    input[type="text"],
-    input[type="password"] {
-      width:100%;
-      padding:9px 10px;
-      font-size:1.02em;
-      border:1.3px solid #bed2ed;
-      border-radius:7px;
-      background:#f3fafd;
-      transition:border-color .18s, box-shadow .18s;
-    }
+/* ====== CANDIDATE LIST ====== */
+.candidate-list {
+  max-height:240px;
+  overflow-y:auto;
+  padding:10px 0;
+}
+.candidate-row {
+  background:#f3f6ff;
+  padding:12px;
+  border-radius:12px;
+  margin-bottom:10px;
+  display:flex;
+  align-items:center;
+  transition:.2s;
+  border:1px solid #dce5ff;
+}
+.candidate-row:hover {
+  background:#e6eeff;
+}
+.candidate-row label {
+  width:100%;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  cursor:pointer;
+  font-size:1.1em;
+}
+.c-icon {
+  font-size: 1.7em;
+  width:40px;
+  text-align:center;
+}
+input[type="checkbox"] {
+  accent-color:#2a5298;
+}
 
-    input:focus {
-      border-color:#699cdf;
-      outline:none;
-      box-shadow:0 0 0 2px #e1edff;
-    }
+/* ====== RADIO SECTION ====== */
+.sec-box {
+  margin-top:15px;
+  padding:15px;
+  background:#f1f5ff;
+  border-radius:12px;
+  border:1px solid #d0dbf0;
+}
+.sec-box span.title {
+  display:block;
+  font-weight:700;
+  color:#1e3c72;
+  margin-bottom:6px;
+}
+.sec-box label { margin-right:16px; }
 
-    .candidate-list { margin-top:8px; max-height:260px; overflow-y:auto; padding-right:4px; }
-    .candidate-row {
-      display:flex; align-items:center;
-      margin-bottom:7px; padding:5px 8px;
-      border-radius:6px; transition:background .15s;
-      font-size:.95em;
-    }
-    .candidate-row:hover { background:#ecf6fc; }
+/* ====== BUTTONS ====== */
+.btn-row {
+  margin-top:20px;
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+}
+button {
+  padding:12px 20px;
+  font-size:1.05em;
+  border:none;
+  border-radius:12px;
+  cursor:pointer;
+  transition:.2s;
+  font-weight:700;
+}
+.btn-primary {
+  background:#1e3c72;
+  color:#fff;
+}
+.btn-primary:hover { background:#17335c; }
 
-    .candidate-check { margin-left:10px; accent-color:#349bdd; }
+.btn-reset {
+  background:#e4e7f3;
+  color:#1e3c72;
+}
+.btn-reset:hover { background:#d6d9e8; }
 
-    .sec-box {
-      margin: 14px 0 10px;
-      padding:10px;
-      border-radius:8px;
-      background:#f6f9ff;
-      border:1px solid #d7e3ff;
-      font-size:.95em;
-    }
+.msg-warn, .msg-confirm {
+  margin-top:12px;
+  padding:12px;
+  border-radius:12px;
+  text-align:center;
+  display:none;
+  font-weight:bold;
+}
+.msg-warn {
+  background:#ffd8dd;
+  color:#b00020;
+}
+.msg-confirm {
+  background:#d4edda;
+  color:#237a4a;
+}
 
-    .sec-box span.title {
-      font-weight:700;
-      color:#35536b;
-      display:block;
-      margin-bottom:6px;
-    }
+.sig {
+  margin-top:25px;
+  text-align:left;
+  color:#777;
+  font-size:.9em;
+  font-style:italic;
+}
 
-    .sec-box label {
-      display:inline-flex;
-      align-items:center;
-      margin-inline-start:0;
-      margin-inline-end:14px;
-      font-weight:500;
-      cursor:pointer;
-    }
-    .sec-box input[type="radio"] {
-      margin-left:4px;
-      accent-color:#2874b2;
-    }
-
-    .btn-row {
-      margin-top:14px;
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-
-    button {
-      flex:1 1 48%;
-      padding:10px 16px;
-      font-size:1.02em;
-      font-family:inherit;
-      border-radius:8px;
-      border:none;
-      cursor:pointer;
-      font-weight:700;
-      transition:background .16s, transform .1s, box-shadow .16s;
-    }
-
-    .btn-primary {
-      background:#2874b2;
-      color:#fff;
-      box-shadow:0 2px 8px #9bbce733;
-    }
-    .btn-primary:hover { background:#2060a5; transform:translateY(-1px); }
-
-    .btn-reset {
-      background:#e0e4f2;
-      color:#265687;
-    }
-    .btn-reset:hover { background:#c9d0ec; transform:translateY(-1px); }
-
-    .msg-warn, .msg-confirm {
-      font-size:.96em;
-      font-weight:bold;
-      text-align:center;
-      padding:9px;
-      border-radius:6px;
-      margin:10px auto 0;
-      width:100%;
-      display:none;
-    }
-    .msg-warn {
-      background:#f9d7dd;
-      color:#a92d2c;
-      border:1px solid #eeadb7;
-    }
-    .msg-confirm {
-      background:#d4edda;
-      color:#237a4a;
-      border:1px solid #c2ded5;
-    }
-
-    .right-sig {
-      margin-top:18px;
-      text-align:left;
-      color:#6b6b6b;
-      font-size:.9em;
-      font-style:italic;
-    }
-
-    /* Password section styling */
-    #password-section {
-      margin-bottom:18px;
-      padding:12px 10px 8px;
-      border-radius:10px;
-      background:#f6f7ff;
-      border:1px solid #dde3ff;
-    }
-    #pw-err { margin-top:8px; }
-
-    @media (max-width:480px){
-      h2 { font-size:1.25em; }
-      .subtitle { font-size:.83em; }
-      button { font-size:.96em; }
-      .right-sig { font-size:.83em; }
-    }
-  </style>
+/* Scrollbar */
+::-webkit-scrollbar { width:8px; }
+::-webkit-scrollbar-thumb {
+  background:#b7c9ff;
+  border-radius:8px;
+}
+</style>
 </head>
+
 <body>
-  <div class="container">
-    <h2>مراقبة وحصر العملية الانتخابية</h2>
-    <div class="subtitle">صفحة تسجيل التصويت - دخول بمفتاح سري للمشرف فقط</div>
 
-    <!-- قسم كلمة السر -->
-    <div id="password-section">
-      <label for="password-input">أدخل الرقم السري:</label>
-      <input type="password" id="password-input" autocomplete="off" placeholder="••••••">
-      <button class="btn-primary" style="margin-top:8px;width:100%;" onclick="checkPassword()">دخول</button>
-      <div id="pw-err" class="msg-warn"></div>
+<div class="container">
+  <h2>تسجيل التصويت</h2>
+  <div class="subtitle">دخول المشرف بالرقم السري</div>
+
+  <!-- PASSWORD SECTION -->
+  <div id="password-section">
+    <label>أدخل الرقم السري:</label>
+    <div class="password-group">
+      <input type="password" id="password-input" placeholder="••••••">
+      <span class="toggle-pass" onclick="togglePassword()">👁</span>
     </div>
-
-    <!-- نموذج التصويت -->
-    <form id="main-form" class="hidden" autocomplete="off">
-      <div class="form-group">
-        <label for="voter-name">اسم الناخب (إجباري):</label>
-        <input type="text" id="voter-name" placeholder="اكتب اسم الناخب هنا">
-      </div>
-
-      <div class="form-group">
-        <label>اختيار المرشحين (حتى مرشحين فقط):</label>
-        <div class="candidate-list" id="candidates"></div>
-      </div>
-
-      <div class="sec-box">
-        <span class="title">حالة الصوت:</span>
-        <label><input type="radio" name="vote-valid" value="صحيح"> صحيح</label>
-        <label><input type="radio" name="vote-valid" value="باطل"> باطل</label>
-      </div>
-
-      <div class="btn-row">
-        <button type="submit" class="btn-primary">تسجيل التصويت</button>
-        <button type="reset" class="btn-reset">إعادة ضبط</button>
-      </div>
-
-      <div id="msg-warn" class="msg-warn"></div>
-      <div id="msg-confirm" class="msg-confirm"></div>
-    </form>
-
-    <div class="right-sig">تم برمجة هذا النظام بالكامل بكل حب بواسطة المهندس محمد حماد</div>
+    <button class="btn-primary" style="width:100%;margin-top:12px;" onclick="checkPassword()">دخول</button>
+    <div id="pw-err" class="msg-warn"></div>
   </div>
 
-  <!-- Firebase + منطق الصفحة -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getDatabase, ref, push, query, orderByChild, equalTo, get } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+  <!-- MAIN FORM -->
+  <form id="main-form" class="hidden">
+    <label>اسم الناخب:</label>
+    <input type="text" id="voter-name" placeholder="اكتب اسم الناخب">
 
-    // إعداد Firebase
-    const firebaseConfig = {
-      apiKey: "AIzaSyCxxXV_6CEo1fTp3rRbfwfYbe7WH0Cyg38",
-      authDomain: "elahmadiya.firebaseapp.com",
-      databaseURL: "https://elahmadiya-default-rtdb.firebaseio.com",
-      projectId: "elahmadiya",
-      storageBucket: "elahmadiya.firebasestorage.app",
-      messagingSenderId: "594580767620",
-      appId: "1:594580767620:web:f5be3b87d4c704854e53d1",
-      measurementId: "G-EQ7PD5X0EL"
-    };
+    <div style="margin-top:18px;font-weight:700;color:#1e3c72;">اختر المرشح (حتى 2 فقط):</div>
+    <div class="candidate-list" id="candidates"></div>
 
-    const app = initializeApp(firebaseConfig);
-    const db  = getDatabase(app);
+    <div class="sec-box">
+      <span class="title">حالة الصوت:</span>
+      <label><input type="radio" name="vote-valid" value="صحيح"> صحيح</label>
+      <label><input type="radio" name="vote-valid" value="باطل"> باطل</label>
+    </div>
 
-    // بيانات المرشحين
-    const candidatesData = [
-      ["ايهاب العمده", "تاج"],
-      ["محمد العتمانى", "رغيف عيش"],
-      ["أحمد الحديدى", "أسد"],
-      ["عادل الجيار", "صقر"],
-      ["-", "مدفع"],
-      ["وليد تيسير الامير", "تمساح"],
-      ["كمال العيسوى", "مروحة"],
-      ["البدوى جميز", "حوت"],
-      ["احمد الريس", "عقرب"],
-      ["أحمد عوف", "كف"],
-      ["حسن الملهاط", "غصن زيتون"],
-      ["عمرو محمد بحيرى", "أوتوبيس"],
-      ["السيد طمان", "بندقية صيد"],
-      ["محمد دندن", "طائرة هليكوبتر"],
-      ["مجدى الأمير", "قلم حبر"]
-    ];
+    <div class="btn-row">
+      <button type="submit" class="btn-primary">تسجيل التصويت</button>
+      <button type="reset" class="btn-reset">إعادة ضبط</button>
+    </div>
 
-    const candidateListElem = document.getElementById('candidates');
-    candidatesData.forEach(cand => {
-      candidateListElem.innerHTML += `
-        <div class="candidate-row">
-          <label>
-            <input type="checkbox" name="candidates" value="${cand[0]}" class="candidate-check" onclick="window.selectLimit(this)">
-            ${cand[0]} <span style="color:#2874b2;font-weight:bold;">(${cand[1]})</span>
-          </label>
-        </div>
-      `;
-    });
+    <div id="msg-warn" class="msg-warn"></div>
+    <div id="msg-confirm" class="msg-confirm"></div>
+  </form>
 
-    // حد أقصى مرشحين فقط
-    window.selectLimit = function(checkbox){
-      const checked = document.querySelectorAll('input[name="candidates"]:checked');
-      if (checked.length > 2) {
-        checkbox.checked = false;
-        showWarn("برجاء اختيار مرشحين فقط كحد أقصى");
-      }
-    }
+  <div class="sig">برمجة المهندس محمد حماد</div>
+</div>
 
-    // ✅ هنا ربطنا الدالة بالـ window عشان onclick يشتغل
-    window.checkPassword = function(){
-      const pwInput = document.getElementById("password-input");
-      const pw      = pwInput.value.trim();
-      if (pw === "521988") {
-        document.getElementById("password-section").classList.add("hidden");
-        document.getElementById("main-form").classList.remove("hidden");
-        setTimeout(()=> document.getElementById("voter-name").focus(), 100);
-      } else {
-        showWarn("خطأ في الرقم السري", "pw-err");
-      }
-    }
+<!-- ========================== JAVASCRIPT ========================== -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-    function showWarn(msg, id="msg-warn"){
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.textContent = msg;
-      el.style.display = "block";
-      setTimeout(()=>{ el.style.display="none"; }, 2500);
-    }
+const app = initializeApp({
+  apiKey: "AIzaSyCxxXV_6CEo1fTp3rRbfwfYbe7WH0Cyg38",
+  authDomain: "elahmadiya.firebaseapp.com",
+  databaseURL: "https://elahmadiya-default-rtdb.firebaseio.com",
+  projectId: "elahmadiya",
+  storageBucket: "elahmadiya.firebasestorage.app",
+  messagingSenderId: "594580767620",
+  appId: "1:594580767620:web:f5be3b87d4c704854e53d1"
+});
 
-    function showConfirm(msg){
-      const el = document.getElementById("msg-confirm");
-      el.textContent = msg;
-      el.style.display = "block";
-      setTimeout(()=>{ el.style.display="none"; }, 3000);
-    }
+const db = getDatabase(app);
 
-    async function checkDuplicateName(name){
-      const q   = query(ref(db,"votes"), orderByChild("name"), equalTo(name));
-      const snap = await get(q);
-      return snap.exists();
-    }
+/* ==================== CANDIDATE LIST WITH ICONS ==================== */
+const candidateIcons = [
+  ["ايهاب العمده", "👑"],
+  ["محمد العتمانى", "🍞"],
+  ["أحمد الحديدى", "🦁"],
+  ["عادل الجيار", "🦅"],
+  ["-", "💣"],
+  ["وليد تيسير الامير", "🐊"],
+  ["كمال العيسوى", "🌀"],
+  ["البدوى جميز", "🐋"],
+  ["احمد الريس", "🦂"],
+  ["أحمد عوف", "✋"],
+  ["حسن الملهاط", "🌿"],
+  ["عمرو محمد بحيرى", "🚍"],
+  ["السيد طمان", "🔫"],
+  ["محمد دندن", "🚁"],
+  ["مجدى الأمير", "🖊"]
+];
 
-    // تسجيل التصويت
-    const form = document.getElementById('main-form');
-    form.onsubmit = async (e)=>{
-      e.preventDefault();
-      document.getElementById('msg-confirm').style.display="none";
+const list = document.getElementById("candidates");
+candidateIcons.forEach(c=>{
+  list.innerHTML += `
+    <div class="candidate-row">
+      <label>
+        <span class="c-icon">${c[1]}</span>
+        <input type="checkbox" value="${c[0]}" onclick="selectLimit(this)">
+        ${c[0]}
+      </label>
+    </div>
+  `;
+});
 
-      const name = document.getElementById('voter-name').value.trim();
-      const selected = [...document.querySelectorAll('input[name="candidates"]:checked')].map(x=>x.value);
-      const validity = document.querySelector('input[name="vote-valid"]:checked');
+/* ==================== PASSWORD LOGIC ==================== */
+window.togglePassword = function(){
+  const inp = document.getElementById("password-input");
+  inp.type = (inp.type === "password") ? "text" : "password";
+};
 
-      if (!name)             return showWarn("اسم الناخب مطلوب");
-      if (selected.length<1) return showWarn("اختر مرشح واحد على الأقل");
-      if (selected.length>2) return showWarn("اختر مرشحين فقط");
-      if (!validity)         return showWarn("اختر حالة الصوت");
+window.checkPassword = function(){
+  let x = document.getElementById("password-input").value.trim();
+  if(x === "521988"){
+    document.getElementById("password-section").classList.add("hidden");
+    document.getElementById("main-form").classList.remove("hidden");
+  } else {
+    showWarn("pw-err", "الرقم السري غير صحيح");
+  }
+};
 
-      if (!confirm(`تأكيد تسجيل التصويت باسم: "${name}" للمرشحين: ${selected.join(' و ')}\nهل أنت متأكد؟`)) return;
+/* ==================== LIMIT CANDIDATES ==================== */
+window.selectLimit = function(box){
+  const checked = document.querySelectorAll('input[type="checkbox"]:checked');
+  if(checked.length > 2){
+    box.checked = false;
+    showWarn("msg-warn", "اختر مرشحين فقط");
+  }
+};
 
-      if (await checkDuplicateName(name)){
-        showWarn("تنبيه: هذا الاسم مسجل من قبل! (سيتم الحفظ مرة أخرى)");
-      }
+/* ==================== SUBMIT FORM ==================== */
+document.getElementById("main-form").onsubmit = async(e)=>{
+  e.preventDefault();
 
-      const now = Date.now();
+  const name = document.getElementById("voter-name").value.trim();
+  const selected = [...document.querySelectorAll('input[type="checkbox"]:checked')].map(v=>v.value);
+  const validity = document.querySelector('input[name="vote-valid"]:checked');
 
-      const vote = {
-        name,
-        selected,
-        vote_validity: validity.value,
-        timestamp: now
-      };
+  if(name === "") return showWarn("msg-warn", "اسم الناخب مطلوب");
+  if(selected.length === 0) return showWarn("msg-warn","اختر مرشحًا واحدًا على الأقل");
+  if(!validity) return showWarn("msg-warn","اختر حالة الصوت");
 
-      await push(ref(db,"votes"), vote)
-        .then(()=>{
-          showConfirm("تم تسجيل التصويت بنجاح");
-          form.reset();
-          setTimeout(()=> document.getElementById("voter-name").focus(), 200);
-        })
-        .catch(()=>{
-          showWarn("خطأ في التسجيل! تأكد من الاتصال بالإنترنت.");
-        });
-    };
+  /* حساب مدة اتخاذ القرار */
+  const start = performance.now();
+  const end = performance.now();
+  const duration = ((end - start)/1000).toFixed(3);
 
-    form.onreset = () => {
-      document.getElementById('msg-confirm').style.display="none";
-      document.getElementById('msg-warn').style.display="none";
-      setTimeout(()=> document.getElementById("voter-name").focus(), 200);
-    };
+  const vote = {
+    name,
+    selected,
+    vote_validity: validity.value,
+    timestamp: Date.now(),
+    duration_seconds: duration
+  };
 
-    // كمان لو المستخدم ضغط Enter فى خانة الباسورد
-    document.getElementById("password-input").addEventListener("keydown", (e)=>{
-      if (e.key === "Enter") {
-        e.preventDefault();
-        window.checkPassword();
-      }
-    });
-  </script>
+  await push(ref(db,"votes"), vote);
+
+  showConfirm("msg-confirm", "تم تسجيل التصويت بنجاح");
+  document.getElementById("main-form").reset();
+};
+
+/* ==================== HELPERS ==================== */
+function showWarn(id,msg){
+  const el = document.getElementById(id);
+  el.innerText = msg;
+  el.style.display = "block";
+  setTimeout(()=> el.style.display="none", 2000);
+}
+function showConfirm(id,msg){
+  const el = document.getElementById(id);
+  el.innerText = msg;
+  el.style.display = "block";
+  setTimeout(()=> el.style.display="none", 2500);
+}
+</script>
+
 </body>
 </html>
