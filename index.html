@@ -2,231 +2,141 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<title>تسجيل التصويت – النظام الانتخابي المتطور</title>
+<title>تسجيل التصويت – النظام الانتخابي</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-/* ====== RESET ====== */
-* { box-sizing: border-box; margin:0; padding:0; }
+/* RESET */
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Cairo',sans-serif}
 
-/* ====== BACKGROUND ====== */
-body {
-  font-family: "Cairo", sans-serif;
-  background: linear-gradient(135deg,#1e3c72 0%,#2a5298 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  min-height: 100vh;
+/* BODY */
+body{
+  background:linear-gradient(135deg,#1e3c72 0%,#2a5298 100%);
+  display:flex;align-items:center;justify-content:center;
+  min-height:100vh;padding:20px;color:#fff;
 }
 
-/* ====== CONTAINER ====== */
-.container {
-  width: 100%;
-  max-width: 700px;
-  background: #fff;
-  border-radius: 22px;
-  padding: 30px 25px;
-  box-shadow: 0 18px 60px rgba(0,0,0,0.28);
-  animation: fadeIn .5s ease-out;
+/* CONTAINER */
+.container{
+  width:100%;max-width:750px;background:#fff;color:#222;
+  padding:28px;border-radius:22px;
+  box-shadow:0 20px 60px rgba(0,0,0,0.28);
+  animation:fadeIn .5s ease-out;
+}
+@keyframes fadeIn{from{opacity:0;transform:scale(.95);}to{opacity:1;transform:scale(1);}}
+
+/* TITLES */
+h2{text-align:center;font-size:1.9em;font-weight:900;color:#1e3c72;margin-bottom:8px}
+.subtitle{text-align:center;color:#666;margin-bottom:18px;font-size:.9em}
+
+/* PASSWORD BOX */
+#password-box{
+  background:#f5f6ff;padding:20px;border-radius:15px;border:1px solid #dbe2ff;
+  margin-bottom:20px;
+}
+.pass-row{position:relative}
+.pass-input{
+  width:100%;padding:12px;border-radius:10px;border:2px solid #cfd7f4;
+  background:#f8f9ff;font-size:1.05em;
+}
+.pass-toggle{
+  position:absolute;left:10px;top:50%;transform:translateY(-50%);
+  font-size:1.3em;color:#1e3c72;cursor:pointer;
 }
 
-@keyframes fadeIn {
-  from { opacity:0; transform:scale(.96); }
-  to { opacity:1; transform:scale(1); }
+/* FORM INPUTS */
+label{font-weight:700;color:#1e3c72;margin-top:12px;display:block;margin-bottom:5px}
+input[type="text"]{
+  width:100%;padding:12px;border-radius:10px;
+  border:2px solid #d0d8f3;background:#f7faff;font-size:1.05em;
 }
 
-.hidden { display:none !important; }
+/* CANDIDATE LIST */
+.candidate-list{
+  background:#f8f9ff;border:1px solid #dee7ff;
+  padding:12px;border-radius:15px;max-height:330px;overflow-y:auto;margin-top:12px;
+}
+.candidate-item{
+  padding:10px 12px;margin-bottom:8px;background:#fff;border:1px solid #e0e6ff;
+  border-radius:12px;display:flex;align-items:center;
+  justify-content:space-between;transition:.2s;
+}
+.candidate-item:hover{background:#eef4ff;border-color:#b4c4ff}
 
-/* ====== TITLES ====== */
-h2 {
-  text-align: center;
-  font-size: 2em;
-  font-weight: 900;
-  color: #1e3c72;
-  margin-bottom: 10px;
+.c-left{display:flex;align-items:center;gap:10px}
+.num-circle{
+  background:#1e3c72;color:#fff;width:28px;height:28px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:.9em;font-weight:900;
 }
-.subtitle {
-  text-align:center;
-  color:#666;
-  margin-bottom:25px;
-  font-size: .95em;
-}
+.c-name{font-weight:700;color:#1e3c72;font-size:1em}
+.c-icon{font-size:1.5em;margin-right:6px}
 
-/* ====== INPUTS ====== */
-input[type="text"], input[type="password"] {
-  width:100%;
-  padding:13px;
-  border:2px solid #d0dbf0;
-  border-radius:12px;
-  background:#f7faff;
-  margin-top:5px;
-  font-size:1.05em;
-  transition:.25s;
-}
-input:focus {
-  border-color:#4286f5;
-  box-shadow:0 0 0 3px #e4efff;
-  outline:none;
-}
+input[type="checkbox"]{accent-color:#1e3c72;width:20px;height:20px}
 
-/* PASSWORD TOGGLE */
-.password-group {
-  position:relative;
-}
-.toggle-pass {
-  position:absolute;
-  right:12px;
-  top:50%;
-  transform:translateY(-50%);
-  cursor:pointer;
-  font-size:1.4em;
-  color:#2a5298;
-}
+/* VOTE STATUS */
+.sec-box{background:#f1f5ff;padding:14px;border:1px solid #d3ddff;border-radius:12px;margin-top:12px}
+.sec-box span{font-weight:700;color:#1e3c72;margin-bottom:5px;display:block}
 
-/* ====== CANDIDATE LIST ====== */
-.candidate-list {
-  max-height:240px;
-  overflow-y:auto;
-  padding:10px 0;
+/* BUTTONS */
+.btn-row{display:flex;gap:12px;margin-top:18px}
+button{
+  flex:1;padding:12px;border:none;border-radius:12px;cursor:pointer;font-weight:700;
+  font-size:1.05em;transition:.25s;
 }
-.candidate-row {
-  background:#f3f6ff;
-  padding:12px;
-  border-radius:12px;
-  margin-bottom:10px;
-  display:flex;
-  align-items:center;
-  transition:.2s;
-  border:1px solid #dce5ff;
-}
-.candidate-row:hover {
-  background:#e6eeff;
-}
-.candidate-row label {
-  width:100%;
-  display:flex;
-  align-items:center;
-  gap:10px;
-  cursor:pointer;
-  font-size:1.1em;
-}
-.c-icon {
-  font-size: 1.7em;
-  width:40px;
-  text-align:center;
-}
-input[type="checkbox"] {
-  accent-color:#2a5298;
-}
+.btn-primary{background:#1e3c72;color:#fff}
+.btn-primary:hover{background:#163160}
+.btn-reset{background:#e8ecff;color:#1e3c72}
+.btn-reset:hover{background:#d5dbff}
 
-/* ====== RADIO SECTION ====== */
-.sec-box {
-  margin-top:15px;
-  padding:15px;
-  background:#f1f5ff;
-  border-radius:12px;
-  border:1px solid #d0dbf0;
+/* MESSAGES */
+.msg-warn,.msg-confirm{
+  margin-top:10px;padding:10px;border-radius:10px;
+  font-weight:700;text-align:center;display:none
 }
-.sec-box span.title {
-  display:block;
-  font-weight:700;
-  color:#1e3c72;
-  margin-bottom:6px;
-}
-.sec-box label { margin-right:16px; }
+.msg-warn{background:#ffd8dd;color:#900}
+.msg-confirm{background:#d4edda;color:#137d37}
 
-/* ====== BUTTONS ====== */
-.btn-row {
-  margin-top:20px;
-  display:flex;
-  gap:12px;
-  flex-wrap:wrap;
-}
-button {
-  padding:12px 20px;
-  font-size:1.05em;
-  border:none;
-  border-radius:12px;
-  cursor:pointer;
-  transition:.2s;
-  font-weight:700;
-}
-.btn-primary {
-  background:#1e3c72;
-  color:#fff;
-}
-.btn-primary:hover { background:#17335c; }
+/* SIGNATURE */
+.sig{text-align:left;margin-top:20px;color:#777;font-size:.85em;font-style:italic}
 
-.btn-reset {
-  background:#e4e7f3;
-  color:#1e3c72;
-}
-.btn-reset:hover { background:#d6d9e8; }
-
-.msg-warn, .msg-confirm {
-  margin-top:12px;
-  padding:12px;
-  border-radius:12px;
-  text-align:center;
-  display:none;
-  font-weight:bold;
-}
-.msg-warn {
-  background:#ffd8dd;
-  color:#b00020;
-}
-.msg-confirm {
-  background:#d4edda;
-  color:#237a4a;
-}
-
-.sig {
-  margin-top:25px;
-  text-align:left;
-  color:#777;
-  font-size:.9em;
-  font-style:italic;
-}
-
-/* Scrollbar */
-::-webkit-scrollbar { width:8px; }
-::-webkit-scrollbar-thumb {
-  background:#b7c9ff;
-  border-radius:8px;
-}
+/* SCROLLBAR */
+::-webkit-scrollbar{width:8px}
+::-webkit-scrollbar-thumb{background:#b7c9ff;border-radius:8px}
 </style>
 </head>
 
 <body>
 
 <div class="container">
-  <h2>تسجيل التصويت</h2>
-  <div class="subtitle">دخول المشرف بالرقم السري</div>
 
-  <!-- PASSWORD SECTION -->
-  <div id="password-section">
-    <label>أدخل الرقم السري:</label>
-    <div class="password-group">
-      <input type="password" id="password-input" placeholder="••••••">
-      <span class="toggle-pass" onclick="togglePassword()">👁</span>
+  <h2>تسجيل التصويت</h2>
+  <div class="subtitle">للمشرفين فقط – دخول بكلمة السر</div>
+
+  <!-- PASSWORD BOX -->
+  <div id="password-box">
+    <label>أدخل كلمة السر:</label>
+    <div class="pass-row">
+      <input type="password" id="password-input" class="pass-input" placeholder="••••••">
+      <span class="pass-toggle" onclick="togglePass()">👁</span>
     </div>
-    <button class="btn-primary" style="width:100%;margin-top:12px;" onclick="checkPassword()">دخول</button>
+    <button class="btn-primary" style="margin-top:12px;width:100%" onclick="checkPass()">دخول</button>
     <div id="pw-err" class="msg-warn"></div>
   </div>
 
   <!-- MAIN FORM -->
-  <form id="main-form" class="hidden">
+  <form id="vote-form" class="hidden">
+
     <label>اسم الناخب:</label>
     <input type="text" id="voter-name" placeholder="اكتب اسم الناخب">
 
-    <div style="margin-top:18px;font-weight:700;color:#1e3c72;">اختر المرشح (حتى 2 فقط):</div>
-    <div class="candidate-list" id="candidates"></div>
+    <label>اختر المرشح (حتى 2):</label>
+
+    <div class="candidate-list" id="candidate-list"></div>
 
     <div class="sec-box">
-      <span class="title">حالة الصوت:</span>
-      <label><input type="radio" name="vote-valid" value="صحيح"> صحيح</label>
-      <label><input type="radio" name="vote-valid" value="باطل"> باطل</label>
+      <span>حالة الصوت:</span>
+      <label><input type="radio" name="vvalid" value="صحيح"> صحيح</label>
+      <label><input type="radio" name="vvalid" value="باطل"> باطل</label>
     </div>
 
     <div class="btn-row">
@@ -236,128 +146,132 @@ button {
 
     <div id="msg-warn" class="msg-warn"></div>
     <div id="msg-confirm" class="msg-confirm"></div>
+
   </form>
 
-  <div class="sig">برمجة المهندس محمد حماد</div>
+  <div class="sig">تم تطوير النظام بواسطة المهندس محمد حماد</div>
+
 </div>
 
-<!-- ========================== JAVASCRIPT ========================== -->
+<!-- FIREBASE + LOGIC -->
 <script type="module">
+
+/* Firebase */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
 const app = initializeApp({
-  apiKey: "AIzaSyCxxXV_6CEo1fTp3rRbfwfYbe7WH0Cyg38",
-  authDomain: "elahmadiya.firebaseapp.com",
-  databaseURL: "https://elahmadiya-default-rtdb.firebaseio.com",
-  projectId: "elahmadiya",
-  storageBucket: "elahmadiya.firebasestorage.app",
-  messagingSenderId: "594580767620",
-  appId: "1:594580767620:web:f5be3b87d4c704854e53d1"
+  apiKey:"AIzaSyCxxXV_6CEo1fTp3rRbfwfYbe7WH0Cyg38",
+  authDomain:"elahmadiya.firebaseapp.com",
+  databaseURL:"https://elahmadiya-default-rtdb.firebaseio.com",
+  projectId:"elahmadiya",
+  storageBucket:"elahmadiya.firebasestorage.app",
+  messagingSenderId:"594580767620",
+  appId:"1:594580767620:web:f5be3b87d4c704854e53d1"
 });
-
 const db = getDatabase(app);
 
-/* ==================== CANDIDATE LIST WITH ICONS ==================== */
-const candidateIcons = [
-  ["ايهاب العمده", "👑"],
-  ["محمد العتمانى", "🍞"],
-  ["أحمد الحديدى", "🦁"],
-  ["عادل الجيار", "🦅"],
-  ["-", "💣"],
-  ["وليد تيسير الامير", "🐊"],
-  ["كمال العيسوى", "🌀"],
-  ["البدوى جميز", "🐋"],
-  ["احمد الريس", "🦂"],
-  ["أحمد عوف", "✋"],
-  ["حسن الملهاط", "🌿"],
-  ["عمرو محمد بحيرى", "🚍"],
-  ["السيد طمان", "🔫"],
-  ["محمد دندن", "🚁"],
-  ["مجدى الأمير", "🖊"]
+/* PASSWORD FUNCTIONS */
+window.togglePass = function(){
+  const p = document.getElementById("password-input");
+  p.type = (p.type === "password") ? "text" : "password";
+};
+
+window.checkPass = function(){
+  const val = document.getElementById("password-input").value.trim();
+  const err = document.getElementById("pw-err");
+  if(val === "521988"){
+    document.getElementById("password-box").classList.add("hidden");
+    document.getElementById("vote-form").classList.remove("hidden");
+  } else {
+    err.textContent="كلمة السر غير صحيحة";
+    err.style.display="block";
+    setTimeout(()=>err.style.display="none",2000);
+  }
+};
+
+/* CANDIDATES */
+const candidates = [
+  ["1","ايهاب العمده","👑"],
+  ["2","محمد العتمانى","🍞"],
+  ["3","أحمد الحديدى","🦁"],
+  ["4","عادل الجيار","🦅"],
+  ["5","-","💣"],
+  ["6","وليد تيسير الامير","🐊"],
+  ["7","كمال العيسوى","🌀"],
+  ["8","البدوى جميز","🐋"],
+  ["9","احمد الريس","🦂"],
+  ["10","أحمد عوف","✋"],
+  ["11","حسن الملهاط","🌿"],
+  ["12","عمرو محمد بحيرى","🚌"],
+  ["13","السيد طمان","🔫"],
+  ["14","محمد دندن","🚁"],
+  ["15","مجدى الأمير","🖊"]
 ];
 
-const list = document.getElementById("candidates");
-candidateIcons.forEach(c=>{
-  list.innerHTML += `
-    <div class="candidate-row">
-      <label>
-        <span class="c-icon">${c[1]}</span>
-        <input type="checkbox" value="${c[0]}" onclick="selectLimit(this)">
-        ${c[0]}
-      </label>
+const box = document.getElementById("candidate-list");
+candidates.forEach(c=>{
+  box.innerHTML += `
+    <div class="candidate-item">
+      <div class="c-left">
+        <div class="num-circle">${c[0]}</div>
+        <div class="c-name">${c[1]}</div>
+      </div>
+      <div class="c-right">
+        <span class="c-icon">${c[2]}</span>
+        <input type="checkbox" value="${c[1]}" onclick="limitSelect(this)">
+      </div>
     </div>
   `;
 });
 
-/* ==================== PASSWORD LOGIC ==================== */
-window.togglePassword = function(){
-  const inp = document.getElementById("password-input");
-  inp.type = (inp.type === "password") ? "text" : "password";
-};
-
-window.checkPassword = function(){
-  let x = document.getElementById("password-input").value.trim();
-  if(x === "521988"){
-    document.getElementById("password-section").classList.add("hidden");
-    document.getElementById("main-form").classList.remove("hidden");
-  } else {
-    showWarn("pw-err", "الرقم السري غير صحيح");
+/* LIMIT CHECKBOXES */
+window.limitSelect = function(ch){
+  const sel = document.querySelectorAll('input[type="checkbox"]:checked');
+  if(sel.length > 2){
+    ch.checked = false;
+    const warn = document.getElementById("msg-warn");
+    warn.textContent="يمكن اختيار مرشحين فقط";
+    warn.style.display="block";
+    setTimeout(()=>warn.style.display="none",1800);
   }
 };
 
-/* ==================== LIMIT CANDIDATES ==================== */
-window.selectLimit = function(box){
-  const checked = document.querySelectorAll('input[type="checkbox"]:checked');
-  if(checked.length > 2){
-    box.checked = false;
-    showWarn("msg-warn", "اختر مرشحين فقط");
-  }
-};
-
-/* ==================== SUBMIT FORM ==================== */
-document.getElementById("main-form").onsubmit = async(e)=>{
+/* VOTE SUBMISSION */
+document.getElementById("vote-form").onsubmit = async(e)=>{
   e.preventDefault();
 
   const name = document.getElementById("voter-name").value.trim();
-  const selected = [...document.querySelectorAll('input[type="checkbox"]:checked')].map(v=>v.value);
-  const validity = document.querySelector('input[name="vote-valid"]:checked');
+  const sel = [...document.querySelectorAll('input[type="checkbox"]:checked')].map(v=>v.value);
+  const val = document.querySelector('input[name="vvalid"]:checked');
 
-  if(name === "") return showWarn("msg-warn", "اسم الناخب مطلوب");
-  if(selected.length === 0) return showWarn("msg-warn","اختر مرشحًا واحدًا على الأقل");
-  if(!validity) return showWarn("msg-warn","اختر حالة الصوت");
+  if(name==="") return showWarn("اسم الناخب مطلوب");
+  if(sel.length<1) return showWarn("اختر مرشح واحد على الأقل");
+  if(!val) return showWarn("اختر حالة الصوت");
 
-  /* حساب مدة اتخاذ القرار */
-  const start = performance.now();
-  const end = performance.now();
-  const duration = ((end - start)/1000).toFixed(3);
+  const now = Date.now();
 
-  const vote = {
+  await push(ref(db,"votes"),{
     name,
-    selected,
-    vote_validity: validity.value,
-    timestamp: Date.now(),
-    duration_seconds: duration
-  };
+    selected: sel,
+    vote_validity: val.value,
+    timestamp: now
+  });
 
-  await push(ref(db,"votes"), vote);
-
-  showConfirm("msg-confirm", "تم تسجيل التصويت بنجاح");
-  document.getElementById("main-form").reset();
+  showConfirm("تم تسجيل التصويت بنجاح");
+  document.getElementById("vote-form").reset();
 };
 
-/* ==================== HELPERS ==================== */
-function showWarn(id,msg){
-  const el = document.getElementById(id);
-  el.innerText = msg;
-  el.style.display = "block";
-  setTimeout(()=> el.style.display="none", 2000);
+/* HELPERS */
+function showWarn(msg){
+  const el = document.getElementById("msg-warn");
+  el.textContent=msg; el.style.display="block";
+  setTimeout(()=>el.style.display="none",2000);
 }
-function showConfirm(id,msg){
-  const el = document.getElementById(id);
-  el.innerText = msg;
-  el.style.display = "block";
-  setTimeout(()=> el.style.display="none", 2500);
+function showConfirm(msg){
+  const el = document.getElementById("msg-confirm");
+  el.textContent=msg; el.style.display="block";
+  setTimeout(()=>el.style.display="none",2500);
 }
 </script>
 
