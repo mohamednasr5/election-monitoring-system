@@ -1,705 +1,629 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <title>لوحة نتائج الانتخابات - Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+<title>لوحة نتائج الانتخابات - Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <style>
-    * { box-sizing:border-box; }
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:"Cairo",sans-serif;
+  background:linear-gradient(135deg,#dbe5f3 20%,#eef1ff 80%);
+  color:#222;
+  min-height:100vh;
+}
 
-    body {
-      margin:0; padding:0;
-      font-family:"Cairo","Tajawal",Arial,sans-serif;
-      background:linear-gradient(120deg,#dbe5f3 20%,#f3f5ff 80%);
-      color:#222;
-    }
+/* Password overlay */
+#password-overlay{
+  position:fixed; inset:0;
+  background:rgba(0,0,0,.55);
+  display:flex; align-items:center; justify-content:center;
+  backdrop-filter:blur(6px);
+  z-index:9999;
+}
+.password-box{
+  background:#fff;
+  padding:26px 22px 22px;
+  border-radius:20px;
+  width:90%;
+  max-width:380px;
+  box-shadow:0 15px 35px rgba(0,0,0,.3);
+  text-align:center;
+}
+.password-box h2{margin-bottom:5px;color:#1e3c72}
+.password-box p{margin-bottom:10px;color:#555;font-size:.9em}
+.password-box input{
+  width:100%; padding:11px; border-radius:10px;
+  border:2px solid #ced6f2; margin-top:5px; background:#f6f8ff;
+  font-size:1.05em;
+}
+.pass-row{position:relative}
+.pass-toggle{
+  position:absolute;left:10px;top:50%;transform:translateY(-50%);
+  cursor:pointer;font-size:1.2em;color:#1e3c72;
+}
+.password-box button{
+  margin-top:15px; width:100%;
+  background:#1e3c72; color:#fff;
+  padding:11px; border:none; border-radius:10px;
+  font-size:1.02em; cursor:pointer; font-weight:700;
+}
+.msg-warn{
+  display:none;margin-top:8px;padding:8px;
+  background:#ffd7dd;color:#8f0000;font-weight:bold;border-radius:8px;font-size:.85em
+}
 
-    .hidden { display:none !important; }
+/* Dashboard layout */
+.hidden{display:none!important}
+.dashboard{
+  padding:18px;
+  max-width:1250px;
+  margin:auto;
+}
+.header{
+  display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap;
+  gap:10px; margin-bottom:18px;
+}
+.title{font-size:1.7em; font-weight:900; color:#1e3c72;}
+.subtitle{font-size:.9em;color:#555}
 
-    .page-wrap {
-      min-height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:15px;
-    }
+/* Live badge */
+.badge-live{
+  background:#d9ffee; padding:6px 12px; border-radius:30px;
+  font-size:.9em; display:flex; align-items:center; gap:8px;
+  color:#0b7040; font-weight:700;
+}
+.badge-live .dot{
+  width:10px;height:10px;border-radius:50%;background:#0b7040;
+  animation:pulse 1s infinite;
+}
+@keyframes pulse{
+  0%{transform:scale(1)}
+  50%{transform:scale(1.5);opacity:.6}
+  100%{transform:scale(1)}
+}
 
-    .password-overlay {
-      position:fixed;
-      inset:0;
-      background:rgba(0,0,0,.55);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      z-index:999;
-      backdrop-filter:blur(4px);
-    }
+/* Spike alert */
+#spike-alert{
+  display:none;
+  background:#ffe3b3;
+  color:#8a5500;
+  padding:10px;
+  border-radius:12px;
+  text-align:center;
+  margin-bottom:12px;
+  font-size:.98em;
+  font-weight:800;
+}
 
-    .password-box {
-      background:#fff;
-      border-radius:18px;
-      padding:24px 22px 20px;
-      max-width:360px;
-      width:90%;
-      text-align:center;
-      box-shadow:0 10px 40px rgba(0,0,0,.35);
-    }
+/* Cards */
+.cards{
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+  gap:14px; margin-bottom:18px;
+}
+.card{
+  background:#fff;
+  padding:14px 12px 12px;
+  border-radius:15px;
+  box-shadow:0 4px 10px rgba(0,0,0,.06);
+  border:1px solid #e4e8f5;
+}
+.card-title{font-size:.9em;color:#607089;}
+.card-value{font-size:1.6em;font-weight:900;color:#1e3c72;margin-top:4px}
+.card-note{font-size:.78em;color:#777;margin-top:2px}
 
-    .password-box h2 {
-      margin:0 0 6px;
-      color:#2874b2;
-      font-size:1.3em;
-    }
-    .password-box p {
-      margin:0 0 16px;
-      color:#555;
-      font-size:.9em;
-    }
+/* Charts */
+.charts-grid{
+  display:grid; grid-template-columns:2fr 1.1fr; gap:14px;
+  margin-bottom:16px;
+}
+.chart-card{
+  background:#fff; padding:12px; border-radius:15px;
+  box-shadow:0 4px 10px rgba(0,0,0,.06);
+  border:1px solid #e4e8f5;
+}
+.chart-card h3{margin-bottom:8px;font-size:.98em;color:#1e3c72}
 
-    .password-box input {
-      width:100%;
-      padding:9px 10px;
-      border-radius:8px;
-      border:1.4px solid #c9d7f0;
-      background:#f3f7ff;
-      font-size:1.02em;
-    }
-    .password-box input:focus {
-      outline:none;
-      border-color:#699cdf;
-      box-shadow:0 0 0 2px #e1edff;
-    }
+/* Table */
+.table-card{
+  background:#fff; padding:12px; border-radius:15px;
+  box-shadow:0 4px 10px rgba(0,0,0,.06);
+  border:1px solid #e4e8f5;
+}
+.table-header{
+  display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;
+  margin-bottom:8px;
+}
+.search-input{
+  padding:7px 9px;
+  border:2px solid #d8e0f8;
+  border-radius:8px; background:#f3f6ff;
+  min-width:180px;
+}
+.btn-sm{
+  padding:7px 12px; background:#1e3c72;color:#fff;
+  border:none;border-radius:8px;font-size:.85em;cursor:pointer;font-weight:700;
+}
+.btn-export{background:#1f8f4f!important}
 
-    .btn {
-      display:inline-block;
-      padding:9px 18px;
-      border-radius:8px;
-      border:none;
-      cursor:pointer;
-      font-weight:700;
-      margin-top:12px;
-      font-family:inherit;
-      transition:background .16s, transform .1s, box-shadow .16s;
-    }
-    .btn-primary {
-      background:#2874b2;
-      color:#fff;
-      box-shadow:0 2px 8px #9bbce733;
-      width:100%;
-    }
-    .btn-primary:hover { background:#205f9f; transform:translateY(-1px); }
+/* Table itself */
+.table-wrap{max-height:330px;overflow:auto;border-radius:10px;border:1px solid #e4e8f5}
+table{width:100%;border-collapse:collapse;font-size:.88em}
+thead{
+  background:#eef2ff;position:sticky;top:0;z-index:1
+}
+th,td{
+  padding:8px 9px;border-bottom:1px solid #eef2ff;white-space:nowrap;text-align:right
+}
+th{cursor:pointer;color:#1e3c72;font-weight:700}
+tr:nth-child(even) td{background:#fcfdff}
+.status-valid{color:#0b7040;font-weight:900}
+.status-invalid{color:#b00020;font-weight:900}
 
-    .msg-warn {
-      display:none;
-      background:#f9d7dd;
-      color:#a92d2c;
-      border-radius:6px;
-      padding:7px;
-      margin-top:10px;
-      font-size:.88em;
-      font-weight:600;
-    }
+.footer-note{margin-top:4px;font-size:.78em;color:#777}
 
-    /* Dashboard Layout */
-    .dashboard {
-      max-width:1200px;
-      width:100%;
-      margin:0 auto;
-    }
-
-    .dash-header {
-      display:flex;
-      flex-wrap:wrap;
-      justify-content:space-between;
-      align-items:flex-start;
-      gap:10px;
-      margin-bottom:14px;
-    }
-
-    .dash-title {
-      font-size:1.5em;
-      font-weight:800;
-      color:#264b75;
-    }
-    .dash-sub {
-      font-size:.9em;
-      color:#555;
-    }
-
-    .badge-live {
-      background:#e6fff0;
-      color:#1d8b4c;
-      border-radius:999px;
-      padding:4px 10px;
-      font-size:.82em;
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-    }
-    .badge-live span.dot {
-      width:8px;height:8px;border-radius:50%;background:#1d8b4c;
-      animation:pulse 1.2s infinite;
-    }
-    @keyframes pulse {
-      0% {transform:scale(1);opacity:1;}
-      50% {transform:scale(1.4);opacity:.5;}
-      100% {transform:scale(1);opacity:1;}
-    }
-
-    .cards {
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-      gap:12px;
-      margin-bottom:16px;
-    }
-
-    .card {
-      background:#fff;
-      border-radius:12px;
-      padding:12px 12px 10px;
-      box-shadow:0 2px 8px rgba(0,0,0,.05);
-      border:1px solid #dde5f5;
-    }
-    .card-title {
-      font-size:.86em;
-      color:#6a6f7d;
-      margin-bottom:4px;
-    }
-    .card-value {
-      font-size:1.45em;
-      font-weight:800;
-      color:#23436a;
-    }
-    .card-note {
-      font-size:.8em;
-      color:#777;
-      margin-top:2px;
-    }
-
-    .charts-grid {
-      display:grid;
-      grid-template-columns:2.1fr 1.2fr;
-      gap:14px;
-      margin-bottom:18px;
-    }
-
-    .chart-card {
-      background:#fff;
-      border-radius:12px;
-      padding:12px;
-      border:1px solid #dde5f5;
-      box-shadow:0 2px 8px rgba(0,0,0,.04);
-    }
-    .chart-card h3 {
-      margin:0 0 8px;
-      font-size:.98em;
-      color:#344563;
-    }
-
-    .table-card {
-      background:#fff;
-      border-radius:12px;
-      padding:10px;
-      border:1px solid #dde5f5;
-      box-shadow:0 2px 8px rgba(0,0,0,.04);
-      margin-bottom:14px;
-    }
-
-    .table-header {
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:8px;
-      margin-bottom:8px;
-      flex-wrap:wrap;
-    }
-
-    .search-input {
-      padding:7px 9px;
-      border-radius:8px;
-      border:1px solid #c9d7f0;
-      background:#f5f7ff;
-      min-width:0;
-    }
-
-    .btn-sm {
-      padding:7px 12px;
-      font-size:.85em;
-      border-radius:8px;
-      border:none;
-      cursor:pointer;
-      font-weight:600;
-      background:#edf1ff;
-      color:#264b75;
-    }
-    .btn-sm:hover { background:#dde6ff; }
-
-    .btn-export {
-      background:#1f8f4f;
-      color:#fff;
-    }
-    .btn-export:hover { background:#177541; }
-
-    .table-wrap {
-      max-height:360px;
-      overflow:auto;
-      border-radius:8px;
-      border:1px solid #e1e5f2;
-    }
-
-    table {
-      width:100%;
-      border-collapse:collapse;
-      font-size:.87em;
-    }
-    thead {
-      background:#f5f7ff;
-      position:sticky;
-      top:0;
-      z-index:1;
-    }
-    th, td {
-      padding:7px 8px;
-      border-bottom:1px solid #edf0f7;
-      text-align:right;
-      white-space:nowrap;
-    }
-    th {
-      font-weight:700;
-      color:#46516b;
-      cursor:pointer;
-      user-select:none;
-    }
-    tr:nth-child(even) td { background:#fcfdff; }
-
-    .status-valid { color:#1f8f4f; font-weight:700; }
-    .status-invalid { color:#c0392b; font-weight:700; }
-
-    .footer-note {
-      font-size:.8em;
-      color:#777;
-      text-align:left;
-      margin-top:4px;
-    }
-
-    @media (max-width:900px){
-      .charts-grid { grid-template-columns:1fr; }
-    }
-    @media (max-width:640px){
-      .dash-header { flex-direction:column; align-items:flex-start; }
-      .dash-title { font-size:1.25em; }
-    }
-  </style>
+@media(max-width:900px){
+  .charts-grid{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+  .dashboard{padding:12px}
+  .title{font-size:1.4em}
+}
+</style>
 </head>
 <body>
-  <!-- شاشة كلمة السر -->
-  <div id="password-overlay" class="password-overlay">
-    <div class="password-box">
-      <h2>لوحة النتائج - دخول المشرف</h2>
-      <p>من فضلك أدخل الرقم السري للوصول إلى النتائج المباشرة.</p>
-      <input type="password" id="pw-input" placeholder="••••••" autocomplete="off">
-      <button class="btn btn-primary" onclick="unlockDashboard()">دخول</button>
-      <div id="pw-error" class="msg-warn"></div>
+
+<!-- ================= PASSWORD OVERLAY ================ -->
+<div id="password-overlay">
+  <div class="password-box">
+    <h2>لوحة النتائج</h2>
+    <p>هذه الصفحة مخصصة للمشرفين فقط</p>
+    <div class="pass-row">
+      <input id="pw-input" type="password" placeholder="••••••" autocomplete="off">
+      <span class="pass-toggle" onclick="togglePass()">👁</span>
+    </div>
+    <button onclick="unlock()">دخول</button>
+    <div id="pw-error" class="msg-warn"></div>
+  </div>
+</div>
+
+<!-- ================= DASHBOARD CONTENT ================ -->
+<div class="dashboard hidden" id="dashboard">
+
+  <div class="header">
+    <div>
+      <div class="title">Dashboard النتائج الانتخابية</div>
+      <div class="subtitle">متابعة مباشرة للأصوات المسجلة من Firebase</div>
+    </div>
+    <div class="badge-live">
+      <span class="dot"></span>
+      <span id="live-status-text">بث مباشر</span>
     </div>
   </div>
 
-  <!-- محتوى الـ Dashboard -->
-  <div class="page-wrap">
-    <div id="dashboard" class="dashboard hidden">
-      <div class="dash-header">
-        <div>
-          <div class="dash-title">لوحة نتائج العملية الانتخابية</div>
-          <div class="dash-sub">عرض مباشر للأصوات المسجلة من قاعدة بيانات Firebase</div>
-        </div>
-        <div class="badge-live">
-          <span class="dot"></span>
-          بث مباشر - Live
-        </div>
-      </div>
+  <!-- Spike Alert -->
+  <div id="spike-alert">⚠️ هناك قفزة مفاجئة في سرعة تسجيل الأصوات الآن!</div>
 
-      <!-- الكروت العلوية -->
-      <div class="cards">
-        <div class="card">
-          <div class="card-title">إجمالي عدد الأصوات</div>
-          <div id="total-votes" class="card-value">0</div>
-          <div class="card-note">كل الأصوات المسجلة حتى الآن</div>
-        </div>
-        <div class="card">
-          <div class="card-title">الأصوات الصحيحة</div>
-          <div id="valid-votes" class="card-value">0</div>
-          <div class="card-note">التي تم تسجيلها كـ "صحيح"</div>
-        </div>
-        <div class="card">
-          <div class="card-title">الأصوات الباطلة</div>
-          <div id="invalid-votes" class="card-value">0</div>
-          <div class="card-note">التي تم تسجيلها كـ "باطل"</div>
-        </div>
-        <div class="card">
-          <div class="card-title">آخر تصويت</div>
-          <div id="last-vote-time" class="card-value" style="font-size:1.05em;">—</div>
-          <div class="card-note" id="first-vote-time-note">أول تصويت: —</div>
-        </div>
-      </div>
-
-      <!-- الرسوم البيانية -->
-      <div class="charts-grid">
-        <div class="chart-card">
-          <h3>عدد الأصوات لكل مرشح</h3>
-          <canvas id="candidateChart" height="150"></canvas>
-        </div>
-        <div class="chart-card">
-          <h3>نسبة الأصوات الصحيحة والباطلة</h3>
-          <canvas id="validityChart" height="150"></canvas>
-        </div>
-      </div>
-
-      <!-- جدول الأصوات -->
-      <div class="table-card">
-        <div class="table-header">
-          <div>
-            <strong>قائمة الأصوات المسجلة</strong>
-            <div style="font-size:.78em;color:#777;">يمكنك البحث، الفرز، أو التصدير إلى ملف CSV</div>
-          </div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <input type="text" id="search-input" class="search-input" placeholder="بحث بالاسم أو المرشح...">
-            <button class="btn-sm btn-export" onclick="exportCSV()">تصدير CSV</button>
-          </div>
-        </div>
-        <div class="table-wrap">
-          <table id="votes-table">
-            <thead>
-              <tr>
-                <th data-sort="index">#</th>
-                <th data-sort="name">اسم الناخب</th>
-                <th data-sort="candidates">المرشحون</th>
-                <th data-sort="validity">حالة الصوت</th>
-                <th data-sort="time">الوقت</th>
-              </tr>
-            </thead>
-            <tbody id="votes-tbody">
-              <!-- يتم ملؤه ديناميكياً -->
-            </tbody>
-          </table>
-        </div>
-        <div class="footer-note" id="footer-note">لا توجد أصوات مسجلة حتى الآن.</div>
-      </div>
+  <!-- Cards -->
+  <div class="cards">
+    <div class="card">
+      <div class="card-title">إجمالي الأصوات</div>
+      <div id="total-votes" class="card-value">0</div>
+      <div class="card-note">كل الأصوات المسجلة حتى الآن</div>
+    </div>
+    <div class="card">
+      <div class="card-title">الأصوات الصحيحة</div>
+      <div id="valid-votes" class="card-value">0</div>
+      <div class="card-note">المسجلة كـ "صحيح"</div>
+    </div>
+    <div class="card">
+      <div class="card-title">الأصوات الباطلة</div>
+      <div id="invalid-votes" class="card-value">0</div>
+      <div class="card-note">المسجلة كـ "باطل"</div>
+    </div>
+    <div class="card">
+      <div class="card-title">متوسط الأصوات/دقيقة (من البداية)</div>
+      <div id="vpm" class="card-value">0</div>
+      <div class="card-note">يحُسب من أول تصويت حتى آخر تصويت</div>
+    </div>
+    <div class="card">
+      <div class="card-title">متوسط الأصوات/دقيقة (آخر 10 دقائق)</div>
+      <div id="vpm10" class="card-value">0</div>
+      <div class="card-note">معدل سرعة التصويت في آخر 10 دقائق</div>
     </div>
   </div>
 
-  <!-- Chart.js (يتم تحميله كـ global) -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Charts -->
+  <div class="charts-grid">
+    <div class="chart-card">
+      <h3>عدد الأصوات لكل مرشح</h3>
+      <canvas id="chartCandidates"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>نسبة الأصوات الصحيحة والباطلة</h3>
+      <canvas id="chartValidity"></canvas>
+    </div>
+  </div>
 
-  <!-- Firebase + منطق Dashboard -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+  <!-- Votes per minute chart -->
+  <div class="chart-card" style="margin-bottom:16px">
+    <h3>الأصوات لكل دقيقة (Live VPM)</h3>
+    <canvas id="chartVPM"></canvas>
+  </div>
 
-    // إعداد Firebase - نفس المشروع
-    const firebaseConfig = {
-      apiKey: "AIzaSyCxxXV_6CEo1fTp3rRbfwfYbe7WH0Cyg38",
-      authDomain: "elahmadiya.firebaseapp.com",
-      databaseURL: "https://elahmadiya-default-rtdb.firebaseio.com",
-      projectId: "elahmadiya",
-      storageBucket: "elahmadiya.firebasestorage.app",
-      messagingSenderId: "594580767620",
-      appId: "1:594580767620:web:f5be3b87d4c704854e53d1",
-      measurementId: "G-EQ7PD5X0EL"
-    };
+  <!-- Table -->
+  <div class="table-card">
+    <div class="table-header">
+      <input id="search" class="search-input" placeholder="بحث بالاسم أو المرشح...">
+      <button class="btn-sm btn-export" onclick="exportCSV()">📤 تصدير CSV</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th data-sort="index">#</th>
+            <th data-sort="name">الناخب</th>
+            <th data-sort="candidates">المرشحون</th>
+            <th data-sort="validity">الحالة</th>
+            <th data-sort="time">الوقت</th>
+          </tr>
+        </thead>
+        <tbody id="votes-table"></tbody>
+      </table>
+    </div>
+    <div id="footer-note" class="footer-note">لا توجد أصوات مسجلة بعد.</div>
+  </div>
 
-    const app = initializeApp(firebaseConfig);
-    const db  = getDatabase(app);
+</div>
 
-    // عناصر DOM
-    const dashboardEl   = document.getElementById("dashboard");
-    const totalVotesEl  = document.getElementById("total-votes");
-    const validVotesEl  = document.getElementById("valid-votes");
-    const invalidVotesEl= document.getElementById("invalid-votes");
-    const lastVoteTimeEl= document.getElementById("last-vote-time");
-    const firstVoteNote = document.getElementById("first-vote-time-note");
-    const tbodyEl       = document.getElementById("votes-tbody");
-    const footerNoteEl  = document.getElementById("footer-note");
-    const searchInput   = document.getElementById("search-input");
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    let allVotes = [];
-    let sortState = { key:"index", dir:"asc" };
-    let candidateChart = null;
-    let validityChart  = null;
+<!-- Firebase + Dashboard Logic -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-    // قراءة البيانات Live من Firebase
-    const votesRef = ref(db, "votes");
-    onValue(votesRef, snapshot => {
-      const data = snapshot.val() || {};
-      allVotes = Object.entries(data).map(([key, val], i) => {
-        // ضمان وجود بعض الحقول
-        return {
-          id: key,
-          index: i+1,
-          name: val.name || "",
-          candidates: Array.isArray(val.selected) ? val.selected : [],
-          validity: val.vote_validity || "",
-          timestamp: val.timestamp || 0
-        };
-      });
+/* ===== Password helpers (must be on window) ===== */
+window.togglePass = function(){
+  const inp = document.getElementById("pw-input");
+  inp.type = (inp.type === "password") ? "text" : "password";
+};
+window.unlock = function(){
+  const val = document.getElementById("pw-input").value.trim();
+  const err = document.getElementById("pw-error");
+  if(val === "521988"){
+    document.getElementById("password-overlay").classList.add("hidden");
+    document.getElementById("dashboard").classList.remove("hidden");
+  } else {
+    err.textContent = "الرقم السري غير صحيح";
+    err.style.display = "block";
+    setTimeout(()=> err.style.display="none", 2200);
+  }
+};
+document.getElementById("pw-input").addEventListener("keydown",e=>{
+  if(e.key==="Enter"){e.preventDefault();window.unlock();}
+});
 
-      renderStats();
-      renderTable();
-      renderCharts();
-    });
+/* ===== Firebase config ===== */
+const firebaseConfig = {
+  apiKey: "AIzaSyCxxXV_6CEo1fTp3rRbfwfYbe7WH0Cyg38",
+  authDomain: "elahmadiya.firebaseapp.com",
+  databaseURL: "https://elahmadiya-default-rtdb.firebaseio.com",
+  projectId: "elahmadiya",
+  storageBucket: "elahmadiya.firebasestorage.app",
+  messagingSenderId: "594580767620",
+  appId: "1:594580767620:web:f5be3b87d4c704854e53d1",
+  measurementId: "G-EQ7PD5X0EL"
+};
+const app = initializeApp(firebaseConfig);
+const db  = getDatabase(app);
 
-    // إحصائيات الكروت
-    function renderStats(){
-      const total = allVotes.length;
-      const valid = allVotes.filter(v=> v.validity === "صحيح").length;
-      const invalid = allVotes.filter(v=> v.validity === "باطل").length;
+/* ===== DOM ===== */
+const totalEl   = document.getElementById("total-votes");
+const validEl   = document.getElementById("valid-votes");
+const invalidEl = document.getElementById("invalid-votes");
+const vpmEl     = document.getElementById("vpm");
+const vpm10El   = document.getElementById("vpm10");
+const liveTxt   = document.getElementById("live-status-text");
+const spikeEl   = document.getElementById("spike-alert");
+const tableBody = document.getElementById("votes-table");
+const footerNote= document.getElementById("footer-note");
+const searchInp = document.getElementById("search");
 
-      totalVotesEl.textContent   = total;
-      validVotesEl.textContent   = valid;
-      invalidVotesEl.textContent = invalid;
+let allVotes = [];
+let sortState = { key:"index", dir:"asc" };
 
-      if (total > 0){
-        const sortedByTime = [...allVotes].sort((a,b)=>a.timestamp - b.timestamp);
-        const first = sortedByTime[0];
-        const last  = sortedByTime[sortedByTime.length-1];
+let chartCandidates = null;
+let chartValidity   = null;
+let chartVPM        = null;
 
-        const firstDate = first.timestamp ? new Date(first.timestamp) : null;
-        const lastDate  = last.timestamp  ? new Date(last.timestamp)  : null;
+/* ===== Listen to Firebase ===== */
+const votesRef = ref(db,"votes");
+onValue(votesRef, snapshot=>{
+  const data = snapshot.val() || {};
+  allVotes = Object.entries(data).map(([id,v],i)=>({
+    id,
+    index: i+1,
+    name: v.name || "",
+    candidates: Array.isArray(v.selected)? v.selected : [],
+    validity: v.vote_validity || "",
+    timestamp: v.timestamp || 0,
+    duration: v.duration_seconds ? Number(v.duration_seconds) : null
+  }));
+  renderAll();
+});
 
-        if (lastDate){
-          lastVoteTimeEl.textContent = formatDateTime(lastDate);
-        } else {
-          lastVoteTimeEl.textContent = "—";
-        }
+/* ===== Render all ===== */
+function renderAll(){
+  renderStats();
+  renderCharts();
+  renderTable();
+}
 
-        if (firstDate){
-          firstVoteNote.textContent = "أول تصويت: " + formatDateTime(firstDate);
-        } else {
-          firstVoteNote.textContent = "أول تصويت: —";
-        }
-      } else {
-        lastVoteTimeEl.textContent = "—";
-        firstVoteNote.textContent  = "أول تصويت: —";
-      }
+/* ===== Stats & live indicators ===== */
+function renderStats(){
+  const total = allVotes.length;
+  const valid = allVotes.filter(v=>v.validity==="صحيح").length;
+  const invalid = allVotes.filter(v=>v.validity==="باطل").length;
+
+  totalEl.textContent   = total;
+  validEl.textContent   = valid;
+  invalidEl.textContent = invalid;
+
+  const now = Date.now();
+  if(total > 0){
+    const sortedByTime = [...allVotes].filter(v=>v.timestamp)
+                                      .sort((a,b)=>a.timestamp - b.timestamp);
+    const firstTs = sortedByTime[0].timestamp;
+    const lastTs  = sortedByTime[sortedByTime.length-1].timestamp;
+    const diffMin = (lastTs - firstTs) / 60000;
+    let vpm = 0;
+    if(diffMin > 0) vpm = total / diffMin;
+    vpmEl.textContent = vpm.toFixed(2);
+
+    // Live status: لو في تصويت خلال آخر 30 ثانية
+    if(now - lastTs < 30000){
+      liveTxt.textContent = "نشاط عالي الآن";
+    } else if(total > 0){
+      liveTxt.textContent = "نشاط مستقر";
+    } else {
+      liveTxt.textContent = "بث مباشر";
     }
 
-    function formatDateTime(d){
-      try{
-        return d.toLocaleString('ar-EG', {hour:"2-digit", minute:"2-digit", second:"2-digit", day:"2-digit", month:"2-digit"});
-      }catch{
-        return d.toISOString();
-      }
+    // VPM آخر 10 دقائق
+    const tenMinAgo = now - 10*60*1000;
+    const last10 = allVotes.filter(v=>v.timestamp >= tenMinAgo);
+    let vpm10 = 0;
+    if(last10.length > 0){
+      const firstInWindow = last10.reduce((m,v)=>Math.min(m,v.timestamp), last10[0].timestamp);
+      const spanMin = (now - firstInWindow)/60000 || 1;
+      vpm10 = last10.length / spanMin;
     }
+    vpm10El.textContent = vpm10.toFixed(2);
 
-    // رسم الجدول
-    function renderTable(){
-      const searchVal = (searchInput.value || "").trim().toLowerCase();
-      let filtered = [...allVotes];
-
-      if (searchVal){
-        filtered = filtered.filter(v=>{
-          const name = (v.name || "").toLowerCase();
-          const cands = v.candidates.join(" - ").toLowerCase();
-          return name.includes(searchVal) || cands.includes(searchVal);
-        });
-      }
-
-      // فرز
-      filtered.sort((a,b)=>{
-        const dir = sortState.dir === "asc" ? 1 : -1;
-        let av, bv;
-        switch(sortState.key){
-          case "name":       av=a.name;       bv=b.name; break;
-          case "candidates": av=a.candidates.join(","); bv=b.candidates.join(","); break;
-          case "validity":   av=a.validity;   bv=b.validity; break;
-          case "time":       av=a.timestamp;  bv=b.timestamp; break;
-          default:           av=a.index;      bv=b.index;
-        }
-        if (av < bv) return -1*dir;
-        if (av > bv) return  1*dir;
-        return 0;
-      });
-
-      tbodyEl.innerHTML = "";
-      filtered.forEach((v,i)=>{
-        const tr = document.createElement("tr");
-
-        const tIndex = document.createElement("td");
-        tIndex.textContent = i + 1;
-
-        const tName  = document.createElement("td");
-        tName.textContent = v.name || "—";
-
-        const tCand  = document.createElement("td");
-        tCand.textContent = v.candidates.length ? v.candidates.join(" و ") : "—";
-
-        const tValid = document.createElement("td");
-        tValid.textContent = v.validity || "—";
-        tValid.className = (v.validity === "صحيح") ? "status-valid" :
-                           (v.validity === "باطل") ? "status-invalid" : "";
-
-        const tTime  = document.createElement("td");
-        tTime.textContent = v.timestamp ? formatDateTime(new Date(v.timestamp)) : "—";
-
-        tr.appendChild(tIndex);
-        tr.appendChild(tName);
-        tr.appendChild(tCand);
-        tr.appendChild(tValid);
-        tr.appendChild(tTime);
-        tbodyEl.appendChild(tr);
-      });
-
-      if (allVotes.length === 0){
-        footerNoteEl.textContent = "لا توجد أصوات مسجلة حتى الآن.";
-      } else if (filtered.length === 0){
-        footerNoteEl.textContent = "لا توجد نتائج مطابقة لمدخلات البحث الحالية.";
-      } else {
-        footerNoteEl.textContent = `تم عرض ${filtered.length} صوت من إجمالي ${allVotes.length} صوت.`;
-      }
+    // Spike alert: لو VPM آخر دقيقة أكبر من 2× المتوسط و3 أصوات على الأقل
+    const oneMinAgo = now - 60*1000;
+    const lastMinCount = allVotes.filter(v=>v.timestamp >= oneMinAgo).length;
+    const vpm1 = lastMinCount / 1; // تقريبي لدقيقة
+    if(total >= 5 && vpm > 0 && vpm1 > vpm * 2 && lastMinCount >= 3){
+      spikeEl.style.display = "block";
+    } else {
+      spikeEl.style.display = "none";
     }
+  } else {
+    vpmEl.textContent  = "0";
+    vpm10El.textContent= "0";
+    liveTxt.textContent= "لا يوجد تصويت حاليًا";
+    spikeEl.style.display = "none";
+  }
+}
 
-    // الرسوم البيانية
-    function renderCharts(){
-      // تجميع حسب المرشح
-      const candidateCounts = {};
-      allVotes.forEach(v=>{
-        v.candidates.forEach(c=>{
-          candidateCounts[c] = (candidateCounts[c] || 0) + 1;
-        });
-      });
+/* ===== Charts ===== */
+function renderCharts(){
+  const ctxCand = document.getElementById("chartCandidates").getContext("2d");
+  const ctxVal  = document.getElementById("chartValidity").getContext("2d");
+  const ctxVPM  = document.getElementById("chartVPM").getContext("2d");
 
-      const labels   = Object.keys(candidateCounts);
-      const counts   = Object.values(candidateCounts);
-
-      const totalValid   = allVotes.filter(v=>v.validity==="صحيح").length;
-      const totalInvalid = allVotes.filter(v=>v.validity==="باطل").length;
-
-      const ctx1 = /** @type {HTMLCanvasElement} */ (document.getElementById("candidateChart")).getContext("2d");
-      const ctx2 = /** @type {HTMLCanvasElement} */ (document.getElementById("validityChart")).getContext("2d");
-
-      // Bar chart للمرشحين
-      if (candidateChart){
-        candidateChart.data.labels = labels;
-        candidateChart.data.datasets[0].data = counts;
-        candidateChart.update();
-      } else {
-        candidateChart = new window.Chart(ctx1, {
-          type: "bar",
-          data: {
-            labels,
-            datasets: [{
-              label: "عدد الأصوات",
-              data: counts
-            }]
-          },
-          options: {
-            responsive:true,
-            plugins: {
-              legend: { display:false },
-              tooltip:{ rtl:true }
-            },
-            scales: {
-              x: { ticks:{ autoSkip:false } },
-              y: { beginAtZero:true, precision:0 }
-            }
-          }
-        });
-      }
-
-      // Doughnut chart للصوت الصحيح/الباطل
-      if (validityChart){
-        validityChart.data.labels = ["صحيح","باطل"];
-        validityChart.data.datasets[0].data = [totalValid, totalInvalid];
-        validityChart.update();
-      } else {
-        validityChart = new window.Chart(ctx2, {
-          type: "doughnut",
-          data: {
-            labels:["صحيح","باطل"],
-            datasets:[{
-              data:[totalValid, totalInvalid]
-            }]
-          },
-          options:{
-            responsive:true,
-            plugins:{
-              legend:{ position:"bottom" },
-              tooltip:{ rtl:true }
-            },
-            cutout:"55%"
-          }
-        });
-      }
-    }
-
-    // فرز عند الضغط على عناوين الأعمدة
-    document.querySelectorAll("th[data-sort]").forEach(th=>{
-      th.addEventListener("click", ()=>{
-        const key = th.getAttribute("data-sort");
-        if (sortState.key === key){
-          sortState.dir = (sortState.dir === "asc") ? "desc":"asc";
-        } else {
-          sortState.key = key;
-          sortState.dir = "asc";
-        }
-        renderTable();
-      });
+  // تجميع حسب المرشح
+  const candCounts = {};
+  allVotes.forEach(v=>{
+    v.candidates.forEach(c=>{
+      candCounts[c] = (candCounts[c]||0)+1;
     });
+  });
+  const candLabels = Object.keys(candCounts);
+  const candData   = Object.values(candCounts);
 
-    // بحث
-    searchInput.addEventListener("input", ()=>{
-      renderTable();
-    });
+  const validCount   = allVotes.filter(v=>v.validity==="صحيح").length;
+  const invalidCount = allVotes.filter(v=>v.validity==="باطل").length;
 
-    // Export CSV
-    window.exportCSV = function(){
-      if (allVotes.length === 0){
-        alert("لا توجد بيانات لتصديرها حالياً.");
-        return;
-      }
-      const header = ["Index","Name","Candidates","Validity","Timestamp"];
-      const rows = allVotes.map((v,i)=>[
-        i+1,
-        `"${(v.name || "").replace(/"/g,'""')}"`,
-        `"${(v.candidates.join(" | ") || "").replace(/"/g,'""')}"`,
-        v.validity || "",
-        v.timestamp ? new Date(v.timestamp).toISOString() : ""
-      ]);
+  // VPM chart (votes per minute)
+  const vpmBuckets = {}; // key: minute timestamp, value: count
+  allVotes.forEach(v=>{
+    if(!v.timestamp) return;
+    const minuteKey = Math.floor(v.timestamp / 60000) * 60000;
+    vpmBuckets[minuteKey] = (vpmBuckets[minuteKey] || 0) + 1;
+  });
+  const sortedMinutes = Object.keys(vpmBuckets).map(x=>Number(x)).sort((a,b)=>a-b);
+  const vpmLabels = sortedMinutes.map(t=>{
+    const d = new Date(t);
+    return d.toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'});
+  });
+  const vpmData = sortedMinutes.map(t=>vpmBuckets[t]);
 
-      const csv = [header.join(","), ...rows.map(r=>r.join(","))].join("\n");
-      const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
-      const url  = URL.createObjectURL(blob);
-      const a    = document.createElement("a");
-      a.href = url;
-      a.download = "votes_export.csv";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    };
-
-    // دالة فتح الـ Dashboard بعد كلمة السر
-    window.unlockDashboard = function(){
-      const pwInput = document.getElementById("pw-input");
-      const pwError = document.getElementById("pw-error");
-      const val = pwInput.value.trim();
-
-      if (val === "521988"){
-        document.getElementById("password-overlay").classList.add("hidden");
-        dashboardEl.classList.remove("hidden");
-      } else {
-        pwError.textContent = "الرقم السري غير صحيح.";
-        pwError.style.display = "block";
-        setTimeout(()=>{ pwError.style.display="none"; }, 2400);
-      }
-    };
-
-    // Enter key على شاشة الباسورد
-    document.getElementById("pw-input").addEventListener("keydown", e=>{
-      if (e.key === "Enter"){
-        e.preventDefault();
-        window.unlockDashboard();
+  // المرشحين
+  if(chartCandidates){
+    chartCandidates.data.labels = candLabels;
+    chartCandidates.data.datasets[0].data = candData;
+    chartCandidates.update();
+  } else {
+    chartCandidates = new window.Chart(ctxCand,{
+      type:"bar",
+      data:{ labels:candLabels, datasets:[{label:"عدد الأصوات", data:candData}] },
+      options:{
+        responsive:true,
+        plugins:{ legend:{display:false} },
+        scales:{ y:{beginAtZero:true, ticks:{precision:0}} }
       }
     });
-  </script>
+  }
+
+  // صحيحة / باطلة
+  if(chartValidity){
+    chartValidity.data.labels = ["صحيح","باطل"];
+    chartValidity.data.datasets[0].data = [validCount, invalidCount];
+    chartValidity.update();
+  } else {
+    chartValidity = new window.Chart(ctxVal,{
+      type:"doughnut",
+      data:{ labels:["صحيح","باطل"], datasets:[{data:[validCount,invalidCount]}] },
+      options:{
+        responsive:true,
+        plugins:{ legend:{position:"bottom"} },
+        cutout:"55%"
+      }
+    });
+  }
+
+  // VPM line chart
+  if(chartVPM){
+    chartVPM.data.labels = vpmLabels;
+    chartVPM.data.datasets[0].data = vpmData;
+    chartVPM.update();
+  } else {
+    chartVPM = new window.Chart(ctxVPM,{
+      type:"line",
+      data:{
+        labels:vpmLabels,
+        datasets:[{
+          label:"أصوات لكل دقيقة",
+          data:vpmData,
+          tension:0.3
+        }]
+      },
+      options:{
+        responsive:true,
+        plugins:{ legend:{display:false} },
+        scales:{ y:{beginAtZero:true, ticks:{precision:0}} }
+      }
+    });
+  }
+}
+
+/* ===== Table + search + sort ===== */
+function renderTable(){
+  const searchVal = (searchInp.value || "").toLowerCase().trim();
+  let filtered = [...allVotes];
+
+  if(searchVal){
+    filtered = filtered.filter(v=>{
+      const name = (v.name||"").toLowerCase();
+      const cands= v.candidates.join(" - ").toLowerCase();
+      return name.includes(searchVal) || cands.includes(searchVal);
+    });
+  }
+
+  // sort
+  filtered.sort((a,b)=>{
+    const dir = sortState.dir === "asc" ? 1 : -1;
+    let av,bv;
+    switch(sortState.key){
+      case "name": av=a.name; bv=b.name; break;
+      case "candidates": av=a.candidates.join(","); bv=b.candidates.join(","); break;
+      case "validity": av=a.validity; bv=b.validity; break;
+      case "time": av=a.timestamp; bv=b.timestamp; break;
+      default: av=a.index; bv=b.index;
+    }
+    if(av < bv) return -1*dir;
+    if(av > bv) return  1*dir;
+    return 0;
+  });
+
+  tableBody.innerHTML = "";
+  filtered.forEach((v,i)=>{
+    const tr = document.createElement("tr");
+
+    const tdIndex = document.createElement("td");
+    tdIndex.textContent = i+1;
+
+    const tdName  = document.createElement("td");
+    tdName.textContent = v.name || "—";
+
+    const tdCands = document.createElement("td");
+    tdCands.textContent = v.candidates.length ? v.candidates.join(" و ") : "—";
+
+    const tdVal   = document.createElement("td");
+    tdVal.textContent = v.validity || "—";
+    if(v.validity === "صحيح") tdVal.className="status-valid";
+    else if(v.validity === "باطل") tdVal.className="status-invalid";
+
+    const tdTime  = document.createElement("td");
+    tdTime.textContent = v.timestamp
+      ? new Date(v.timestamp).toLocaleTimeString('ar-EG',{hour:"2-digit",minute:"2-digit",second:"2-digit"})
+      : "—";
+
+    tr.appendChild(tdIndex);
+    tr.appendChild(tdName);
+    tr.appendChild(tdCands);
+    tr.appendChild(tdVal);
+    tr.appendChild(tdTime);
+    tableBody.appendChild(tr);
+  });
+
+  if(allVotes.length === 0){
+    footerNote.textContent = "لا توجد أصوات مسجلة بعد.";
+  } else if(filtered.length === 0){
+    footerNote.textContent = "لا توجد نتائج مطابقة لبحثك.";
+  } else {
+    footerNote.textContent = `تم عرض ${filtered.length} صوت من إجمالي ${allVotes.length} صوت.`;
+  }
+}
+
+/* sort handlers */
+document.querySelectorAll("th[data-sort]").forEach(th=>{
+  th.addEventListener("click",()=>{
+    const key = th.getAttribute("data-sort");
+    if(sortState.key === key){
+      sortState.dir = (sortState.dir === "asc")?"desc":"asc";
+    } else {
+      sortState.key = key;
+      sortState.dir = "asc";
+    }
+    renderTable();
+  });
+});
+
+/* search handler */
+searchInp.addEventListener("input",()=>renderTable());
+
+/* ===== Export CSV ===== */
+window.exportCSV = function(){
+  if(allVotes.length === 0){
+    alert("لا توجد بيانات لتصديرها حالياً.");
+    return;
+  }
+  const header = ["Index","Name","Candidates","Validity","Timestamp"];
+  const rows = allVotes.map((v,i)=>[
+    i+1,
+    `"${(v.name||"").replace(/"/g,'""')}"`,
+    `"${(v.candidates.join(" | ")||"").replace(/"/g,'""')}"`,
+    v.validity || "",
+    v.timestamp ? new Date(v.timestamp).toISOString() : ""
+  ]);
+  const csv = [header.join(","), ...rows.map(r=>r.join(","))].join("\n");
+  const blob= new Blob([csv],{type:"text/csv;charset=utf-8;"});
+  const url = URL.createObjectURL(blob);
+  const a   = document.createElement("a");
+  a.href=url;
+  a.download="votes_export.csv";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+</script>
+
 </body>
 </html>
