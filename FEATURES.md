@@ -4,7 +4,6 @@
 - Voter registration with automatic time recording
 - Select 2 out of 15 candidates
 - Vote validity marking (Valid/Invalid)
-- Password protection (521988)
 - Confirmation before submission
 - Duplicate name warning
 - Real-time validation
@@ -32,7 +31,6 @@
 - Automatic data sync
 
 ## Security
-- Password protection (521988)
 - Secure Firebase configuration
 - Client-side validation
 - No sensitive data in URLs
