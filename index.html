@@ -239,7 +239,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
     import { getDatabase, ref, push, query, orderByChild, equalTo, get } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-    // نفس إعدادات Firebase
+    // إعداد Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyCxxXV_6CEo1fTp3rRbfwfYbe7WH0Cyg38",
       authDomain: "elahmadiya.firebaseapp.com",
@@ -294,7 +294,8 @@
       }
     }
 
-    function checkPassword(){
+    // ✅ هنا ربطنا الدالة بالـ window عشان onclick يشتغل
+    window.checkPassword = function(){
       const pwInput = document.getElementById("password-input");
       const pw      = pwInput.value.trim();
       if (pw === "521988") {
@@ -373,6 +374,14 @@
       document.getElementById('msg-warn').style.display="none";
       setTimeout(()=> document.getElementById("voter-name").focus(), 200);
     };
+
+    // كمان لو المستخدم ضغط Enter فى خانة الباسورد
+    document.getElementById("password-input").addEventListener("keydown", (e)=>{
+      if (e.key === "Enter") {
+        e.preventDefault();
+        window.checkPassword();
+      }
+    });
   </script>
 </body>
 </html>
