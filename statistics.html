@@ -2,78 +2,132 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>إحصائيات العملية الانتخابية</title>
+  <title>نظام مراقبة وحصر الانتخابات - التسجيل</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body{background: linear-gradient(115deg,#eef2fc 50%,#dde8f7 100%);
-      font-family:"Cairo","Tajawal",Arial,sans-serif; margin:0; padding:0; color:#222;}
-    .container{max-width:670px;margin:35px auto;background:#fff;padding:28px 14px 20px;border-radius:15px;box-shadow:0 6px 28px #b5d1f233;}
-    h2{text-align:center;color:#2874b2;font-size:1.42em;font-weight:800;letter-spacing:1px;margin-bottom:20px;}
-    #filters{margin:15px 0 11px;}
-    .stat-table{width:100%;border-collapse:collapse;margin-bottom:16px;}
-    .stat-table th,.stat-table td{border:1px solid #cae6ff;padding:12px 5px;text-align:center;}
-    .stat-table th{background:#dfe9fc; color:#2377a4;font-size:1em;}
-    .highlight{background:#e5f5ff;}
-    .chart-container{width:99%;max-width:420px;margin:13px auto;}
-    .action-btn{
-      background:#349bdd;color:#fff;border:none;padding:7px 19px;
-      border-radius:8px;font-size:1em;font-family:inherit;font-weight:700;margin:7px 7px;
-      cursor:pointer; box-shadow:0 2px 9px #cddef533;transition:background 0.14s;
+    body {
+      background: linear-gradient(110deg, #dbe5f3 30%, #eeefff 100%);
+      font-family: "Cairo", "Tajawal", Arial, sans-serif;
+      margin:0; padding:0; color:#222;
     }
-    .action-btn:hover{background:#1977c6;}
-    #current-time{font-weight:bold;}
-    .sec{margin:14px 0 8px;}
-    .right-sig{margin-top:30px;text-align:left;color:#6b6b6b;font-size:0.94em;font-style:italic;}
+    .container {
+      max-width: 500px;
+      margin: 30px auto;
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 4px 24px #b5d1f233;
+      padding: 34px 20px 20px;
+      position:relative;
+      overflow:hidden;
+    }
+    h2 {
+      text-align:center;
+      color: #2874b2;
+      font-size: 1.5em;
+      font-weight:800;
+      margin-bottom:24px;
+      letter-spacing:1px;
+    }
+    .form-group { margin-bottom: 19px; }
+    label { font-weight: 600; color: #35536b; display: block; margin-bottom: 6px;}
+    input[type="text"], input[type="password"] {
+      width: 100%; padding: 9px; font-size:1.06em;
+      border: 1.3px solid #bed2ed; border-radius: 7px;
+      margin-bottom: 4px; background: #f3fafd;
+      transition: border-color 0.18s;
+      box-shadow: 0 1px 9px #ecf1fa33 inset;
+      box-sizing: border-box;
+    }
+    input[type="text"]:focus, input[type="password"]:focus {
+      border-color: #699cdf;
+      outline: none;
+    }
+    .candidate-list { margin: 13px 0 0;}
+    .candidate-row {
+      display: flex; align-items: center; margin-bottom:9px; padding: 4px 9px;
+      border-radius:6px; transition: background 0.15s;
+    }
+    .candidate-row:hover { background: #ecf6fc; }
+    .candidate-check {margin-left:12px; accent-color:#349bdd;}
+    .sec { margin: 14px 0 9px; }
+    .radio-group label { margin-right:12px; }
+    button {
+      padding: 10px 24px;
+      font-size: 1.08em; font-family: inherit;
+      border-radius: 8px; border: none;
+      background: #2874b2;
+      color: #fff; cursor:pointer;
+      font-weight:700; margin-top:10px;
+      margin-right:12px;
+      box-shadow: 0 1px 6px #adcde333;
+      transition: background 0.14s;
+    }
+    button:hover { background: #2060a5;}
+    .action-line {margin-top:9px;}
+    .msg-confirm, .msg-warn {
+      font-size: 1.08em; font-weight:bold;
+      text-align:center; padding:9px;
+      border-radius:6px;
+      margin: 10px auto 0;
+      width:90%;
+      letter-spacing:1px;
+      display:none;
+    }
+    .msg-confirm {background: #d4edda; color: #237a4a; border: 1px solid #c2ded5;}
+    .msg-warn {background: #f9d7dd; color: #a92d2c; border: 1px solid #eeadb7;}
+    .right-sig {
+      margin-top:34px; text-align:left; color:#6b6b6b;
+      font-size:0.95em; font-style:italic;
+      position: absolute; left: 15px; bottom: 9px;
+      width:85%;
+      letter-spacing: .5px;
+    }
+    @media (max-width:650px){
+      .container {max-width:98vw;}
+      h2 {font-size:1.17em;}
+      button {font-size:1em;}
+    }
+    @media (max-width:380px) {
+      .container{padding:12px 4vw 16px;}
+      .right-sig{font-size:.86em;}
+    }
     #password-section{margin-bottom:32px;}
-    .msg-warn {
-      background: #f9d7dd; color: #a92d2c; border: 1px solid #eeadb7;
-      font-size: 1.08em; font-weight: bold;
-      text-align: center; padding: 8px 2px;
-      border-radius: 7px; margin-top: 15px; display:none;
-    }
-    @media (max-width:700px){
-      .container{max-width:99vw;}
-      h2{font-size:1.13em;}
-      .stat-table th,.stat-table td{padding:8px 2px;font-size:0.96em;}
-      .chart-container{max-width:95vw;}
-    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>إحصائيات العملية الانتخابية</h2>
+    <h2>مراقبة وحصر العملية الانتخابية</h2>
     <div id="password-section">
       <label>أدخل الرقم السري:</label>
       <input type="password" id="password-input" autocomplete="off">
       <button onclick="checkPassword()">دخول</button>
       <div id="pw-err" class="msg-warn"></div>
     </div>
-    <div id="main-content" class="hidden">
-      <div>الساعة الآن: <span id="current-time"></span><br>إجمالى عدد الأصوات: <span id="total-votes">...</span></div>
-      <div class="sec">متوسط عدد الأصوات بالدقيقة (آخر 30 دقيقة): <span id="votes-per-min"></span></div>
-      <div id="filters">
-        <label><input type="radio" name="voteStatType" value="all" checked> كل الأصوات</label>
-        <label><input type="radio" name="voteStatType" value="صحيح"> أصوات صحيحة فقط</label>
-        <label><input type="radio" name="voteStatType" value="باطل"> أصوات باطلة فقط</label>
-        <button class="action-btn" onclick="exportToExcel()">تصدير Excel</button>
-        <button class="action-btn" onclick="location.reload()">إعادة تحميل</button>
+    <form id="main-form" class="hidden" autocomplete="off">
+      <div class="form-group">
+        <label>اسم الناخب (إجباري):</label>
+        <input type="text" id="voter-name" required autocomplete="off">
       </div>
-      <div class="chart-container">
-        <canvas id="barChart" height="120"></canvas>
+      <div class="candidate-list" id="candidates"></div>
+      <div class="sec radio-group">
+        هل ترى الصوت؟
+        <label><input type="radio" name="vote-valid" value="صحيح" required> صحيح</label>
+        <label><input type="radio" name="vote-valid" value="باطل" required> باطل</label>
       </div>
-      <table class="stat-table" id="cand-table">
-        <tr>
-          <th>اسم المرشح</th><th>الرمز</th><th>عدد الأصوات</th><th>نسبة التصويت</th>
-        </tr>
-      </table>
-    </div>
+      <div class="action-line">
+        <button type="submit">تسجيل التصويت</button>
+        <button type="reset" style="background:#ccccdd;color:#265687;">إعادة ضبط</button>
+      </div>
+      <div id="msg-warn" class="msg-warn"></div>
+      <div id="msg-confirm" class="msg-confirm"></div>
+    </form>
     <div class="right-sig">تم برمجة هذا النظام بالكامل بكل حب بواسطة مهندس محمد حماد</div>
   </div>
-  <!-- Firebase MODULAR + Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Firebase MODULAR -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+    import { getDatabase, ref, push, query, orderByChild, equalTo, get } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
     const firebaseConfig = {
       apiKey: "AIzaSyCxxXV_6CEo1fTp3rRbfwfYbe7WH0Cyg38",
       authDomain: "elahmadiya.firebaseapp.com",
@@ -89,121 +143,105 @@
 
     // بيانات المرشحين
     const candidatesData = [
-      ["ايهاب العمده","تاج"],
-      ["محمد العتمانى","رغيف عيش"],
-      ["أحمد الحديدى","أسد"],
-      ["عادل الجيار","صقر"],
-      ["-","مدفع"],
-      ["وليد تيسير الامير","تمساح"],
-      ["كمال العيسوى","مروحة"],
-      ["البدوى جميز","حوت"],
-      ["احمد الريس","عقرب"],
-      ["أحمد عوف","كف"],
-      ["حسن الملهاط","غصن زيتون"],
-      ["عمرو محمد بحيرى","أوتوبيس"],
-      ["السيد طمان","بندقية صيد"],
-      ["محمد دندن","طائرة هليكوبتر"],
-      ["مجدى الأمير","قلم حبر"]
+      ["ايهاب العمده", "تاج"],
+      ["محمد العتمانى", "رغيف عيش"],
+      ["أحمد الحديدى", "أسد"],
+      ["عادل الجيار", "صقر"],
+      ["-", "مدفع"],
+      ["وليد تيسير الامير", "تمساح"],
+      ["كمال العيسوى", "مروحة"],
+      ["البدوى جميز", "حوت"],
+      ["احمد الريس", "عقرب"],
+      ["أحمد عوف", "كف"],
+      ["حسن الملهاط", "غصن زيتون"],
+      ["عمرو محمد بحيرى", "أوتوبيس"],
+      ["السيد طمان", "بندقية صيد"],
+      ["محمد دندن", "طائرة هليكوبتر"],
+      ["مجدى الأمير", "قلم حبر"]
     ];
-    function updateCurrentTime(){
-      document.getElementById('current-time').textContent =
-        new Date().toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    // رسم المرشحين على الصفحة
+    const candidateListElem = document.getElementById('candidates');
+    candidatesData.forEach((cand,i)=>{
+      candidateListElem.innerHTML += `
+        <div class="candidate-row">
+          <label>
+            <input type="checkbox" name="candidates" value="${cand[0]}" class="candidate-check" onclick="window.selectLimit(this)">
+            ${cand[0]} <span style="color:#5394da;font-weight:bold;">(${cand[1]})</span>
+          </label>
+        </div>
+      `;
+    });
+    // لاختيار أكثر من 2 فقط
+    window.selectLimit = function(checkbox){
+      let checked = document.querySelectorAll('input[name="candidates"]:checked');
+      if(checked.length>2){
+        checkbox.checked = false;
+        showWarn("اختر مرشحين فقط");
+      }
     }
-    updateCurrentTime();
-    setInterval(updateCurrentTime, 900);
-
-    // كلمة السر
     function checkPassword(){
       let pw=document.getElementById("password-input").value.trim();
       if(pw==="521988"){
-        document.getElementById("main-content").classList.remove('hidden');
+        document.getElementById("main-form").classList.remove('hidden');
         document.getElementById("password-section").classList.add('hidden');
-        loadStats();
+        setTimeout(()=>{document.getElementById('voter-name').focus();},200);
       }else{
         showWarn("خطأ في الرقم السري", "pw-err");
       }
     }
-    function showWarn(msg, id="pw-err"){
+    function showWarn(msg, id="msg-warn"){
       let el = document.getElementById(id); if(!el) return;
       el.textContent = msg; el.style.display="block";
-      setTimeout(()=>{el.style.display="none";},2000);
+      setTimeout(()=>{el.style.display="none";},2200);
     }
-    // رسم بياني
-    let barChart;
-    function drawChart(labels,data){
-      let ctx = document.getElementById('barChart').getContext('2d');
-      if(barChart) barChart.destroy();
-      barChart=new Chart(ctx,{
-        type:'bar',
-        data:{labels:labels,datasets:[{
-          label:'عدد الأصوات',
-          data:data,
-          backgroundColor:'#81cdf9'
-        }]},
-        options:{
-          plugins:{legend:{display:false}},
-          scales:{x:{title:{display:false}},y:{title:{display:false},beginAtZero:true,precision:0}}
-        }
-      });
+    function showConfirm(msg){
+      let el = document.getElementById("msg-confirm");
+      el.textContent = msg; el.style.display="block";
+      setTimeout(()=>{el.style.display="none";},3000);
     }
-    // تصدير لملف Excel
-    window.exportToExcel = function(){
-      let tab = document.getElementById('cand-table');
-      let rows = [...tab.rows];
-      let csv = rows.map(row => [...row.cells].map(cell=>'"'+cell.innerText.replace(/"/g,'""')+'"').join(',')).join('\n');
-      let blob = new Blob([csv],{type:'text/csv'});
-      let link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = "election_stats.csv";
-      link.click();
+    async function checkDuplicateName(name){
+      const q = query(ref(db,"votes"), orderByChild("name"), equalTo(name));
+      const snap = await get(q);
+      return snap.exists();
     }
-    // التصفية والفلاتر
-    document.querySelectorAll('input[name=voteStatType]').forEach(radio=>{
-      radio.onchange=()=>{loadStats();}
-    });
-    // إحصائيات لحظية
-    function loadStats(){
-      let filter = document.querySelector('input[name=voteStatType]:checked').value;
-      onValue(ref(db, "votes"), (snapshot) => {
-        let candCounts={};
-        candidatesData.forEach(cand=>{candCounts[cand[0]]=0;});
-        let votes=snapshot.val()||{}; let voteTimes=[];
-        let totalVotes=0;
-        Object.values(votes).forEach(vote=>{
-          let include = (filter==='all')||(vote.vote_validity===filter);
-          if(include){
-            totalVotes++;
-            vote.selected.forEach(name=>{
-              if(candCounts[name]!=undefined) candCounts[name]++;
-            });
-            voteTimes.push(vote.timestamp||Date.now());
-          }
-        });
-        document.getElementById('total-votes').textContent=totalVotes;
-        // متوسط الصوت بالدقيقة آخر 30 دقيقة
-        let now=Date.now();
-        let recentVotes=voteTimes.filter(t=>now-t<=1800000).length;
-        let votesPerMin=Math.round(recentVotes/30);
-        document.getElementById('votes-per-min').textContent=votesPerMin;
-        // رسم الجدول والرسم البياني
-        let tab=document.getElementById('cand-table');
-        tab.innerHTML = "<tr><th>اسم المرشح</th><th>الرمز</th><th>عدد الأصوات</th><th>نسبة التصويت</th></tr>";
-        let labels=[], dataArr=[];
-        let sum=Object.values(candCounts).reduce((a,b)=>a+b,0)||1;
-        candidatesData.forEach(cand=>{
-          let num = candCounts[cand[0]];
-          let percent = Math.round((num/sum)*100);
-          labels.push(cand[0]);
-          dataArr.push(num);
-          tab.innerHTML += `<tr>
-            <td>${cand[0]}</td>
-            <td>${cand[1]}</td>
-            <td class="highlight">${num}</td>
-            <td>${percent}%</td>
-          </tr>`;
-        });
-        drawChart(labels,dataArr);
-      });
+    // تسجيل التصويت
+    document.getElementById('main-form').onsubmit = async function(e){
+      e.preventDefault();
+      document.getElementById('msg-confirm').style.display="none";
+      let name = document.getElementById('voter-name').value.trim();
+      let selected = [...document.querySelectorAll('input[name="candidates"]:checked')].map(x=>x.value);
+      let validity = document.querySelector('input[name="vote-valid"]:checked');
+      if(!name){showWarn("اسم الناخب مطلوب");return;}
+      if(selected.length<1){showWarn("اختر مرشح واحد على الأقل");return;}
+      if(selected.length>2){showWarn("اختر مرشحين فقط");return;}
+      if(!validity){showWarn("اختر حالة الصوت");return;}
+      if(!confirm(`تأكيد تسجيل التصويت باسم: "${name}" للمرشحين: ${selected.join(' و ')}\nهل أنت متأكد؟`)) return;
+
+      if(await checkDuplicateName(name)){
+        showWarn("تنبيه: الاسم مدخل من قبل! سيتم الحفظ من جديد.");
+      }
+      let now = new Date();
+      let timeStr = now.toLocaleTimeString('ar-EG',{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+      let vote = {
+        name: name,
+        selected: selected,
+        vote_validity: validity.value,
+        time: timeStr,
+        timestamp: now.getTime()
+      };
+      await push(ref(db, "votes"), vote)
+        .then(()=>{
+          showConfirm("تم تسجيل التصويت بنجاح");
+          document.getElementById('main-form').reset();
+          document.getElementById('voter-name').value = "";
+          setTimeout(()=>{document.getElementById('voter-name').focus();},500);
+        })
+        .catch(()=>{showWarn("خطأ في التسجيل!");});
+    };
+    document.getElementById('main-form').onreset = function() {
+      document.getElementById('msg-confirm').style.display="none";
+      document.getElementById('msg-warn').style.display="none";
+      setTimeout(()=>{document.getElementById('voter-name').focus();},150);
     }
   </script>
 </body>
