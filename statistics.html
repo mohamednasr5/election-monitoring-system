@@ -146,6 +146,7 @@ body{
   border:none;border-radius:8px;font-size:.85em;cursor:pointer;font-weight:700;
 }
 .btn-export{background:#1f8f4f!important}
+.btn-reset-all{background:#c0392b!important}
 
 /* Table itself */
 .table-wrap{max-height:330px;overflow:auto;border-radius:10px;border:1px solid #e4e8f5}
@@ -163,6 +164,123 @@ tr:nth-child(even) td{background:#fcfdff}
 
 .footer-note{margin-top:4px;font-size:.78em;color:#777}
 
+/* clickable name + edit button */
+.clickable-name{
+  color:#1e3c72;
+  text-decoration:underline;
+  cursor:pointer;
+}
+.clickable-name:hover{color:#163160}
+
+.btn-mini-edit{
+  padding:4px 8px;
+  border-radius:8px;
+  border:none;
+  background:#ff6b6b;
+  color:#fff;
+  font-size:.78em;
+  cursor:pointer;
+  font-weight:700;
+}
+.btn-mini-edit:hover{background:#e63939}
+
+/* Floating overlays (details + edit) */
+.floating-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.45);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9000;
+}
+.floating-box{
+  background:#fff;
+  padding:12px 14px 10px;
+  border-radius:14px;
+  max-width:420px;
+  width:92%;
+  box-shadow:0 12px 30px rgba(0,0,0,.35);
+  font-size:.9em;
+}
+.fb-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:8px;
+  font-weight:700;
+  color:#1e3c72;
+}
+.fb-close{
+  border:none;
+  background:transparent;
+  cursor:pointer;
+  font-size:1.1em;
+}
+#details-body table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:4px;
+}
+#details-body td{
+  padding:4px 3px;
+  border-bottom:1px solid #eef2ff;
+  font-size:.86em;
+}
+.label-friend{
+  display:inline-block;
+  margin-top:6px;
+  padding:4px 8px;
+  border-radius:999px;
+  background:#d4edda;
+  color:#0b7030;
+  font-weight:700;
+  font-size:.8em;
+}
+.label-enemy{
+  display:inline-block;
+  margin-top:6px;
+  padding:4px 8px;
+  border-radius:999px;
+  background:#f8d7da;
+  color:#a31515;
+  font-weight:700;
+  font-size:.8em;
+}
+
+/* Edit modal */
+#edit-name{margin-bottom:6px;font-weight:700;color:#1e3c72}
+.edit-candidates{
+  max-height:220px;
+  overflow:auto;
+  border:1px solid #e4e8f5;
+  border-radius:10px;
+  padding:6px 8px;
+  background:#f7f8ff;
+  margin-bottom:8px;
+}
+.edit-candidates label{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  font-weight:600;
+  font-size:.85em;
+  margin:4px 0;
+  color:#1e3c72;
+}
+.edit-candidates input[type="checkbox"]{
+  width:18px;height:18px;accent-color:#1e3c72;
+}
+.fb-actions{
+  margin-top:4px;
+  text-align:left;
+}
+.fb-actions .btn-sm{
+  font-size:.83em;
+  padding:6px 12px;
+}
+
+/* Responsive */
 @media(max-width:900px){
   .charts-grid{grid-template-columns:1fr}
 }
@@ -256,7 +374,10 @@ tr:nth-child(even) td{background:#fcfdff}
   <div class="table-card">
     <div class="table-header">
       <input id="search" class="search-input" placeholder="بحث بالاسم أو المرشح...">
-      <button class="btn-sm btn-export" onclick="exportCSV()">📤 تصدير CSV</button>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn-sm btn-export" onclick="exportCSV()">📤 تصدير CSV</button>
+        <button class="btn-sm btn-reset-all" onclick="resetStats()">🔴 تصفير الإحصائيات</button>
+      </div>
     </div>
     <div class="table-wrap">
       <table>
@@ -267,6 +388,7 @@ tr:nth-child(even) td{background:#fcfdff}
             <th data-sort="candidates">المرشحون</th>
             <th data-sort="validity">الحالة</th>
             <th data-sort="time">الوقت</th>
+            <th>تعديل</th>
           </tr>
         </thead>
         <tbody id="votes-table"></tbody>
@@ -277,15 +399,43 @@ tr:nth-child(even) td{background:#fcfdff}
 
 </div>
 
+<!-- تفاصيل الناخب -->
+<div id="details-overlay" class="floating-overlay hidden">
+  <div class="floating-box">
+    <div class="fb-header">
+      <span>تفاصيل الناخب</span>
+      <button class="fb-close" onclick="closeDetails()">✖</button>
+    </div>
+    <div id="details-body"></div>
+  </div>
+</div>
+
+<!-- تعديل المرشحين -->
+<div id="edit-overlay" class="floating-overlay hidden">
+  <div class="floating-box">
+    <div class="fb-header">
+      <span>تعديل اختيار المرشحين</span>
+      <button class="fb-close" onclick="closeEdit()">✖</button>
+    </div>
+    <div id="edit-body">
+      <div id="edit-name"></div>
+      <div id="edit-candidates" class="edit-candidates"></div>
+      <div class="fb-actions">
+        <button class="btn-sm" onclick="saveEdit()">حفظ التعديل</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <!-- Firebase + Dashboard Logic -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { getDatabase, ref, onValue, update, remove } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-/* ===== Password helpers (must be on window) ===== */
+/* ===== Password helpers ===== */
 window.togglePass = function(){
   const inp = document.getElementById("pw-input");
   inp.type = (inp.type === "password") ? "text" : "password";
@@ -332,12 +482,39 @@ const tableBody = document.getElementById("votes-table");
 const footerNote= document.getElementById("footer-note");
 const searchInp = document.getElementById("search");
 
+const detailsOverlay = document.getElementById("details-overlay");
+const detailsBody    = document.getElementById("details-body");
+const editOverlay    = document.getElementById("edit-overlay");
+const editNameEl     = document.getElementById("edit-name");
+const editCandBox    = document.getElementById("edit-candidates");
+
 let allVotes = [];
 let sortState = { key:"index", dir:"asc" };
 
 let chartCandidates = null;
 let chartValidity   = null;
 let chartVPM        = null;
+
+let currentEditId = null;
+
+/* قائمة المرشحين لاستخدامها في التعديل */
+const candidateNames = [
+  "ايهاب العمده",
+  "محمد العتمانى",
+  "أحمد الحديدى",
+  "عادل الجيار",
+  "-",
+  "وليد تيسير الامير",
+  "كمال العيسوى",
+  "البدوى جميز",
+  "احمد الريس",
+  "أحمد عوف",
+  "حسن الملهاط",
+  "عمرو محمد بحيرى",
+  "السيد طمان",
+  "محمد دندن",
+  "مجدى الأمير"
+];
 
 /* ===== Listen to Firebase ===== */
 const votesRef = ref(db,"votes");
@@ -383,7 +560,7 @@ function renderStats(){
     if(diffMin > 0) vpm = total / diffMin;
     vpmEl.textContent = vpm.toFixed(2);
 
-    // Live status: لو في تصويت خلال آخر 30 ثانية
+    // Live status
     if(now - lastTs < 30000){
       liveTxt.textContent = "نشاط عالي الآن";
     } else if(total > 0){
@@ -403,10 +580,10 @@ function renderStats(){
     }
     vpm10El.textContent = vpm10.toFixed(2);
 
-    // Spike alert: لو VPM آخر دقيقة أكبر من 2× المتوسط و3 أصوات على الأقل
+    // Spike alert
     const oneMinAgo = now - 60*1000;
     const lastMinCount = allVotes.filter(v=>v.timestamp >= oneMinAgo).length;
-    const vpm1 = lastMinCount / 1; // تقريبي لدقيقة
+    const vpm1 = lastMinCount;
     if(total >= 5 && vpm > 0 && vpm1 > vpm * 2 && lastMinCount >= 3){
       spikeEl.style.display = "block";
     } else {
@@ -426,7 +603,6 @@ function renderCharts(){
   const ctxVal  = document.getElementById("chartValidity").getContext("2d");
   const ctxVPM  = document.getElementById("chartVPM").getContext("2d");
 
-  // تجميع حسب المرشح
   const candCounts = {};
   allVotes.forEach(v=>{
     v.candidates.forEach(c=>{
@@ -439,8 +615,7 @@ function renderCharts(){
   const validCount   = allVotes.filter(v=>v.validity==="صحيح").length;
   const invalidCount = allVotes.filter(v=>v.validity==="باطل").length;
 
-  // VPM chart (votes per minute)
-  const vpmBuckets = {}; // key: minute timestamp, value: count
+  const vpmBuckets = {};
   allVotes.forEach(v=>{
     if(!v.timestamp) return;
     const minuteKey = Math.floor(v.timestamp / 60000) * 60000;
@@ -453,7 +628,6 @@ function renderCharts(){
   });
   const vpmData = sortedMinutes.map(t=>vpmBuckets[t]);
 
-  // المرشحين
   if(chartCandidates){
     chartCandidates.data.labels = candLabels;
     chartCandidates.data.datasets[0].data = candData;
@@ -470,7 +644,6 @@ function renderCharts(){
     });
   }
 
-  // صحيحة / باطلة
   if(chartValidity){
     chartValidity.data.labels = ["صحيح","باطل"];
     chartValidity.data.datasets[0].data = [validCount, invalidCount];
@@ -487,7 +660,6 @@ function renderCharts(){
     });
   }
 
-  // VPM line chart
   if(chartVPM){
     chartVPM.data.labels = vpmLabels;
     chartVPM.data.datasets[0].data = vpmData;
@@ -525,7 +697,6 @@ function renderTable(){
     });
   }
 
-  // sort
   filtered.sort((a,b)=>{
     const dir = sortState.dir === "asc" ? 1 : -1;
     let av,bv;
@@ -550,6 +721,8 @@ function renderTable(){
 
     const tdName  = document.createElement("td");
     tdName.textContent = v.name || "—";
+    tdName.classList.add("clickable-name");
+    tdName.onclick = ()=> window.showDetails(v.id);
 
     const tdCands = document.createElement("td");
     tdCands.textContent = v.candidates.length ? v.candidates.join(" و ") : "—";
@@ -564,11 +737,19 @@ function renderTable(){
       ? new Date(v.timestamp).toLocaleTimeString('ar-EG',{hour:"2-digit",minute:"2-digit",second:"2-digit"})
       : "—";
 
+    const tdEdit  = document.createElement("td");
+    const btnEdit = document.createElement("button");
+    btnEdit.textContent = "تعديل";
+    btnEdit.className   = "btn-mini-edit";
+    btnEdit.onclick     = ()=> window.openEditVote(v.id);
+    tdEdit.appendChild(btnEdit);
+
     tr.appendChild(tdIndex);
     tr.appendChild(tdName);
     tr.appendChild(tdCands);
     tr.appendChild(tdVal);
     tr.appendChild(tdTime);
+    tr.appendChild(tdEdit);
     tableBody.appendChild(tr);
   });
 
@@ -622,6 +803,120 @@ window.exportCSV = function(){
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+};
+
+/* ===== Reset stats (delete all votes) ===== */
+window.resetStats = function(){
+  const pw = prompt("أدخل كلمة سر تصفير الإحصائيات");
+  if(pw !== "742018"){
+    alert("كلمة سر غير صحيحة");
+    return;
+  }
+  if(!confirm("تحذير: سيتم حذف جميع الأصوات من النظام وتصفير الإحصائيات.\nهل أنت متأكد؟")){
+    return;
+  }
+  remove(ref(db,"votes"))
+    .then(()=> alert("تم تصفير الإحصائيات وحذف جميع الأصوات بنجاح"))
+    .catch(()=> alert("حدث خطأ أثناء عملية التصفير"));
+};
+
+/* ===== تفاصيل الناخب (تبعنا / عدونا) ===== */
+window.showDetails = function(id){
+  const v = allVotes.find(x=>x.id === id);
+  if(!v) return;
+  const name = v.name || "—";
+  const timeStr = v.timestamp
+    ? new Date(v.timestamp).toLocaleTimeString('ar-EG',{hour:"2-digit",minute:"2-digit",second:"2-digit"})
+    : "—";
+  const candsStr = v.candidates.length ? v.candidates.join(" و ") : "—";
+
+  const hasHididi = v.candidates.includes("أحمد الحديدى");
+  const hasBadawi = v.candidates.includes("البدوى جميز");
+  const isOur = hasHididi && hasBadawi;
+
+  let html = `
+    <table>
+      <tr><td><strong>الاسم</strong></td><td>${name}</td></tr>
+      <tr><td><strong>وقت التصويت</strong></td><td>${timeStr}</td></tr>
+      <tr><td><strong>المرشحون</strong></td><td>${candsStr}</td></tr>
+    </table>
+  `;
+  html += isOur
+    ? `<div class="label-friend">تبعنا ✅ (اختار ٣ أحمد الحديدى و ٨ البدوى جميز)</div>`
+    : `<div class="label-enemy">عدونا ❌ (لم يختر ٣ أحمد الحديدى و ٨ البدوى جميز معاً)</div>`;
+
+  detailsBody.innerHTML = html;
+  detailsOverlay.classList.remove("hidden");
+};
+
+window.closeDetails = function(){
+  detailsOverlay.classList.add("hidden");
+};
+
+/* ===== تعديل المرشحين ===== */
+function buildEditCandidates(selected){
+  editCandBox.innerHTML = "";
+  candidateNames.forEach(name=>{
+    const lbl = document.createElement("label");
+    const span = document.createElement("span");
+    span.textContent = name;
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.value = name;
+    if(selected.includes(name)) cb.checked = true;
+    cb.addEventListener("change",()=>{
+      const checked = editCandBox.querySelectorAll('input[type="checkbox"]:checked');
+      if(checked.length > 2){
+        cb.checked = false;
+        alert("يمكن اختيار مرشحين فقط");
+      }
+    });
+    lbl.appendChild(span);
+    lbl.appendChild(cb);
+    editCandBox.appendChild(lbl);
+  });
+}
+
+window.openEditVote = function(id){
+  const pw = prompt("أدخل كلمة سر التعديل");
+  if(pw !== "742018"){
+    alert("كلمة سر غير صحيحة");
+    return;
+  }
+  const v = allVotes.find(x=>x.id === id);
+  if(!v) return;
+  currentEditId = id;
+  editNameEl.textContent = "الناخب: " + (v.name || "—");
+  buildEditCandidates(v.candidates);
+  editOverlay.classList.remove("hidden");
+};
+
+window.closeEdit = function(){
+  currentEditId = null;
+  editOverlay.classList.add("hidden");
+};
+
+window.saveEdit = function(){
+  if(!currentEditId) return;
+  const checked = [...editCandBox.querySelectorAll('input[type="checkbox"]:checked')].map(x=>x.value);
+  if(checked.length < 1){
+    alert("اختر مرشح واحد على الأقل");
+    return;
+  }
+  if(checked.length > 2){
+    alert("يمكن اختيار مرشحين فقط");
+    return;
+  }
+  update(ref(db,"votes/"+currentEditId),{
+    selected: checked
+  })
+  .then(()=>{
+    alert("تم حفظ التعديل بنجاح");
+    closeEdit();
+  })
+  .catch(()=>{
+    alert("حدث خطأ أثناء حفظ التعديل");
+  });
 };
 </script>
 
