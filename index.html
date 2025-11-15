@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>نظام مراقبة وحصر الانتخابات - التسجيل</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: linear-gradient(110deg, #dbe5f3 30%, #eeefff 100%);
+      font-family: "Cairo", "Tajawal", Arial, sans-serif;
+      margin:0; padding:0; color:#222;
+    }
+    .container {
+      max-width: 500px;
+      margin: 30px auto;
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 4px 24px #b5d1f233;
+      padding: 34px 20px 20px;
+      position:relative;
+      overflow:hidden;
+    }
+    h2 {
+      text-align:center;
+      color: #2874b2;
+      font-size: 1.5em;
+      font-weight:800;
+      margin-bottom:24px;
+      letter-spacing:1px;
+    }
+    .form-group { margin-bottom: 19px; }
+    label { font-weight: 600; color: #35536b; display: block; margin-bottom: 6px;}
+    input[type="text"], input[type="password"] {
+      width: 100%; padding: 9px; font-size:1.06em;
+      border: 1.3px solid #bed2ed; border-radius: 7px;
+      margin-bottom: 4px; background: #f3fafd;
+      transition: border-color 0.18s;
+      box-shadow: 0 1px 9px #ecf1fa33 inset;
+    }
+    input[type="text"]:focus, input[type="password"]:focus {
+      border-color: #699cdf;
+      outline: none;
+    }
+    .candidate-list { margin: 13px 0 0;}
+    .candidate-row {
+      display: flex; align-items: center; margin-bottom:9px; padding: 4px 9px;
+      border-radius:6px; transition: background 0.15s;
+    }
+    .candidate-row:hover { background: #ecf6fc; }
+    .candidate-check {margin-left:12px; accent-color:#349bdd;}
+    .sec { margin: 14px 0 9px; }
+    .radio-group label { margin-right:12px; }
+    button {
+      padding: 10px 24px;
+      font-size: 1.08em; font-family: inherit;
+      border-radius: 8px; border: none;
+      background: #2874b2;
+      color: #fff; cursor:pointer;
+      font-weight:700; margin-top:10px;
+      margin-right:12px;
+      box-shadow: 0 1px 6px #adcde333;
+      transition: background 0.14s;
+    }
+    button:hover { background: #2060a5;}
+    .action-line {margin-top:9px;}
+    .msg-confirm, .msg-warn {
+      font-size: 1.08em; font-weight:bold;
+      text-align:center; padding:9px;
+      border-radius:6px;
+      margin: 10px auto 0;
+      width:90%;
+      letter-spacing:1px;
+      display:none;
+    }
+    .msg-confirm {background: #d4edda; color: #237a4a; border: 1px solid #c2ded5;}
+    .msg-warn {background: #f9d7dd; color: #a92d2c; border: 1px solid #eeadb7;}
+    .right-sig {
+      margin-top:34px; text-align:left; color:#6b6b6b;
+      font-size:0.95em; font-style:italic;
+      position: absolute; left: 15px; bottom: 9px;
+      width:85%;
+      letter-spacing: .5px;
+    }
+    @media (max-width:650px){
+      .container {max-width:98vw;}
+      h2 {font-size:1.17em;}
+      button {font-size:1em;}
+    }
+    @media (max-width:380px) {
+      .container{padding:12px 4vw 16px;}
+      .right-sig{font-size:.86em;}
+    }
+    #password-section{margin-bottom:32px;}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>مراقبة وحصر العملية الانتخابية</h2>
+    <div id="password-section">
+      <label>أدخل الرقم السري:</label>
+      <input type="password" id="password-input" autocomplete="off">
+      <button onclick="checkPassword()">دخول</button>
+      <div id="pw-err" class="msg-warn"></div>
+    </div>
+    <form id="main-form" class="hidden" autocomplete="off">
+      <div class="form-group">
+        <label>اسم الناخب (إجباري):</label>
+        <input type="text" id="voter-name" required autocomplete="off">
+      </div>
+      <div class="candidate-list" id="candidates"></div>
+      <div class="sec radio-group">
+        هل ترى الصوت؟
+        <label><input type="radio" name="vote-valid" value="صحيح" required> صحيح</label>
+        <label><input type="radio" name="vote-valid" value="باطل" required> باطل</label>
+      </div>
+      <div class="action-line">
+        <button type="submit">تسجيل التصويت</button>
+        <button type="reset" style="background:#ccccdd;color:#265687;">إعادة ضبط</button>
+      </div>
+      <div id="msg-warn" class="msg-warn"></div>
+      <div id="msg-confirm" class="msg-confirm"></div>
+    </form>
+    <div class="right-sig">تم برمجة هذا النظام بالكامل بكل حب بواسطة مهندس محمد حماد</div>
+  </div>
+  <!-- Firebase MODULAR -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getDatabase, ref, push, query, orderByChild, equalTo, get } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCxxXV_6CEo1fTp3rRbfwfYbe7WH0Cyg38",
+      authDomain: "elahmadiya.firebaseapp.com",
+      databaseURL: "https://elahmadiya-default-rtdb.firebaseio.com",
+      projectId: "elahmadiya",
+      storageBucket: "elahmadiya.firebasestorage.app",
+      messagingSenderId: "594580767620",
+      appId: "1:594580767620:web:f5be3b87d4c704854e53d1",
+      measurementId: "G-EQ7PD5X0EL"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // بيانات المرشحين
+    const candidatesData = [
+      ["ايهاب العمده", "تاج"],
+      ["محمد العتمانى", "رغيف عيش"],
+      ["أحمد الحديدى", "أسد"],
+      ["عادل الجيار", "صقر"],
+      ["-", "مدفع"],
+      ["وليد تيسير الامير", "تمساح"],
+      ["كمال العيسوى", "مروحة"],
+      ["البدوى جميز", "حوت"],
+      ["احمد الريس", "عقرب"],
+      ["أحمد عوف", "كف"],
+      ["حسن الملهاط", "غصن زيتون"],
+      ["عمرو محمد بحيرى", "أوتوبيس"],
+      ["السيد طمان", "بندقية صيد"],
+      ["محمد دندن", "طائرة هليكوبتر"],
+      ["مجدى الأمير", "قلم حبر"]
+    ];
+    // رسم المرشحين على الصفحة
+    const candidateListElem = document.getElementById('candidates');
+    candidatesData.forEach((cand,i)=>{
+      candidateListElem.innerHTML += `
+        <div class="candidate-row">
+          <label>
+            <input type="checkbox" name="candidates" value="${cand[0]}" class="candidate-check" onclick="window.selectLimit(this)">
+            ${cand[0]} <span style="color:#5394da;font-weight:bold;">(${cand[1]})</span>
+          </label>
+        </div>
+      `;
+    });
+    // لاختيار أكثر من 2 فقط
+    window.selectLimit = function(checkbox){
+      let checked = document.querySelectorAll('input[name="candidates"]:checked');
+      if(checked.length>2){
+        checkbox.checked = false;
+        showWarn("اختر مرشحين فقط");
+      }
+    }
+    function checkPassword(){
+      let pw=document.getElementById("password-input").value.trim();
+      if(pw==="521988"){
+        document.getElementById("main-form").classList.remove('hidden');
+        document.getElementById("password-section").classList.add('hidden');
+        setTimeout(()=>{document.getElementById('voter-name').focus();},200);
+      }else{
+        showWarn("خطأ في الرقم السري", "pw-err");
+      }
+    }
+    function showWarn(msg, id="msg-warn"){
+      let el = document.getElementById(id); if(!el) return;
+      el.textContent = msg; el.style.display="block";
+      setTimeout(()=>{el.style.display="none";},2200);
+    }
+    function showConfirm(msg){
+      let el = document.getElementById("msg-confirm");
+      el.textContent = msg; el.style.display="block";
+      setTimeout(()=>{el.style.display="none";},3000);
+    }
+    async function checkDuplicateName(name){
+      const q = query(ref(db,"votes"), orderByChild("name"), equalTo(name));
+      const snap = await get(q);
+      return snap.exists();
+    }
+    // تسجيل التصويت
+    document.getElementById('main-form').onsubmit = async function(e){
+      e.preventDefault();
+      document.getElementById('msg-confirm').style.display="none";
+      let name = document.getElementById('voter-name').value.trim();
+      let selected = [...document.querySelectorAll('input[name="candidates"]:checked')].map(x=>x.value);
+      let validity = document.querySelector('input[name="vote-valid"]:checked');
+      if(!name){showWarn("اسم الناخب مطلوب");return;}
+      if(selected.length<1){showWarn("اختر مرشح واحد على الأقل");return;}
+      if(selected.length>2){showWarn("اختر مرشحين فقط");return;}
+      if(!validity){showWarn("اختر حالة الصوت");return;}
+      if(!confirm(`تأكيد تسجيل التصويت باسم: "${name}" للمرشحين: ${selected.join(' و ')}\nهل أنت متأكد؟`)) return;
+
+      if(await checkDuplicateName(name)){
+        showWarn("تنبيه: الاسم مدخل من قبل! سيتم الحفظ من جديد.");
+      }
+      let now = new Date();
+      let timeStr = now.toLocaleTimeString('ar-EG',{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+      let vote = {
+        name: name,
+        selected: selected,
+        vote_validity: validity.value,
+        time: timeStr,
+        timestamp: now.getTime()
+      };
+      await push(ref(db, "votes"), vote)
+        .then(()=>{
+          showConfirm("تم تسجيل التصويت بنجاح");
+          document.getElementById('main-form').reset();
+          document.getElementById('voter-name').value = "";
+          setTimeout(()=>{document.getElementById('voter-name').focus();},500);
+        })
+        .catch(()=>{showWarn("خطأ في التسجيل!");});
+    };
+    document.getElementById('main-form').onreset = function() {
+      document.getElementById('msg-confirm').style.display="none";
+      document.getElementById('msg-warn').style.display="none";
+      setTimeout(()=>{document.getElementById('voter-name').focus();},150);
+    }
+  </script>
+</body>
+</html>

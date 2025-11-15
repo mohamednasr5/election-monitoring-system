@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>إحصائيات العملية الانتخابية</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body{background: linear-gradient(115deg,#eef2fc 50%,#dde8f7 100%);
+      font-family:"Cairo","Tajawal",Arial,sans-serif; margin:0; padding:0; color:#222;}
+    .container{max-width:670px;margin:35px auto;background:#fff;padding:28px 14px 20px;border-radius:15px;box-shadow:0 6px 28px #b5d1f233;}
+    h2{text-align:center;color:#2874b2;font-size:1.42em;font-weight:800;letter-spacing:1px;margin-bottom:20px;}
+    #filters{margin:15px 0 11px;}
+    .stat-table{width:100%;border-collapse:collapse;margin-bottom:16px;}
+    .stat-table th,.stat-table td{border:1px solid #cae6ff;padding:12px 5px;text-align:center;}
+    .stat-table th{background:#dfe9fc; color:#2377a4;font-size:1em;}
+    .highlight{background:#e5f5ff;}
+    .chart-container{width:99%;max-width:420px;margin:13px auto;}
+    .action-btn{
+      background:#349bdd;color:#fff;border:none;padding:7px 19px;
+      border-radius:8px;font-size:1em;font-family:inherit;font-weight:700;margin:7px 7px;
+      cursor:pointer; box-shadow:0 2px 9px #cddef533;transition:background 0.14s;
+    }
+    .action-btn:hover{background:#1977c6;}
+    #current-time{font-weight:bold;}
+    .sec{margin:14px 0 8px;}
+    .right-sig{margin-top:30px;text-align:left;color:#6b6b6b;font-size:0.94em;font-style:italic;}
+    #password-section{margin-bottom:32px;}
+    .msg-warn {
+      background: #f9d7dd; color: #a92d2c; border: 1px solid #eeadb7;
+      font-size: 1.08em; font-weight: bold;
+      text-align: center; padding: 8px 2px;
+      border-radius: 7px; margin-top: 15px; display:none;
+    }
+    @media (max-width:700px){
+      .container{max-width:99vw;}
+      h2{font-size:1.13em;}
+      .stat-table th,.stat-table td{padding:8px 2px;font-size:0.96em;}
+      .chart-container{max-width:95vw;}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>إحصائيات العملية الانتخابية</h2>
+    <div id="password-section">
+      <label>أدخل الرقم السري:</label>
+      <input type="password" id="password-input" autocomplete="off">
+      <button onclick="checkPassword()">دخول</button>
+      <div id="pw-err" class="msg-warn"></div>
+    </div>
+    <div id="main-content" class="hidden">
+      <div>الساعة الآن: <span id="current-time"></span><br>إجمالى عدد الأصوات: <span id="total-votes">...</span></div>
+      <div class="sec">متوسط عدد الأصوات بالدقيقة (آخر 30 دقيقة): <span id="votes-per-min"></span></div>
+      <div id="filters">
+        <label><input type="radio" name="voteStatType" value="all" checked> كل الأصوات</label>
+        <label><input type="radio" name="voteStatType" value="صحيح"> أصوات صحيحة فقط</label>
+        <label><input type="radio" name="voteStatType" value="باطل"> أصوات باطلة فقط</label>
+        <button class="action-btn" onclick="exportToExcel()">تصدير Excel</button>
+        <button class="action-btn" onclick="location.reload()">إعادة تحميل</button>
+      </div>
+      <div class="chart-container">
+        <canvas id="barChart" height="120"></canvas>
+      </div>
+      <table class="stat-table" id="cand-table">
+        <tr>
+          <th>اسم المرشح</th><th>الرمز</th><th>عدد الأصوات</th><th>نسبة التصويت</th>
+        </tr>
+      </table>
+    </div>
+    <div class="right-sig">تم برمجة هذا النظام بالكامل بكل حب بواسطة مهندس محمد حماد</div>
+  </div>
+  <!-- Firebase MODULAR + Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+    const firebaseConfig = {
+      apiKey: "AIzaSyCxxXV_6CEo1fTp3rRbfwfYbe7WH0Cyg38",
+      authDomain: "elahmadiya.firebaseapp.com",
+      databaseURL: "https://elahmadiya-default-rtdb.firebaseio.com",
+      projectId: "elahmadiya",
+      storageBucket: "elahmadiya.firebasestorage.app",
+      messagingSenderId: "594580767620",
+      appId: "1:594580767620:web:f5be3b87d4c704854e53d1",
+      measurementId: "G-EQ7PD5X0EL"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // بيانات المرشحين
+    const candidatesData = [
+      ["ايهاب العمده","تاج"],
+      ["محمد العتمانى","رغيف عيش"],
+      ["أحمد الحديدى","أسد"],
+      ["عادل الجيار","صقر"],
+      ["-","مدفع"],
+      ["وليد تيسير الامير","تمساح"],
+      ["كمال العيسوى","مروحة"],
+      ["البدوى جميز","حوت"],
+      ["احمد الريس","عقرب"],
+      ["أحمد عوف","كف"],
+      ["حسن الملهاط","غصن زيتون"],
+      ["عمرو محمد بحيرى","أوتوبيس"],
+      ["السيد طمان","بندقية صيد"],
+      ["محمد دندن","طائرة هليكوبتر"],
+      ["مجدى الأمير","قلم حبر"]
+    ];
+    function updateCurrentTime(){
+      document.getElementById('current-time').textContent =
+        new Date().toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    }
+    updateCurrentTime();
+    setInterval(updateCurrentTime, 900);
+
+    // كلمة السر
+    function checkPassword(){
+      let pw=document.getElementById("password-input").value.trim();
+      if(pw==="521988"){
+        document.getElementById("main-content").classList.remove('hidden');
+        document.getElementById("password-section").classList.add('hidden');
+        loadStats();
+      }else{
+        showWarn("خطأ في الرقم السري", "pw-err");
+      }
+    }
+    function showWarn(msg, id="pw-err"){
+      let el = document.getElementById(id); if(!el) return;
+      el.textContent = msg; el.style.display="block";
+      setTimeout(()=>{el.style.display="none";},2000);
+    }
+    // رسم بياني
+    let barChart;
+    function drawChart(labels,data){
+      let ctx = document.getElementById('barChart').getContext('2d');
+      if(barChart) barChart.destroy();
+      barChart=new Chart(ctx,{
+        type:'bar',
+        data:{labels:labels,datasets:[{
+          label:'عدد الأصوات',
+          data:data,
+          backgroundColor:'#81cdf9'
+        }]},
+        options:{
+          plugins:{legend:{display:false}},
+          scales:{x:{title:{display:false}},y:{title:{display:false},beginAtZero:true,precision:0}}
+        }
+      });
+    }
+    // تصدير لملف Excel
+    window.exportToExcel = function(){
+      let tab = document.getElementById('cand-table');
+      let rows = [...tab.rows];
+      let csv = rows.map(row => [...row.cells].map(cell=>'"'+cell.innerText.replace(/"/g,'""')+'"').join(',')).join('\n');
+      let blob = new Blob([csv],{type:'text/csv'});
+      let link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = "election_stats.csv";
+      link.click();
+    }
+    // التصفية والفلاتر
+    document.querySelectorAll('input[name=voteStatType]').forEach(radio=>{
+      radio.onchange=()=>{loadStats();}
+    });
+    // إحصائيات لحظية
+    function loadStats(){
+      let filter = document.querySelector('input[name=voteStatType]:checked').value;
+      onValue(ref(db, "votes"), (snapshot) => {
+        let candCounts={};
+        candidatesData.forEach(cand=>{candCounts[cand[0]]=0;});
+        let votes=snapshot.val()||{}; let voteTimes=[];
+        let totalVotes=0;
+        Object.values(votes).forEach(vote=>{
+          let include = (filter==='all')||(vote.vote_validity===filter);
+          if(include){
+            totalVotes++;
+            vote.selected.forEach(name=>{
+              if(candCounts[name]!=undefined) candCounts[name]++;
+            });
+            voteTimes.push(vote.timestamp||Date.now());
+          }
+        });
+        document.getElementById('total-votes').textContent=totalVotes;
+        // متوسط الصوت بالدقيقة آخر 30 دقيقة
+        let now=Date.now();
+        let recentVotes=voteTimes.filter(t=>now-t<=1800000).length;
+        let votesPerMin=Math.round(recentVotes/30);
+        document.getElementById('votes-per-min').textContent=votesPerMin;
+        // رسم الجدول والرسم البياني
+        let tab=document.getElementById('cand-table');
+        tab.innerHTML = "<tr><th>اسم المرشح</th><th>الرمز</th><th>عدد الأصوات</th><th>نسبة التصويت</th></tr>";
+        let labels=[], dataArr=[];
+        let sum=Object.values(candCounts).reduce((a,b)=>a+b,0)||1;
+        candidatesData.forEach(cand=>{
+          let num = candCounts[cand[0]];
+          let percent = Math.round((num/sum)*100);
+          labels.push(cand[0]);
+          dataArr.push(num);
+          tab.innerHTML += `<tr>
+            <td>${cand[0]}</td>
+            <td>${cand[1]}</td>
+            <td class="highlight">${num}</td>
+            <td>${percent}%</td>
+          </tr>`;
+        });
+        drawChart(labels,dataArr);
+      });
+    }
+  </script>
+</body>
+</html>
