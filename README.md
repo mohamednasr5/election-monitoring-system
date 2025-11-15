@@ -11,7 +11,6 @@
 - تحديد حالة الصوت (صحيح/باطل)
 - تأكيد قبل الحفظ
 - تنبيه من التكرار
-- حماية برقم سري (521988)
 
 #### صفحة الإحصائيات (statistics.html)
 - تحديث لحظي للنتائج
@@ -20,7 +19,6 @@
 - متوسط الأصوات بالدقيقة
 - تصفية (صحيح/باطل)
 - تصدير Excel
-- حماية برقم سري (521988)
 
 ### التقنيات المستخدمة:
 - HTML5
@@ -31,16 +29,11 @@
 
 ### إعدادات Firebase:
 استخدمت بيانات Firebase الخاصة بـ elahmadiya:
-- apiKey: AIzaSyCxxXV_6CEo1fTp3rRbfwfYbe7WH0Cyg38
-- authDomain: elahmadiya.firebaseapp.com
-- databaseURL: https://elahmadiya-default-rtdb.firebaseio.com
 
 ### رابط المستودع:
-https://github.com/mohamednasr5/election-monitoring-system
 
 ### كيفية الاستخدام:
 1. افتح index.html في المتصفح
-2. أدخل الرقم السري: 521988
 3. أدخل بيانات الناخب والمرشحين
 4. للإحصائيات، افتح statistics.html وأدخل نفس الرقم السري
 
