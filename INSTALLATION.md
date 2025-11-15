@@ -12,7 +12,6 @@
    - Use a modern browser (Chrome, Firefox, Edge)
    - No server required - runs completely client-side
 
-3. Login with password: **521988**
 
 ### Requirements
 - Modern web browser (Chrome, Firefox, Safari, Edge)
@@ -38,7 +37,6 @@ The system uses Firebase Realtime Database. Update Firebase config in both HTML 
    - استخدم متصفح حديث (كروم، فايرفوكس، إيدج)
    - لا يتطلب خادم - يعمل محليًا
 
-3. تسجيل الدخول برقم سري: **521988**
 
 ### المتطلبات
 - متصفح ويب حديث
@@ -51,5 +49,3 @@ The system uses Firebase Realtime Database. Update Firebase config in both HTML 
 - استبدل databaseURL برابط قاعدة بياناتك
 - استبدل projectId برقم مشروعك
 
-### Password
-**521988**
