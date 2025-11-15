@@ -6,17 +6,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-/* RESET */
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Cairo',sans-serif}
 
-/* BODY */
+/* BACKGROUND */
 body{
   background:linear-gradient(135deg,#1e3c72 0%,#2a5298 100%);
   display:flex;align-items:center;justify-content:center;
   min-height:100vh;padding:20px;color:#fff;
 }
 
-/* CONTAINER */
+/* HIDDEN */
+.hidden{display:none!important}
+
+/* MAIN CONTAINER */
 .container{
   width:100%;max-width:750px;background:#fff;color:#222;
   padding:28px;border-radius:22px;
@@ -29,33 +31,55 @@ body{
 h2{text-align:center;font-size:1.9em;font-weight:900;color:#1e3c72;margin-bottom:8px}
 .subtitle{text-align:center;color:#666;margin-bottom:18px;font-size:.9em}
 
-/* PASSWORD BOX */
-#password-box{
-  background:#f5f6ff;padding:20px;border-radius:15px;border:1px solid #dbe2ff;
-  margin-bottom:20px;
+/* PASSWORD MODAL */
+#password-modal{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:rgba(0,0,0,0.65);backdrop-filter:blur(6px);
+  display:flex;align-items:center;justify-content:center;
+  z-index:9999;
 }
-.pass-row{position:relative}
+.pass-box{
+  width:90%;max-width:400px;background:#fff;padding:25px;border-radius:18px;
+  text-align:center;box-shadow:0 10px 40px rgba(0,0,0,0.4);
+  animation:pop .4s ease;
+}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+
+/* PASSWORD INPUT */
+.pass-row{position:relative;margin-top:10px}
 .pass-input{
-  width:100%;padding:12px;border-radius:10px;border:2px solid #cfd7f4;
-  background:#f8f9ff;font-size:1.05em;
+  width:100%;padding:13px;border-radius:10px;border:2px solid #d5d9ff;
+  background:#f6f7ff;font-size:1.1em;text-align:center;
 }
 .pass-toggle{
-  position:absolute;left:10px;top:50%;transform:translateY(-50%);
+  position:absolute;left:12px;top:50%;transform:translateY(-50%);
   font-size:1.3em;color:#1e3c72;cursor:pointer;
 }
 
-/* FORM INPUTS */
+.pass-btn{
+  margin-top:15px;width:100%;padding:12px;border:none;border-radius:10px;
+  background:#1e3c72;color:#fff;font-size:1.1em;font-weight:bold;cursor:pointer;
+  transition:.2s;
+}
+.pass-btn:hover{background:#162b57}
+
+.pass-err{
+  color:#b90000;font-weight:bold;margin-top:10px;display:none
+}
+
+/* INPUTS */
 label{font-weight:700;color:#1e3c72;margin-top:12px;display:block;margin-bottom:5px}
 input[type="text"]{
   width:100%;padding:12px;border-radius:10px;
   border:2px solid #d0d8f3;background:#f7faff;font-size:1.05em;
 }
 
-/* CANDIDATE LIST */
+/* CANDIDATES */
 .candidate-list{
   background:#f8f9ff;border:1px solid #dee7ff;
   padding:12px;border-radius:15px;max-height:330px;overflow-y:auto;margin-top:12px;
 }
+
 .candidate-item{
   padding:10px 12px;margin-bottom:8px;background:#fff;border:1px solid #e0e6ff;
   border-radius:12px;display:flex;align-items:center;
@@ -70,11 +94,12 @@ input[type="text"]{
 }
 .c-name{font-weight:700;color:#1e3c72;font-size:1em}
 .c-icon{font-size:1.5em;margin-right:6px}
-
 input[type="checkbox"]{accent-color:#1e3c72;width:20px;height:20px}
 
-/* VOTE STATUS */
-.sec-box{background:#f1f5ff;padding:14px;border:1px solid #d3ddff;border-radius:12px;margin-top:12px}
+/* STATUS */
+.sec-box{
+  background:#f1f5ff;padding:14px;border:1px solid #d3ddff;border-radius:12px;margin-top:12px
+}
 .sec-box span{font-weight:700;color:#1e3c72;margin-bottom:5px;display:block}
 
 /* BUTTONS */
@@ -98,39 +123,36 @@ button{
 
 /* SIGNATURE */
 .sig{text-align:left;margin-top:20px;color:#777;font-size:.85em;font-style:italic}
-
-/* SCROLLBAR */
-::-webkit-scrollbar{width:8px}
-::-webkit-scrollbar-thumb{background:#b7c9ff;border-radius:8px}
 </style>
 </head>
 
 <body>
 
-<div class="container">
-
-  <h2>تسجيل التصويت</h2>
-  <div class="subtitle">للمشرفين فقط – دخول بكلمة السر</div>
-
-  <!-- PASSWORD BOX -->
-  <div id="password-box">
-    <label>أدخل كلمة السر:</label>
+<!-- PASSWORD MODAL -->
+<div id="password-modal">
+  <div class="pass-box">
+    <h3 style="color:#1e3c72;font-size:1.4em;font-weight:900">من فضلك أدخل كلمة السر</h3>
     <div class="pass-row">
       <input type="password" id="password-input" class="pass-input" placeholder="••••••">
       <span class="pass-toggle" onclick="togglePass()">👁</span>
     </div>
-    <button class="btn-primary" style="margin-top:12px;width:100%" onclick="checkPass()">دخول</button>
-    <div id="pw-err" class="msg-warn"></div>
+    <button class="pass-btn" onclick="checkPass()">دخول</button>
+    <div id="pw-err" class="pass-err">كلمة السر غير صحيحة</div>
   </div>
+</div>
 
-  <!-- MAIN FORM -->
-  <form id="vote-form" class="hidden">
+<!-- MAIN PAGE -->
+<div class="container hidden" id="main-container">
+
+  <h2>تسجيل التصويت</h2>
+  <div class="subtitle">نظام مراقبة وحصر العملية الانتخابية</div>
+
+  <form id="vote-form">
 
     <label>اسم الناخب:</label>
     <input type="text" id="voter-name" placeholder="اكتب اسم الناخب">
 
     <label>اختر المرشح (حتى 2):</label>
-
     <div class="candidate-list" id="candidate-list"></div>
 
     <div class="sec-box">
@@ -155,8 +177,6 @@ button{
 
 <!-- FIREBASE + LOGIC -->
 <script type="module">
-
-/* Firebase */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
@@ -174,24 +194,26 @@ const db = getDatabase(app);
 /* PASSWORD FUNCTIONS */
 window.togglePass = function(){
   const p = document.getElementById("password-input");
-  p.type = (p.type === "password") ? "text" : "password";
+  p.type = p.type === "password" ? "text" : "password";
 };
 
 window.checkPass = function(){
   const val = document.getElementById("password-input").value.trim();
+  const modal = document.getElementById("password-modal");
+  const main = document.getElementById("main-container");
   const err = document.getElementById("pw-err");
+
   if(val === "521988"){
-    document.getElementById("password-box").classList.add("hidden");
-    document.getElementById("vote-form").classList.remove("hidden");
+    modal.classList.add("hidden");
+    main.classList.remove("hidden");
   } else {
-    err.textContent="كلمة السر غير صحيحة";
     err.style.display="block";
-    setTimeout(()=>err.style.display="none",2000);
+    setTimeout(()=>err.style.display="none",1800);
   }
 };
 
-/* CANDIDATES */
-const candidates = [
+/* CANDIDATES — FIXED ORDER */
+const candidates = Object.freeze([
   ["1","ايهاب العمده","👑"],
   ["2","محمد العتمانى","🍞"],
   ["3","أحمد الحديدى","🦁"],
@@ -207,8 +229,9 @@ const candidates = [
   ["13","السيد طمان","🔫"],
   ["14","محمد دندن","🚁"],
   ["15","مجدى الأمير","🖊"]
-];
+]);
 
+/* DRAW CANDIDATES */
 const box = document.getElementById("candidate-list");
 candidates.forEach(c=>{
   box.innerHTML += `
@@ -230,14 +253,11 @@ window.limitSelect = function(ch){
   const sel = document.querySelectorAll('input[type="checkbox"]:checked');
   if(sel.length > 2){
     ch.checked = false;
-    const warn = document.getElementById("msg-warn");
-    warn.textContent="يمكن اختيار مرشحين فقط";
-    warn.style.display="block";
-    setTimeout(()=>warn.style.display="none",1800);
+    showWarn("يمكن اختيار مرشحين فقط");
   }
 };
 
-/* VOTE SUBMISSION */
+/* SUBMIT */
 document.getElementById("vote-form").onsubmit = async(e)=>{
   e.preventDefault();
 
@@ -249,20 +269,18 @@ document.getElementById("vote-form").onsubmit = async(e)=>{
   if(sel.length<1) return showWarn("اختر مرشح واحد على الأقل");
   if(!val) return showWarn("اختر حالة الصوت");
 
-  const now = Date.now();
-
   await push(ref(db,"votes"),{
     name,
     selected: sel,
     vote_validity: val.value,
-    timestamp: now
+    timestamp: Date.now()
   });
 
   showConfirm("تم تسجيل التصويت بنجاح");
   document.getElementById("vote-form").reset();
 };
 
-/* HELPERS */
+/* NOTIFICATIONS */
 function showWarn(msg){
   const el = document.getElementById("msg-warn");
   el.textContent=msg; el.style.display="block";
