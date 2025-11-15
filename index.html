@@ -1,507 +1,378 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>نظام مراقبة وحصر الانتخابات - التسجيل</title>
+  <title>نظام مراقبة وحصر الانتخابات - تسجيل التصويت</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      font-family: "Cairo", "Tajawal", -apple-system, BlinkMacSystemFont, sans-serif;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      color: #222;
+      background: linear-gradient(110deg, #dbe5f3 30%, #eeefff 100%);
+      font-family: "Cairo", "Tajawal", Arial, sans-serif;
+      margin:0; padding:0; color:#222;
+      display:flex; align-items:center; justify-content:center;
+      min-height:100vh;
     }
+
+    .hidden { display: none !important; }
 
     .container {
       max-width: 520px;
-      width: 100%;
-      background: #fff;
-      border-radius: 20px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-      padding: 40px 30px;
-      position: relative;
-      overflow: hidden;
-      animation: slideIn 0.5s ease-out;
-    }
-
-    @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .container::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 5px;
-      background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+      width:95%;
+      background:#fff;
+      border-radius:15px;
+      box-shadow:0 4px 24px #b5d1f233;
+      padding:26px 20px 24px;
+      position:relative;
+      overflow:hidden;
     }
 
     h2 {
-      text-align: center;
-      color: #667eea;
-      font-size: 1.8em;
-      font-weight: 800;
-      margin-bottom: 30px;
-      letter-spacing: 1.2px;
+      text-align:center;
+      color:#2874b2;
+      font-size:1.5em;
+      font-weight:800;
+      margin-bottom:18px;
+      letter-spacing:1px;
     }
 
-    /* ===== Password Modal ===== */
-    .password-modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      backdrop-filter: blur(5px);
-      z-index: 1000;
+    .subtitle {
+      text-align:center;
+      font-size:.9em;
+      color:#555;
+      margin-bottom:18px;
     }
 
-    .password-modal.hidden {
-      display: none;
-    }
-
-    .password-box {
-      background: #fff;
-      border-radius: 20px;
-      padding: 50px 40px;
-      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
-      max-width: 420px;
-      width: 90%;
-      text-align: center;
-      animation: popIn 0.3s ease-out;
-    }
-
-    @keyframes popIn {
-      from {
-        opacity: 0;
-        transform: scale(0.9);
-      }
-      to {
-        opacity: 1;
-        transform: scale(1);
-      }
-    }
-
-    .lock-icon {
-      font-size: 3em;
-      margin-bottom: 20px;
-      animation: bounce 2s infinite;
-    }
-
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
-    }
-
-    .password-box h3 {
-      color: #667eea;
-      font-size: 1.6em;
-      margin-bottom: 10px;
-    }
-
-    .password-box p {
-      color: #666;
-      margin-bottom: 30px;
-      font-size: 0.95em;
-    }
-
-    .password-input-group {
-      position: relative;
-      margin-bottom: 20px;
-    }
-
-    .password-input-group input {
-      width: 100%;
-      padding: 14px 45px 14px 20px;
-      font-size: 1.1em;
-      border: 2px solid #e0e0e0;
-      border-radius: 12px;
-      background: #f8f9fa;
-      transition: all 0.3s;
-      letter-spacing: 1px;
-    }
-
-    .password-input-group input:focus {
-      outline: none;
-      border-color: #667eea;
-      background: #fff;
-      box-shadow: 0 0 15px rgba(102, 126, 234, 0.2);
-    }
-
-    .toggle-password {
-      position: absolute;
-      right: 15px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: none;
-      border: none;
-      font-size: 1.3em;
-      cursor: pointer;
-      color: #667eea;
-      transition: transform 0.2s;
-    }
-
-    .toggle-password:hover {
-      transform: translateY(-50%) scale(1.1);
-    }
-
-    .password-buttons {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-    }
-
-    .btn-enter {
-      flex: 1;
-      padding: 14px 30px;
-      font-size: 1.05em;
-      font-weight: 700;
-      border: none;
-      border-radius: 12px;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: #fff;
-      cursor: pointer;
-      transition: all 0.3s;
-      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-    }
-
-    .btn-enter:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
-    }
-
-    .password-error {
-      color: #e74c3c;
-      font-size: 0.9em;
-      margin-top: 15px;
-      display: none;
-      animation: shake 0.4s;
-    }
-
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-5px); }
-      75% { transform: translateX(5px); }
-    }
-
-    .password-error.show {
-      display: block;
-    }
-
-    /* ===== Main Form ===== */
-    .form-group {
-      margin-bottom: 22px;
-    }
+    .form-group { margin-bottom: 16px; }
 
     label {
-      font-weight: 600;
-      color: #35536b;
-      display: block;
-      margin-bottom: 8px;
-      font-size: 1em;
+      font-weight:600;
+      color:#35536b;
+      display:block;
+      margin-bottom:6px;
+      font-size:.95em;
     }
 
-    input[type="text"] {
-      width: 100%;
-      padding: 12px 15px;
-      font-size: 1.05em;
-      border: 2px solid #e0e0e0;
-      border-radius: 12px;
-      background: #f8f9fa;
-      transition: all 0.3s;
-      box-sizing: border-box;
+    input[type="text"],
+    input[type="password"] {
+      width:100%;
+      padding:9px 10px;
+      font-size:1.02em;
+      border:1.3px solid #bed2ed;
+      border-radius:7px;
+      background:#f3fafd;
+      transition:border-color .18s, box-shadow .18s;
     }
 
-    input[type="text"]:focus {
-      outline: none;
-      border-color: #667eea;
-      background: #fff;
-      box-shadow: 0 0 15px rgba(102, 126, 234, 0.2);
+    input:focus {
+      border-color:#699cdf;
+      outline:none;
+      box-shadow:0 0 0 2px #e1edff;
     }
 
-    /* ===== Candidate Cards ===== */
-    .candidate-list {
-      margin: 25px 0;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-      gap: 12px;
+    .candidate-list { margin-top:8px; max-height:260px; overflow-y:auto; padding-right:4px; }
+    .candidate-row {
+      display:flex; align-items:center;
+      margin-bottom:7px; padding:5px 8px;
+      border-radius:6px; transition:background .15s;
+      font-size:.95em;
+    }
+    .candidate-row:hover { background:#ecf6fc; }
+
+    .candidate-check { margin-left:10px; accent-color:#349bdd; }
+
+    .sec-box {
+      margin: 14px 0 10px;
+      padding:10px;
+      border-radius:8px;
+      background:#f6f9ff;
+      border:1px solid #d7e3ff;
+      font-size:.95em;
     }
 
-    .candidate-card {
-      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-      border: 2px solid #e0e0e0;
-      border-radius: 15px;
-      padding: 15px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.3s;
-      position: relative;
-      overflow: hidden;
+    .sec-box span.title {
+      font-weight:700;
+      color:#35536b;
+      display:block;
+      margin-bottom:6px;
     }
 
-    .candidate-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-      border-color: #667eea;
+    .sec-box label {
+      display:inline-flex;
+      align-items:center;
+      margin-inline-start:0;
+      margin-inline-end:14px;
+      font-weight:500;
+      cursor:pointer;
+    }
+    .sec-box input[type="radio"] {
+      margin-left:4px;
+      accent-color:#2874b2;
     }
 
-    .candidate-card input {
-      position: absolute;
-      opacity: 0;
-      cursor: pointer;
+    .btn-row {
+      margin-top:14px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
     }
 
-    .candidate-card input:checked + .candidate-symbol {
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: #fff;
-      transform: scale(1.1);
+    button {
+      flex:1 1 48%;
+      padding:10px 16px;
+      font-size:1.02em;
+      font-family:inherit;
+      border-radius:8px;
+      border:none;
+      cursor:pointer;
+      font-weight:700;
+      transition:background .16s, transform .1s, box-shadow .16s;
     }
 
-    .candidate-card input:checked ~ .candidate-label {
-      color: #667eea;
-      font-weight: 700;
+    .btn-primary {
+      background:#2874b2;
+      color:#fff;
+      box-shadow:0 2px 8px #9bbce733;
     }
+    .btn-primary:hover { background:#2060a5; transform:translateY(-1px); }
 
-    .candidate-symbol {
-      font-size: 2.5em;
-      margin-bottom: 8px;
-      display: inline-block;
-      transition: all 0.3s;
-      width: 60px;
-      height: 60px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #fff;
-      border-radius: 12px;
-      border: 2px solid #e0e0e0;
+    .btn-reset {
+      background:#e0e4f2;
+      color:#265687;
     }
+    .btn-reset:hover { background:#c9d0ec; transform:translateY(-1px); }
 
-    .candidate-label {
-      font-size: 0.85em;
-      font-weight: 600;
-      color: #666;
-      transition: all 0.3s;
-      word-break: break-word;
+    .msg-warn, .msg-confirm {
+      font-size:.96em;
+      font-weight:bold;
+      text-align:center;
+      padding:9px;
+      border-radius:6px;
+      margin:10px auto 0;
+      width:100%;
+      display:none;
     }
-
-    /* ===== Radio Group ===== */
-    .sec {
-      margin: 25px 0 20px;
-      padding: 20px;
-      background: #f8f9fa;
-      border-radius: 15px;
-      border-left: 5px solid #667eea;
-    }
-
-    .sec-title {
-      font-weight: 700;
-      color: #35536b;
-      margin-bottom: 12px;
-      display: block;
-    }
-
-    .radio-group {
-      display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
-    }
-
-    .radio-group label {
-      display: flex;
-      align-items: center;
-      margin: 0;
-      cursor: pointer;
-      font-weight: 600;
-    }
-
-    .radio-group input[type="radio"] {
-      margin-right: 8px;
-      cursor: pointer;
-      accent-color: #667eea;
-      width: 20px;
-      height: 20px;
-    }
-
-    /* ===== Buttons ===== */
-    .action-line {
-      margin-top: 25px;
-      display: flex;
-      gap: 12px;
-    }
-
-    button[type="submit"],
-    button[type="reset"] {
-      flex: 1;
-      padding: 13px 24px;
-      font-size: 1.05em;
-      font-family: inherit;
-      border-radius: 12px;
-      border: none;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    }
-
-    button[type="submit"] {
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: #fff;
-    }
-
-    button[type="submit"]:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
-    }
-
-    button[type="reset"] {
-      background: #e8eef7;
-      color: #667eea;
-      border: 2px solid #667eea;
-    }
-
-    button[type="reset"]:hover {
-      background: #667eea;
-      color: #fff;
-    }
-
-    /* ===== Messages ===== */
-    .msg-confirm, .msg-warn {
-      font-size: 1.05em;
-      font-weight: 700;
-      text-align: center;
-      padding: 15px;
-      border-radius: 12px;
-      margin: 15px 0 0;
-      display: none;
-      animation: fadeIn 0.3s;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    .msg-confirm {
-      background: #d4edda;
-      color: #237a4a;
-      border: 2px solid #28a745;
-    }
-
     .msg-warn {
-      background: #f8d7da;
-      color: #721c24;
-      border: 2px solid #f5c6cb;
+      background:#f9d7dd;
+      color:#a92d2c;
+      border:1px solid #eeadb7;
+    }
+    .msg-confirm {
+      background:#d4edda;
+      color:#237a4a;
+      border:1px solid #c2ded5;
     }
 
-    /* ===== Signature ===== */
     .right-sig {
-      margin-top: 40px;
-      text-align: center;
-      color: #999;
-      font-size: 0.9em;
-      font-style: italic;
-      border-top: 1px solid #eee;
-      padding-top: 20px;
+      margin-top:18px;
+      text-align:left;
+      color:#6b6b6b;
+      font-size:.9em;
+      font-style:italic;
     }
 
-    .hidden {
-      display: none !important;
+    /* Password section styling */
+    #password-section {
+      margin-bottom:18px;
+      padding:12px 10px 8px;
+      border-radius:10px;
+      background:#f6f7ff;
+      border:1px solid #dde3ff;
     }
+    #pw-err { margin-top:8px; }
 
-    /* ===== Responsive ===== */
-    @media (max-width: 650px) {
-      .container {
-        padding: 30px 20px;
-      }
-
-      h2 {
-        font-size: 1.4em;
-      }
-
-      .password-box {
-        padding: 40px 25px;
-      }
-
-      .candidate-list {
-        grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-      }
-
-      .candidate-symbol {
-        font-size: 2em;
-        width: 50px;
-        height: 50px;
-      }
-
-      button[type="submit"],
-      button[type="reset"] {
-        font-size: 0.95em;
-        padding: 11px 16px;
-      }
-    }
-
-    @media (max-width: 380px) {
-      .container {
-        padding: 20px 15px;
-        border-radius: 15px;
-      }
-
-      h2 {
-        font-size: 1.2em;
-      }
-
-      .password-box {
-        padding: 30px 15px;
-        width: 95%;
-      }
-
-      .radio-group {
-        flex-direction: column;
-        gap: 12px;
-      }
-
-      .action-line {
-        flex-direction: column;
-      }
+    @media (max-width:480px){
+      h2 { font-size:1.25em; }
+      .subtitle { font-size:.83em; }
+      button { font-size:.96em; }
+      .right-sig { font-size:.83em; }
     }
   </style>
 </head>
 <body>
-  <!-- Password Modal -->
-  <div class="password-modal" id="password-modal">
-    <div class="password-box">
-      <div class="lock-icon">🔐</div>
-      <h3>من فضلك أدخل كلمة السر</h3>
-      <p>لتتمكن من الوصول إلى نظام التصويت</p>
-      
-      <div class="password-input-group">
-        <input 
-          type="password" 
-          id="password-input" 
-          placeholder="أدخل الرقم السري"
-          autocomplete="off"
-        >
-        <button class="toggle-password" onclick="togglePassword(
+  <div class="container">
+    <h2>مراقبة وحصر العملية الانتخابية</h2>
+    <div class="subtitle">صفحة تسجيل التصويت - دخول بمفتاح سري للمشرف فقط</div>
+
+    <!-- قسم كلمة السر -->
+    <div id="password-section">
+      <label for="password-input">أدخل الرقم السري:</label>
+      <input type="password" id="password-input" autocomplete="off" placeholder="••••••">
+      <button class="btn-primary" style="margin-top:8px;width:100%;" onclick="checkPassword()">دخول</button>
+      <div id="pw-err" class="msg-warn"></div>
+    </div>
+
+    <!-- نموذج التصويت -->
+    <form id="main-form" class="hidden" autocomplete="off">
+      <div class="form-group">
+        <label for="voter-name">اسم الناخب (إجباري):</label>
+        <input type="text" id="voter-name" placeholder="اكتب اسم الناخب هنا">
+      </div>
+
+      <div class="form-group">
+        <label>اختيار المرشحين (حتى مرشحين فقط):</label>
+        <div class="candidate-list" id="candidates"></div>
+      </div>
+
+      <div class="sec-box">
+        <span class="title">حالة الصوت:</span>
+        <label><input type="radio" name="vote-valid" value="صحيح"> صحيح</label>
+        <label><input type="radio" name="vote-valid" value="باطل"> باطل</label>
+      </div>
+
+      <div class="btn-row">
+        <button type="submit" class="btn-primary">تسجيل التصويت</button>
+        <button type="reset" class="btn-reset">إعادة ضبط</button>
+      </div>
+
+      <div id="msg-warn" class="msg-warn"></div>
+      <div id="msg-confirm" class="msg-confirm"></div>
+    </form>
+
+    <div class="right-sig">تم برمجة هذا النظام بالكامل بكل حب بواسطة المهندس محمد حماد</div>
+  </div>
+
+  <!-- Firebase + منطق الصفحة -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getDatabase, ref, push, query, orderByChild, equalTo, get } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
+    // نفس إعدادات Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyCxxXV_6CEo1fTp3rRbfwfYbe7WH0Cyg38",
+      authDomain: "elahmadiya.firebaseapp.com",
+      databaseURL: "https://elahmadiya-default-rtdb.firebaseio.com",
+      projectId: "elahmadiya",
+      storageBucket: "elahmadiya.firebasestorage.app",
+      messagingSenderId: "594580767620",
+      appId: "1:594580767620:web:f5be3b87d4c704854e53d1",
+      measurementId: "G-EQ7PD5X0EL"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db  = getDatabase(app);
+
+    // بيانات المرشحين
+    const candidatesData = [
+      ["ايهاب العمده", "تاج"],
+      ["محمد العتمانى", "رغيف عيش"],
+      ["أحمد الحديدى", "أسد"],
+      ["عادل الجيار", "صقر"],
+      ["-", "مدفع"],
+      ["وليد تيسير الامير", "تمساح"],
+      ["كمال العيسوى", "مروحة"],
+      ["البدوى جميز", "حوت"],
+      ["احمد الريس", "عقرب"],
+      ["أحمد عوف", "كف"],
+      ["حسن الملهاط", "غصن زيتون"],
+      ["عمرو محمد بحيرى", "أوتوبيس"],
+      ["السيد طمان", "بندقية صيد"],
+      ["محمد دندن", "طائرة هليكوبتر"],
+      ["مجدى الأمير", "قلم حبر"]
+    ];
+
+    const candidateListElem = document.getElementById('candidates');
+    candidatesData.forEach(cand => {
+      candidateListElem.innerHTML += `
+        <div class="candidate-row">
+          <label>
+            <input type="checkbox" name="candidates" value="${cand[0]}" class="candidate-check" onclick="window.selectLimit(this)">
+            ${cand[0]} <span style="color:#2874b2;font-weight:bold;">(${cand[1]})</span>
+          </label>
+        </div>
+      `;
+    });
+
+    // حد أقصى مرشحين فقط
+    window.selectLimit = function(checkbox){
+      const checked = document.querySelectorAll('input[name="candidates"]:checked');
+      if (checked.length > 2) {
+        checkbox.checked = false;
+        showWarn("برجاء اختيار مرشحين فقط كحد أقصى");
+      }
+    }
+
+    function checkPassword(){
+      const pwInput = document.getElementById("password-input");
+      const pw      = pwInput.value.trim();
+      if (pw === "521988") {
+        document.getElementById("password-section").classList.add("hidden");
+        document.getElementById("main-form").classList.remove("hidden");
+        setTimeout(()=> document.getElementById("voter-name").focus(), 100);
+      } else {
+        showWarn("خطأ في الرقم السري", "pw-err");
+      }
+    }
+
+    function showWarn(msg, id="msg-warn"){
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = msg;
+      el.style.display = "block";
+      setTimeout(()=>{ el.style.display="none"; }, 2500);
+    }
+
+    function showConfirm(msg){
+      const el = document.getElementById("msg-confirm");
+      el.textContent = msg;
+      el.style.display = "block";
+      setTimeout(()=>{ el.style.display="none"; }, 3000);
+    }
+
+    async function checkDuplicateName(name){
+      const q   = query(ref(db,"votes"), orderByChild("name"), equalTo(name));
+      const snap = await get(q);
+      return snap.exists();
+    }
+
+    // تسجيل التصويت
+    const form = document.getElementById('main-form');
+    form.onsubmit = async (e)=>{
+      e.preventDefault();
+      document.getElementById('msg-confirm').style.display="none";
+
+      const name = document.getElementById('voter-name').value.trim();
+      const selected = [...document.querySelectorAll('input[name="candidates"]:checked')].map(x=>x.value);
+      const validity = document.querySelector('input[name="vote-valid"]:checked');
+
+      if (!name)             return showWarn("اسم الناخب مطلوب");
+      if (selected.length<1) return showWarn("اختر مرشح واحد على الأقل");
+      if (selected.length>2) return showWarn("اختر مرشحين فقط");
+      if (!validity)         return showWarn("اختر حالة الصوت");
+
+      if (!confirm(`تأكيد تسجيل التصويت باسم: "${name}" للمرشحين: ${selected.join(' و ')}\nهل أنت متأكد؟`)) return;
+
+      if (await checkDuplicateName(name)){
+        showWarn("تنبيه: هذا الاسم مسجل من قبل! (سيتم الحفظ مرة أخرى)");
+      }
+
+      const now = Date.now();
+
+      const vote = {
+        name,
+        selected,
+        vote_validity: validity.value,
+        timestamp: now
+      };
+
+      await push(ref(db,"votes"), vote)
+        .then(()=>{
+          showConfirm("تم تسجيل التصويت بنجاح");
+          form.reset();
+          setTimeout(()=> document.getElementById("voter-name").focus(), 200);
+        })
+        .catch(()=>{
+          showWarn("خطأ في التسجيل! تأكد من الاتصال بالإنترنت.");
+        });
+    };
+
+    form.onreset = () => {
+      document.getElementById('msg-confirm').style.display="none";
+      document.getElementById('msg-warn').style.display="none";
+      setTimeout(()=> document.getElementById("voter-name").focus(), 200);
+    };
+  </script>
+</body>
+</html>
