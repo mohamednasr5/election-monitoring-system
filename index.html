@@ -251,28 +251,32 @@ const db = getDatabase(app);
 let votesData = [];
 
 // عرض/إخفاء الباسورد
-function togglePass(){
+window.togglePass = function(){
   const p = document.getElementById("password-input");
   p.type = (p.type==="password") ? "text" : "password";
-}
+};
 
 // التحقق من الباسورد
-function checkPass(){
+window.checkPass = function(){
   const val = document.getElementById("password-input").value.trim();
   const modal = document.getElementById("password-modal");
   const main  = document.getElementById("main-container");
   const err   = document.getElementById("pw-err");
 
+  console.log("كلمة السر المدخلة:", val);
+
   if(val === "521988"){
     modal.classList.add("hidden");
     main.classList.remove("hidden");
     document.getElementById("voter-name").focus();
+    console.log("تم الدخول بنجاح!");
   }
   else{
     err.style.display="block";
     setTimeout(()=> err.style.display="none",1800);
+    console.log("كلمة السر غير صحيحة");
   }
-}
+};
 
 // قائمة المرشحين
 const candidates = [
