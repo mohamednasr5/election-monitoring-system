@@ -227,29 +227,18 @@ button{
 
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import {
-  getDatabase, ref, push, get, query, orderByChild, equalTo
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+<script>
+// متغيرات التخزين المؤقت
+let votesData = [];
 
-const app = initializeApp({
-  apiKey:"AIzaSyCxxXV_6CEo1fTp3rRbfwfYbe7WH0Cyg38",
-  authDomain:"elahmadiya.firebaseapp.com",
-  databaseURL:"https://elahmadiya-default-rtdb.firebaseio.com",
-  projectId:"elahmadiya",
-  storageBucket:"elahmadiya.firebasestorage.app",
-  messagingSenderId:"594580767620",
-  appId:"1:594580767620:web:f5be3b87d4c704854e53d1"
-});
-const db = getDatabase(app);
-
-window.togglePass = function(){
+// عرض/إخفاء الباسورد
+function togglePass(){
   const p = document.getElementById("password-input");
   p.type = (p.type==="password") ? "text" : "password";
-};
+}
 
-window.checkPass = function(){
+// التحقق من الباسورد
+function checkPass(){
   const val = document.getElementById("password-input").value.trim();
   const modal = document.getElementById("password-modal");
   const main  = document.getElementById("main-container");
@@ -264,8 +253,9 @@ window.checkPass = function(){
     err.style.display="block";
     setTimeout(()=> err.style.display="none",1800);
   }
-};
+}
 
+// قائمة المرشحين
 const candidates = [
   ["1","ايهاب العمده","👑"],
   ["2","محمد العتمانى","🍞"],
@@ -284,10 +274,17 @@ const candidates = [
   ["15","مجدى الأمير","🖊"]
 ];
 
+// إنشاء المرشحين
 const listBox = document.getElementById("candidate-list");
-candidates.forEach(c=>{
+candidates.forEach(c => {
   const item = document.createElement("div");
   item.className = "candidate-item";
+  
+  const checkbox = document.createElement("input");
+  checkbox.type = "checkbox";
+  checkbox.value = c[1];
+  checkbox.className = "candidate-checkbox";
+  
   item.innerHTML = `
     <div class="c-left">
       <div class="num-circle">${c[0]}</div>
@@ -295,33 +292,35 @@ candidates.forEach(c=>{
     </div>
     <div class="c-right">
       <span class="c-icon">${c[2]}</span>
-      <input type="checkbox" value="${c[1]}" class="candidate-checkbox">
     </div>
   `;
   
+  item.appendChild(checkbox);
+  
   item.addEventListener("click", function(e){
-    if(e.target.tagName !== "INPUT"){
-      const cb = item.querySelector(".candidate-checkbox");
-      cb.checked = !cb.checked;
-      limitSelect(cb);
+    if(e.target !== checkbox){
+      checkbox.checked = !checkbox.checked;
     }
+    limitSelect(checkbox);
   });
   
-  item.querySelector(".candidate-checkbox").addEventListener("change", function(){
+  checkbox.addEventListener("change", function(){
     limitSelect(this);
   });
   
   listBox.appendChild(item);
 });
 
-window.limitSelect = function(ch){
+// منع اختيار أكثر من 2
+function limitSelect(ch){
   const sel = document.querySelectorAll('.candidate-checkbox:checked');
   if(sel.length > 2){
     ch.checked = false;
     showWarn("يمكن اختيار مرشحين فقط");
   }
-};
+}
 
+// التحقق من صحة الاسم
 function invalidName(name){
   if(name.length < 4) return true;
   if(/[0-9]/.test(name)) return true;
@@ -329,18 +328,22 @@ function invalidName(name){
   return false;
 }
 
-async function isNameUsed(name){
-  const q  = query(ref(db,"votes"), orderByChild("name"), equalTo(name));
-  const sn = await get(q);
-  return sn.exists();
+// التحقق من تكرار الاسم
+function isNameUsed(name){
+  return votesData.some(v => v.name === name);
 }
 
-document.getElementById("vote-form").onsubmit = async(e)=>{
+// معالج تسجيل التصويت
+document.getElementById("vote-form").addEventListener("submit", function(e){
   e.preventDefault();
 
   const name = document.getElementById("voter-name").value.trim();
-  const sel  = [...document.querySelectorAll('.candidate-checkbox:checked')].map(v=>v.value);
-  const val  = document.querySelector('input[name="vvalid"]:checked');
+  const sel = [...document.querySelectorAll('.candidate-checkbox:checked')].map(v => v.value);
+  const val = document.querySelector('input[name="vvalid"]:checked');
+
+  console.log("الاسم:", name);
+  console.log("المرشحون:", sel);
+  console.log("الحالة:", val ? val.value : null);
 
   if(invalidName(name))
     return showWarn("اسم الناخب غير صالح");
@@ -351,30 +354,38 @@ document.getElementById("vote-form").onsubmit = async(e)=>{
   if(!val)
     return showWarn("اختر حالة الصوت");
 
-  if(await isNameUsed(name))
+  if(isNameUsed(name))
     return showWarn("تم التصويت من قبل لهذا الاسم");
 
-  await push(ref(db,"votes"),{
+  // تسجيل التصويت
+  votesData.push({
     name,
     selected: sel,
     vote_validity: val.value,
-    timestamp: Date.now()
+    timestamp: new Date().toISOString()
   });
 
-  showConfirm("تم التسجيل بنجاح");
+  console.log("تم التسجيل بنجاح! البيانات:", votesData);
+
+  showConfirm("تم التسجيل بنجاح ✓");
   document.getElementById("vote-form").reset();
   document.getElementById("voter-name").focus();
-};
+});
 
+// عرض رسالة تحذير
 function showWarn(msg){
-  const el=document.getElementById("msg-warn");
-  el.textContent=msg; el.style.display="block";
-  setTimeout(()=>el.style.display="none",2000);
+  const el = document.getElementById("msg-warn");
+  el.textContent = msg;
+  el.style.display = "block";
+  setTimeout(() => el.style.display = "none", 2000);
 }
+
+// عرض رسالة تأكيد
 function showConfirm(msg){
-  const el=document.getElementById("msg-confirm");
-  el.textContent=msg; el.style.display="block";
-  setTimeout(()=>el.style.display="none",2500);
+  const el = document.getElementById("msg-confirm");
+  el.textContent = msg;
+  el.style.display = "block";
+  setTimeout(() => el.style.display = "none", 2500);
 }
 </script>
 
