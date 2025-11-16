@@ -6,549 +6,529 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:'Cairo',sans-serif;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Cairo', 'Tajawal', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 /* الخلفية العامة */
-body{
-  background:linear-gradient(135deg,#1e3c72 0%,#2a5298 100%);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  min-height:100vh;
-  padding:20px;
-  color:#fff;
+body {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+  color: #fff;
 }
 
 /* إخفاء العناصر */
-.hidden{
-  display:none !important;
+.hidden {
+  display: none !important;
 }
 
 /* الحاوية الرئيسية */
-.container{
-  width:100%;
-  max-width:750px;
-  background:#fff;
-  color:#222;
-  padding:28px;
-  border-radius:22px;
-  box-shadow:0 20px 60px rgba(0,0,0,0.28);
-  animation:fadeIn .5s ease-out;
+.container {
+  width: 100%;
+  max-width: 850px;
+  background: #fff;
+  color: #222;
+  padding: 40px 35px;
+  border-radius: 22px;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.35);
+  animation: fadeIn 0.6s ease-out;
+  position: relative;
+  overflow: hidden;
 }
-@keyframes fadeIn{
-  from{opacity:0;transform:scale(.95);}
-  to{opacity:1;transform:scale(1);}
+
+.container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 /* العناوين */
-h2{
-  text-align:center;
-  font-size:1.9em;
-  font-weight:900;
-  color:#1e3c72;
-  margin-bottom:8px;
+h2 {
+  text-align: center;
+  font-size: 2em;
+  font-weight: 900;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
 }
-.subtitle{
-  text-align:center;
-  color:#666;
-  margin-bottom:18px;
-  font-size:.9em;
+
+.subtitle {
+  text-align: center;
+  color: #777;
+  margin-bottom: 25px;
+  font-size: 0.95em;
+  font-weight: 500;
 }
 
 /* مودال كلمة السر */
-#password-modal{
-  position:fixed;
-  top:0;left:0;
-  width:100%;height:100%;
-  background:rgba(0,0,0,0.65);
-  backdrop-filter:blur(6px);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  z-index:9999;
+#password-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
 }
-.pass-box{
-  width:90%;
-  max-width:400px;
-  background:#fff;
-  padding:25px 22px 22px;
-  border-radius:18px;
-  text-align:center;
-  box-shadow:0 10px 40px rgba(0,0,0,0.4);
-  animation:pop .4s ease;
+
+.pass-box {
+  width: 90%;
+  max-width: 420px;
+  background: #fff;
+  padding: 45px 35px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+  animation: pop 0.4s ease;
 }
-@keyframes pop{
-  from{transform:scale(.6);opacity:0;}
-  to{transform:scale(1);opacity:1;}
+
+@keyframes pop {
+  from {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
-.pass-title{
-  color:#1e3c72;
-  font-size:1.4em;
-  font-weight:900;
-  margin-bottom:6px;
+
+.lock-icon {
+  font-size: 3.5em;
+  margin-bottom: 15px;
+  animation: bounce 2s infinite;
 }
-.pass-text{
-  font-size:.9em;
-  color:#555;
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+.pass-title {
+  color: #667eea;
+  font-size: 1.6em;
+  font-weight: 900;
+  margin-bottom: 8px;
+}
+
+.pass-text {
+  font-size: 0.95em;
+  color: #666;
+  margin-bottom: 25px;
 }
 
 /* حقل كلمة السر + زر الإظهار */
-.pass-row{
-  position:relative;
-  margin-top:12px;
+.pass-row {
+  position: relative;
+  margin-bottom: 20px;
 }
-.pass-input{
-  width:100%;
-  padding:13px;
-  border-radius:10px;
-  border:2px solid #d5d9ff;
-  background:#f6f7ff;
-  font-size:1.1em;
-  text-align:center;
+
+.pass-input {
+  width: 100%;
+  padding: 14px 50px 14px 18px;
+  border-radius: 12px;
+  border: 2px solid #e0e0e0;
+  background: #f8f9fa;
+  font-size: 1.1em;
+  text-align: center;
+  letter-spacing: 1px;
+  transition: all 0.3s;
+  font-family: inherit;
 }
-.pass-toggle{
-  position:absolute;
-  left:12px;
-  top:50%;
-  transform:translateY(-50%);
-  font-size:1.3em;
-  color:#1e3c72;
-  cursor:pointer;
+
+.pass-input:focus {
+  outline: none;
+  border-color: #667eea;
+  background: #fff;
+  box-shadow: 0 0 15px rgba(102, 126, 234, 0.2);
+}
+
+.pass-toggle {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.4em;
+  color: #667eea;
+  cursor: pointer;
+  transition: transform 0.2s;
+  padding: 5px;
+  user-select: none;
+}
+
+.pass-toggle:hover {
+  transform: translateY(-50%) scale(1.15);
 }
 
 /* زر الدخول */
-.pass-btn{
-  margin-top:15px;
-  width:100%;
-  padding:12px;
-  border:none;
-  border-radius:10px;
-  background:#1e3c72;
-  color:#fff;
-  font-size:1.05em;
-  font-weight:bold;
-  cursor:pointer;
-  transition:.2s;
+.pass-btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  font-size: 1.05em;
+  font-weight: 900;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+  font-family: inherit;
 }
-.pass-btn:hover{
-  background:#162b57;
+
+.pass-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.pass-btn:active {
+  transform: translateY(0);
 }
 
 /* رسالة الخطأ في كلمة السر */
-.pass-err{
-  color:#b90000;
-  font-weight:bold;
-  margin-top:10px;
-  display:none;
-  font-size:.9em;
+.pass-err {
+  color: #e74c3c;
+  font-weight: 900;
+  margin-top: 15px;
+  display: none;
+  font-size: 0.92em;
+  animation: shake 0.4s;
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
 }
 
 /* تسميات ومدخلات النموذج */
-label{
-  font-weight:700;
-  color:#1e3c72;
-  margin-top:12px;
-  display:block;
-  margin-bottom:5px;
+label {
+  font-weight: 700;
+  color: #667eea;
+  margin-top: 18px;
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.98em;
 }
-input[type="text"]{
-  width:100%;
-  padding:12px;
-  border-radius:10px;
-  border:2px solid #d0d8f3;
-  background:#f7faff;
-  font-size:1.05em;
+
+input[type="text"] {
+  width: 100%;
+  padding: 13px 16px;
+  border-radius: 12px;
+  border: 2px solid #e0e0e0;
+  background: #f8f9fa;
+  font-size: 1.05em;
+  transition: all 0.3s;
+  font-family: inherit;
+}
+
+input[type="text"]:focus {
+  outline: none;
+  border-color: #667eea;
+  background: #fff;
+  box-shadow: 0 0 15px rgba(102, 126, 234, 0.2);
 }
 
 /* قائمة المرشحين */
-.candidate-list{
-  background:#f8f9ff;
-  border:1px solid #dee7ff;
-  padding:12px;
-  border-radius:15px;
-  max-height:330px;
-  overflow-y:auto;
-  margin-top:12px;
+.candidate-list {
+  background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+  border: 2px solid #e0e0e0;
+  padding: 16px;
+  border-radius: 15px;
+  max-height: 380px;
+  overflow-y: auto;
+  margin-top: 10px;
 }
-.candidate-item{
-  padding:10px 12px;
-  margin-bottom:8px;
-  background:#fff;
-  border:1px solid #e0e6ff;
-  border-radius:12px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  transition:.2s;
+
+.candidate-item {
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  background: #fff;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.3s;
+  cursor: pointer;
 }
-.candidate-item:hover{
-  background:#eef4ff;
-  border-color:#b4c4ff;
+
+.candidate-item:hover {
+  background: linear-gradient(135deg, #f0f4ff, #e8f0ff);
+  border-color: #667eea;
+  transform: translateX(-4px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
 }
-.c-left{
-  display:flex;
-  align-items:center;
-  gap:10px;
+
+.c-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
 }
-.num-circle{
-  background:#1e3c72;
-  color:#fff;
-  width:28px;
-  height:28px;
-  border-radius:50%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:.9em;
-  font-weight:900;
+
+.num-circle {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9em;
+  font-weight: 900;
+  flex-shrink: 0;
 }
-.c-name{
-  font-weight:700;
-  color:#1e3c72;
-  font-size:1em;
+
+.c-name {
+  font-weight: 700;
+  color: #35536b;
+  font-size: 0.98em;
 }
-.c-icon{
-  font-size:1.5em;
-  margin-right:6px;
+
+.c-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
 }
-input[type="checkbox"]{
-  accent-color:#1e3c72;
-  width:20px;
-  height:20px;
+
+.c-icon {
+  font-size: 1.8em;
+}
+
+input[type="checkbox"] {
+  accent-color: #667eea;
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+input[type="checkbox"]:checked {
+  transform: scale(1.15);
 }
 
 /* حالة الصوت */
-.sec-box{
-  background:#f1f5ff;
-  padding:14px;
-  border:1px solid #d3ddff;
-  border-radius:12px;
-  margin-top:12px;
+.sec-box {
+  background: linear-gradient(135deg, #f0f4ff, #e8f0ff);
+  padding: 18px;
+  border: 2px solid #667eea;
+  border-radius: 12px;
+  margin-top: 18px;
+  border-left: 5px solid #667eea;
 }
-.sec-box span{
-  font-weight:700;
-  color:#1e3c72;
-  margin-bottom:5px;
-  display:block;
+
+.sec-box span {
+  font-weight: 900;
+  color: #667eea;
+  margin-bottom: 12px;
+  display: block;
+  font-size: 0.98em;
+}
+
+.sec-box label {
+  margin-top: 8px;
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  color: #35536b;
+  cursor: pointer;
+}
+
+.sec-box input[type="radio"] {
+  margin-left: 10px;
+  margin-top: 0;
+  accent-color: #667eea;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
 }
 
 /* الأزرار السفلية */
-.btn-row{
-  display:flex;
-  gap:12px;
-  margin-top:18px;
+.btn-row {
+  display: flex;
+  gap: 14px;
+  margin-top: 22px;
 }
-button{
-  flex:1;
-  padding:12px;
-  border:none;
-  border-radius:12px;
-  cursor:pointer;
-  font-weight:700;
-  font-size:1.05em;
-  transition:.25s;
+
+button[type="submit"],
+button[type="reset"] {
+  flex: 1;
+  padding: 13px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 900;
+  font-size: 1.05em;
+  transition: all 0.3s;
+  font-family: inherit;
 }
-.btn-primary{
-  background:#1e3c72;
-  color:#fff;
+
+.btn-primary {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
 }
-.btn-primary:hover{
-  background:#163160;
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
 }
-.btn-reset{
-  background:#e8ecff;
-  color:#1e3c72;
+
+.btn-primary:active {
+  transform: translateY(0);
 }
-.btn-reset:hover{
-  background:#d5dbff;
+
+.btn-reset {
+  background: #e8eef7;
+  color: #667eea;
+  border: 2px solid #667eea;
+}
+
+.btn-reset:hover {
+  background: #667eea;
+  color: #fff;
+  transform: translateY(-2px);
 }
 
 /* رسائل التنبيه والتأكيد */
 .msg-warn,
-.msg-confirm{
-  margin-top:10px;
-  padding:10px;
-  border-radius:10px;
-  font-weight:700;
-  text-align:center;
-  display:none;
-  font-size:.9em;
+.msg-confirm {
+  margin-top: 15px;
+  padding: 13px;
+  border-radius: 12px;
+  font-weight: 900;
+  text-align: center;
+  display: none;
+  font-size: 0.95em;
+  animation: slideDown 0.3s ease;
 }
-.msg-warn{
-  background:#ffd8dd;
-  color:#900;
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
-.msg-confirm{
-  background:#d4edda;
-  color:#137d37;
+
+.msg-warn {
+  background: #fde8ea;
+  color: #c92a2a;
+  border: 2px solid #f08080;
+}
+
+.msg-confirm {
+  background: #d4edda;
+  color: #155724;
+  border: 2px solid #28a745;
 }
 
 /* التوقيع */
-.sig{
-  text-align:left;
-  margin-top:20px;
-  color:#777;
-  font-size:.85em;
-  font-style:italic;
+.sig {
+  text-align: center;
+  margin-top: 28px;
+  color: #999;
+  font-size: 0.88em;
+  font-style: italic;
+  border-top: 1px solid #eee;
+  padding-top: 20px;
 }
 
 /* Scrollbar */
-::-webkit-scrollbar{
-  width:8px;
-}
-::-webkit-scrollbar-thumb{
-  background:#b7c9ff;
-  border-radius:8px;
-}
-</style>
-</head>
-
-<body>
-
-<!-- ========== مودال كلمة السر ========== -->
-<div id="password-modal">
-  <div class="pass-box">
-    <div class="pass-title">من فضلك أدخل كلمة السر</div>
-    <div class="pass-text">هذه الصفحة مخصصة للمشرفين فقط</div>
-
-    <div class="pass-row">
-      <input
-        type="password"
-        id="password-input"
-        class="pass-input"
-        placeholder="••••••"
-        autocomplete="off"
-      >
-      <span class="pass-toggle" onclick="togglePass()">👁</span>
-    </div>
-
-    <button class="pass-btn" onclick="checkPass()">دخول</button>
-    <div id="pw-err" class="pass-err">كلمة السر غير صحيحة</div>
-  </div>
-</div>
-
-<!-- ========== صفحة التصويت الرئيسية ========== -->
-<div class="container hidden" id="main-container">
-
-  <h2>تسجيل التصويت</h2>
-  <div class="subtitle">نظام مراقبة وحصر العملية الانتخابية</div>
-
-  <form id="vote-form">
-
-    <label>اسم الناخب:</label>
-    <input type="text" id="voter-name" placeholder="اكتب اسم الناخب">
-
-    <label>اختر المرشح (حتى 2):</label>
-    <div class="candidate-list" id="candidate-list"></div>
-
-    <div class="sec-box">
-      <span>حالة الصوت:</span>
-      <label><input type="radio" name="vvalid" value="صحيح"> صحيح</label>
-      <label><input type="radio" name="vvalid" value="باطل"> باطل</label>
-    </div>
-
-    <div class="btn-row">
-      <button type="submit" class="btn-primary">تسجيل التصويت</button>
-      <button type="reset" class="btn-reset">إعادة ضبط</button>
-    </div>
-
-    <div id="msg-warn" class="msg-warn"></div>
-    <div id="msg-confirm" class="msg-confirm"></div>
-
-  </form>
-
-  <div class="sig">تم تطوير النظام بواسطة المهندس محمد حماد</div>
-
-</div>
-
-<!-- ========== Firebase + منطق الصفحة ========== -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import {
-  getDatabase,
-  ref,
-  push,
-  get,
-  query,
-  orderByChild,
-  equalTo
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
-
-/* تهيئة Firebase */
-const app = initializeApp({
-  apiKey:"AIzaSyCxxXV_6CEo1fTp3rRbfwfYbe7WH0Cyg38",
-  authDomain:"elahmadiya.firebaseapp.com",
-  databaseURL:"https://elahmadiya-default-rtdb.firebaseio.com",
-  projectId:"elahmadiya",
-  storageBucket:"elahmadiya.firebasestorage.app",
-  messagingSenderId:"594580767620",
-  appId:"1:594580767620:web:f5be3b87d4c704854e53d1"
-});
-const db = getDatabase(app);
-
-/* ==== دوال الباسورد (على window للـ onclick) ==== */
-window.togglePass = function(){
-  const p = document.getElementById("password-input");
-  p.type = (p.type === "password") ? "text" : "password";
-};
-
-window.checkPass = function(){
-  const val   = document.getElementById("password-input").value.trim();
-  const modal = document.getElementById("password-modal");
-  const main  = document.getElementById("main-container");
-  const err   = document.getElementById("pw-err");
-
-  if(val === "521988"){
-    modal.classList.add("hidden");
-    main.classList.remove("hidden");
-    document.getElementById("voter-name").focus();
-  }else{
-    err.style.display = "block";
-    setTimeout(()=> err.style.display="none",1800);
-  }
-};
-
-/* السماح بالضغط Enter في خانة الباسورد */
-document.getElementById("password-input").addEventListener("keydown", (e)=>{
-  if(e.key === "Enter"){
-    e.preventDefault();
-    window.checkPass();
-  }
-});
-
-/* ==== المرشحون بالترتيب الرسمي (مجمّدة) ==== */
-const candidates = Object.freeze([
-  ["1","ايهاب العمده","👑"],
-  ["2","محمد العتمانى","🍞"],
-  ["3","أحمد الحديدى","🦁"],
-  ["4","عادل الجيار","🦅"],
-  ["5","احمد محمد محمد سمره","💣"],
-  ["6","وليد تيسير الامير","🐊"],
-  ["7","كمال العيسوى","🌀"],
-  ["8","البدوى جميز","🐋"],
-  ["9","احمد الريس","🦂"],
-  ["10","أحمد عوف","✋"],
-  ["11","حسن الملهاط","🌿"],
-  ["12","عمرو محمد بحيرى","🚌"],
-  ["13","السيد طمان","🔫"],
-  ["14","محمد دندن","🚁"],
-  ["15","مجدى الأمير","🖊"]
-]);
-
-/* رسم المرشحين في الصفحة */
-const listBox = document.getElementById("candidate-list");
-candidates.forEach(c=>{
-  listBox.innerHTML += `
-    <div class="candidate-item">
-      <div class="c-left">
-        <div class="num-circle">${c[0]}</div>
-        <div class="c-name">${c[1]}</div>
-      </div>
-      <div class="c-right">
-        <span class="c-icon">${c[2]}</span>
-        <input type="checkbox" value="${c[1]}" onclick="limitSelect(this)">
-      </div>
-    </div>
-  `;
-});
-
-/* منع اختيار أكثر من مرشحين */
-window.limitSelect = function(ch){
-  const sel = document.querySelectorAll('input[type="checkbox"]:checked');
-  if(sel.length > 2){
-    ch.checked = false;
-    showWarn("يمكن اختيار مرشحين فقط");
-  }
-};
-
-/* فحص تكرار اسم الناخب في Firebase */
-async function isNameUsed(name){
-  const q  = query(ref(db,"votes"), orderByChild("name"), equalTo(name));
-  const sn = await get(q);
-  return sn.exists(); // true لو الاسم متسجل قبل كده
+::-webkit-scrollbar {
+  width: 8px;
 }
 
-/* إرسال التصويت */
-document.getElementById("vote-form").onsubmit = async(e)=>{
-  e.preventDefault();
-
-  const nameInput = document.getElementById("voter-name");
-  const name = nameInput.value.trim();
-  const sel  = [...document.querySelectorAll('input[type="checkbox"]:checked')].map(v=>v.value);
-  const val  = document.querySelector('input[name="vvalid"]:checked');
-
-  // التحقق من الاسم
-  if(name === ""){
-    return showWarn("اسم الناخب مطلوب");
-  }
-
-  if(name.length < 4){
-    showWarn("الاسم يجب أن يحتوي على 4 حروف على الأقل");
-    return;
-  }
-
-  // منع الأرقام والرموز – يسمح بالحروف العربية فقط + المسافات
-  const arabicRegex = /^[\u0600-\u06FF\s]+$/;
-  if (!arabicRegex.test(name)) {
-    showWarn("الاسم يجب أن يكون بالحروف العربية فقط بدون أرقام أو رموز");
-    return;
-  }
-
-  // التحقق من المرشحين وحالة الصوت
-  if(sel.length < 1){
-    return showWarn("اختر مرشح واحد على الأقل");
-  }
-
-  if(!val){
-    return showWarn("اختر حالة الصوت");
-  }
-
-  // التحقق من التكرار في قاعدة البيانات
-  if(await isNameUsed(name)){
-    showWarn("تم التصويت من قبل لهذا الاسم");
-
-    // إعادة تهيئة النموذج بالكامل وتجهيزه لناخب جديد
-    document.getElementById("vote-form").reset();
-    nameInput.value = "";
-    document.querySelectorAll('input[type="checkbox"]').forEach(x => x.checked = false);
-    document.querySelectorAll('input[name="vvalid"]').forEach(x => x.checked = false);
-    setTimeout(()=> nameInput.focus(), 100);
-    return;
-  }
-
-  // إرسال التصويت إلى Firebase
-  await push(ref(db,"votes"),{
-    name,
-    selected: sel,
-    vote_validity: val.value,
-    timestamp: Date.now()
-  });
-
-  showConfirm("تم تسجيل التصويت بنجاح");
-  document.getElementById("vote-form").reset();
-  document.getElementById("voter-name").value = "";
-  document.getElementById("voter-name").focus();
-};
-
-/* دوال الرسائل */
-function showWarn(msg){
-  const el = document.getElementById("msg-warn");
-  el.textContent = msg;
-  el.style.display = "block";
-  setTimeout(()=> el.style.display="none",2000);
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
 }
-function showConfirm(msg){
-  const el = document.getElementById("msg-confirm");
-  el.textContent = msg;
-  el.style.display = "block";
-  setTimeout(()=> el.style.display="none",2500);
-}
-</script>
 
-</body>
-</html>
+::-webkit-scrollbar-thumb {
+  background: #667eea;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #764ba2;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 30px 20px;
+  }
+
+  h2 {
+    font-size: 1.6em;
+  }
+
+  .candidate-list {
+    max-height: 300px;
+  }
+
+  .btn-row {
+    gap: 10px;
+  }
+
+  button[type="submit"],
+  button[type="reset"] {
+    font-size: 0.98em;
+    padding: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 20px 15px;
+    border-radius: 18px;
+  }
+
+  h2 {
+    font-size: 1.3em;
+  }
