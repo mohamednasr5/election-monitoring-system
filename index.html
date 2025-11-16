@@ -227,7 +227,26 @@ button{
 
 </div>
 
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import {
+  getDatabase, ref, push, get, query, orderByChild, equalTo
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
+// تهيئة Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyCxxXV_6CEo1fTp3rRbfwfYbe7WH0Cyg38",
+  authDomain: "elahmadiya.firebaseapp.com",
+  databaseURL: "https://elahmadiya-default-rtdb.firebaseio.com",
+  projectId: "elahmadiya",
+  storageBucket: "elahmadiya.firebasestorage.app",
+  messagingSenderId: "594580767620",
+  appId: "1:594580767620:web:f5be3b87d4c704854e53d1"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
 // متغيرات التخزين المؤقت
 let votesData = [];
 
@@ -341,10 +360,6 @@ document.getElementById("vote-form").addEventListener("submit", function(e){
   const sel = [...document.querySelectorAll('.candidate-checkbox:checked')].map(v => v.value);
   const val = document.querySelector('input[name="vvalid"]:checked');
 
-  console.log("الاسم:", name);
-  console.log("المرشحون:", sel);
-  console.log("الحالة:", val ? val.value : null);
-
   if(invalidName(name))
     return showWarn("اسم الناخب غير صالح");
 
@@ -357,19 +372,28 @@ document.getElementById("vote-form").addEventListener("submit", function(e){
   if(isNameUsed(name))
     return showWarn("تم التصويت من قبل لهذا الاسم");
 
-  // تسجيل التصويت
-  votesData.push({
+  // إرسال البيانات إلى Firebase
+  push(ref(db, "votes"), {
     name,
     selected: sel,
     vote_validity: val.value,
-    timestamp: new Date().toISOString()
+    timestamp: Date.now()
+  }).then(() => {
+    // إضافة محلية أيضاً
+    votesData.push({
+      name,
+      selected: sel,
+      vote_validity: val.value,
+      timestamp: new Date().toISOString()
+    });
+
+    showConfirm("تم التسجيل بنجاح ✓");
+    document.getElementById("vote-form").reset();
+    document.getElementById("voter-name").focus();
+  }).catch(err => {
+    showWarn("خطأ في الإرسال: " + err.message);
+    console.error("Firebase Error:", err);
   });
-
-  console.log("تم التسجيل بنجاح! البيانات:", votesData);
-
-  showConfirm("تم التسجيل بنجاح ✓");
-  document.getElementById("vote-form").reset();
-  document.getElementById("voter-name").focus();
 });
 
 // عرض رسالة تحذير
