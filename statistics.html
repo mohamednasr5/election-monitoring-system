@@ -125,6 +125,58 @@ body{
 }
 .chart-card h3{margin-bottom:8px;font-size:.98em;color:#1e3c72}
 
+/* Candidates ranking card */
+.ranking-card{
+  background:#fff; padding:14px; border-radius:15px;
+  box-shadow:0 4px 10px rgba(0,0,0,.06);
+  border:1px solid #e4e8f5;
+  margin-bottom:16px;
+}
+.ranking-card h3{
+  margin-bottom:12px;font-size:1em;color:#1e3c72;font-weight:900
+}
+.ranking-list{
+  max-height:400px;
+  overflow-y:auto;
+}
+.ranking-item{
+  display:flex; justify-content:space-between; align-items:center;
+  padding:10px 12px; margin-bottom:8px;
+  background:#f7f9ff; border-radius:12px;
+  border-left:4px solid #1e3c72;
+  transition:.2s;
+}
+.ranking-item:hover{
+  background:#eef2ff;
+  box-shadow:0 2px 6px rgba(0,0,0,.08);
+}
+.ranking-item.rank-1{border-left-color:#ffd700}
+.ranking-item.rank-2{border-left-color:#c0c0c0}
+.ranking-item.rank-3{border-left-color:#cd7f32}
+
+.ranking-left{
+  display:flex; align-items:center; gap:10px;
+}
+.ranking-medal{
+  font-size:1.4em; min-width:30px; text-align:center;
+}
+.ranking-name{
+  font-weight:700; color:#1e3c72; font-size:.95em;
+}
+.ranking-right{
+  display:flex; align-items:center; gap:12px;
+}
+.ranking-bar{
+  height:24px; background:linear-gradient(90deg,#1e3c72,#2a5298);
+  border-radius:12px; min-width:100px; max-width:200px;
+  display:flex; align-items:center; justify-content:center;
+  color:#fff; font-weight:700; font-size:.85em;
+}
+.ranking-count{
+  font-weight:900; color:#1e3c72; font-size:1.05em;
+  min-width:45px; text-align:center;
+}
+
 /* Table */
 .table-card{
   background:#fff; padding:12px; border-radius:15px;
@@ -287,6 +339,8 @@ tr:nth-child(even) td{background:#fcfdff}
 @media(max-width:600px){
   .dashboard{padding:12px}
   .title{font-size:1.4em}
+  .ranking-bar{min-width:60px;max-width:120px}
+  .ranking-count{min-width:35px;font-size:.9em}
 }
 </style>
 </head>
@@ -368,6 +422,14 @@ tr:nth-child(even) td{background:#fcfdff}
   <div class="chart-card" style="margin-bottom:16px">
     <h3>الأصوات لكل دقيقة (Live VPM)</h3>
     <canvas id="chartVPM"></canvas>
+  </div>
+
+  <!-- Candidates Ranking Card - NEW -->
+  <div class="ranking-card">
+    <h3>🏆 ترتيب المرشحين حسب عدد الأصوات</h3>
+    <div class="ranking-list" id="ranking-list">
+      <div style="text-align:center;color:#999;padding:20px">جاري تحميل البيانات...</div>
+    </div>
   </div>
 
   <!-- Table -->
@@ -481,6 +543,7 @@ const spikeEl   = document.getElementById("spike-alert");
 const tableBody = document.getElementById("votes-table");
 const footerNote= document.getElementById("footer-note");
 const searchInp = document.getElementById("search");
+const rankingList = document.getElementById("ranking-list");
 
 const detailsOverlay = document.getElementById("details-overlay");
 const detailsBody    = document.getElementById("details-body");
@@ -497,7 +560,7 @@ let chartVPM        = null;
 
 let currentEditId = null;
 
-/* قائمة المرشحين لاستخدامها في التعديل */
+/* قائمة المرشحين */
 const candidateNames = [
   "ايهاب العمده",
   "محمد العتمانى",
@@ -536,6 +599,7 @@ onValue(votesRef, snapshot=>{
 function renderAll(){
   renderStats();
   renderCharts();
+  renderRanking();
   renderTable();
 }
 
@@ -560,7 +624,6 @@ function renderStats(){
     if(diffMin > 0) vpm = total / diffMin;
     vpmEl.textContent = vpm.toFixed(2);
 
-    // Live status
     if(now - lastTs < 30000){
       liveTxt.textContent = "نشاط عالي الآن";
     } else if(total > 0){
@@ -569,7 +632,6 @@ function renderStats(){
       liveTxt.textContent = "بث مباشر";
     }
 
-    // VPM آخر 10 دقائق
     const tenMinAgo = now - 10*60*1000;
     const last10 = allVotes.filter(v=>v.timestamp >= tenMinAgo);
     let vpm10 = 0;
@@ -580,7 +642,6 @@ function renderStats(){
     }
     vpm10El.textContent = vpm10.toFixed(2);
 
-    // Spike alert
     const oneMinAgo = now - 60*1000;
     const lastMinCount = allVotes.filter(v=>v.timestamp >= oneMinAgo).length;
     const vpm1 = lastMinCount;
@@ -595,6 +656,58 @@ function renderStats(){
     liveTxt.textContent= "لا يوجد تصويت حاليًا";
     spikeEl.style.display = "none";
   }
+}
+
+/* ===== Render Ranking - NEW ===== */
+function renderRanking(){
+  const candCounts = {};
+  allVotes.forEach(v=>{
+    v.candidates.forEach(c=>{
+      candCounts[c] = (candCounts[c]||0)+1;
+    });
+  });
+  
+  const sorted = Object.entries(candCounts)
+    .map(([name, count]) => ({name, count}))
+    .sort((a,b) => b.count - a.count);
+  
+  if(sorted.length === 0){
+    rankingList.innerHTML = '<div style="text-align:center;color:#999;padding:20px">لا توجد بيانات بعد</div>';
+    return;
+  }
+  
+  const maxCount = sorted[0].count || 1;
+  rankingList.innerHTML = sorted.map((item, idx) => {
+    const rank = idx + 1;
+    let medal = "🥇";
+    let rankClass = "rank-1";
+    if(rank === 2){
+      medal = "🥈";
+      rankClass = "rank-2";
+    } else if(rank === 3){
+      medal = "🥉";
+      rankClass = "rank-3";
+    } else {
+      medal = `${rank}️⃣`;
+    }
+    
+    const percentage = (item.count / maxCount) * 100;
+    
+    return `
+      <div class="ranking-item ${rankClass}">
+        <div class="ranking-left">
+          <div class="ranking-medal">${medal}</div>
+          <div class="ranking-name">${item.name}</div>
+        </div>
+        <div class="ranking-right">
+          <div class="ranking-bar" style="width:${Math.max(percentage, 15)}%">
+            ${percentage > 20 ? item.count : ''}
+          </div>
+          <div class="ranking-count">${item.count}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
 }
 
 /* ===== Charts ===== */
@@ -635,7 +748,7 @@ function renderCharts(){
   } else {
     chartCandidates = new window.Chart(ctxCand,{
       type:"bar",
-      data:{ labels:candLabels, datasets:[{label:"عدد الأصوات", data:candData}] },
+      data:{ labels:candLabels, datasets:[{label:"عدد الأصوات", data:candData, backgroundColor:"#1e3c72"}] },
       options:{
         responsive:true,
         plugins:{ legend:{display:false} },
@@ -651,7 +764,13 @@ function renderCharts(){
   } else {
     chartValidity = new window.Chart(ctxVal,{
       type:"doughnut",
-      data:{ labels:["صحيح","باطل"], datasets:[{data:[validCount,invalidCount]}] },
+      data:{ 
+        labels:["صحيح","باطل"], 
+        datasets:[{
+          data:[validCount,invalidCount],
+          backgroundColor:["#0b7040","#b00020"]
+        }] 
+      },
       options:{
         responsive:true,
         plugins:{ legend:{position:"bottom"} },
@@ -672,7 +791,9 @@ function renderCharts(){
         datasets:[{
           label:"أصوات لكل دقيقة",
           data:vpmData,
-          tension:0.3
+          tension:0.3,
+          borderColor:"#1e3c72",
+          backgroundColor:"rgba(30, 60, 114, 0.1)"
         }]
       },
       options:{
@@ -820,7 +941,7 @@ window.resetStats = function(){
     .catch(()=> alert("حدث خطأ أثناء عملية التصفير"));
 };
 
-/* ===== تفاصيل الناخب (تبعنا / عدونا) ===== */
+/* ===== تفاصيل الناخب ===== */
 window.showDetails = function(id){
   const v = allVotes.find(x=>x.id === id);
   if(!v) return;
@@ -922,5 +1043,3 @@ window.saveEdit = function(){
 
 </body>
 </html>
-
-
