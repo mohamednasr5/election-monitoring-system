@@ -391,7 +391,7 @@ const app = initializeApp({
 });
 const db = getDatabase(app);
 
-/* ==== دوال الباسورد (مكشوفة على window للـ onclick) ==== */
+/* ==== دوال الباسورد (على window للـ onclick) ==== */
 window.togglePass = function(){
   const p = document.getElementById("password-input");
   p.type = (p.type === "password") ? "text" : "password";
@@ -477,20 +477,51 @@ async function isNameUsed(name){
 document.getElementById("vote-form").onsubmit = async(e)=>{
   e.preventDefault();
 
-  const name = document.getElementById("voter-name").value.trim();
+  const nameInput = document.getElementById("voter-name");
+  const name = nameInput.value.trim();
   const sel  = [...document.querySelectorAll('input[type="checkbox"]:checked')].map(v=>v.value);
   const val  = document.querySelector('input[name="vvalid"]:checked');
 
-  if(name === "")         return showWarn("اسم الناخب مطلوب");
-  if(sel.length < 1)      return showWarn("اختر مرشح واحد على الأقل");
-  if(!val)                return showWarn("اختر حالة الصوت");
+  // التحقق من الاسم
+  if(name === ""){
+    return showWarn("اسم الناخب مطلوب");
+  }
 
-  // التأكد من عدم تكرار الاسم
-  if(await isNameUsed(name)){
-    showWarn("تم التصويت من قبل لهذا الاسم");
+  if(name.length < 4){
+    showWarn("الاسم يجب أن يحتوي على 4 حروف على الأقل");
     return;
   }
 
+  // منع الأرقام والرموز – يسمح بالحروف العربية فقط + المسافات
+  const arabicRegex = /^[\u0600-\u06FF\s]+$/;
+  if (!arabicRegex.test(name)) {
+    showWarn("الاسم يجب أن يكون بالحروف العربية فقط بدون أرقام أو رموز");
+    return;
+  }
+
+  // التحقق من المرشحين وحالة الصوت
+  if(sel.length < 1){
+    return showWarn("اختر مرشح واحد على الأقل");
+  }
+
+  if(!val){
+    return showWarn("اختر حالة الصوت");
+  }
+
+  // التحقق من التكرار في قاعدة البيانات
+  if(await isNameUsed(name)){
+    showWarn("تم التصويت من قبل لهذا الاسم");
+
+    // إعادة تهيئة النموذج بالكامل وتجهيزه لناخب جديد
+    document.getElementById("vote-form").reset();
+    nameInput.value = "";
+    document.querySelectorAll('input[type="checkbox"]').forEach(x => x.checked = false);
+    document.querySelectorAll('input[name="vvalid"]').forEach(x => x.checked = false);
+    setTimeout(()=> nameInput.focus(), 100);
+    return;
+  }
+
+  // إرسال التصويت إلى Firebase
   await push(ref(db,"votes"),{
     name,
     selected: sel,
@@ -500,6 +531,7 @@ document.getElementById("vote-form").onsubmit = async(e)=>{
 
   showConfirm("تم تسجيل التصويت بنجاح");
   document.getElementById("vote-form").reset();
+  document.getElementById("voter-name").value = "";
   document.getElementById("voter-name").focus();
 };
 
@@ -520,4 +552,3 @@ function showConfirm(msg){
 
 </body>
 </html>
-
