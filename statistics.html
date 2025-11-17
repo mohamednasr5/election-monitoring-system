@@ -2,452 +2,639 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<title>لوحة نتائج الانتخابات - Dashboard</title>
+<title>لوحة التحكم الانتخابية – Dashboard</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{
+/* ============= RESET + BASE ============= */
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
   font-family:"Cairo",sans-serif;
-  background:linear-gradient(135deg,#dbe5f3 20%,#eef1ff 80%);
+}
+body{
+  background:linear-gradient(135deg,#dce3f3,#eef1ff);
   color:#222;
   min-height:100vh;
 }
 
-/* Password overlay */
-#password-overlay{
-  position:fixed; inset:0;
+/* ============= PASSWORD OVERLAY ============= */
+#lock-screen{
+  position:fixed;
+  inset:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
   background:rgba(0,0,0,.55);
-  display:flex; align-items:center; justify-content:center;
   backdrop-filter:blur(6px);
   z-index:9999;
 }
-.password-box{
+.lock-box{
   background:#fff;
-  padding:26px 22px 22px;
-  border-radius:20px;
   width:90%;
   max-width:380px;
-  box-shadow:0 15px 35px rgba(0,0,0,.3);
+  padding:25px 22px;
+  border-radius:18px;
   text-align:center;
+  box-shadow:0 15px 35px rgba(0,0,0,.3);
 }
-.password-box h2{margin-bottom:5px;color:#1e3c72}
-.password-box p{margin-bottom:10px;color:#555;font-size:.9em}
-.password-box input{
-  width:100%; padding:11px; border-radius:10px;
-  border:2px solid #ced6f2; margin-top:5px; background:#f6f8ff;
+.lock-box h2{
+  color:#1e3c72;
+  margin-bottom:8px;
+}
+.lock-box p{
+  font-size:.9em;
+  color:#555;
+}
+.lock-row{
+  margin-top:10px;
+  position:relative;
+}
+.lock-row input{
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:2px solid #cfd6f3;
+  background:#f4f6ff;
+  text-align:center;
+  font-size:1.1em;
+}
+.lock-toggle{
+  position:absolute;
+  left:10px;
+  top:50%;
+  transform:translateY(-50%);
+  cursor:pointer;
+  font-size:1.2em;
+  color:#1e3c72;
+}
+.lock-box button{
+  margin-top:15px;
+  width:100%;
+  padding:11px;
+  background:#1e3c72;
+  color:#fff;
+  border:none;
+  border-radius:10px;
   font-size:1.05em;
+  font-weight:700;
+  cursor:pointer;
 }
-.pass-row{position:relative}
-.pass-toggle{
-  position:absolute;left:10px;top:50%;transform:translateY(-50%);
-  cursor:pointer;font-size:1.2em;color:#1e3c72;
-}
-.password-box button{
-  margin-top:15px; width:100%;
-  background:#1e3c72; color:#fff;
-  padding:11px; border:none; border-radius:10px;
-  font-size:1.02em; cursor:pointer; font-weight:700;
-}
-.msg-warn{
-  display:none;margin-top:8px;padding:8px;
-  background:#ffd7dd;color:#8f0000;font-weight:bold;border-radius:8px;font-size:.85em
+.lock-error{
+  margin-top:10px;
+  background:#ffd7dd;
+  color:#8f0000;
+  padding:7px;
+  font-weight:700;
+  display:none;
+  border-radius:8px;
 }
 
-/* Dashboard layout */
+/* ============= DASHBOARD WRAPPER ============= */
 .hidden{display:none!important}
-.dashboard{
-  padding:18px;
-  max-width:1250px;
-  margin:auto;
-}
-.header{
-  display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap;
-  gap:10px; margin-bottom:18px;
-}
-.title{font-size:1.7em; font-weight:900; color:#1e3c72;}
-.subtitle{font-size:.9em;color:#555}
 
-/* Live badge */
-.badge-live{
-  background:#d9ffee; padding:6px 12px; border-radius:30px;
-  font-size:.9em; display:flex; align-items:center; gap:8px;
-  color:#0b7040; font-weight:700;
+.dashboard{
+  max-width:1300px;
+  margin:auto;
+  padding:18px;
 }
-.badge-live .dot{
-  width:10px;height:10px;border-radius:50%;background:#0b7040;
+
+/* HEADER */
+.dash-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-bottom:18px;
+}
+.dash-title{
+  font-size:1.8em;
+  font-weight:900;
+  color:#1e3c72;
+}
+.dash-subtitle{
+  font-size:.95em;
+  color:#555;
+}
+.live-badge{
+  background:#d9ffee;
+  padding:6px 12px;
+  border-radius:30px;
+  color:#0b7040;
+  font-weight:700;
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+.live-dot{
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background:#0b7040;
   animation:pulse 1s infinite;
 }
 @keyframes pulse{
-  0%{transform:scale(1)}
-  50%{transform:scale(1.5);opacity:.6}
-  100%{transform:scale(1)}
+  0%{transform:scale(1);}
+  50%{transform:scale(1.5);opacity:.6;}
+  100%{transform:scale(1);}
 }
 
-/* Spike alert */
+/* ALERT SPIKE */
 #spike-alert{
   display:none;
   background:#ffe3b3;
-  color:#8a5500;
   padding:10px;
+  color:#8a5500;
   border-radius:12px;
-  text-align:center;
-  margin-bottom:12px;
-  font-size:.98em;
   font-weight:800;
+  text-align:center;
+  margin-bottom:14px;
 }
 
-/* Cards */
+/* CARDS */
 .cards{
-  display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
-  gap:14px; margin-bottom:18px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+  gap:14px;
+  margin-bottom:16px;
 }
 .card{
   background:#fff;
-  padding:14px 12px 12px;
-  border-radius:15px;
-  box-shadow:0 4px 10px rgba(0,0,0,.06);
+  padding:16px;
+  border-radius:16px;
   border:1px solid #e4e8f5;
+  box-shadow:0 4px 10px rgba(0,0,0,.06);
 }
-.card-title{font-size:.9em;color:#607089;}
-.card-value{font-size:1.6em;font-weight:900;color:#1e3c72;margin-top:4px}
-.card-note{font-size:.78em;color:#777;margin-top:2px}
+.card-title{
+  font-size:.9em;
+  color:#607089;
+}
+.card-value{
+  font-size:1.7em;
+  font-weight:900;
+  color:#1e3c72;
+  margin-top:4px;
+}
+.card-note{
+  font-size:.78em;
+  color:#777;
+  margin-top:4px;
+}
+/* ============= NOTIFICATION PANEL ============= */
+.notify-panel{
+  background:#fff;
+  padding:16px;
+  border-radius:16px;
+  border:1px solid #e4e8f5;
+  box-shadow:0 4px 10px rgba(0,0,0,.06);
+  margin-bottom:18px;
+}
+.notify-panel h3{
+  color:#1e3c72;
+  font-size:1.05em;
+  margin-bottom:10px;
+  font-weight:900;
+}
+.notify-option{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  margin-bottom:8px;
+  font-weight:700;
+  color:#1e3c72;
+}
+.notify-panel textarea{
+  width:100%;
+  min-height:90px;
+  padding:10px;
+  background:#f7f9ff;
+  border:2px solid #d8e0f8;
+  border-radius:10px;
+  margin-bottom:12px;
+  font-size:1em;
+  resize:vertical;
+}
 
-/* Charts */
+/* Output message */
+#notify-result{
+  display:none;
+  margin-top:8px;
+  font-weight:800;
+  font-size:.95em;
+}
+
+/* ============= CHART CARDS ============= */
 .charts-grid{
-  display:grid; grid-template-columns:2fr 1.1fr; gap:14px;
+  display:grid;
+  grid-template-columns:2fr 1fr;
+  gap:14px;
   margin-bottom:16px;
 }
 .chart-card{
-  background:#fff; padding:12px; border-radius:15px;
-  box-shadow:0 4px 10px rgba(0,0,0,.06);
+  background:#fff;
+  padding:14px;
+  border-radius:16px;
   border:1px solid #e4e8f5;
+  box-shadow:0 4px 10px rgba(0,0,0,.06);
 }
-.chart-card h3{margin-bottom:8px;font-size:.98em;color:#1e3c72}
+.chart-card h3{
+  margin-bottom:10px;
+  color:#1e3c72;
+  font-size:1em;
+  font-weight:900;
+}
 
-/* Candidates ranking card */
+/* ============= RANKING ============= */
 .ranking-card{
-  background:#fff; padding:14px; border-radius:15px;
-  box-shadow:0 4px 10px rgba(0,0,0,.06);
+  background:#fff;
+  padding:16px;
+  border-radius:16px;
   border:1px solid #e4e8f5;
-  margin-bottom:16px;
+  margin-bottom:18px;
+  box-shadow:0 4px 10px rgba(0,0,0,.06);
 }
 .ranking-card h3{
-  margin-bottom:12px;font-size:1em;color:#1e3c72;font-weight:900
+  margin-bottom:12px;
+  color:#1e3c72;
+  font-size:1.05em;
+  font-weight:900;
 }
 .ranking-list{
-  max-height:400px;
+  max-height:420px;
   overflow-y:auto;
 }
 .ranking-item{
-  display:flex; justify-content:space-between; align-items:center;
-  padding:10px 12px; margin-bottom:8px;
-  background:#f7f9ff; border-radius:12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:10px;
+  padding:10px 12px;
+  background:#f7f9ff;
+  border-radius:12px;
   border-left:4px solid #1e3c72;
   transition:.2s;
 }
 .ranking-item:hover{
-  background:#eef2ff;
+  background:#eef3ff;
   box-shadow:0 2px 6px rgba(0,0,0,.08);
 }
-.ranking-item.rank-1{border-left-color:#ffd700}
-.ranking-item.rank-2{border-left-color:#c0c0c0}
-.ranking-item.rank-3{border-left-color:#cd7f32}
-
-.ranking-left{
-  display:flex; align-items:center; gap:10px;
-}
-.ranking-medal{
-  font-size:1.4em; min-width:30px; text-align:center;
-}
-.ranking-name{
-  font-weight:700; color:#1e3c72; font-size:.95em;
-}
-.ranking-right{
-  display:flex; align-items:center; gap:12px;
-}
+.ranking-left{display:flex;align-items:center;gap:10px}
+.ranking-medal{font-size:1.4em;min-width:30px;text-align:center}
+.ranking-name{font-weight:700;color:#1e3c72}
+.ranking-right{display:flex;align-items:center;gap:12px}
 .ranking-bar{
-  height:24px; background:linear-gradient(90deg,#1e3c72,#2a5298);
-  border-radius:12px; min-width:100px; max-width:200px;
-  display:flex; align-items:center; justify-content:center;
-  color:#fff; font-weight:700; font-size:.85em;
+  height:24px;
+  border-radius:12px;
+  background:linear-gradient(90deg,#1e3c72,#395db3);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#fff;
+  font-size:.85em;
+  min-width:80px;
 }
 .ranking-count{
-  font-weight:900; color:#1e3c72; font-size:1.05em;
-  min-width:45px; text-align:center;
+  font-weight:900;
+  color:#1e3c72;
+  min-width:40px;
+  text-align:center;
 }
 
-/* Table */
+/* ============= TABLE ============= */
 .table-card{
-  background:#fff; padding:12px; border-radius:15px;
-  box-shadow:0 4px 10px rgba(0,0,0,.06);
+  background:#fff;
+  padding:16px;
+  border-radius:16px;
   border:1px solid #e4e8f5;
+  box-shadow:0 4px 10px rgba(0,0,0,.06);
 }
 .table-header{
-  display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;
-  margin-bottom:8px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-bottom:10px;
 }
 .search-input{
-  padding:7px 9px;
+  padding:8px 10px;
+  border-radius:10px;
   border:2px solid #d8e0f8;
-  border-radius:8px; background:#f3f6ff;
-  min-width:180px;
+  background:#f7f8ff;
+  min-width:200px;
 }
 .btn-sm{
-  padding:7px 12px; background:#1e3c72;color:#fff;
-  border:none;border-radius:8px;font-size:.85em;cursor:pointer;font-weight:700;
+  padding:8px 14px;
+  border:none;
+  border-radius:10px;
+  background:#1e3c72;
+  color:#fff;
+  cursor:pointer;
+  font-weight:700;
+  font-size:.9em;
 }
 .btn-export{background:#1f8f4f!important}
 .btn-reset-all{background:#c0392b!important}
 
-/* Table itself */
-.table-wrap{max-height:330px;overflow:auto;border-radius:10px;border:1px solid #e4e8f5}
-table{width:100%;border-collapse:collapse;font-size:.88em}
+.table-wrap{
+  max-height:350px;
+  overflow:auto;
+  border:1px solid #e4e8f5;
+  border-radius:12px;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:.9em;
+}
 thead{
-  background:#eef2ff;position:sticky;top:0;z-index:1
+  background:#eef1ff;
+  position:sticky;
+  top:0;
+  z-index:1;
 }
 th,td{
-  padding:8px 9px;border-bottom:1px solid #eef2ff;white-space:nowrap;text-align:right
+  padding:8px 10px;
+  border-bottom:1px solid #f0f3ff;
+  white-space:nowrap;
 }
-th{cursor:pointer;color:#1e3c72;font-weight:700}
-tr:nth-child(even) td{background:#fcfdff}
+th{
+  color:#1e3c72;
+  cursor:pointer;
+  font-weight:900;
+}
+tr:nth-child(even) td{background:#fafbff}
 .status-valid{color:#0b7040;font-weight:900}
 .status-invalid{color:#b00020;font-weight:900}
-
-.footer-note{margin-top:4px;font-size:.78em;color:#777}
-
-/* clickable name + edit button */
 .clickable-name{
-  color:#1e3c72;
   text-decoration:underline;
   cursor:pointer;
+  color:#1e3c72;
 }
 .clickable-name:hover{color:#163160}
 
 .btn-mini-edit{
-  padding:4px 8px;
-  border-radius:8px;
-  border:none;
+  padding:5px 10px;
+  border-radius:10px;
   background:#ff6b6b;
   color:#fff;
-  font-size:.78em;
+  border:none;
   cursor:pointer;
   font-weight:700;
+  font-size:.8em;
 }
 .btn-mini-edit:hover{background:#e63939}
 
-/* Floating overlays (details + edit) */
-.floating-overlay{
+.footer-note{
+  margin-top:6px;
+  color:#777;
+  font-size:.8em;
+}
+
+/* ============= DETAILS POPUP ============= */
+.overlay{
   position:fixed;
   inset:0;
   background:rgba(0,0,0,.45);
   display:flex;
-  align-items:center;
   justify-content:center;
+  align-items:center;
   z-index:9000;
 }
-.floating-box{
+.overlay.hidden{display:none!important}
+.popup{
   background:#fff;
-  padding:12px 14px 10px;
-  border-radius:14px;
-  max-width:420px;
   width:92%;
-  box-shadow:0 12px 30px rgba(0,0,0,.35);
-  font-size:.9em;
+  max-width:420px;
+  border-radius:16px;
+  padding:16px;
+  box-shadow:0 12px 30px rgba(0,0,0,.3);
 }
-.fb-header{
+.popup-header{
   display:flex;
-  align-items:center;
   justify-content:space-between;
-  margin-bottom:8px;
-  font-weight:700;
+  align-items:center;
+  font-weight:900;
   color:#1e3c72;
+  margin-bottom:10px;
 }
-.fb-close{
+.popup-close{
+  background:none;
   border:none;
-  background:transparent;
+  font-size:1.3em;
   cursor:pointer;
-  font-size:1.1em;
 }
-#details-body table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:4px;
-}
-#details-body td{
-  padding:4px 3px;
-  border-bottom:1px solid #eef2ff;
-  font-size:.86em;
-}
-.label-friend{
+
+.friend-label{
   display:inline-block;
-  margin-top:6px;
-  padding:4px 8px;
-  border-radius:999px;
+  margin-top:8px;
+  padding:4px 10px;
+  border-radius:50px;
   background:#d4edda;
   color:#0b7030;
   font-weight:700;
-  font-size:.8em;
 }
-.label-enemy{
+.enemy-label{
   display:inline-block;
-  margin-top:6px;
-  padding:4px 8px;
-  border-radius:999px;
+  margin-top:8px;
+  padding:4px 10px;
+  border-radius:50px;
   background:#f8d7da;
-  color:#a31515;
+  color:#a21515;
   font-weight:700;
-  font-size:.8em;
 }
 
-/* Edit modal */
-#edit-name{margin-bottom:6px;font-weight:700;color:#1e3c72}
-.edit-candidates{
-  max-height:220px;
+/* ============= EDIT POPUP ============= */
+.edit-list{
+  max-height:250px;
   overflow:auto;
   border:1px solid #e4e8f5;
   border-radius:10px;
-  padding:6px 8px;
-  background:#f7f8ff;
-  margin-bottom:8px;
+  padding:8px;
+  background:#f9faff;
 }
-.edit-candidates label{
+.edit-list label{
   display:flex;
-  align-items:center;
   justify-content:space-between;
-  font-weight:600;
-  font-size:.85em;
-  margin:4px 0;
+  align-items:center;
+  margin:5px 0;
+  font-weight:700;
   color:#1e3c72;
 }
-.edit-candidates input[type="checkbox"]{
+.edit-list input[type="checkbox"]{
   width:18px;height:18px;accent-color:#1e3c72;
 }
-.fb-actions{
-  margin-top:4px;
-  text-align:left;
-}
-.fb-actions .btn-sm{
-  font-size:.83em;
-  padding:6px 12px;
-}
 
-/* Responsive */
+/* RESPONSIVE */
 @media(max-width:900px){
-  .charts-grid{grid-template-columns:1fr}
+  .charts-grid{grid-template-columns:1fr;}
 }
 @media(max-width:600px){
-  .dashboard{padding:12px}
-  .title{font-size:1.4em}
-  .ranking-bar{min-width:60px;max-width:120px}
+  .dash-title{font-size:1.4em}
+  .ranking-bar{min-width:60px}
   .ranking-count{min-width:35px;font-size:.9em}
 }
 </style>
 </head>
 <body>
 
-<!-- ================= PASSWORD OVERLAY ================ -->
-<div id="password-overlay">
-  <div class="password-box">
-    <h2>لوحة النتائج</h2>
-    <p>هذه الصفحة مخصصة للمدريين فقط</p>
-    <div class="pass-row">
-      <input id="pw-input" type="password" placeholder="••••••" autocomplete="off">
-      <span class="pass-toggle" onclick="togglePass()">👁</span>
+<!-- =================== شاشة القفل =================== -->
+<div id="lock-screen">
+  <div class="lock-box">
+    <h2>لوحة التحكم</h2>
+    <p>هذه الصفحة مخصصة للإدارة فقط</p>
+
+    <div class="lock-row">
+      <input id="lock-pass" type="password" placeholder="••••••" autocomplete="off">
+      <span class="lock-toggle" onclick="toggleLockPass()">👁</span>
     </div>
-    <button onclick="unlock()">دخول</button>
-    <div id="pw-error" class="msg-warn"></div>
+
+    <button onclick="unlockDashboard()">دخول</button>
+
+    <div id="lock-error" class="lock-error"></div>
   </div>
 </div>
 
-<!-- ================= DASHBOARD CONTENT ================ -->
-<div class="dashboard hidden" id="dashboard">
 
-  <div class="header">
+<!-- =================== محتوى الداشبورد =================== -->
+<div id="dashboard" class="dashboard hidden">
+
+  <!-- HEADER -->
+  <div class="dash-header">
     <div>
-      <div class="title">Dashboard النتائج الانتخابية</div>
-      <div class="subtitle">متابعة مباشرة للأصوات المسجلة  </div>
+      <div class="dash-title">Dashboard النتائج الانتخابية</div>
+      <div class="dash-subtitle">متابعة مباشرة + تحليل شامل لجميع اللجان</div>
     </div>
-    <div class="badge-live">
-      <span class="dot"></span>
-      <span id="live-status-text">بث مباشر</span>
+
+    <div class="live-badge">
+      <span class="live-dot"></span>
+      <span id="live-status">بث مباشر</span>
     </div>
   </div>
 
-  <!-- Spike Alert -->
-  <div id="spike-alert">⚠️ هناك قفزة مفاجئة في سرعة تسجيل الأصوات الآن!</div>
+  <!-- ALERT SPIKE -->
+  <div id="spike-alert">⚠️ هناك قفزة عالية في عدد الأصوات خلال الدقائق الأخيرة!</div>
 
-  <!-- Cards -->
+
+  <!-- CARDS / STATISTICS -->
   <div class="cards">
+
     <div class="card">
       <div class="card-title">إجمالي الأصوات</div>
       <div id="total-votes" class="card-value">0</div>
-      <div class="card-note">كل الأصوات المسجلة حتى الآن</div>
+      <div class="card-note">جميع الأصوات المسجلة</div>
     </div>
+
     <div class="card">
       <div class="card-title">الأصوات الصحيحة</div>
       <div id="valid-votes" class="card-value">0</div>
-      <div class="card-note">المسجلة كـ "صحيح"</div>
+      <div class="card-note">المصنفة كـ صحيح</div>
     </div>
+
     <div class="card">
       <div class="card-title">الأصوات الباطلة</div>
       <div id="invalid-votes" class="card-value">0</div>
-      <div class="card-note">المسجلة كـ "باطل"</div>
+      <div class="card-note">المسجلة كـ باطل</div>
     </div>
+
     <div class="card">
-      <div class="card-title">متوسط الأصوات/دقيقة (من البداية)</div>
+      <div class="card-title">متوسط الأصوات / دقيقة (من البداية)</div>
       <div id="vpm" class="card-value">0</div>
-      <div class="card-note">يحُسب من أول تصويت حتى آخر تصويت</div>
+      <div class="card-note">من أول صوت حتى الآن</div>
     </div>
+
     <div class="card">
-      <div class="card-title">متوسط الأصوات/دقيقة (آخر 10 دقائق)</div>
+      <div class="card-title">متوسط الأصوات / دقيقة (آخر 10 دقائق)</div>
       <div id="vpm10" class="card-value">0</div>
-      <div class="card-note">معدل سرعة التصويت في آخر 10 دقائق</div>
+      <div class="card-note">متابعة سرعة التصويت اللحظية</div>
     </div>
+
   </div>
 
-  <!-- Charts -->
+
+  <!-- ============= SEND NOTIFICATION PANEL ============= -->
+  <div class="notify-panel">
+
+    <h3>📡 إرسال إشعارات Firebase Cloud Messaging</h3>
+
+    <label class="notify-option">
+      <input type="radio" name="notify-target" value="all" checked>
+      <span>إرسال لجميع اللجان (1 → 60)</span>
+    </label>
+
+    <label class="notify-option">
+      <input type="radio" name="notify-target" value="one">
+      <span>
+        إرسال للجنة رقم:
+        <input id="notify-committee" type="number" min="1" max="60"
+               style="width:80px; padding:6px; border-radius:8px; border:2px solid #d8e0f8;">
+      </span>
+    </label>
+
+    <textarea id="notify-message" placeholder="اكتب نص الرسالة هنا..."></textarea>
+
+    <button class="btn-sm" style="width:100%;margin-top:8px" onclick="sendNotification()">
+      🚀 إرسال الإشعار الآن
+    </button>
+
+    <div id="notify-result"></div>
+  </div>
+
+
+
+  <!-- ============= CHARTS SECTION ============= -->
   <div class="charts-grid">
+
     <div class="chart-card">
-      <h3>عدد الأصوات لكل مرشح</h3>
+      <h3>📊 الأصوات لكل مرشح</h3>
       <canvas id="chartCandidates"></canvas>
     </div>
+
     <div class="chart-card">
-      <h3>نسبة الأصوات الصحيحة والباطلة</h3>
+      <h3>📘 نسبة الأصوات الصحيحة والباطلة</h3>
       <canvas id="chartValidity"></canvas>
     </div>
+
   </div>
 
-  <!-- Votes per minute chart -->
-  <div class="chart-card" style="margin-bottom:16px">
-    <h3>الأصوات لكل دقيقة (Live VPM)</h3>
+  <div class="chart-card">
+    <h3>⏱ الأصوات لكل دقيقة (VPM لحظي)</h3>
     <canvas id="chartVPM"></canvas>
   </div>
 
-  <!-- Candidates Ranking Card - NEW -->
+
+
+  <!-- ============= RANKING SECTION ============= -->
   <div class="ranking-card">
     <h3>🏆 ترتيب المرشحين حسب عدد الأصوات</h3>
-    <div class="ranking-list" id="ranking-list">
-      <div style="text-align:center;color:#999;padding:20px">جاري تحميل البيانات...</div>
+    <div id="ranking-list" class="ranking-list">
+      <div style="padding:20px;text-align:center;color:#777">جاري تحميل البيانات…</div>
     </div>
   </div>
 
-  <!-- Table -->
+
+
+  <!-- ============= TABLE SECTION ============= -->
   <div class="table-card">
+
     <div class="table-header">
-      <input id="search" class="search-input" placeholder="بحث بالاسم أو المرشح...">
-      <div style="display:flex;gap:6px;flex-wrap:wrap">
+      <input id="search" class="search-input" placeholder="بحث بالاسم أو المرشح…">
+
+      <div style="display:flex; gap:8px;">
         <button class="btn-sm btn-export" onclick="exportCSV()">📤 تصدير CSV</button>
-        <button class="btn-sm btn-reset-all" onclick="resetStats()">🔴 تصفير الإحصائيات</button>
+        <button class="btn-sm btn-reset-all" onclick="resetAll()">🔴 تصفير كل الإحصائيات</button>
       </div>
     </div>
+
     <div class="table-wrap">
       <table>
         <thead>
           <tr>
             <th data-sort="index">#</th>
-            <th data-sort="name">الناخب</th>
-            <th data-sort="candidates">المرشحون</th>
+            <th data-sort="name">الاسم</th>
+            <th data-sort="candidates">المرشحين</th>
             <th data-sort="validity">الحالة</th>
             <th data-sort="time">الوقت</th>
             <th>تعديل</th>
@@ -456,69 +643,64 @@ tr:nth-child(even) td{background:#fcfdff}
         <tbody id="votes-table"></tbody>
       </table>
     </div>
-    <div id="footer-note" class="footer-note">لا توجد أصوات مسجلة بعد.</div>
+
+    <div id="footer-note" class="footer-note">لا توجد بيانات بعد.</div>
   </div>
+</div> <!-- END DASHBOARD -->
 
-</div>
 
-<!-- تفاصيل الناخب -->
-<div id="details-overlay" class="floating-overlay hidden">
-  <div class="floating-box">
-    <div class="fb-header">
-      <span>تفاصيل الناخب</span>
-      <button class="fb-close" onclick="closeDetails()">✖</button>
+<!-- ============= DETAILS POPUP (مفقود في الكود الأصلي) ============= -->
+<div id="details-popup" class="overlay hidden">
+  <div class="popup">
+    <div class="popup-header">
+      <h3>تفاصيل الناخب</h3>
+      <button class="popup-close" onclick="closeDetails()">×</button>
     </div>
-    <div id="details-body"></div>
-  </div>
-</div>
-
-<!-- تعديل المرشحين -->
-<div id="edit-overlay" class="floating-overlay hidden">
-  <div class="floating-box">
-    <div class="fb-header">
-      <span>تعديل اختيار المرشحين</span>
-      <button class="fb-close" onclick="closeEdit()">✖</button>
-    </div>
-    <div id="edit-body">
-      <div id="edit-name"></div>
-      <div id="edit-candidates" class="edit-candidates"></div>
-      <div class="fb-actions">
-        <button class="btn-sm" onclick="saveEdit()">حفظ التعديل</button>
-      </div>
+    <div id="details-body" style="padding:10px;">
+      <!-- سيتم ملؤه ديناميكيًا -->
     </div>
   </div>
 </div>
 
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<!-- Firebase + Dashboard Logic -->
+<!-- ============= EDIT POPUP (مفقود في الكود الأصلي) ============= -->
+<div id="edit-popup" class="overlay hidden">
+  <div class="popup">
+    <div class="popup-header">
+      <h3>تعديل المرشحين</h3>
+      <button class="popup-close" onclick="closeEdit()">×</button>
+    </div>
+    <div style="padding:10px;">
+      <p id="edit-name" style="font-weight:700;margin-bottom:10px;color:#1e3c72;"></p>
+      
+      <div id="edit-candidates" class="edit-list"></div>
+
+      <button class="btn-sm" style="width:100%;margin-top:12px;" onclick="saveEdit()">
+        ✔️ حفظ التعديلات
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============= مكتبة Chart.js (مفقودة في الكود الأصلي) ============= -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js"></script>
+
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getDatabase, ref, onValue, update, remove } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-/* ===== Password helpers ===== */
-window.togglePass = function(){
-  const inp = document.getElementById("pw-input");
-  inp.type = (inp.type === "password") ? "text" : "password";
-};
-window.unlock = function(){
-  const val = document.getElementById("pw-input").value.trim();
-  const err = document.getElementById("pw-error");
-  if(val === "521988"){
-    document.getElementById("password-overlay").classList.add("hidden");
-    document.getElementById("dashboard").classList.remove("hidden");
-  } else {
-    err.textContent = "الرقم السري غير صحيح";
-    err.style.display = "block";
-    setTimeout(()=> err.style.display="none", 2200);
-  }
-};
-document.getElementById("pw-input").addEventListener("keydown",e=>{
-  if(e.key==="Enter"){e.preventDefault();window.unlock();}
-});
+/* ======================= FIREBASE ======================= */
+import { initializeApp } 
+  from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 
-/* ===== Firebase config ===== */
+import { 
+  getDatabase, ref, onValue, update, remove 
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
+import {
+  getMessaging, getToken
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging.js";
+
+/* ========== Firebase Config ========== */
 const firebaseConfig = {
   apiKey: "AIzaSyCxxXV_6CEo1fTp3rRbfwfYbe7WH0Cyg38",
   authDomain: "elahmadiya.firebaseapp.com",
@@ -526,520 +708,670 @@ const firebaseConfig = {
   projectId: "elahmadiya",
   storageBucket: "elahmadiya.firebasestorage.app",
   messagingSenderId: "594580767620",
-  appId: "1:594580767620:web:f5be3b87d4c704854e53d1",
-  measurementId: "G-EQ7PD5X0EL"
+  appId: "1:594580767620:web:f5be3b87d4c704854e53d1"
 };
-const app = initializeApp(firebaseConfig);
-const db  = getDatabase(app);
 
-/* ===== DOM ===== */
-const totalEl   = document.getElementById("total-votes");
-const validEl   = document.getElementById("valid-votes");
-const invalidEl = document.getElementById("invalid-votes");
-const vpmEl     = document.getElementById("vpm");
-const vpm10El   = document.getElementById("vpm10");
-const liveTxt   = document.getElementById("live-status-text");
-const spikeEl   = document.getElementById("spike-alert");
-const tableBody = document.getElementById("votes-table");
-const footerNote= document.getElementById("footer-note");
-const searchInp = document.getElementById("search");
-const rankingList = document.getElementById("ranking-list");
+const app  = initializeApp(firebaseConfig);
+const db   = getDatabase(app);
+const msg  = getMessaging(app);
 
-const detailsOverlay = document.getElementById("details-overlay");
-const detailsBody    = document.getElementById("details-body");
-const editOverlay    = document.getElementById("edit-overlay");
-const editNameEl     = document.getElementById("edit-name");
-const editCandBox    = document.getElementById("edit-candidates");
+
+/* ======================= تسجيل Service Worker (مفقود في الكود الأصلي) ======================= */
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/firebase-messaging-sw.js')
+    .then(registration => {
+      console.log('✔️ Service Worker مسجل بنجاح:', registration.scope);
+    })
+    .catch(err => {
+      console.error('❌ فشل تسجيل Service Worker:', err);
+    });
+}
+
+
+/* ======================= تسجيل توكن الإشعارات ======================= */
+
+let deviceToken = null;
+
+async function registerFCMToken(){
+  try{
+    deviceToken = await getToken(msg, {
+      vapidKey: "BC4Mh4NtSNGjRaIyPAtDrC1FcxQoPMoHDjrOTSwe9CzcppZcqOyeClR-zKo3R68r9iY_DyKPmoDUrmDdU0BR9W8"
+    });
+
+    if(!deviceToken){
+      console.warn("⚠️ لم يتم الحصول على التوكن");
+      return;
+    }
+
+    // حفظه في قاعدة البيانات
+    update(ref(db, "tokens/" + deviceToken), {
+      token: deviceToken,
+      time: Date.now()
+    });
+
+    console.log("🔔 تم تسجيل توكن FCM:", deviceToken);
+
+  } catch(err){
+    console.error("خطأ في تسجيل التوكن:", err);
+  }
+}
+
+registerFCMToken();
+
+
+// الاستماع للإشعارات داخل الصفحة
+navigator.serviceWorker.addEventListener("message", event => {
+  const data = event.data?.firebaseMessaging?.data;
+  if(data){
+    showFloatingNotification(data.body);
+  }
+});
+
+
+/* ===== مكون فقاعة الإشعار داخل الصفحة ===== */
+function showFloatingNotification(msg){
+  const box = document.createElement("div");
+  box.style.cssText = `
+    position:fixed;
+    bottom:20px;
+    right:20px;
+    background:#1e3c72;
+    color:#fff;
+    padding:14px 16px;
+    border-radius:14px;
+    box-shadow:0 4px 10px rgba(0,0,0,.3);
+    z-index:99999;
+    font-size:1em;
+    max-width:260px;
+  `;
+  box.innerText = msg;
+  document.body.appendChild(box);
+
+  setTimeout(()=>{
+    box.style.opacity = "0";
+    box.style.transform = "translateY(10px)";
+  }, 3000);
+
+  setTimeout(()=> box.remove(), 3600);
+}
+
+
+
+/* ======================= شاشة الدخول ======================= */
+
+window.toggleLockPass = function(){
+  const inp = document.getElementById("lock-pass");
+  inp.type = inp.type === "password" ? "text" : "password";
+};
+
+window.unlockDashboard = function(){
+  const value = document.getElementById("lock-pass").value.trim();
+  const err   = document.getElementById("lock-error");
+
+  if(value === "521988"){
+    document.getElementById("lock-screen").classList.add("hidden");
+    document.getElementById("dashboard").classList.remove("hidden");
+
+    // ترحيب خاص للمهندس محمد نصر
+    showFloatingNotification("مرحباً بالمهندس محمد نصر… كينج البرمجة 👑");
+
+  } else {
+    err.textContent = "الرقم السري غير صحيح";
+    err.style.display = "block";
+    setTimeout(()=> err.style.display="none", 2300);
+  }
+};
+
+document.getElementById("lock-pass").addEventListener("keydown", e=>{
+  if(e.key === "Enter"){
+    e.preventDefault();
+    unlockDashboard();
+  }
+});
+
+
+
+/* ======================= المتغيرات العامة ======================= */
 
 let allVotes = [];
-let sortState = { key:"index", dir:"asc" };
+let sortState = { key: "index", dir: "asc" };
 
 let chartCandidates = null;
 let chartValidity   = null;
 let chartVPM        = null;
 
-let currentEditId = null;
-
-/* قائمة المرشحين */
-const candidateNames = [
-  "ايهاب العمده",
-  "محمد العتمانى",
-  "أحمد الحديدى",
-  "عادل الجيار",
-  "احمد محمد محمد سمره",
-  "وليد تيسير الامير",
-  "كمال العيسوى",
-  "البدوى جميز",
-  "احمد الريس",
-  "أحمد عوف",
-  "حسن الملهاط",
-  "عمرو محمد بحيرى",
-  "السيد طمان",
-  "محمد دندن",
-  "مجدى الأمير"
+const candidatesNames = [
+  "ايهاب العمده","محمد العتمانى","أحمد الحديدى",
+  "عادل الجيار","احمد محمد محمد سمره","وليد تيسير الامير",
+  "كمال العيسوى","البدوى جميز","احمد الريس",
+  "أحمد عوف","حسن الملهاط","عمرو محمد بحيرى",
+  "السيد طمان","محمد دندن","مجدى الأمير"
 ];
+/* ======================= جلب البيانات من فايربيس ======================= */
 
-/* ===== Listen to Firebase ===== */
-const votesRef = ref(db,"votes");
+const votesRef = ref(db, "votes");
+
 onValue(votesRef, snapshot=>{
   const data = snapshot.val() || {};
+
   allVotes = Object.entries(data).map(([id,v],i)=>({
     id,
     index: i+1,
-    name: v.name || "",
-    candidates: Array.isArray(v.selected)? v.selected : [],
+    name: v.name || "No Name",
+    candidates: Array.isArray(v.selected) ? v.selected : [],
     validity: v.vote_validity || "",
-    timestamp: v.timestamp || 0,
-    duration: v.duration_seconds ? Number(v.duration_seconds) : null
+    timestamp: v.timestamp || 0
   }));
+
   renderAll();
 });
-
-/* ===== Render all ===== */
+/* ======================= رندر شامل ======================= */
 function renderAll(){
   renderStats();
   renderCharts();
   renderRanking();
   renderTable();
 }
-
-/* ===== Stats & live indicators ===== */
+/* ======================= الإحصائيات العامة ======================= */
 function renderStats(){
-  const total = allVotes.length;
-  const valid = allVotes.filter(v=>v.validity==="صحيح").length;
-  const invalid = allVotes.filter(v=>v.validity==="باطل").length;
+  const total   = allVotes.length;
+  const valid   = allVotes.filter(v => v.validity === "صحيح").length;
+  const invalid = allVotes.filter(v => v.validity === "باطل").length;
 
-  totalEl.textContent   = total;
-  validEl.textContent   = valid;
-  invalidEl.textContent = invalid;
+  document.getElementById("total-votes").textContent   = total;
+  document.getElementById("valid-votes").textContent   = valid;
+  document.getElementById("invalid-votes").textContent = invalid;
 
+  const liveTxt = document.getElementById("live-status");
   const now = Date.now();
+
   if(total > 0){
-    const sortedByTime = [...allVotes].filter(v=>v.timestamp)
-                                      .sort((a,b)=>a.timestamp - b.timestamp);
-    const firstTs = sortedByTime[0].timestamp;
-    const lastTs  = sortedByTime[sortedByTime.length-1].timestamp;
+    const sorted = [...allVotes].filter(v=>v.timestamp).sort((a,b)=>a.timestamp - b.timestamp);
+
+    const firstTs = sorted[0].timestamp;
+    const lastTs  = sorted[sorted.length-1].timestamp;
+
+    /* ---- متوسط كل الوقت ---- */
     const diffMin = (lastTs - firstTs) / 60000;
     let vpm = 0;
     if(diffMin > 0) vpm = total / diffMin;
-    vpmEl.textContent = vpm.toFixed(2);
+    document.getElementById("vpm").textContent = vpm.toFixed(2);
 
-    if(now - lastTs < 30000){
-      liveTxt.textContent = "نشاط عالي الآن";
-    } else if(total > 0){
-      liveTxt.textContent = "نشاط مستقر";
-    } else {
-      liveTxt.textContent = "بث مباشر";
-    }
+    /* ---- متوسط آخر 10 دقائق ---- */
+    const tenMinAgo = now - (10 * 60 * 1000);
+    const last10 = allVotes.filter(v => v.timestamp >= tenMinAgo);
 
-    const tenMinAgo = now - 10*60*1000;
-    const last10 = allVotes.filter(v=>v.timestamp >= tenMinAgo);
     let vpm10 = 0;
     if(last10.length > 0){
-      const firstInWindow = last10.reduce((m,v)=>Math.min(m,v.timestamp), last10[0].timestamp);
-      const spanMin = (now - firstInWindow)/60000 || 1;
-      vpm10 = last10.length / spanMin;
+      const firstInWindow = Math.min(...last10.map(x=>x.timestamp));
+      const span = (now - firstInWindow) / 60000;
+      vpm10 = last10.length / (span || 1);
     }
-    vpm10El.textContent = vpm10.toFixed(2);
+    document.getElementById("vpm10").textContent = vpm10.toFixed(2);
 
-    const oneMinAgo = now - 60*1000;
-    const lastMinCount = allVotes.filter(v=>v.timestamp >= oneMinAgo).length;
-    const vpm1 = lastMinCount;
-    if(total >= 5 && vpm > 0 && vpm1 > vpm * 2 && lastMinCount >= 3){
-      spikeEl.style.display = "block";
+    /* ---- حالة النشاط ---- */
+    if(now - lastTs < 25000){
+      liveTxt.textContent = "نشاط عالي الآن";
     } else {
-      spikeEl.style.display = "none";
+      liveTxt.textContent = "نشاط مستقر";
     }
+
+    /* ---- إنذار القفزة ---- */
+    const lastMin = allVotes.filter(v => v.timestamp >= (now - 60000)).length;
+    if(total >= 5 && vpm10 > 0 && lastMin >= 3 && lastMin > (vpm10 * 2)){
+      document.getElementById("spike-alert").style.display = "block";
+    } else {
+      document.getElementById("spike-alert").style.display = "none";
+    }
+
   } else {
-    vpmEl.textContent  = "0";
-    vpm10El.textContent= "0";
-    liveTxt.textContent= "لا يوجد تصويت حاليًا";
-    spikeEl.style.display = "none";
+    document.getElementById("vpm").textContent = "0";
+    document.getElementById("vpm10").textContent = "0";
+    liveTxt.textContent = "لا يوجد تصويت حالياً";
   }
 }
 
-/* ===== Render Ranking - NEW ===== */
-function renderRanking(){
-  const candCounts = {};
-  allVotes.forEach(v=>{
-    v.candidates.forEach(c=>{
-      candCounts[c] = (candCounts[c]||0)+1;
-    });
-  });
-  
-  const sorted = Object.entries(candCounts)
-    .map(([name, count]) => ({name, count}))
-    .sort((a,b) => b.count - a.count);
-  
-  if(sorted.length === 0){
-    rankingList.innerHTML = '<div style="text-align:center;color:#999;padding:20px">لا توجد بيانات بعد</div>';
-    return;
-  }
-  
-  const maxCount = sorted[0].count || 1;
-  rankingList.innerHTML = sorted.map((item, idx) => {
-    const rank = idx + 1;
-    let medal = "🥇";
-    let rankClass = "rank-1";
-    if(rank === 2){
-      medal = "🥈";
-      rankClass = "rank-2";
-    } else if(rank === 3){
-      medal = "🥉";
-      rankClass = "rank-3";
-    } else {
-      medal = `${rank}️⃣`;
-    }
-    
-    const percentage = (item.count / maxCount) * 100;
-    
-    return `
-      <div class="ranking-item ${rankClass}">
-        <div class="ranking-left">
-          <div class="ranking-medal">${medal}</div>
-          <div class="ranking-name">${item.name}</div>
-        </div>
-        <div class="ranking-right">
-          <div class="ranking-bar" style="width:${Math.max(percentage, 15)}%">
-            ${percentage > 20 ? item.count : ''}
-          </div>
-          <div class="ranking-count">${item.count}</div>
-        </div>
-      </div>
-    `;
-  }).join('');
-}
 
-/* ===== Charts ===== */
+
+/* ======================= الرسومات البيانية ======================= */
 function renderCharts(){
-  const ctxCand = document.getElementById("chartCandidates").getContext("2d");
-  const ctxVal  = document.getElementById("chartValidity").getContext("2d");
-  const ctxVPM  = document.getElementById("chartVPM").getContext("2d");
+  const ctx1 = document.getElementById("chartCandidates").getContext("2d");
+  const ctx2 = document.getElementById("chartValidity").getContext("2d");
+  const ctx3 = document.getElementById("chartVPM").getContext("2d");
 
-  const candCounts = {};
+  /* ---- إحصائية المرشحين ---- */
+  const counts = {};
   allVotes.forEach(v=>{
     v.candidates.forEach(c=>{
-      candCounts[c] = (candCounts[c]||0)+1;
+      counts[c] = (counts[c] || 0) + 1;
     });
   });
-  const candLabels = Object.keys(candCounts);
-  const candData   = Object.values(candCounts);
 
-  const validCount   = allVotes.filter(v=>v.validity==="صحيح").length;
-  const invalidCount = allVotes.filter(v=>v.validity==="باطل").length;
-
-  const vpmBuckets = {};
-  allVotes.forEach(v=>{
-    if(!v.timestamp) return;
-    const minuteKey = Math.floor(v.timestamp / 60000) * 60000;
-    vpmBuckets[minuteKey] = (vpmBuckets[minuteKey] || 0) + 1;
-  });
-  const sortedMinutes = Object.keys(vpmBuckets).map(x=>Number(x)).sort((a,b)=>a-b);
-  const vpmLabels = sortedMinutes.map(t=>{
-    const d = new Date(t);
-    return d.toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'});
-  });
-  const vpmData = sortedMinutes.map(t=>vpmBuckets[t]);
+  const labels = Object.keys(counts);
+  const data   = Object.values(counts);
 
   if(chartCandidates){
-    chartCandidates.data.labels = candLabels;
-    chartCandidates.data.datasets[0].data = candData;
+    chartCandidates.data.labels = labels;
+    chartCandidates.data.datasets[0].data = data;
     chartCandidates.update();
   } else {
-    chartCandidates = new window.Chart(ctxCand,{
+    chartCandidates = new Chart(ctx1,{
       type:"bar",
-      data:{ labels:candLabels, datasets:[{label:"عدد الأصوات", data:candData, backgroundColor:"#1e3c72"}] },
-      options:{
-        responsive:true,
-        plugins:{ legend:{display:false} },
-        scales:{ y:{beginAtZero:true, ticks:{precision:0}} }
-      }
-    });
-  }
-
-  if(chartValidity){
-    chartValidity.data.labels = ["صحيح","باطل"];
-    chartValidity.data.datasets[0].data = [validCount, invalidCount];
-    chartValidity.update();
-  } else {
-    chartValidity = new window.Chart(ctxVal,{
-      type:"doughnut",
-      data:{ 
-        labels:["صحيح","باطل"], 
-        datasets:[{
-          data:[validCount,invalidCount],
-          backgroundColor:["#0b7040","#b00020"]
-        }] 
-      },
-      options:{
-        responsive:true,
-        plugins:{ legend:{position:"bottom"} },
-        cutout:"55%"
-      }
-    });
-  }
-
-  if(chartVPM){
-    chartVPM.data.labels = vpmLabels;
-    chartVPM.data.datasets[0].data = vpmData;
-    chartVPM.update();
-  } else {
-    chartVPM = new window.Chart(ctxVPM,{
-      type:"line",
       data:{
-        labels:vpmLabels,
+        labels,
         datasets:[{
-          label:"أصوات لكل دقيقة",
-          data:vpmData,
-          tension:0.3,
-          borderColor:"#1e3c72",
-          backgroundColor:"rgba(30, 60, 114, 0.1)"
+          label:"عدد الأصوات",
+          data,
+          backgroundColor:"#1e3c72"
         }]
       },
       options:{
         responsive:true,
-        plugins:{ legend:{display:false} },
-        scales:{ y:{beginAtZero:true, ticks:{precision:0}} }
+        plugins:{legend:{display:false}},
+        scales:{y:{beginAtZero:true,ticks:{precision:0}}}
+      }
+    });
+  }
+
+  /* ---- نسبة الصحيح / الباطل ---- */
+  const valid   = allVotes.filter(v=>v.validity==="صحيح").length;
+  const invalid = allVotes.filter(v=>v.validity==="باطل").length;
+
+  if(chartValidity){
+    chartValidity.data.datasets[0].data = [valid, invalid];
+    chartValidity.update();
+  } else {
+    chartValidity = new Chart(ctx2,{
+      type:"doughnut",
+      data:{
+        labels:["صحيح", "باطل"],
+        datasets:[{
+          data:[valid, invalid],
+          backgroundColor:["#0b7040","#b00020"]
+        }]
+      },
+      options:{
+        cutout:"55%",
+        plugins:{legend:{position:"bottom"}}
+      }
+    });
+  }
+
+  /* ---- أصوات كل دقيقة ---- */
+  const minutes = {};
+  allVotes.forEach(v=>{
+    if(!v.timestamp) return;
+    const key = Math.floor(v.timestamp / 60000) * 60000;
+    minutes[key] = (minutes[key] || 0) + 1;
+  });
+
+  const minuteKeys = Object.keys(minutes).map(Number).sort((a,b)=>a-b);
+  const minuteLabels = minuteKeys.map(t=>{
+    const d = new Date(t);
+    return d.toLocaleTimeString("ar-EG",{hour:"2-digit",minute:"2-digit"});
+  });
+  const minuteData = minuteKeys.map(k=>minutes[k]);
+
+  if(chartVPM){
+    chartVPM.data.labels = minuteLabels;
+    chartVPM.data.datasets[0].data = minuteData;
+    chartVPM.update();
+  } else {
+    chartVPM = new Chart(ctx3,{
+      type:"line",
+      data:{
+        labels: minuteLabels,
+        datasets:[{
+          label:"أصوات/دقيقة",
+          data: minuteData,
+          borderColor:"#1e3c72",
+          backgroundColor:"rgba(30,60,114,0.1)",
+          tension:0.3
+        }]
+      },
+      options:{
+        responsive:true,
+        plugins:{legend:{display:false}},
+        scales:{y:{beginAtZero:true,ticks:{precision:0}}}
       }
     });
   }
 }
 
-/* ===== Table + search + sort ===== */
-function renderTable(){
-  const searchVal = (searchInp.value || "").toLowerCase().trim();
-  let filtered = [...allVotes];
 
-  if(searchVal){
-    filtered = filtered.filter(v=>{
-      const name = (v.name||"").toLowerCase();
-      const cands= v.candidates.join(" - ").toLowerCase();
-      return name.includes(searchVal) || cands.includes(searchVal);
+
+/* ======================= ترتيب المرشحين ======================= */
+function renderRanking(){
+
+  const list = document.getElementById("ranking-list");
+
+  const counts = {};
+  allVotes.forEach(v=>{
+    v.candidates.forEach(c=>{
+      counts[c] = (counts[c] || 0) + 1;
     });
+  });
+
+  const sorted = Object.entries(counts)
+    .map(([name,count]) => ({name,count}))
+    .sort((a,b)=>b.count - a.count);
+
+  if(sorted.length === 0){
+    list.innerHTML = `
+      <div style="padding:20px;text-align:center;color:#777">
+        لا توجد بيانات حتى الآن
+      </div>`;
+    return;
   }
 
+  const max = sorted[0].count;
+
+  list.innerHTML = sorted.map((c,i)=>{
+    const rank = i+1;
+    let medal = "🥇"; let cls="rank-1";
+    if(rank===2){ medal="🥈"; cls="rank-2"; }
+    else if(rank===3){ medal="🥉"; cls="rank-3"; }
+    else medal = `${rank}️⃣`;
+
+    const width = Math.max((c.count / max) * 100, 12);
+
+    return `
+      <div class="ranking-item ${cls}">
+        <div class="ranking-left">
+          <div class="ranking-medal">${medal}</div>
+          <div class="ranking-name">${c.name}</div>
+        </div>
+        <div class="ranking-right">
+          <div class="ranking-bar" style="width:${width}%">${c.count}</div>
+          <div class="ranking-count">${c.count}</div>
+        </div>
+      </div>`;
+  }).join("");
+}
+/* ======================= جدول الأصوات ======================= */
+
+function renderTable(){
+  const body = document.getElementById("votes-table");
+  const note = document.getElementById("footer-note");
+  const search = document.getElementById("search").value.toLowerCase().trim();
+
+  let filtered = [...allVotes];
+
+  // البحث
+  if(search){
+    filtered = filtered.filter(v =>
+         (v.name || "").toLowerCase().includes(search) ||
+         v.candidates.join(" ").toLowerCase().includes(search)
+    );
+  }
+
+  // الفرز
   filtered.sort((a,b)=>{
-    const dir = sortState.dir === "asc" ? 1 : -1;
-    let av,bv;
-    switch(sortState.key){
-      case "name": av=a.name; bv=b.name; break;
-      case "candidates": av=a.candidates.join(","); bv=b.candidates.join(","); break;
-      case "validity": av=a.validity; bv=b.validity; break;
-      case "time": av=a.timestamp; bv=b.timestamp; break;
-      default: av=a.index; bv=b.index;
+    const dir = (sortState.dir === "asc" ? 1 : -1);
+
+    let av = a[sortState.key];
+    let bv = b[sortState.key];
+
+    if(sortState.key === "candidates"){
+      av = a.candidates.join(",");
+      bv = b.candidates.join(",");
     }
-    if(av < bv) return -1*dir;
-    if(av > bv) return  1*dir;
+
+    if(av < bv) return -1 * dir;
+    if(av > bv) return 1 * dir;
     return 0;
   });
 
-  tableBody.innerHTML = "";
+  // العرض
+  body.innerHTML = "";
+
   filtered.forEach((v,i)=>{
     const tr = document.createElement("tr");
 
-    const tdIndex = document.createElement("td");
-    tdIndex.textContent = i+1;
+    tr.innerHTML = `
+      <td>${i+1}</td>
+      <td class="clickable-name" onclick="showDetails('${v.id}')">${v.name}</td>
+      <td>${v.candidates.join(" و ") || "—"}</td>
+      <td class="${v.validity === "صحيح" ? "status-valid" : "status-invalid"}">
+        ${v.validity}
+      </td>
+      <td>${
+        v.timestamp ?
+        new Date(v.timestamp).toLocaleTimeString("ar-EG",{hour:"2-digit",minute:"2-digit",second:"2-digit"})
+        : "—"
+      }</td>
+      <td>
+        <button class="btn-mini-edit" onclick="openEdit('${v.id}')">تعديل</button>
+      </td>
+    `;
 
-    const tdName  = document.createElement("td");
-    tdName.textContent = v.name || "—";
-    tdName.classList.add("clickable-name");
-    tdName.onclick = ()=> window.showDetails(v.id);
-
-    const tdCands = document.createElement("td");
-    tdCands.textContent = v.candidates.length ? v.candidates.join(" و ") : "—";
-
-    const tdVal   = document.createElement("td");
-    tdVal.textContent = v.validity || "—";
-    if(v.validity === "صحيح") tdVal.className="status-valid";
-    else if(v.validity === "باطل") tdVal.className="status-invalid";
-
-    const tdTime  = document.createElement("td");
-    tdTime.textContent = v.timestamp
-      ? new Date(v.timestamp).toLocaleTimeString('ar-EG',{hour:"2-digit",minute:"2-digit",second:"2-digit"})
-      : "—";
-
-    const tdEdit  = document.createElement("td");
-    const btnEdit = document.createElement("button");
-    btnEdit.textContent = "تعديل";
-    btnEdit.className   = "btn-mini-edit";
-    btnEdit.onclick     = ()=> window.openEditVote(v.id);
-    tdEdit.appendChild(btnEdit);
-
-    tr.appendChild(tdIndex);
-    tr.appendChild(tdName);
-    tr.appendChild(tdCands);
-    tr.appendChild(tdVal);
-    tr.appendChild(tdTime);
-    tr.appendChild(tdEdit);
-    tableBody.appendChild(tr);
+    body.appendChild(tr);
   });
 
-  if(allVotes.length === 0){
-    footerNote.textContent = "لا توجد أصوات مسجلة بعد.";
-  } else if(filtered.length === 0){
-    footerNote.textContent = "لا توجد نتائج مطابقة لبحثك.";
+  if(filtered.length === 0){
+    note.textContent = allVotes.length === 0
+      ? "لا توجد أصوات مسجلة بعد."
+      : "لا توجد نتائج مطابقة لبحثك.";
   } else {
-    footerNote.textContent = `تم عرض ${filtered.length} صوت من إجمالي ${allVotes.length} صوت.`;
+    note.textContent = `عرض ${filtered.length} من أصل ${allVotes.length} صوت.`;
   }
 }
 
-/* sort handlers */
+/* ===== تفعيل عملية الفرز عند الضغط على رؤوس الأعمدة ===== */
 document.querySelectorAll("th[data-sort]").forEach(th=>{
-  th.addEventListener("click",()=>{
+  th.addEventListener("click", ()=>{
     const key = th.getAttribute("data-sort");
+
     if(sortState.key === key){
-      sortState.dir = (sortState.dir === "asc")?"desc":"asc";
+      sortState.dir = sortState.dir === "asc" ? "desc" : "asc";
     } else {
       sortState.key = key;
       sortState.dir = "asc";
     }
+
     renderTable();
   });
 });
 
-/* search handler */
-searchInp.addEventListener("input",()=>renderTable());
+document.getElementById("search").addEventListener("input", renderTable);
 
-/* ===== Export CSV ===== */
-window.exportCSV = function(){
-  if(allVotes.length === 0){
-    alert("لا توجد بيانات لتصديرها حالياً.");
-    return;
-  }
-  const header = ["Index","Name","Candidates","Validity","Timestamp"];
-  const rows = allVotes.map((v,i)=>[
-    i+1,
-    `"${(v.name||"").replace(/"/g,'""')}"`,
-    `"${(v.candidates.join(" | ")||"").replace(/"/g,'""')}"`,
-    v.validity || "",
-    v.timestamp ? new Date(v.timestamp).toISOString() : ""
-  ]);
-  const csv = [header.join(","), ...rows.map(r=>r.join(","))].join("\n");
-  const blob= new Blob([csv],{type:"text/csv;charset=utf-8;"});
-  const url = URL.createObjectURL(blob);
-  const a   = document.createElement("a");
-  a.href=url;
-  a.download="votes_export.csv";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-};
 
-/* ===== Reset stats (delete all votes) ===== */
-window.resetStats = function(){
-  const pw = prompt("أدخل كلمة سر تصفير الإحصائيات");
-  if(pw !== "742018"){
-    alert("كلمة سر غير صحيحة");
-    return;
-  }
-  if(!confirm("تحذير: سيتم حذف جميع الأصوات من النظام وتصفير الإحصائيات.\nهل أنت متأكد؟")){
-    return;
-  }
-  remove(ref(db,"votes"))
-    .then(()=> alert("تم تصفير الإحصائيات وحذف جميع الأصوات بنجاح"))
-    .catch(()=> alert("حدث خطأ أثناء عملية التصفير"));
-};
+/* ======================= تفاصيل الناخب ======================= */
 
-/* ===== تفاصيل الناخب ===== */
 window.showDetails = function(id){
   const v = allVotes.find(x=>x.id === id);
   if(!v) return;
-  const name = v.name || "—";
-  const timeStr = v.timestamp
-    ? new Date(v.timestamp).toLocaleTimeString('ar-EG',{hour:"2-digit",minute:"2-digit",second:"2-digit"})
-    : "—";
-  const candsStr = v.candidates.length ? v.candidates.join(" و ") : "—";
 
-  const hasHididi = v.candidates.includes("أحمد الحديدى");
-  const hasBadawi = v.candidates.includes("البدوى جميز");
-  const isOur = hasHididi && hasBadawi;
+  const popup = document.getElementById("details-popup");
+  const body  = document.getElementById("details-body");
 
-  let html = `
-    <table>
-      <tr><td><strong>الاسم</strong></td><td>${name}</td></tr>
-      <tr><td><strong>وقت التصويت</strong></td><td>${timeStr}</td></tr>
-      <tr><td><strong>المرشحون</strong></td><td>${candsStr}</td></tr>
+  const time = v.timestamp ?
+      new Date(v.timestamp).toLocaleTimeString("ar-EG",{hour:"2-digit",minute:"2-digit",second:"2-digit"})
+      : "—";
+
+  const chosen = v.candidates.join(" و ") || "—";
+
+  const isOur = v.candidates.includes("أحمد الحديدى") &&
+                v.candidates.includes("البدوى جميز");
+
+  body.innerHTML = `
+    <table style="width:100%;">
+      <tr><td><b>الاسم</b></td><td>${v.name}</td></tr>
+      <tr><td><b>الوقت</b></td><td>${time}</td></tr>
+      <tr><td><b>المرشحين</b></td><td>${chosen}</td></tr>
     </table>
-  `;
-  html += isOur
-    ? `<div class="label-friend">تبعنا ✅ (اختار ٣ أحمد الحديدى و ٨ البدوى جميز)</div>`
-    : `<div class="label-enemy">عدونا ❌ (لم يختر ٣ أحمد الحديدى و ٨ البدوى جميز معاً)</div>`;
 
-  detailsBody.innerHTML = html;
-  detailsOverlay.classList.remove("hidden");
+    ${
+      isOur
+        ? `<div class="friend-label">تبعنا ✔️ (اختار الحديدى + البدوى)</div>`
+        : `<div class="enemy-label">مش تبعنا ❌</div>`
+    }
+  `;
+
+  popup.classList.remove("hidden");
 };
 
 window.closeDetails = function(){
-  detailsOverlay.classList.add("hidden");
+  document.getElementById("details-popup").classList.add("hidden");
 };
 
-/* ===== تعديل المرشحين ===== */
-function buildEditCandidates(selected){
-  editCandBox.innerHTML = "";
-  candidateNames.forEach(name=>{
-    const lbl = document.createElement("label");
-    const span = document.createElement("span");
-    span.textContent = name;
-    const cb = document.createElement("input");
-    cb.type = "checkbox";
-    cb.value = name;
-    if(selected.includes(name)) cb.checked = true;
-    cb.addEventListener("change",()=>{
-      const checked = editCandBox.querySelectorAll('input[type="checkbox"]:checked');
+
+/* ======================= تعديل صوت ======================= */
+
+window.openEdit = function(id){
+  const pw = prompt("أدخل كلمة سر التعديل");
+  if(pw !== "742018") return alert("كلمة سر غير صحيحة");
+
+  const v = allVotes.find(x=>x.id === id);
+  if(!v) return;
+
+  window.editID = id;
+  document.getElementById("edit-name").textContent = "الناخب: " + v.name;
+
+  const box = document.getElementById("edit-candidates");
+  box.innerHTML = "";
+
+  candidatesNames.forEach(c=>{
+    const chk = document.createElement("input");
+    chk.type = "checkbox";
+    chk.value = c;
+    chk.checked = v.candidates.includes(c);
+
+    chk.addEventListener("change", ()=>{
+      const checked = box.querySelectorAll("input:checked");
       if(checked.length > 2){
-        cb.checked = false;
+        chk.checked = false;
         alert("يمكن اختيار مرشحين فقط");
       }
     });
-    lbl.appendChild(span);
-    lbl.appendChild(cb);
-    editCandBox.appendChild(lbl);
-  });
-}
 
-window.openEditVote = function(id){
-  const pw = prompt("أدخل كلمة سر التعديل");
-  if(pw !== "742018"){
-    alert("كلمة سر غير صحيحة");
-    return;
-  }
-  const v = allVotes.find(x=>x.id === id);
-  if(!v) return;
-  currentEditId = id;
-  editNameEl.textContent = "الناخب: " + (v.name || "—");
-  buildEditCandidates(v.candidates);
-  editOverlay.classList.remove("hidden");
+    const lbl = document.createElement("label");
+    lbl.innerHTML = `<span>${c}</span>`;
+    lbl.appendChild(chk);
+
+    box.appendChild(lbl);
+  });
+
+  document.getElementById("edit-popup").classList.remove("hidden");
 };
 
 window.closeEdit = function(){
-  currentEditId = null;
-  editOverlay.classList.add("hidden");
+  document.getElementById("edit-popup").classList.add("hidden");
 };
 
 window.saveEdit = function(){
-  if(!currentEditId) return;
-  const checked = [...editCandBox.querySelectorAll('input[type="checkbox"]:checked')].map(x=>x.value);
-  if(checked.length < 1){
-    alert("اختر مرشح واحد على الأقل");
-    return;
-  }
-  if(checked.length > 2){
-    alert("يمكن اختيار مرشحين فقط");
-    return;
-  }
-  update(ref(db,"votes/"+currentEditId),{
+  const box = document.getElementById("edit-candidates");
+  const checked = [...box.querySelectorAll("input:checked")].map(x=>x.value);
+
+  if(checked.length === 0) return alert("اختر مرشح واحد على الأقل");
+  if(checked.length > 2) return alert("يمكن اختيار مرشحين فقط");
+
+  update(ref(db, "votes/" + window.editID), {
     selected: checked
   })
   .then(()=>{
-    alert("تم حفظ التعديل بنجاح");
+    alert("تم تحديث البيانات بنجاح");
     closeEdit();
   })
   .catch(()=>{
-    alert("حدث خطأ أثناء حفظ التعديل");
+    alert("حدث خطأ أثناء التعديل");
   });
 };
-</script>
 
+
+/* ======================= تصدير CSV ======================= */
+
+window.exportCSV = function(){
+  if(allVotes.length === 0) return alert("لا توجد بيانات");
+
+  const header = "Index,Name,Candidates,Validity,Timestamp\n";
+
+  const rows = allVotes.map((v,i)=>[
+    i+1,
+    `"${v.name.replace(/"/g,'""')}"`,
+    `"${v.candidates.join(" | ").replace(/"/g,'""')}"`,
+    v.validity,
+    v.timestamp
+  ].join(","));
+
+  const csv = header + rows.join("\n");
+
+  const blob = new Blob([csv], {type:"text/csv"});
+  const url  = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "votes_export.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+};
+
+
+/* ======================= تصفير جميع الإحصائيات ======================= */
+
+window.resetAll = function(){
+  const pw = prompt("أدخل كلمة سر التصفير");
+  if(pw !== "742018") return alert("كلمة سر غير صحيحة");
+
+  if(!confirm("تحذير: سيتم حذف كل الأصوات نهائياً. هل أنت متأكد؟"))
+    return;
+
+  remove(ref(db, "votes"))
+    .then(()=> alert("تم تصفير كل الإحصائيات"))
+    .catch(()=> alert("خطأ أثناء التصفير"));
+};
+
+
+/* ======================= إرسال إشعار FCM ======================= */
+
+window.sendNotification = async function(){
+
+  const txt = document.getElementById("notify-message").value.trim();
+  const result = document.getElementById("notify-result");
+
+  if(!txt){
+    result.style.display="block";
+    result.style.color="#b00020";
+    result.textContent = "اكتب نص الرسالة أولاً";
+    return;
+  }
+
+  const mode = document.querySelector("input[name='notify-target']:checked").value;
+
+  let topic = "all";
+
+  if(mode === "one"){
+    const num = Number(document.getElementById("notify-committee").value);
+    if(num < 1 || num > 60){
+      result.style.display="block";
+      result.style.color="#b00020";
+      result.textContent = "رقم اللجنة غير صالح";
+      return;
+    }
+    topic = "committee_" + num;
+  }
+
+  // إرسال الإشعار
+  try{
+    await fetch("https://us-central1-elahmadiya.cloudfunctions.net/sendNotification", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({topic, message:txt})
+    });
+
+    result.style.display="block";
+    result.style.color="#0b7030";
+    result.textContent = "✔️ تم إرسال الإشعار بنجاح";
+
+    document.getElementById("notify-message").value = "";
+
+  } catch(err){
+    result.style.display="block";
+    result.style.color="#b00020";
+    result.textContent = "خطأ أثناء إرسال الإشعار";
+  }
+};
+
+</script>
 </body>
 </html>
