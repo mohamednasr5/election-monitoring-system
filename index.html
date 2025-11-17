@@ -132,11 +132,11 @@ button{
 
 <body>
 
-<!-- إشعار عائم -->
+<!-- زر الإشعار -->
 <div id="notify-btn">🔔</div>
 <div id="bubble"></div>
 
-<!-- مودال كلمة السر -->
+<!-- مودال الدخول -->
 <div id="password-modal">
   <div class="pass-box">
     <div class="pass-title">من فضلك أدخل كلمة السر</div>
@@ -186,7 +186,7 @@ button{
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import {
-  getDatabase, ref, push, get
+  getDatabase, ref, push
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
 import {
@@ -208,38 +208,38 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const messaging = getMessaging(app);
 
-/* متغير عالمي */
+/* رقم اللجنة */
 let committeeNumber = 0;
 
-/* إظهار/إخفاء الباسورد */
+/* زر إظهار كلمة المرور */
 window.togglePass = function(){
   const p = document.getElementById("password-input");
-  p.type = (p.type==="password") ? "text" : "password";
+  p.type = (p.type === "password") ? "text" : "password";
 };
 
-/* نظام الدخول */
+/* الدخول الصحيح */
 window.checkPass = function(){
   const val = document.getElementById("password-input").value.trim();
   const err = document.getElementById("pw-err");
 
-  if(!/^1001[0-5][0-9]$/.test(val)){  
-    err.style.display="block"; setTimeout(()=> err.style.display="none",1800);
+  if (val < 100101 || val > 100160) {
+    err.style.display = "block";
+    setTimeout(()=> err.style.display="none",1800);
     return;
   }
 
-  committeeNumber = (parseInt(val) - 100100);
+  committeeNumber = parseInt(val) - 100100;
 
   document.getElementById("password-modal").classList.add("hidden");
   document.getElementById("main-container").classList.remove("hidden");
+
   document.getElementById("welcome-title").textContent =
     "مرحبًا بكم في لجنة رقم " + committeeNumber;
-
-  document.getElementById("voter-name").focus();
 
   requestFCM();
 };
 
-/* طلب إذن الإشعارات */
+/* تفعيل الإشعارات */
 function requestFCM(){
   Notification.requestPermission().then((permission)=>{
     if(permission === "granted"){
@@ -254,7 +254,7 @@ function requestFCM(){
   });
 }
 
-/* استقبال الإشعار داخل الصفحة */
+/* استقبال الإشعارات داخل الصفحة */
 onMessage(messaging, (payload)=>{
   const bubble = document.getElementById("bubble");
   bubble.textContent = payload.notification.body;
@@ -262,7 +262,7 @@ onMessage(messaging, (payload)=>{
   setTimeout(()=> bubble.style.display="none", 6000);
 });
 
-/* المرشحين */
+/* إنشاء المرشحين */
 const candidates = [
   ["1","ايهاب العمده","👑"],
   ["2","محمد العتمانى","🍞"],
@@ -296,23 +296,21 @@ candidates.forEach(c => {
       <div class="num-circle">${c[0]}</div>
       <div class="c-name">${c[1]}</div>
     </div>
-    <div class="c-right">
-      <span class="c-icon">${c[2]}</span>
-    </div>
+    <div class="c-right"><span class="c-icon">${c[2]}</span></div>
   `;
 
   item.appendChild(checkbox);
+
   item.addEventListener("click",(e)=>{
     if(e.target!==checkbox) checkbox.checked=!checkbox.checked;
     limitSelect(checkbox);
   });
-
   checkbox.addEventListener("change",()=> limitSelect(checkbox));
 
   listBox.appendChild(item);
 });
 
-/* منع اختيار أكثر من مرشحين */
+/* اختيار مرشحين فقط */
 function limitSelect(ch){
   const sel = document.querySelectorAll('.candidate-checkbox:checked');
   if(sel.length > 2){
@@ -321,6 +319,7 @@ function limitSelect(ch){
   }
 }
 
+/* رسائل */
 function showWarn(msg){
   const el = document.getElementById("msg-warn");
   el.textContent = msg;
@@ -334,6 +333,7 @@ function showConfirm(msg){
   setTimeout(()=> el.style.display="none",2500);
 }
 
+/* تسجيل التصويت */
 document.getElementById("vote-form").addEventListener("submit",function(e){
   e.preventDefault();
 
@@ -342,7 +342,7 @@ document.getElementById("vote-form").addEventListener("submit",function(e){
   const val = document.querySelector('input[name="vvalid"]:checked');
 
   if(name.length<3) return showWarn("اسم الناخب غير صالح");
-  اگر(sel.length<1) return showWarn("اختر مرشح واحد على الأقل");
+  if(sel.length<1) return showWarn("اختر مرشح واحد على الأقل");
   if(!val) return showWarn("اختر حالة الصوت");
 
   push(ref(db, "votes"), {
