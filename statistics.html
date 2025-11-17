@@ -736,8 +736,8 @@ tr:hover td {
 <div id="dashboard" class="dashboard hidden">
   <div class="dash-header">
     <div>
-      <div class="dash-title"> النتائج الانتخابية</div>
-      <div class="dash-subtitle">متابعة مباشرة وتحليل شامل | أول نظام من نوعه فى مصر</div>
+      <div class="dash-title">Dashboard النتائج الانتخابية</div>
+      <div class="dash-subtitle">متابعة مباشرة وتحليل شامل</div>
     </div>
     <div class="live-badge">
       <span class="live-dot"></span>
@@ -929,7 +929,7 @@ window.unlockDashboard = function(){
   if(value === "521988"){
     document.getElementById("lock-screen").classList.add("hidden");
     document.getElementById("dashboard").classList.remove("hidden");
-    showNotification("مرحبا بك يا مهندس محمد حماد!");
+    showNotification("مرحبا بك يا مهندس!");
   } else {
     err.textContent = "كلمة سر غير صحيحة";
     err.style.display = "block";
@@ -1384,67 +1384,31 @@ window.sendNotification = async function(){
   result.textContent = "جاري الإرسال...";
 
   try {
-    // الطريقة الأولى: محاولة Cloud Function
-    const cfUrl = "https://us-central1-elahmadiya.cloudfunctions.net/sendNotification";
+    // حفظ الرسالة في قاعدة البيانات تحت messages
+    const timestamp = Date.now();
+    const messageRef = ref(db, "notifications/" + topic + "/" + timestamp);
     
-    const response = await fetch(cfUrl, {
-      method: "POST",
-      mode: "cors",
-      headers: { 
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ 
-        topic: topic, 
-        message: txt 
-      })
+    await update(messageRef, {
+      message: txt,
+      topic: topic,
+      timestamp: timestamp,
+      sentAt: new Date().toISOString(),
+      type: "dashboard_notification"
     });
-
-    if(!response.ok && response.status !== 0) {
-      throw new Error("Cloud Function error: " + response.status);
-    }
-
-    const data = await response.json();
     
-    if(data.success){
-      result.style.color = "#11998e";
-      result.textContent = "تم الإرسال لـ " + (mode === "all" ? "جميع اللجان" : ("اللجنة " + document.getElementById("notify-committee").value));
-      document.getElementById("notify-message").value = "";
-      setTimeout(() => result.style.display = "none", 3500);
-    } else {
-      throw new Error(data.error || "فشل الإرسال");
-    }
-
+    result.style.color = "#11998e";
+    result.textContent = "تم الإرسال لـ " + (mode === "all" ? "جميع اللجان ✓" : ("اللجنة " + document.getElementById("notify-committee").value + " ✓"));
+    document.getElementById("notify-message").value = "";
+    setTimeout(() => result.style.display = "none", 3500);
+    
   } catch(err){
+    result.style.color = "#eb3349";
+    result.textContent = "خطأ: " + err.message;
     console.error("Notification error:", err);
-    
-    // الحل البديل: حفظ الإشعار في قاعدة البيانات مباشرة
-    try {
-      result.style.color = "#667eea";
-      result.textContent = "محاولة الحفظ المباشر...";
-      
-      const timestamp = Date.now();
-      const notifRef = ref(db, "notifications/" + timestamp);
-      await update(notifRef, {
-        topic: topic,
-        message: txt,
-        timestamp: timestamp,
-        sentAt: new Date().toISOString()
-      });
-      
-      result.style.color = "#11998e";
-      result.textContent = "تم الحفظ والإرسال بنجاح";
-      document.getElementById("notify-message").value = "";
-      setTimeout(() => result.style.display = "none", 3500);
-      
-    } catch(fallbackErr){
-      result.style.color = "#eb3349";
-      result.textContent = "خطأ: " + fallbackErr.message;
-      setTimeout(() => result.style.display = "none", 4000);
-    }
+    setTimeout(() => result.style.display = "none", 4000);
   }
 };
 
 </script>
 </body>
 </html>
-
