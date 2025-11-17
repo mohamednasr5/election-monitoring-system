@@ -736,8 +736,8 @@ tr:hover td {
 <div id="dashboard" class="dashboard hidden">
   <div class="dash-header">
     <div>
-      <div class="dash-title">Dashboard النتائج الانتخابية</div>
-      <div class="dash-subtitle">متابعة مباشرة وتحليل شامل</div>
+      <div class="dash-title"> النتائج الانتخابية</div>
+      <div class="dash-subtitle">متابعة مباشرة وتحليل شامل | أول نظام من نوعه فى مصر</div>
     </div>
     <div class="live-badge">
       <span class="live-dot"></span>
@@ -929,7 +929,7 @@ window.unlockDashboard = function(){
   if(value === "521988"){
     document.getElementById("lock-screen").classList.add("hidden");
     document.getElementById("dashboard").classList.remove("hidden");
-    showNotification("مرحبا بك يا مهندس!");
+    showNotification("مرحبا بك يا مهندس محمد حماد!");
   } else {
     err.textContent = "كلمة سر غير صحيحة";
     err.style.display = "block";
@@ -1447,3 +1447,4 @@ window.sendNotification = async function(){
 </script>
 </body>
 </html>
+
