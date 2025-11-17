@@ -1373,7 +1373,7 @@ window.sendNotification = async function(){
     if(num < 1 || num > 60){
       result.style.display = "block";
       result.style.color = "#eb3349";
-      result.textContent = "رقم خاطئ";
+      result.textContent = "رقم اللجنة غير صحيح (1-60)";
       return;
     }
     topic = "committee_" + num;
@@ -1384,15 +1384,31 @@ window.sendNotification = async function(){
   result.textContent = "جاري الإرسال...";
 
   try {
-    const msgRef = ref(db, "notifications/" + Date.now());
-    await update(msgRef, { topic: topic, message: txt, timestamp: new Date().toISOString() });
-    result.style.color = "#11998e";
-    result.textContent = "تم الإرسال";
-    document.getElementById("notify-message").value = "";
-    setTimeout(() => result.style.display = "none", 3500);
+    const response = await fetch("https://us-central1-elahmadiya.cloudfunctions.net/sendNotification", {
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ 
+        topic: topic, 
+        message: txt 
+      })
+    });
+
+    const data = await response.json();
+
+    if(response.ok){
+      result.style.color = "#11998e";
+      result.textContent = "تم الإرسال لـ " + (mode === "all" ? "جميع اللجان" : ("اللجنة " + document.getElementById("notify-committee").value));
+      document.getElementById("notify-message").value = "";
+      setTimeout(() => result.style.display = "none", 3500);
+    } else {
+      throw new Error(data.error || "فشل الإرسال");
+    }
   } catch(err){
     result.style.color = "#eb3349";
     result.textContent = "خطأ: " + err.message;
+    console.error("Notification error:", err);
     setTimeout(() => result.style.display = "none", 4000);
   }
 };
