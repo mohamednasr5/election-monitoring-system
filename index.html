@@ -6,75 +6,44 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
 <style>
-*{
-  margin:0; padding:0; box-sizing:border-box;
-  font-family:"Cairo",sans-serif;
-}
-
+*{ margin:0; padding:0; box-sizing:border-box; font-family:"Cairo",sans-serif; }
 body{
   background:linear-gradient(135deg,#1e3c72,#2a5298);
-  min-height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  padding:20px;
-  color:#fff;
+  min-height:100vh; display:flex; justify-content:center; align-items:center;
+  padding:20px; color:#fff;
 }
-
 .hidden{ display:none !important; }
 
 #password-modal{
-  position:fixed; inset:0;
-  background:rgba(0,0,0,.6);
-  backdrop-filter:blur(6px);
-  display:flex; justify-content:center; align-items:center;
-  z-index:9999;
+  position:fixed; inset:0; background:rgba(0,0,0,.6); backdrop-filter:blur(6px);
+  display:flex; justify-content:center; align-items:center; z-index:9999;
 }
 .pass-box{
-  width:90%; max-width:390px;
-  background:#fff; color:#222;
-  padding:25px; border-radius:18px;
-  box-shadow:0 10px 40px rgba(0,0,0,.4);
-  animation:pop .4s ease;
-  text-align:center;
+  width:90%; max-width:390px; background:#fff; color:#222;
+  padding:25px; border-radius:18px; box-shadow:0 10px 40px rgba(0,0,0,.4);
+  animation:pop .4s ease; text-align:center;
 }
-@keyframes pop{
-  from{transform:scale(.6);opacity:.2}
-  to{transform:scale(1);opacity:1}
-}
-.pass-title{ font-size:1.5em; font-weight:900; color:#1e3c72; }
-.pass-text{ color:#555; margin-top:5px; }
+@keyframes pop{ from{transform:scale(.6);opacity:.2} to{transform:scale(1);opacity:1} }
 
+.pass-title{ font-size:1.5em; font-weight:900; color:#1e3c72; }
 .pass-row{ position:relative; margin-top:15px; }
 .pass-input{
   width:100%; padding:13px; text-align:center;
-  border-radius:10px; border:2px solid #d7ddff;
-  background:#f4f6ff; font-size:1.1em;
+  border-radius:10px; border:2px solid #d7ddff; background:#f4f6ff; font-size:1.1em;
 }
 .pass-toggle{
-  position:absolute; left:12px; top:50%;
-  transform:translateY(-50%);
+  position:absolute; left:12px; top:50%; transform:translateY(-50%);
   font-size:1.4em; color:#1e3c72; cursor:pointer;
 }
-
 .pass-btn{
-  margin-top:15px;
-  width:100%; padding:12px;
-  background:#1e3c72; color:#fff;
-  border:none; border-radius:10px;
-  font-size:1.05em; font-weight:bold;
-  cursor:pointer; transition:.2s;
+  margin-top:15px; width:100%; padding:12px; background:#1e3c72; color:#fff;
+  border:none; border-radius:10px; font-size:1.05em;
+  font-weight:bold; cursor:pointer; transition:.2s;
 }
-.pass-btn:hover{ background:#152d55; }
-
-.pass-err{
-  margin-top:10px; color:#b90000; font-weight:bold;
-  display:none; font-size:.9em;
-}
+.pass-err{ margin-top:10px; color:#b90000; font-weight:bold; display:none; font-size:.9em; }
 
 .container{
-  width:100%; max-width:750px;
-  background:#fff; color:#222;
+  width:100%; max-width:750px; background:#fff; color:#222;
   padding:30px; border-radius:20px;
   box-shadow:0 18px 50px rgba(0,0,0,.3);
   animation:fade .5s ease;
@@ -84,47 +53,26 @@ body{
   to{opacity:1; transform:translateY(0);}
 }
 
-h2{
-  text-align:center; color:#1e3c72;
-  font-size:2em; font-weight:900;
-}
-.subtitle{
-  text-align:center; color:#555;
-  margin-top:5px; margin-bottom:20px;
-}
+h2{text-align:center; color:#1e3c72; font-size:2em; font-weight:900;}
+.subtitle{text-align:center; color:#555; margin-top:5px; margin-bottom:20px;}
 
 label{ font-weight:700; color:#1e3c72; margin-top:15px; display:block; }
 input[type=text]{
-  width:100%; padding:12px;
-  border-radius:10px;
-  border:2px solid #d4ddff;
-  background:#f7f9ff; 
-  font-size:1.05em;
+  width:100%; padding:12px; border-radius:10px;
+  border:2px solid #d4ddff; background:#f7f9ff; font-size:1.05em;
 }
 
 .candidate-list{
-  margin-top:12px;
-  background:#f4f6ff;
-  border:1px solid #d9e2ff;
-  border-radius:14px;
-  max-height:330px;
-  overflow-y:auto;
-  padding:12px;
+  margin-top:12px; background:#f4f6ff; border:1px solid #d9e2ff;
+  border-radius:14px; max-height:330px; overflow-y:auto; padding:12px;
 }
 .candidate-item{
-  background:#fff;
-  border:1px solid #dfe6ff;
-  padding:10px 12px;
-  border-radius:12px;
-  margin-bottom:10px;
+  background:#fff; border:1px solid #dfe6ff; padding:10px 12px;
+  border-radius:12px; margin-bottom:10px;
   display:flex; justify-content:space-between; align-items:center;
-  transition:.2s;
-  cursor:pointer;
+  transition:.2s; cursor:pointer;
 }
-.candidate-item:hover{
-  background:#eef3ff; border-color:#b7c8ff;
-}
-.c-left{ display:flex; align-items:center; gap:10px; }
+.candidate-item:hover{ background:#eef3ff; border-color:#b7c8ff; }
 .num-circle{
   width:28px; height:28px; border-radius:50%;
   background:#1e3c72; color:#fff;
@@ -135,55 +83,63 @@ input[type=text]{
 .c-icon{ font-size:1.6em; }
 
 .sec-box{
-  margin-top:12px;
-  background:#eef2ff;
-  border:1px solid #d3ddff;
-  border-radius:12px;
-  padding:14px;
+  margin-top:12px; background:#eef2ff; border:1px solid #d3ddff;
+  border-radius:12px; padding:14px;
 }
-.sec-box span{
-  font-weight:700; color:#1e3c72;
-  display:block; margin-bottom:5px;
-}
+.sec-box span{ font-weight:700; color:#1e3c72; display:block; margin-bottom:5px; }
 
-.btn-row{
-  display:flex; gap:12px;
-  margin-top:20px;
-}
+.btn-row{ display:flex; gap:12px; margin-top:20px; }
 button{
-  flex:1;
-  padding:12px;
-  border:none; border-radius:12px;
-  cursor:pointer; font-weight:700;
-  font-size:1.05em;
-  transition:.2s;
+  flex:1; padding:12px; border:none; border-radius:12px;
+  cursor:pointer; font-weight:700; font-size:1.05em; transition:.2s;
 }
 .btn-primary{ background:#1e3c72; color:#fff; }
 .btn-primary:hover{ background:#152d55; }
 .btn-reset{ background:#e8ecff; color:#1e3c72; }
 
 .msg-warn, .msg-confirm{
-  display:none; margin-top:12px;
-  padding:11px; border-radius:10px;
+  display:none; margin-top:12px; padding:11px; border-radius:10px;
   text-align:center; font-weight:700;
 }
 .msg-warn{ background:#ffd8dd; color:#900; }
 .msg-confirm{ background:#d4edda; color:#137d37; }
 
-.sig{
-  text-align:left; margin-top:20px;
-  color:#999; font-style:italic; font-size:.85em;
+#notify-btn{
+  position:fixed; bottom:25px; left:25px;
+  width:60px; height:60px; background:#ffcc00;
+  border-radius:50%; display:flex; align-items:center; justify-content:center;
+  font-size:26px; color:#000; cursor:pointer;
+  box-shadow:0 6px 20px rgba(0,0,0,.3); z-index:9999;
 }
+
+#bubble{
+  position:fixed; bottom:100px; left:25px;
+  background:#fff; color:#000;
+  padding:15px; border-radius:12px;
+  box-shadow:0 6px 20px rgba(0,0,0,.3);
+  font-size:1em; font-weight:700;
+  display:none; width:260px;
+  animation:slide .4s ease;
+}
+@keyframes slide{
+  from{transform:translateY(20px);opacity:0;}
+  to{transform:translateY(0);opacity:1;}
+}
+
+.sig{text-align:left; margin-top:20px; color:#999; font-style:italic; font-size:.85em;}
 </style>
 </head>
 
 <body>
 
+<!-- إشعار عائم -->
+<div id="notify-btn">🔔</div>
+<div id="bubble"></div>
+
 <!-- مودال كلمة السر -->
 <div id="password-modal">
   <div class="pass-box">
     <div class="pass-title">من فضلك أدخل كلمة السر</div>
-    <div class="pass-text">هذه الصفحة مخصصة للمشرفين فقط</div>
 
     <div class="pass-row">
       <input type="password" id="password-input" class="pass-input" placeholder="••••••" autocomplete="off">
@@ -198,7 +154,7 @@ button{
 <!-- الصفحة الرئيسية -->
 <div class="container hidden" id="main-container">
 
-  <h2>تسجيل التصويت</h2>
+  <h2 id="welcome-title">تسجيل التصويت</h2>
   <div class="subtitle">نظام مراقبة وحصر العملية الانتخابية</div>
 
   <form id="vote-form">
@@ -230,10 +186,14 @@ button{
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import {
-  getDatabase, ref, push, get, query, orderByChild, equalTo
+  getDatabase, ref, push, get
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-// تهيئة Firebase
+import {
+  getMessaging, getToken, onMessage
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging.js";
+
+/* إعداد Firebase */
 const firebaseConfig = {
   apiKey: "AIzaSyCxxXV_6CEo1fTp3rRbfwfYbe7WH0Cyg38",
   authDomain: "elahmadiya.firebaseapp.com",
@@ -246,39 +206,63 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+const messaging = getMessaging(app);
 
-// متغيرات التخزين المؤقت
-let votesData = [];
+/* متغير عالمي */
+let committeeNumber = 0;
 
-// عرض/إخفاء الباسورد
+/* إظهار/إخفاء الباسورد */
 window.togglePass = function(){
   const p = document.getElementById("password-input");
   p.type = (p.type==="password") ? "text" : "password";
 };
 
-// التحقق من الباسورد
+/* نظام الدخول */
 window.checkPass = function(){
   const val = document.getElementById("password-input").value.trim();
-  const modal = document.getElementById("password-modal");
-  const main  = document.getElementById("main-container");
-  const err   = document.getElementById("pw-err");
+  const err = document.getElementById("pw-err");
 
-  console.log("كلمة السر المدخلة:", val);
+  if(!/^1001[0-5][0-9]$/.test(val)){  
+    err.style.display="block"; setTimeout(()=> err.style.display="none",1800);
+    return;
+  }
 
-  if(val === "521988"){
-    modal.classList.add("hidden");
-    main.classList.remove("hidden");
-    document.getElementById("voter-name").focus();
-    console.log("تم الدخول بنجاح!");
-  }
-  else{
-    err.style.display="block";
-    setTimeout(()=> err.style.display="none",1800);
-    console.log("كلمة السر غير صحيحة");
-  }
+  committeeNumber = (parseInt(val) - 100100);
+
+  document.getElementById("password-modal").classList.add("hidden");
+  document.getElementById("main-container").classList.remove("hidden");
+  document.getElementById("welcome-title").textContent =
+    "مرحبًا بكم في لجنة رقم " + committeeNumber;
+
+  document.getElementById("voter-name").focus();
+
+  requestFCM();
 };
 
-// قائمة المرشحين
+/* طلب إذن الإشعارات */
+function requestFCM(){
+  Notification.requestPermission().then((permission)=>{
+    if(permission === "granted"){
+      getToken(messaging,{
+        vapidKey:"BC4Mh4NtSNGjRaIyPAtDrC1FcxQoPMoHDjrOTSwe9CzcppZcqOyeClR-zKo3R68r9iY_DyKPmoDUrmDdU0BR9W8"
+      }).then((token)=>{
+        if(token){
+          push(ref(db, "tokens/" + committeeNumber), token);
+        }
+      });
+    }
+  });
+}
+
+/* استقبال الإشعار داخل الصفحة */
+onMessage(messaging, (payload)=>{
+  const bubble = document.getElementById("bubble");
+  bubble.textContent = payload.notification.body;
+  bubble.style.display = "block";
+  setTimeout(()=> bubble.style.display="none", 6000);
+});
+
+/* المرشحين */
 const candidates = [
   ["1","ايهاب العمده","👑"],
   ["2","محمد العتمانى","🍞"],
@@ -297,17 +281,16 @@ const candidates = [
   ["15","مجدى الأمير","🖊"]
 ];
 
-// إنشاء المرشحين
 const listBox = document.getElementById("candidate-list");
 candidates.forEach(c => {
   const item = document.createElement("div");
   item.className = "candidate-item";
-  
+
   const checkbox = document.createElement("input");
   checkbox.type = "checkbox";
   checkbox.value = c[1];
   checkbox.className = "candidate-checkbox";
-  
+
   item.innerHTML = `
     <div class="c-left">
       <div class="num-circle">${c[0]}</div>
@@ -317,24 +300,19 @@ candidates.forEach(c => {
       <span class="c-icon">${c[2]}</span>
     </div>
   `;
-  
+
   item.appendChild(checkbox);
-  
-  item.addEventListener("click", function(e){
-    if(e.target !== checkbox){
-      checkbox.checked = !checkbox.checked;
-    }
+  item.addEventListener("click",(e)=>{
+    if(e.target!==checkbox) checkbox.checked=!checkbox.checked;
     limitSelect(checkbox);
   });
-  
-  checkbox.addEventListener("change", function(){
-    limitSelect(this);
-  });
-  
+
+  checkbox.addEventListener("change",()=> limitSelect(checkbox));
+
   listBox.appendChild(item);
 });
 
-// منع اختيار أكثر من 2
+/* منع اختيار أكثر من مرشحين */
 function limitSelect(ch){
   const sel = document.querySelectorAll('.candidate-checkbox:checked');
   if(sel.length > 2){
@@ -343,78 +321,39 @@ function limitSelect(ch){
   }
 }
 
-// التحقق من صحة الاسم
-function invalidName(name){
-  if(name.length < 4) return true;
-  if(/[0-9]/.test(name)) return true;
-  if(/[^ء-يA-Za-z ]/.test(name)) return true;
-  return false;
-}
-
-// التحقق من تكرار الاسم
-function isNameUsed(name){
-  return votesData.some(v => v.name === name);
-}
-
-// معالج تسجيل التصويت
-document.getElementById("vote-form").addEventListener("submit", function(e){
-  e.preventDefault();
-
-  const name = document.getElementById("voter-name").value.trim();
-  const sel = [...document.querySelectorAll('.candidate-checkbox:checked')].map(v => v.value);
-  const val = document.querySelector('input[name="vvalid"]:checked');
-
-  if(invalidName(name))
-    return showWarn("اسم الناخب غير صالح");
-
-  if(sel.length < 1)
-    return showWarn("اختر مرشح واحد على الأقل");
-
-  if(!val)
-    return showWarn("اختر حالة الصوت");
-
-  if(isNameUsed(name))
-    return showWarn("تم التصويت من قبل لهذا الاسم");
-
-  // إرسال البيانات إلى Firebase
-  push(ref(db, "votes"), {
-    name,
-    selected: sel,
-    vote_validity: val.value,
-    timestamp: Date.now()
-  }).then(() => {
-    // إضافة محلية أيضاً
-    votesData.push({
-      name,
-      selected: sel,
-      vote_validity: val.value,
-      timestamp: new Date().toISOString()
-    });
-
-    showConfirm("تم التسجيل بنجاح ✓");
-    document.getElementById("vote-form").reset();
-    document.getElementById("voter-name").focus();
-  }).catch(err => {
-    showWarn("خطأ في الإرسال: " + err.message);
-    console.error("Firebase Error:", err);
-  });
-});
-
-// عرض رسالة تحذير
 function showWarn(msg){
   const el = document.getElementById("msg-warn");
   el.textContent = msg;
   el.style.display = "block";
-  setTimeout(() => el.style.display = "none", 2000);
+  setTimeout(()=> el.style.display="none",2000);
 }
-
-// عرض رسالة تأكيد
 function showConfirm(msg){
   const el = document.getElementById("msg-confirm");
   el.textContent = msg;
   el.style.display = "block";
-  setTimeout(() => el.style.display = "none", 2500);
+  setTimeout(()=> el.style.display="none",2500);
 }
+
+document.getElementById("vote-form").addEventListener("submit",function(e){
+  e.preventDefault();
+
+  const name = document.getElementById("voter-name").value.trim();
+  const sel = [...document.querySelectorAll('.candidate-checkbox:checked')].map(v=>v.value);
+  const val = document.querySelector('input[name="vvalid"]:checked');
+
+  if(name.length<3) return showWarn("اسم الناخب غير صالح");
+  اگر(sel.length<1) return showWarn("اختر مرشح واحد على الأقل");
+  if(!val) return showWarn("اختر حالة الصوت");
+
+  push(ref(db, "votes"), {
+    name, selected:sel, validity:val.value,
+    committee: committeeNumber,
+    timestamp: Date.now()
+  }).then(()=>{
+    showConfirm("تم التسجيل بنجاح ✓");
+    document.getElementById("vote-form").reset();
+  });
+});
 </script>
 
 </body>
