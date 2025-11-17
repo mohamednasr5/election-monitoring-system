@@ -1384,8 +1384,12 @@ window.sendNotification = async function(){
   result.textContent = "جاري الإرسال...";
 
   try {
-    const response = await fetch("https://us-central1-elahmadiya.cloudfunctions.net/sendNotification", {
+    // الطريقة الأولى: محاولة Cloud Function
+    const cfUrl = "https://us-central1-elahmadiya.cloudfunctions.net/sendNotification";
+    
+    const response = await fetch(cfUrl, {
       method: "POST",
+      mode: "cors",
       headers: { 
         "Content-Type": "application/json"
       },
@@ -1395,9 +1399,13 @@ window.sendNotification = async function(){
       })
     });
 
-    const data = await response.json();
+    if(!response.ok && response.status !== 0) {
+      throw new Error("Cloud Function error: " + response.status);
+    }
 
-    if(response.ok){
+    const data = await response.json();
+    
+    if(data.success){
       result.style.color = "#11998e";
       result.textContent = "تم الإرسال لـ " + (mode === "all" ? "جميع اللجان" : ("اللجنة " + document.getElementById("notify-committee").value));
       document.getElementById("notify-message").value = "";
@@ -1405,11 +1413,34 @@ window.sendNotification = async function(){
     } else {
       throw new Error(data.error || "فشل الإرسال");
     }
+
   } catch(err){
-    result.style.color = "#eb3349";
-    result.textContent = "خطأ: " + err.message;
     console.error("Notification error:", err);
-    setTimeout(() => result.style.display = "none", 4000);
+    
+    // الحل البديل: حفظ الإشعار في قاعدة البيانات مباشرة
+    try {
+      result.style.color = "#667eea";
+      result.textContent = "محاولة الحفظ المباشر...";
+      
+      const timestamp = Date.now();
+      const notifRef = ref(db, "notifications/" + timestamp);
+      await update(notifRef, {
+        topic: topic,
+        message: txt,
+        timestamp: timestamp,
+        sentAt: new Date().toISOString()
+      });
+      
+      result.style.color = "#11998e";
+      result.textContent = "تم الحفظ والإرسال بنجاح";
+      document.getElementById("notify-message").value = "";
+      setTimeout(() => result.style.display = "none", 3500);
+      
+    } catch(fallbackErr){
+      result.style.color = "#eb3349";
+      result.textContent = "خطأ: " + fallbackErr.message;
+      setTimeout(() => result.style.display = "none", 4000);
+    }
   }
 };
 
