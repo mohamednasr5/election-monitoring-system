@@ -159,7 +159,7 @@ button{
 
   <form id="vote-form">
     <label>اسم الناخب:</label>
-    <input type="text" id="voter-name" placeholder="اكتب اسم الناخب">
+    <input type="text" id="voter-name" placeholder="اكتب اسم الناخب (اختياري)">
 
     <label>اختر المرشح (حتى 2):</label>
     <div class="candidate-list" id="candidate-list"></div>
@@ -211,17 +211,27 @@ const messaging = getMessaging(app);
 /* رقم اللجنة */
 let committeeNumber = 0;
 
-/* زر إظهار كلمة المرور */
+/* إظهار/إخفاء كلمة المرور */
 window.togglePass = function(){
   const p = document.getElementById("password-input");
   p.type = (p.type === "password") ? "text" : "password";
 };
 
-/* الدخول الصحيح */
+/* تسجيل الدخول */
 window.checkPass = function(){
   const val = document.getElementById("password-input").value.trim();
   const err = document.getElementById("pw-err");
 
+  /* دخول الأدمن */
+  if(val === "521988"){
+    document.getElementById("password-modal").classList.add("hidden");
+    document.getElementById("main-container").classList.remove("hidden");
+    document.getElementById("welcome-title").textContent =
+      "مرحباً بالمهندس محمد نصر كينج البرمجة";
+    return;
+  }
+
+  /* دخول اللجان */
   if (val < 100101 || val > 100160) {
     err.style.display = "block";
     setTimeout(()=> err.style.display="none",1800);
@@ -262,7 +272,7 @@ onMessage(messaging, (payload)=>{
   setTimeout(()=> bubble.style.display="none", 6000);
 });
 
-/* إنشاء المرشحين */
+/* قائمة المرشحين */
 const candidates = [
   ["1","ايهاب العمده","👑"],
   ["2","محمد العتمانى","🍞"],
@@ -281,6 +291,7 @@ const candidates = [
   ["15","مجدى الأمير","🖊"]
 ];
 
+/* إنشاء قائمة المرشحين */
 const listBox = document.getElementById("candidate-list");
 candidates.forEach(c => {
   const item = document.createElement("div");
@@ -337,11 +348,15 @@ function showConfirm(msg){
 document.getElementById("vote-form").addEventListener("submit",function(e){
   e.preventDefault();
 
-  const name = document.getElementById("voter-name").value.trim();
+  // اسم الناخب — اختياري
+  let name = document.getElementById("voter-name").value.trim();
+  if(name.length < 1){
+      name = "No Name";
+  }
+
   const sel = [...document.querySelectorAll('.candidate-checkbox:checked')].map(v=>v.value);
   const val = document.querySelector('input[name="vvalid"]:checked');
 
-  if(name.length<3) return showWarn("اسم الناخب غير صالح");
   if(sel.length<1) return showWarn("اختر مرشح واحد على الأقل");
   if(!val) return showWarn("اختر حالة الصوت");
 
