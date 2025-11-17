@@ -182,6 +182,52 @@ body{
   color:#777;
   margin-top:4px;
 }
+
+/* ============= COMMITTEE STATS ============= */
+.committee-stats-card{
+  background:#fff;
+  padding:16px;
+  border-radius:16px;
+  border:1px solid #e4e8f5;
+  box-shadow:0 4px 10px rgba(0,0,0,.06);
+  margin-bottom:18px;
+}
+.committee-stats-card h3{
+  color:#1e3c72;
+  font-size:1.05em;
+  margin-bottom:12px;
+  font-weight:900;
+}
+.committee-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+  gap:10px;
+  max-height:400px;
+  overflow-y:auto;
+}
+.committee-item{
+  background:#f7f9ff;
+  padding:12px;
+  border-radius:10px;
+  border-right:4px solid #1e3c72;
+  transition:.2s;
+  cursor:pointer;
+}
+.committee-item:hover{
+  background:#eef3ff;
+  box-shadow:0 2px 6px rgba(0,0,0,.08);
+}
+.committee-num{
+  font-size:1.1em;
+  font-weight:900;
+  color:#1e3c72;
+  margin-bottom:6px;
+}
+.committee-count{
+  font-size:.85em;
+  color:#607089;
+}
+
 /* ============= NOTIFICATION PANEL ============= */
 .notify-panel{
   background:#fff;
@@ -375,6 +421,25 @@ tr:nth-child(even) td{background:#fafbff}
 }
 .clickable-name:hover{color:#163160}
 
+.vote-status-friend{
+  display:inline-block;
+  padding:4px 8px;
+  background:#d4edda;
+  color:#0b7030;
+  border-radius:6px;
+  font-size:.8em;
+  font-weight:700;
+}
+.vote-status-enemy{
+  display:inline-block;
+  padding:4px 8px;
+  background:#f8d7da;
+  color:#a21515;
+  border-radius:6px;
+  font-size:.8em;
+  font-weight:700;
+}
+
 .btn-mini-edit{
   padding:5px 10px;
   border-radius:10px;
@@ -411,6 +476,8 @@ tr:nth-child(even) td{background:#fafbff}
   border-radius:16px;
   padding:16px;
   box-shadow:0 12px 30px rgba(0,0,0,.3);
+  max-height:85vh;
+  overflow-y:auto;
 }
 .popup-header{
   display:flex;
@@ -470,11 +537,13 @@ tr:nth-child(even) td{background:#fafbff}
 /* RESPONSIVE */
 @media(max-width:900px){
   .charts-grid{grid-template-columns:1fr;}
+  .committee-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));}
 }
 @media(max-width:600px){
   .dash-title{font-size:1.4em}
   .ranking-bar{min-width:60px}
   .ranking-count{min-width:35px;font-size:.9em}
+  .committee-grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr));}
 }
 </style>
 </head>
@@ -554,6 +623,15 @@ tr:nth-child(even) td{background:#fafbff}
   </div>
 
 
+  <!-- ============= COMMITTEE STATISTICS (جديد) ============= -->
+  <div class="committee-stats-card">
+    <h3>📋 إحصائيات اللجان (1 → 60)</h3>
+    <div id="committee-grid" class="committee-grid">
+      <div style="padding:20px;text-align:center;color:#777;grid-column:1/-1">جاري تحميل بيانات اللجان…</div>
+    </div>
+  </div>
+
+
   <!-- ============= SEND NOTIFICATION PANEL ============= -->
   <div class="notify-panel">
 
@@ -589,19 +667,19 @@ tr:nth-child(even) td{background:#fafbff}
 
     <div class="chart-card">
       <h3>📊 الأصوات لكل مرشح</h3>
-      <canvas id="chartCandidates"></canvas>
+      nvas id="chartartCandidates"></canvas>
     </div>
 
     <div class="chart-card">
       <h3>📘 نسبة الأصوات الصحيحة والباطلة</h3>
-      <canvas id="chartValidity"></canvas>
+      nvas id="chartValValidity"></canvas>
     </div>
 
   </div>
 
   <div class="chart-card">
     <h3>⏱ الأصوات لكل دقيقة (VPM لحظي)</h3>
-    <canvas id="chartVPM"></canvas>
+    nvasvas id="chartVPM"></canvas>
   </div>
 
 
@@ -636,6 +714,7 @@ tr:nth-child(even) td{background:#fafbff}
             <th data-sort="name">الاسم</th>
             <th data-sort="candidates">المرشحين</th>
             <th data-sort="validity">الحالة</th>
+            <th>حالة الصوت</th>
             <th data-sort="time">الوقت</th>
             <th>تعديل</th>
           </tr>
@@ -649,7 +728,7 @@ tr:nth-child(even) td{background:#fafbff}
 </div> <!-- END DASHBOARD -->
 
 
-<!-- ============= DETAILS POPUP (مفقود في الكود الأصلي) ============= -->
+<!-- ============= DETAILS POPUP ============= -->
 <div id="details-popup" class="overlay hidden">
   <div class="popup">
     <div class="popup-header">
@@ -663,7 +742,21 @@ tr:nth-child(even) td{background:#fafbff}
 </div>
 
 
-<!-- ============= EDIT POPUP (مفقود في الكود الأصلي) ============= -->
+<!-- ============= COMMITTEE DETAILS POPUP (جديد) ============= -->
+<div id="committee-popup" class="overlay hidden">
+  <div class="popup">
+    <div class="popup-header">
+      <h3 id="committee-popup-title">تفاصيل اللجنة</h3>
+      <button class="popup-close" onclick="closeCommitteePopup()">×</button>
+    </div>
+    <div id="committee-popup-body" style="padding:10px;">
+      <!-- سيتم ملؤه ديناميكيًا -->
+    </div>
+  </div>
+</div>
+
+
+<!-- ============= EDIT POPUP ============= -->
 <div id="edit-popup" class="overlay hidden">
   <div class="popup">
     <div class="popup-header">
@@ -683,7 +776,7 @@ tr:nth-child(even) td{background:#fafbff}
 </div>
 
 
-<!-- ============= مكتبة Chart.js (مفقودة في الكود الأصلي) ============= -->
+<!-- ============= مكتبة Chart.js ============= -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js"></script>
 
 <script type="module">
@@ -693,11 +786,11 @@ import { initializeApp }
   from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 
 import { 
-  getDatabase, ref, onValue, update, remove 
+  getDatabase, ref, onValue, update, remove, query, orderByChild, equalTo
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
 import {
-  getMessaging, getToken
+  getMessaging, getToken, onMessage
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging.js";
 
 /* ========== Firebase Config ========== */
@@ -716,7 +809,7 @@ const db   = getDatabase(app);
 const msg  = getMessaging(app);
 
 
-/* ======================= تسجيل Service Worker (مفقود في الكود الأصلي) ======================= */
+/* ======================= تسجيل Service Worker ======================= */
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/firebase-messaging-sw.js')
     .then(registration => {
@@ -728,8 +821,27 @@ if ('serviceWorker' in navigator) {
 }
 
 
-/* ======================= تسجيل توكن الإشعارات ======================= */
+/* ======================= طلب أذونات الإشعارات ======================= */
+async function requestNotificationPermission(){
+  try{
+    const permission = await Notification.requestPermission();
+    
+    if(permission === 'granted'){
+      console.log('✔️ تم منح أذونات الإشعارات');
+      await registerFCMToken();
+    } else if(permission === 'denied'){
+      console.warn('⚠️ تم رفض أذونات الإشعارات');
+      alert('لن تتمكن من استقبال الإشعارات. يمكنك تفعيلها من إعدادات المتصفح.');
+    } else {
+      console.log('ℹ️ لم يتم اتخاذ قرار بشأن الإشعارات');
+    }
+  } catch(err){
+    console.error('خطأ في طلب أذونات الإشعارات:', err);
+  }
+}
 
+
+/* ======================= تسجيل توكن الإشعارات ======================= */
 let deviceToken = null;
 
 async function registerFCMToken(){
@@ -744,9 +856,10 @@ async function registerFCMToken(){
     }
 
     // حفظه في قاعدة البيانات
-    update(ref(db, "tokens/" + deviceToken), {
+    await update(ref(db, "tokens/" + deviceToken), {
       token: deviceToken,
-      time: Date.now()
+      time: Date.now(),
+      type: 'dashboard'
     });
 
     console.log("🔔 تم تسجيل توكن FCM:", deviceToken);
@@ -756,15 +869,15 @@ async function registerFCMToken(){
   }
 }
 
-registerFCMToken();
 
-
-// الاستماع للإشعارات داخل الصفحة
-navigator.serviceWorker.addEventListener("message", event => {
-  const data = event.data?.firebaseMessaging?.data;
-  if(data){
-    showFloatingNotification(data.body);
-  }
+/* ===== الاستماع للإشعارات في المقدمة ===== */
+onMessage(msg, (payload) => {
+  console.log('رسالة مستلمة في المقدمة:', payload);
+  
+  const title = payload.notification?.title || 'إشعار جديد';
+  const body = payload.notification?.body || payload.data?.body || '';
+  
+  showFloatingNotification(body);
 });
 
 
@@ -783,6 +896,8 @@ function showFloatingNotification(msg){
     z-index:99999;
     font-size:1em;
     max-width:260px;
+    opacity:1;
+    transition:all 0.3s ease;
   `;
   box.innerText = msg;
   document.body.appendChild(box);
@@ -812,8 +927,11 @@ window.unlockDashboard = function(){
     document.getElementById("lock-screen").classList.add("hidden");
     document.getElementById("dashboard").classList.remove("hidden");
 
-    // ترحيب خاص للمهندس محمد نصر
+    // ترحيب خاص
     showFloatingNotification("مرحباً بالمهندس محمد نصر… كينج البرمجة 👑");
+    
+    // طلب أذونات الإشعارات
+    requestNotificationPermission();
 
   } else {
     err.textContent = "الرقم السري غير صحيح";
@@ -847,6 +965,8 @@ const candidatesNames = [
   "أحمد عوف","حسن الملهاط","عمرو محمد بحيرى",
   "السيد طمان","محمد دندن","مجدى الأمير"
 ];
+
+
 /* ======================= جلب البيانات من فايربيس ======================= */
 
 const votesRef = ref(db, "votes");
@@ -860,18 +980,24 @@ onValue(votesRef, snapshot=>{
     name: v.name || "No Name",
     candidates: Array.isArray(v.selected) ? v.selected : [],
     validity: v.vote_validity || "",
-    timestamp: v.timestamp || 0
+    timestamp: v.timestamp || 0,
+    committee: v.committee || 0
   }));
 
   renderAll();
 });
+
+
 /* ======================= رندر شامل ======================= */
 function renderAll(){
   renderStats();
+  renderCommitteeStats();
   renderCharts();
   renderRanking();
   renderTable();
 }
+
+
 /* ======================= الإحصائيات العامة ======================= */
 function renderStats(){
   const total   = allVotes.length;
@@ -887,6 +1013,13 @@ function renderStats(){
 
   if(total > 0){
     const sorted = [...allVotes].filter(v=>v.timestamp).sort((a,b)=>a.timestamp - b.timestamp);
+
+    if(sorted.length === 0){
+      document.getElementById("vpm").textContent = "0";
+      document.getElementById("vpm10").textContent = "0";
+      liveTxt.textContent = "لا يوجد تصويت حالياً";
+      return;
+    }
 
     const firstTs = sorted[0].timestamp;
     const lastTs  = sorted[sorted.length-1].timestamp;
@@ -931,6 +1064,102 @@ function renderStats(){
   }
 }
 
+
+/* ======================= إحصائيات اللجان (جديد) ======================= */
+function renderCommitteeStats(){
+  const grid = document.getElementById("committee-grid");
+  
+  // تجميع الأصوات حسب اللجنة
+  const committeeData = {};
+  
+  for(let i = 1; i <= 60; i++){
+    committeeData[i] = {
+      total: 0,
+      valid: 0,
+      invalid: 0,
+      votes: []
+    };
+  }
+  
+  allVotes.forEach(v => {
+    const comm = v.committee || 0;
+    if(comm >= 1 && comm <= 60){
+      committeeData[comm].total++;
+      committeeData[comm].votes.push(v);
+      if(v.validity === "صحيح") committeeData[comm].valid++;
+      if(v.validity === "باطل") committeeData[comm].invalid++;
+    }
+  });
+  
+  // عرض البيانات
+  grid.innerHTML = "";
+  
+  for(let i = 1; i <= 60; i++){
+    const data = committeeData[i];
+    const item = document.createElement("div");
+    item.className = "committee-item";
+    item.onclick = () => showCommitteeDetails(i, data);
+    
+    item.innerHTML = `
+      <div class="committee-num">لجنة ${i}</div>
+      <div class="committee-count">📊 ${data.total} صوت</div>
+      <div class="committee-count" style="color:#0b7040">✓ ${data.valid} صحيح</div>
+      <div class="committee-count" style="color:#b00020">✗ ${data.invalid} باطل</div>
+    `;
+    
+    grid.appendChild(item);
+  }
+}
+
+
+/* ===== عرض تفاصيل لجنة معينة ===== */
+window.showCommitteeDetails = function(num, data){
+  const popup = document.getElementById("committee-popup");
+  const title = document.getElementById("committee-popup-title");
+  const body = document.getElementById("committee-popup-body");
+  
+  title.textContent = `تفاصيل اللجنة ${num}`;
+  
+  let html = `
+    <div style="margin-bottom:15px;">
+      <strong>إجمالي الأصوات:</strong> ${data.total}<br>
+      <strong style="color:#0b7040">الأصوات الصحيحة:</strong> ${data.valid}<br>
+      <strong style="color:#b00020">الأصوات الباطلة:</strong> ${data.invalid}
+    </div>
+  `;
+  
+  if(data.votes.length > 0){
+    html += `<h4 style="color:#1e3c72;margin-bottom:8px">قائمة الناخبين:</h4>`;
+    html += `<div style="max-height:250px;overflow-y:auto">`;
+    
+    data.votes.forEach((v,i) => {
+      const isOur = v.candidates.includes("أحمد الحديدى") && v.candidates.includes("البدوى جميز");
+      const statusLabel = isOur ? 
+        '<span class="vote-status-friend">تبعنا ✔️</span>' :
+        '<span class="vote-status-enemy">مش تبعنا ❌</span>';
+        
+      html += `
+        <div style="padding:8px;margin-bottom:6px;background:#f7f9ff;border-radius:8px">
+          <strong>${i+1}. ${v.name}</strong><br>
+          <small>المرشحين: ${v.candidates.join(" و ") || "—"}</small><br>
+          <small>الحالة: <span style="color:${v.validity === 'صحيح' ? '#0b7040' : '#b00020'}">${v.validity}</span></small><br>
+          ${statusLabel}
+        </div>
+      `;
+    });
+    
+    html += `</div>`;
+  } else {
+    html += `<p style="color:#777;text-align:center;padding:20px">لم يتم تسجيل أصوات في هذه اللجنة بعد</p>`;
+  }
+  
+  body.innerHTML = html;
+  popup.classList.remove("hidden");
+};
+
+window.closeCommitteePopup = function(){
+  document.getElementById("committee-popup").classList.add("hidden");
+};
 
 
 /* ======================= الرسومات البيانية ======================= */
@@ -1088,6 +1317,8 @@ function renderRanking(){
       </div>`;
   }).join("");
 }
+
+
 /* ======================= جدول الأصوات ======================= */
 
 function renderTable(){
@@ -1127,6 +1358,12 @@ function renderTable(){
 
   filtered.forEach((v,i)=>{
     const tr = document.createElement("tr");
+    
+    // تحديد حالة الصوت (صديق أو عدو)
+    const isOur = v.candidates.includes("أحمد الحديدى") && v.candidates.includes("البدوى جميز");
+    const statusLabel = isOur ? 
+      '<span class="vote-status-friend">تبعنا ✔️</span>' :
+      '<span class="vote-status-enemy">مش تبعنا ❌</span>';
 
     tr.innerHTML = `
       <td>${i+1}</td>
@@ -1135,6 +1372,7 @@ function renderTable(){
       <td class="${v.validity === "صحيح" ? "status-valid" : "status-invalid"}">
         ${v.validity}
       </td>
+      <td>${statusLabel}</td>
       <td>${
         v.timestamp ?
         new Date(v.timestamp).toLocaleTimeString("ar-EG",{hour:"2-digit",minute:"2-digit",second:"2-digit"})
@@ -1197,8 +1435,10 @@ window.showDetails = function(id){
   body.innerHTML = `
     <table style="width:100%;">
       <tr><td><b>الاسم</b></td><td>${v.name}</td></tr>
+      <tr><td><b>اللجنة</b></td><td>لجنة ${v.committee || "—"}</td></tr>
       <tr><td><b>الوقت</b></td><td>${time}</td></tr>
       <tr><td><b>المرشحين</b></td><td>${chosen}</td></tr>
+      <tr><td><b>الحالة</b></td><td style="color:${v.validity === 'صحيح' ? '#0b7040' : '#b00020'}">${v.validity}</td></tr>
     </table>
 
     ${
@@ -1284,24 +1524,31 @@ window.saveEdit = function(){
 window.exportCSV = function(){
   if(allVotes.length === 0) return alert("لا توجد بيانات");
 
-  const header = "Index,Name,Candidates,Validity,Timestamp\n";
+  const header = "Index,Name,Committee,Candidates,Validity,Vote_Status,Timestamp\n";
 
-  const rows = allVotes.map((v,i)=>[
-    i+1,
-    `"${v.name.replace(/"/g,'""')}"`,
-    `"${v.candidates.join(" | ").replace(/"/g,'""')}"`,
-    v.validity,
-    v.timestamp
-  ].join(","));
+  const rows = allVotes.map((v,i)=>{
+    const isOur = v.candidates.includes("أحمد الحديدى") && v.candidates.includes("البدوى جميز");
+    const status = isOur ? "Friend" : "Enemy";
+    
+    return [
+      i+1,
+      `"${v.name.replace(/"/g,'""')}"`,
+      v.committee || "N/A",
+      `"${v.candidates.join(" | ").replace(/"/g,'""')}"`,
+      v.validity,
+      status,
+      v.timestamp
+    ].join(",");
+  });
 
   const csv = header + rows.join("\n");
 
-  const blob = new Blob([csv], {type:"text/csv"});
+  const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
   const url  = URL.createObjectURL(blob);
 
   const a = document.createElement("a");
   a.href = url;
-  a.download = "votes_export.csv";
+  a.download = "votes_export_" + Date.now() + ".csv";
   a.click();
   URL.revokeObjectURL(url);
 };
@@ -1317,7 +1564,11 @@ window.resetAll = function(){
     return;
 
   remove(ref(db, "votes"))
-    .then(()=> alert("تم تصفير كل الإحصائيات"))
+    .then(()=> {
+      alert("تم تصفير كل الإحصائيات");
+      allVotes = [];
+      renderAll();
+    })
     .catch(()=> alert("خطأ أثناء التصفير"));
 };
 
@@ -1345,7 +1596,7 @@ window.sendNotification = async function(){
     if(num < 1 || num > 60){
       result.style.display="block";
       result.style.color="#b00020";
-      result.textContent = "رقم اللجنة غير صالح";
+      result.textContent = "رقم اللجنة غير صالح (1-60)";
       return;
     }
     topic = "committee_" + num;
@@ -1353,22 +1604,25 @@ window.sendNotification = async function(){
 
   // إرسال الإشعار
   try{
-    await fetch("https://us-central1-elahmadiya.cloudfunctions.net/sendNotification", {
+    const response = await fetch("https://us-central1-elahmadiya.cloudfunctions.net/sendNotification", {
       method:"POST",
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify({topic, message:txt})
     });
 
-    result.style.display="block";
-    result.style.color="#0b7030";
-    result.textContent = "✔️ تم إرسال الإشعار بنجاح";
-
-    document.getElementById("notify-message").value = "";
+    if(response.ok){
+      result.style.display="block";
+      result.style.color="#0b7030";
+      result.textContent = "✔️ تم إرسال الإشعار بنجاح";
+      document.getElementById("notify-message").value = "";
+    } else {
+      throw new Error('فشل الإرسال');
+    }
 
   } catch(err){
     result.style.display="block";
     result.style.color="#b00020";
-    result.textContent = "خطأ أثناء إرسال الإشعار";
+    result.textContent = "خطأ أثناء إرسال الإشعار: " + err.message;
   }
 };
 
