@@ -1064,16 +1064,45 @@ window.showCommitteeDetails = function(num, data){
   const ourVotes = data.votes.filter(v => v.candidates.includes("أحمد الحديدى") && v.candidates.includes("البدوى جميز")).length;
   const theirVotes = data.total - ourVotes;
   const percentage = data.total > 0 ? ((ourVotes / data.total) * 100).toFixed(1) : 0;
+  const now = Date.now();
+  
+  let vpm = 0;
+  const sorted = [...data.votes].filter(v => v.timestamp).sort((a, b) => a.timestamp - b.timestamp);
+  if(sorted.length > 0){
+    const firstTs = sorted[0].timestamp;
+    const lastTs = sorted[sorted.length - 1].timestamp;
+    const diffMin = (lastTs - firstTs) / 60000;
+    if(diffMin > 0) vpm = data.total / diffMin;
+  }
+  
+  let vpm10 = 0;
+  const tenMinAgo = now - (10 * 60 * 1000);
+  const last10 = data.votes.filter(v => v.timestamp >= tenMinAgo);
+  if(last10.length > 0){
+    const firstInWindow = Math.min(...last10.map(x => x.timestamp));
+    const span = (now - firstInWindow) / 60000;
+    vpm10 = last10.length / (span || 1);
+  }
   
   let html = "<div style='background:#f5f7ff;padding:15px;border-radius:12px;margin-bottom:15px;border-left:4px solid #667eea;'>";
-  html += "<div style='display:grid;grid-template-columns:1fr 1fr;gap:10px;'>";
-  html += "<div><small style='color:#999;font-weight:600;'>الإجمالي</small><div style='font-size:1.5em;font-weight:900;color:#667eea;'>" + data.total + "</div></div>";
-  html += "<div><small style='color:#999;font-weight:600;'>الحالة</small><div style='font-size:1.2em;font-weight:900;color:#11998e;'>نشطة</div></div>";
+  html += "<div style='display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;'>";
+  html += "<div><small style='color:#999;font-weight:600;'>إجمالي الأصوات</small><div style='font-size:1.5em;font-weight:900;color:#667eea;'>" + data.total + "</div></div>";
+  html += "<div><small style='color:#999;font-weight:600;'>حالة اللجنة</small><div style='font-size:1.2em;font-weight:900;color:#11998e;'>نشطة</div></div>";
   html += "</div>";
   html += "<div style='margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:10px;'>";
-  html += "<div><small style='color:#11998e;font-weight:600;'>صحيح</small><div style='font-size:1.3em;font-weight:900;color:#11998e;'>" + data.valid + "</div></div>";
-  html += "<div><small style='color:#eb3349;font-weight:600;'>باطل</small><div style='font-size:1.3em;font-weight:900;color:#eb3349;'>" + data.invalid + "</div></div>";
+  html += "<div><small style='color:#11998e;font-weight:600;'>أصوات صحيحة</small><div style='font-size:1.3em;font-weight:900;color:#11998e;'>" + data.valid + "</div></div>";
+  html += "<div><small style='color:#eb3349;font-weight:600;'>أصوات باطلة</small><div style='font-size:1.3em;font-weight:900;color:#eb3349;'>" + data.invalid + "</div></div>";
   html += "</div></div>";
+  
+  html += "<div style='background:#e8f5e9;padding:12px;border-radius:10px;margin-bottom:15px;border-left:4px solid #11998e;'>";
+  html += "<small style='color:#11998e;font-weight:600;'>متوسط الأصوات/دقيقة (من البداية)</small>";
+  html += "<div style='font-size:1.5em;font-weight:900;color:#11998e;'>" + vpm.toFixed(2) + "</div>";
+  html += "</div>";
+  
+  html += "<div style='background:#fff3e0;padding:12px;border-radius:10px;margin-bottom:15px;border-left:4px solid #ff9800;'>";
+  html += "<small style='color:#e65100;font-weight:600;'>متوسط الأصوات/دقيقة (آخر 10 دقائق)</small>";
+  html += "<div style='font-size:1.5em;font-weight:900;color:#e65100;'>" + vpm10.toFixed(2) + "</div>";
+  html += "</div>";
   
   html += "<div style='background:#d4fc79;padding:12px;border-radius:10px;margin-bottom:15px;text-align:center;border-left:4px solid #2d5016;'>";
   html += "<small style='color:#2d5016;font-weight:600;'>أصواتنا</small>";
@@ -1098,7 +1127,7 @@ window.showCommitteeDetails = function(num, data){
       html += "<div style='font-weight:700;color:#333;margin-bottom:4px;'>" + (i + 1) + ". " + v.name + "</div>";
       html += "<div style='font-size:0.85em;color:#666;margin-bottom:4px;'>المرشحين: " + (v.candidates.join(" و ") || "—") + "</div>";
       html += "<div style='display:flex;gap:8px;font-size:0.85em;'>";
-      html += "<span style='padding:3px 8px;background:#f0f0f0;border-radius:6px;color:#333;'>" + validityIcon + " " + v.validity + "</span>";
+      html += "<span style='padding:3px 8px;background:" + (v.validity === "صحيح" ? "#c8e6c9" : "#ffccbc") + ";border-radius:6px;color:#333;font-weight:700;'>" + validityIcon + " " + v.validity + "</span>";
       html += "<span style='padding:3px 8px;background:#e8f5e9;border-radius:6px;color:#333;'>" + statusLabel + "</span>";
       html += "</div></div>";
     });
@@ -1122,8 +1151,8 @@ function renderCharts(){
 
   const counts = {};
   allVotes.forEach(v => v.candidates.forEach(c => counts[c] = (counts[c] || 0) + 1));
-  const labels = Object.keys(counts);
-  const data = Object.values(counts);
+  const labels = Object.keys(counts).length > 0 ? Object.keys(counts) : ["لا توجد بيانات"];
+  const data = Object.keys(counts).length > 0 ? Object.values(counts) : [0];
 
   if(chartCandidates){
     chartCandidates.data.labels = labels;
@@ -1132,21 +1161,25 @@ function renderCharts(){
   } else {
     chartCandidates = new Chart(ctx1, {
       type: "bar",
-      data: { labels, datasets: [{ label: "الأصوات", data, backgroundColor: "#667eea" }] },
+      data: { labels: labels, datasets: [{ label: "الأصوات", data: data, backgroundColor: "#667eea" }] },
       options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
     });
   }
 
   const valid = allVotes.filter(v => v.validity === "صحيح").length;
   const invalid = allVotes.filter(v => v.validity === "باطل").length;
+  const total = valid + invalid;
 
   if(chartValidity){
-    chartValidity.data.datasets[0].data = [valid, invalid];
+    chartValidity.data.datasets[0].data = total > 0 ? [valid, invalid] : [0, 0];
     chartValidity.update();
   } else {
     chartValidity = new Chart(ctx2, {
       type: "doughnut",
-      data: { labels: ["صحيح", "باطل"], datasets: [{ data: [valid, invalid], backgroundColor: ["#11998e", "#eb3349"] }] },
+      data: { 
+        labels: ["صحيح (" + valid + ")", "باطل (" + invalid + ")"], 
+        datasets: [{ data: total > 0 ? [valid, invalid] : [0, 0], backgroundColor: ["#11998e", "#eb3349"] }] 
+      },
       options: { cutout: "55%", plugins: { legend: { position: "bottom" } } }
     });
   }
@@ -1159,8 +1192,8 @@ function renderCharts(){
   });
 
   const minuteKeys = Object.keys(minutes).map(Number).sort((a, b) => a - b);
-  const minuteLabels = minuteKeys.map(t => new Date(t).toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" }));
-  const minuteData = minuteKeys.map(k => minutes[k]);
+  const minuteLabels = minuteKeys.length > 0 ? minuteKeys.map(t => new Date(t).toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" })) : ["لا توجد"];
+  const minuteData = minuteKeys.length > 0 ? minuteKeys.map(k => minutes[k]) : [0];
 
   if(chartVPM){
     chartVPM.data.labels = minuteLabels;
