@@ -889,7 +889,7 @@ tr:hover td {
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getDatabase, ref, onValue, update, remove } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { getDatabase, ref, onValue, update, remove, set } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCxxXV_6CEo1fTp3rRbfwfYbe7WH0Cyg38",
@@ -1384,11 +1384,10 @@ window.sendNotification = async function(){
   result.textContent = "جاري الإرسال...";
 
   try {
-    // حفظ الرسالة في قاعدة البيانات تحت messages
     const timestamp = Date.now();
     const messageRef = ref(db, "notifications/" + topic + "/" + timestamp);
     
-    await update(messageRef, {
+    await set(messageRef, {
       message: txt,
       topic: topic,
       timestamp: timestamp,
@@ -1399,6 +1398,7 @@ window.sendNotification = async function(){
     result.style.color = "#11998e";
     result.textContent = "تم الإرسال لـ " + (mode === "all" ? "جميع اللجان ✓" : ("اللجنة " + document.getElementById("notify-committee").value + " ✓"));
     document.getElementById("notify-message").value = "";
+    
     setTimeout(() => result.style.display = "none", 3500);
     
   } catch(err){
