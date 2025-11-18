@@ -63,6 +63,21 @@ h2{
   -webkit-background-clip:text; -webkit-text-fill-color:transparent;
   font-size:2.2em; font-weight:900;
 }
+
+.committee-info{
+  text-align:center; margin-top:12px; margin-bottom:25px;
+  background:linear-gradient(135deg,#f5f7ff 0%,#eff2ff 100%);
+  padding:14px; border-radius:12px; border-left:4px solid #667eea;
+}
+
+.committee-name{
+  font-size:1.1em; font-weight:700; color:#667eea; margin-bottom:4px;
+}
+
+.committee-address{
+  font-size:0.9em; color:#666; font-weight:500;
+}
+
 .subtitle{text-align:center; color:#999; margin-top:8px; margin-bottom:25px; font-size:0.95em;}
 
 label{ font-weight:700; color:#333; margin-top:18px; display:block; }
@@ -231,7 +246,10 @@ button{
 
 <div class="container hidden" id="main-container">
   <h2 id="welcome-title">تسجيل التصويت</h2>
-  <div class="subtitle">نظام العملية الانتخابية</div>
+  <div class="committee-info">
+    <div class="committee-name" id="committee-name-display"></div>
+    <div class="committee-address" id="committee-address-display"></div>
+  </div>
 
   <form id="vote-form">
     <label>اسم الناخب:</label>
@@ -271,6 +289,7 @@ button{
   </a>
 </div>
 
+</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
@@ -290,9 +309,71 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 let committeeNumber = 0;
-let closedNotifications = new Set(); // تتبع الرسائل المغلقة
+let closedNotifications = new Set();
 
-// تحميل الرسائل المغلقة من localStorage
+const committeeData = {
+  1: { name: "لجنة ابتدائي", address: "مدرسة الشهيد عبده محمود" },
+  2: { name: "لجنة ابتدائي", address: "مدرسة الحديثة الابتدائية" },
+  3: { name: "لجنة ابتدائي", address: "مدرسة الشرقاوي الابتدائية" },
+  4: { name: "لجنة ابتدائي", address: "مدرسة المنزلة الابتدائية" },
+  5: { name: "لجنة ابتدائي", address: "مدرسة البحر الابتدائية" },
+  6: { name: "لجنة ابتدائي", address: "مدرسة القصير الابتدائية" },
+  7: { name: "لجنة ابتدائي", address: "مدرسة الرياح الابتدائية" },
+  8: { name: "لجنة ابتدائي", address: "مدرسة النخيل الابتدائية" },
+  9: { name: "لجنة ابتدائي", address: "مدرسة الجيزة الابتدائية" },
+  10: { name: "لجنة ابتدائي", address: "مدرسة المرج الابتدائية" },
+  11: { name: "لجنة إعدادي", address: "مدرسة المنزلة الإعدادية" },
+  12: { name: "لجنة إعدادي", address: "مدرسة الدقهلية الإعدادية" },
+  13: { name: "لجنة إعدادي", address: "مدرسة النيل الإعدادية" },
+  14: { name: "لجنة إعدادي", address: "مدرسة الوحدة الإعدادية" },
+  15: { name: "لجنة إعدادي", address: "مدرسة القومية الإعدادية" },
+  16: { name: "لجنة إعدادي", address: "مدرسة الرياح الإعدادية" },
+  17: { name: "لجنة إعدادي", address: "مدرسة السلام الإعدادية" },
+  18: { name: "لجنة إعدادي", address: "مدرسة التحرير الإعدادية" },
+  19: { name: "لجنة إعدادي", address: "مدرسة الحرية الإعدادية" },
+  20: { name: "لجنة إعدادي", address: "مدرسة العدل الإعدادية" },
+  21: { name: "لجنة ثانوي", address: "مدرسة المنزلة الثانوية" },
+  22: { name: "لجنة ثانوي", address: "مدرسة الدقهلية الثانوية" },
+  23: { name: "لجنة ثانوي", address: "مدرسة النيل الثانوية" },
+  24: { name: "لجنة ثانوي", address: "مدرسة الوحدة الثانوية" },
+  25: { name: "لجنة ثانوي", address: "مدرسة القومية الثانوية" },
+  26: { name: "لجنة ثانوي", address: "مدرسة الرياح الثانوية" },
+  27: { name: "لجنة ثانوي", address: "مدرسة السلام الثانوية" },
+  28: { name: "لجنة ثانوي", address: "مدرسة التحرير الثانوية" },
+  29: { name: "لجنة ثانوي", address: "مدرسة الحرية الثانوية" },
+  30: { name: "لجنة ثانوي", address: "مدرسة العدل الثانوية" },
+  31: { name: "لجنة ابتدائي", address: "مدرسة الشهداء الابتدائية" },
+  32: { name: "لجنة ابتدائي", address: "مدرسة الأمل الابتدائية" },
+  33: { name: "لجنة ابتدائي", address: "مدرسة النور الابتدائية" },
+  34: { name: "لجنة ابتدائي", address: "مدرسة الفجر الابتدائية" },
+  35: { name: "لجنة ابتدائي", address: "مدرسة الشروق الابتدائية" },
+  36: { name: "لجنة ابتدائي", address: "مدرسة الغروب الابتدائية" },
+  37: { name: "لجنة ابتدائي", address: "مدرسة النجم الابتدائية" },
+  38: { name: "لجنة ابتدائي", address: "مدرسة القمر الابتدائية" },
+  39: { name: "لجنة ابتدائي", address: "مدرسة الشمس الابتدائية" },
+  40: { name: "لجنة ابتدائي", address: "مدرسة الليل الابتدائية" },
+  41: { name: "لجنة إعدادي", address: "مدرسة الشهداء الإعدادية" },
+  42: { name: "لجنة إعدادي", address: "مدرسة الأمل الإعدادية" },
+  43: { name: "لجنة إعدادي", address: "مدرسة النور الإعدادية" },
+  44: { name: "لجنة إعدادي", address: "مدرسة الفجر الإعدادية" },
+  45: { name: "لجنة إعدادي", address: "مدرسة الشروق الإعدادية" },
+  46: { name: "لجنة إعدادي", address: "مدرسة الغروب الإعدادية" },
+  47: { name: "لجنة إعدادي", address: "مدرسة النجم الإعدادية" },
+  48: { name: "لجنة إعدادي", address: "مدرسة القمر الإعدادية" },
+  49: { name: "لجنة إعدادي", address: "مدرسة الشمس الإعدادية" },
+  50: { name: "لجنة إعدادي", address: "مدرسة الليل الإعدادية" },
+  51: { name: "لجنة ثانوي", address: "مدرسة الشهداء الثانوية" },
+  52: { name: "لجنة ثانوي", address: "مدرسة الأمل الثانوية" },
+  53: { name: "لجنة ثانوي", address: "مدرسة النور الثانوية" },
+  54: { name: "لجنة ثانوي", address: "مدرسة الفجر الثانوية" },
+  55: { name: "لجنة ثانوي", address: "مدرسة الشروق الثانوية" },
+  56: { name: "لجنة ثانوي", address: "مدرسة الغروب الثانوية" },
+  57: { name: "لجنة ثانوي", address: "مدرسة النجم الثانوية" },
+  58: { name: "لجنة ثانوي", address: "مدرسة القمر الثانوية" },
+  59: { name: "لجنة ثانوي", address: "مدرسة الشمس الثانوية" },
+  60: { name: "لجنة ثانوي", address: "مدرسة الليل الثانوية" }
+};
+
 function loadClosedNotifications(){
   const stored = localStorage.getItem("closedNotifications");
   if(stored){
@@ -304,12 +385,10 @@ function loadClosedNotifications(){
   }
 }
 
-// حفظ الرسائل المغلقة في localStorage
 function saveClosedNotifications(){
   localStorage.setItem("closedNotifications", JSON.stringify(Array.from(closedNotifications)));
 }
 
-// تحميل الرسائل المغلقة عند بدء الصفحة
 loadClosedNotifications();
 
 window.togglePass = function(){
@@ -325,6 +404,8 @@ window.checkPass = function(){
     document.getElementById("password-modal").classList.add("hidden");
     document.getElementById("main-container").classList.remove("hidden");
     document.getElementById("welcome-title").textContent = "مرحباً بالمهندس محمد نصر - كينج البرمجة";
+    document.getElementById("committee-name-display").style.display = "none";
+    document.getElementById("committee-address-display").style.display = "none";
     setupNotificationListeners(0);
     return;
   }
@@ -336,15 +417,18 @@ window.checkPass = function(){
   }
 
   committeeNumber = parseInt(val) - 100100;
+  const info = committeeData[committeeNumber] || { name: "لجنة", address: "بدون عنوان" };
+  
   document.getElementById("password-modal").classList.add("hidden");
   document.getElementById("main-container").classList.remove("hidden");
   document.getElementById("welcome-title").textContent = "لجنة رقم " + committeeNumber;
+  document.getElementById("committee-name-display").textContent = info.name;
+  document.getElementById("committee-address-display").textContent = info.address;
   setupNotificationListeners(committeeNumber);
 };
 
 function setupNotificationListeners(committee){
   try {
-    // استماع للإشعارات العامة
     const allNotificationsRef = ref(db, "notifications/all");
     let lastAllTimestamp = 0;
     
@@ -362,7 +446,6 @@ function setupNotificationListeners(committee){
       console.log("Listening to all notifications...");
     });
 
-    // استماع للإشعارات الخاصة باللجنة
     if(committee > 0){
       const committeeNotificationsRef = ref(db, "notifications/committee_" + committee);
       let lastCommitteeTimestamp = 0;
@@ -391,13 +474,10 @@ function showFloatingNotification(msg, type){
   const content = document.getElementById("bubble-content");
   const icon = document.getElementById("bubble-icon");
   
-  // إنشاء معرّف فريد للرسالة
   const notificationId = type + "_" + Date.now();
   bubble.dataset.notificationId = notificationId;
   
-  // التحقق من أن الرسالة لم يتم إغلاقها من قبل
   if(closedNotifications.has(notificationId)){
-    console.log("This notification was already closed");
     return;
   }
   
@@ -551,4 +631,3 @@ document.getElementById("password-input").addEventListener("keypress", function(
 
 </body>
 </html>
-
