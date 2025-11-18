@@ -1036,7 +1036,7 @@ window.unlockDashboard = function(){
     document.getElementById("dashboard").classList.remove("hidden");
     document.getElementById("admin-level-badge").textContent = "🔑 مهندس محمد حماد";
     showNotification("مرحبا بك يا مهندس محمد حماد - صلاحيات كاملة!");
-    renderAll();
+    setupVotesListener();
   } else if(value === "451125"){
     adminLevel = 2;
     document.getElementById("lock-screen").classList.add("hidden");
@@ -1046,7 +1046,7 @@ window.unlockDashboard = function(){
     document.getElementById("btn-reset-all").classList.add("btn-hidden");
     document.querySelectorAll(".btn-mini-edit").forEach(btn => btn.classList.add("btn-hidden"));
     document.getElementById("edit-col").classList.add("hidden");
-    renderAll();
+    setupVotesListener();
   } else {
     err.textContent = "كلمة سر غير صحيحة";
     err.style.display = "block";
@@ -1066,20 +1066,28 @@ function showNotification(msg){
   setTimeout(() => box.remove(), 4000);
 }
 
-const votesRef = ref(db, "votes");
-onValue(votesRef, snapshot => {
-  const data = snapshot.val() || {};
-  allVotes = Object.entries(data).map(([id, v], i) => ({
-    id,
-    index: i + 1,
-    name: v.name || "No Name",
-    candidates: Array.isArray(v.selected) ? v.selected : [],
-    validity: v.vote_validity || "",
-    timestamp: v.timestamp || 0,
-    committee: v.committee || 0
-  }));
-  renderAll();
-});
+let votesListener = null;
+
+function setupVotesListener() {
+  if(votesListener) votesListener();
+  
+  const votesRef = ref(db, "votes");
+  votesListener = onValue(votesRef, snapshot => {
+    const data = snapshot.val() || {};
+    allVotes = Object.entries(data).map(([id, v], i) => ({
+      id,
+      index: i + 1,
+      name: v.name || "No Name",
+      candidates: Array.isArray(v.selected) ? v.selected : [],
+      validity: v.vote_validity || "",
+      timestamp: v.timestamp || 0,
+      committee: v.committee || 0
+    }));
+    renderAll();
+  });
+}
+
+setupVotesListener();
 
 function renderAll(){
   renderStats();
