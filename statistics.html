@@ -723,7 +723,7 @@ tr:hover td {
 <div id="lock-screen">
   <div class="lock-box">
     <h2>لوحة التحكم</h2>
-    <p>هذه الصفحة مخصصة للإدارة فقط</p>
+    <p>هذه الصفحة VIP للإدارة فقط</p>
     <div class="lock-row">
       <input id="lock-pass" type="password" placeholder="ادخل كلمة السر" autocomplete="off">
       <span class="lock-toggle" onclick="toggleLockPass()">👁</span>
@@ -736,8 +736,8 @@ tr:hover td {
 <div id="dashboard" class="dashboard hidden">
   <div class="dash-header">
     <div>
-      <div class="dash-title">Dashboard النتائج الانتخابية</div>
-      <div class="dash-subtitle">متابعة مباشرة وتحليل شامل</div>
+      <div class="dash-title"> النتائج الانتخابية</div>
+      <div class="dash-subtitle">متابعة مباشرة وتحليل شامل | النظام الأول من نوعه فى مصر</div>
     </div>
     <div class="live-badge">
       <span class="live-dot"></span>
@@ -783,7 +783,7 @@ tr:hover td {
   </div>
 
   <div class="notify-panel">
-    <h3>إرسال إشعارات</h3>
+    <h3>إرسال رسالة مباشرة</h3>
     <label class="notify-option">
       <input type="radio" name="notify-target" value="all" checked>
       <span>جميع اللجان</span>
@@ -929,7 +929,7 @@ window.unlockDashboard = function(){
   if(value === "521988"){
     document.getElementById("lock-screen").classList.add("hidden");
     document.getElementById("dashboard").classList.remove("hidden");
-    showNotification("مرحبا بك يا مهندس!");
+    showNotification("مرحبا بك يا مهندس محمد حماد !");
   } else {
     err.textContent = "كلمة سر غير صحيحة";
     err.style.display = "block";
@@ -962,6 +962,22 @@ onValue(votesRef, snapshot => {
     committee: v.committee || 0
   }));
   renderAll();
+  
+  // إضافة تأثير إضاءة على اللجنة التي تم تسجيل صوت جديد فيها
+  if(allVotes.length > 0){
+    const lastVote = allVotes[allVotes.length - 1];
+    const committeeItem = document.querySelector('[data-committee="' + lastVote.committee + '"]');
+    if(committeeItem){
+      if(lastVote.validity === "صحيح"){
+        committeeItem.style.animation = "glowGreen 2s ease-in-out";
+      } else if(lastVote.validity === "باطل"){
+        committeeItem.style.animation = "glowRed 2s ease-in-out";
+      }
+      setTimeout(() => {
+        committeeItem.style.animation = "";
+      }, 2000);
+    }
+  }
 });
 
 function renderAll(){
@@ -1030,7 +1046,7 @@ function renderCommitteeStats(){
   const committeeData = {};
   
   for(let i = 1; i <= 60; i++){
-    committeeData[i] = { total: 0, valid: 0, invalid: 0, votes: [] };
+    committeeData[i] = { total: 0, valid: 0, invalid: 0, votes: [], lastVoteValidity: null };
   }
   
   allVotes.forEach(v => {
@@ -1040,6 +1056,7 @@ function renderCommitteeStats(){
       committeeData[comm].votes.push(v);
       if(v.validity === "صحيح") committeeData[comm].valid++;
       if(v.validity === "باطل") committeeData[comm].invalid++;
+      committeeData[comm].lastVoteValidity = v.validity;
     }
   });
   
@@ -1048,11 +1065,34 @@ function renderCommitteeStats(){
     const data = committeeData[i];
     const item = document.createElement("div");
     item.className = "committee-item";
+    item.dataset.committee = i;
+    
+    // تحديد اللون حسب آخر صوت
+    if(data.lastVoteValidity === "صحيح"){
+      item.style.background = "linear-gradient(135deg, rgba(17, 153, 142, 0.15) 0%, rgba(150, 249, 123, 0.15) 100%)";
+      item.style.borderLeft = "4px solid #11998e";
+    } else if(data.lastVoteValidity === "باطل"){
+      item.style.background = "linear-gradient(135deg, rgba(235, 51, 73, 0.15) 0%, rgba(244, 92, 67, 0.15) 100%)";
+      item.style.borderLeft = "4px solid #eb3349";
+    } else {
+      item.style.background = "linear-gradient(135deg, #f5f7ff 0%, #eff2ff 100%)";
+      item.style.borderLeft = "4px solid #667eea";
+    }
+    
+    // إضافة تأثير إضاءة عند آخر تصويت
+    if(data.total > 0 && data.lastVoteValidity){
+      if(data.lastVoteValidity === "صحيح"){
+        item.style.animation = "glowGreen 1.5s ease-in-out";
+      } else if(data.lastVoteValidity === "باطل"){
+        item.style.animation = "glowRed 1.5s ease-in-out";
+      }
+    }
+    
     item.onclick = () => showCommitteeDetails(i, data);
     item.innerHTML = "لجنة " + i + "<div class='committee-count'>" + data.total + " صوت</div><div class='committee-count'>صحيح: " + data.valid + "</div><div class='committee-count'>باطل: " + data.invalid + "</div>";
     grid.appendChild(item);
   }
-}
+};
 
 window.showCommitteeDetails = function(num, data){
   const popup = document.getElementById("committee-popup");
