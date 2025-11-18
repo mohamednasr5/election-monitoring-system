@@ -39,14 +39,12 @@ body{
   font-size:1.3em; color:#667eea; cursor:pointer; opacity:0.6;
   transition:all 0.3s;
 }
-.pass-toggle:hover{ opacity:1; transform:translateY(-50%) scale(1.1); }
 .pass-btn{
   margin-top:20px; width:100%; padding:13px; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
   color:#fff; border:none; border-radius:12px; font-size:1.05em;
   font-weight:bold; cursor:pointer; transition:all 0.3s;
-  box-shadow:0 4px 15px rgba(102,126,234,0.3);
 }
-.pass-btn:hover{ transform:translateY(-2px); box-shadow:0 6px 20px rgba(102,126,234,0.4); }
+.pass-btn:hover{ transform:translateY(-2px); }
 .pass-err{ margin-top:12px; color:#c62828; font-weight:bold; display:none; font-size:0.95em; }
 
 .container{
@@ -132,8 +130,8 @@ button{
   flex:1; padding:13px; border:none; border-radius:12px;
   cursor:pointer; font-weight:700; font-size:1.05em; transition:all 0.3s;
 }
-.btn-primary{ background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:#fff; box-shadow:0 4px 15px rgba(102,126,234,0.3); }
-.btn-primary:hover{ transform:translateY(-2px); box-shadow:0 6px 20px rgba(102,126,234,0.4); }
+.btn-primary{ background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:#fff; }
+.btn-primary:hover{ transform:translateY(-2px); }
 .btn-reset{ background:#e0e7ff; color:#667eea; font-weight:700; }
 .btn-reset:hover{ background:#d3ddff; }
 
@@ -148,21 +146,8 @@ button{
 .msg-warn{ background:#ffebee; color:#c62828; border-left:4px solid #c62828; }
 .msg-confirm{ background:#e8f5e9; color:#2e7d32; border-left:4px solid #2e7d32; }
 
-#notify-btn{
-  position:fixed; bottom:25px; left:25px;
-  width:65px; height:65px; background:#ffcc00;
-  border-radius:50%; display:flex; align-items:center; justify-content:center;
-  font-size:28px; color:#000; cursor:pointer;
-  box-shadow:0 8px 24px rgba(0,0,0,.3); z-index:9999;
-  animation:pulse 2s infinite;
-}
-@keyframes pulse{
-  0%,100%{ transform:scale(1); }
-  50%{ transform:scale(1.1); }
-}
-
 #bubble{
-  position:fixed; bottom:110px; left:25px;
+  position:fixed; bottom:25px; right:25px;
   background:#fff; color:#222;
   padding:16px; border-radius:12px;
   box-shadow:0 8px 24px rgba(0,0,0,.3);
@@ -188,7 +173,6 @@ button{
 
 <body>
 
-<div id="notify-btn">🔔</div>
 <div id="bubble"></div>
 
 <div id="password-modal">
@@ -240,9 +224,9 @@ button{
   <div class="sig">تم التطوير بواسطة المهندس محمد حماد</div>
 </div>
 
+<script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
-import { getMessaging, onMessage } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging.js";
+import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCxxXV_6CEo1fTp3rRbfwfYbe7WH0Cyg38",
@@ -256,12 +240,6 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-
-try {
-  const messaging = getMessaging(app);
-} catch(e) {
-  console.log("FCM not available");
-}
 
 let committeeNumber = 0;
 
@@ -278,7 +256,7 @@ window.checkPass = function(){
     document.getElementById("password-modal").classList.add("hidden");
     document.getElementById("main-container").classList.remove("hidden");
     document.getElementById("welcome-title").textContent = "مرحباً بالمهندس محمد نصر - كينج البرمجة";
-    setupNotificationListeners();
+    setupNotificationListeners(0);
     return;
   }
 
@@ -292,33 +270,30 @@ window.checkPass = function(){
   document.getElementById("password-modal").classList.add("hidden");
   document.getElementById("main-container").classList.remove("hidden");
   document.getElementById("welcome-title").textContent = "لجنة رقم " + committeeNumber;
-
-  setupNotificationListeners();
+  setupNotificationListeners(committeeNumber);
 };
 
-function setupNotificationListeners(){
+function setupNotificationListeners(committee){
   try {
-    // الاستماع للإشعارات العامة
     const allNotificationsRef = ref(db, "notifications/all");
     onValue(allNotificationsRef, (snapshot) => {
       const data = snapshot.val();
       if(data){
         Object.values(data).forEach(notif => {
-          if(notif && notif.message && notif.timestamp){
+          if(notif && notif.message){
             showFloatingNotification(notif.message, "عام");
           }
         });
       }
     });
 
-    // الاستماع للإشعارات الخاصة باللجنة
-    if(committeeNumber > 0){
-      const committeeNotificationsRef = ref(db, "notifications/committee_" + committeeNumber);
+    if(committee > 0){
+      const committeeNotificationsRef = ref(db, "notifications/committee_" + committee);
       onValue(committeeNotificationsRef, (snapshot) => {
         const data = snapshot.val();
         if(data){
           Object.values(data).forEach(notif => {
-            if(notif && notif.message && notif.timestamp){
+            if(notif && notif.message){
               showFloatingNotification(notif.message, "لجنتك");
             }
           });
@@ -326,22 +301,18 @@ function setupNotificationListeners(){
       });
     }
   } catch(e) {
-    console.error("Error setting up listeners:", e);
+    console.error("Error:", e);
   }
 }
 
-function showFloatingNotification(msg, type = "إشعار"){
+function showFloatingNotification(msg, type){
   const bubble = document.getElementById("bubble");
   bubble.textContent = msg;
   bubble.style.display = "block";
   
-  if(type === "عام"){
-    bubble.style.borderLeft = "4px solid #667eea";
-  } else if(type === "لجنتك"){
-    bubble.style.borderLeft = "4px solid #11998e";
-  } else {
-    bubble.style.borderLeft = "4px solid #ffcc00";
-  }
+  if(type === "عام") bubble.style.borderLeft = "4px solid #667eea";
+  else if(type === "لجنتك") bubble.style.borderLeft = "4px solid #11998e";
+  else bubble.style.borderLeft = "4px solid #ffcc00";
   
   setTimeout(() => bubble.style.display = "none", 6000);
 }
@@ -373,39 +344,39 @@ candidates.forEach((c, idx) => {
   checkbox.type = "checkbox";
   checkbox.value = c[1];
   checkbox.className = "candidate-checkbox";
-  checkbox.id = "candidate-" + idx;
 
   item.innerHTML = '<div class="c-left"><div class="num-circle">' + c[0] + '</div><div class="c-name">' + c[1] + '</div></div><div class="c-right"><span class="c-icon">' + c[2] + '</span></div>';
   item.appendChild(checkbox);
 
   item.addEventListener("click", (e) => {
     if(e.target !== checkbox) checkbox.checked = !checkbox.checked;
-    limitSelect(checkbox);
-    updateItemStyle();
+    checkLimit();
+    updateStyle();
   });
 
   checkbox.addEventListener("change", () => {
-    limitSelect(checkbox);
-    updateItemStyle();
+    checkLimit();
+    updateStyle();
   });
 
   listBox.appendChild(item);
 });
 
-function updateItemStyle(){
+function updateStyle(){
   document.querySelectorAll(".candidate-item").forEach((item) => {
-    const ch = item.querySelector("input[type='checkbox']");
-    if(ch.checked) item.classList.add("selected");
-    else item.classList.remove("selected");
+    if(item.querySelector("input[type='checkbox']").checked) 
+      item.classList.add("selected");
+    else 
+      item.classList.remove("selected");
   });
 }
 
-function limitSelect(ch){
+function checkLimit(){
   const sel = document.querySelectorAll('.candidate-checkbox:checked');
   if(sel.length > 2){
-    ch.checked = false;
+    sel[sel.length - 1].checked = false;
     showWarn("يمكن اختيار مرشحين فقط");
-    updateItemStyle();
+    updateStyle();
   }
 }
 
@@ -434,38 +405,37 @@ document.getElementById("vote-form").addEventListener("submit", function(e){
   e.preventDefault();
 
   let name = document.getElementById("voter-name").value.trim();
-  if(name.length < 1) name = "بدون اسم";
+  if(!name) name = "بدون اسم";
 
-  const sel = [...document.querySelectorAll('.candidate-checkbox:checked')].map(v => v.value);
+  const sel = Array.from(document.querySelectorAll('.candidate-checkbox:checked')).map(v => v.value);
   const val = document.querySelector('input[name="vvalid"]:checked');
 
   if(sel.length < 1) return showWarn("اختر مرشح واحد على الأقل");
-  if(!val) return showWarn("اختر حالة الصوت (صحيح أو باطل)");
+  if(!val) return showWarn("اختر حالة الصوت");
 
   const voteKey = Date.now();
   const voteRef = ref(db, "votes/" + voteKey);
   
-  const voteData = {
+  set(voteRef, {
     name: name,
     selected: sel,
     vote_validity: val.value,
     committee: committeeNumber,
     timestamp: voteKey
-  };
-
-  set(voteRef, voteData).then(() => {
+  }).then(() => {
     showConfirm("تم التسجيل بنجاح!");
     document.getElementById("vote-form").reset();
-    updateItemStyle();
+    updateStyle();
     document.querySelectorAll(".radio-item").forEach(item => item.classList.remove("selected"));
   }).catch(err => {
-    showWarn("خطأ في التسجيل: " + err.message);
+    showWarn("خطأ: " + err.message);
   });
 });
 
 document.getElementById("password-input").addEventListener("keypress", function(e){
   if(e.key === "Enter") checkPass();
 });
+</script>
 
 </body>
 </html>
