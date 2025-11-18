@@ -284,6 +284,27 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 let committeeNumber = 0;
+let closedNotifications = new Set(); // تتبع الرسائل المغلقة
+
+// تحميل الرسائل المغلقة من localStorage
+function loadClosedNotifications(){
+  const stored = localStorage.getItem("closedNotifications");
+  if(stored){
+    try {
+      closedNotifications = new Set(JSON.parse(stored));
+    } catch(e) {
+      closedNotifications = new Set();
+    }
+  }
+}
+
+// حفظ الرسائل المغلقة في localStorage
+function saveClosedNotifications(){
+  localStorage.setItem("closedNotifications", JSON.stringify(Array.from(closedNotifications)));
+}
+
+// تحميل الرسائل المغلقة عند بدء الصفحة
+loadClosedNotifications();
 
 window.togglePass = function(){
   const p = document.getElementById("password-input");
@@ -364,6 +385,16 @@ function showFloatingNotification(msg, type){
   const content = document.getElementById("bubble-content");
   const icon = document.getElementById("bubble-icon");
   
+  // إنشاء معرّف فريد للرسالة
+  const notificationId = type + "_" + Date.now();
+  bubble.dataset.notificationId = notificationId;
+  
+  // التحقق من أن الرسالة لم يتم إغلاقها من قبل
+  if(closedNotifications.has(notificationId)){
+    console.log("This notification was already closed");
+    return;
+  }
+  
   content.textContent = msg;
   
   if(type === "عام"){
@@ -382,6 +413,13 @@ function showFloatingNotification(msg, type){
 
 window.closeBubble = function(){
   const bubble = document.getElementById("bubble");
+  const notificationId = bubble.dataset.notificationId;
+  
+  if(notificationId){
+    closedNotifications.add(notificationId);
+    saveClosedNotifications();
+  }
+  
   bubble.classList.remove("active");
 };
 
