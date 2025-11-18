@@ -152,9 +152,47 @@ button{
   padding:16px; border-radius:12px;
   box-shadow:0 8px 24px rgba(0,0,0,.3);
   font-size:1em; font-weight:700;
-  display:none; width:280px; max-width:calc(100vw - 50px);
+  display:none; width:320px; max-width:calc(100vw - 50px);
   animation:slide .4s ease; border-left:4px solid #667eea;
+  z-index:99999;
 }
+
+#bubble.active{
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+}
+
+#bubble-icon{
+  font-size:1.6em;
+  min-width:28px;
+  text-align:center;
+  margin-top:2px;
+}
+
+#bubble-content{
+  flex:1;
+  line-height:1.5;
+}
+
+#bubble-close{
+  background:none;
+  border:none;
+  font-size:1.4em;
+  color:#999;
+  cursor:pointer;
+  padding:0;
+  min-width:28px;
+  text-align:center;
+  transition:all 0.3s;
+  opacity:0.6;
+}
+
+#bubble-close:hover{
+  opacity:1;
+  color:#667eea;
+}
+
 @keyframes slide{
   from{transform:translateY(20px);opacity:0;}
   to{transform:translateY(0);opacity:1;}
@@ -173,7 +211,11 @@ button{
 
 <body>
 
-<div id="bubble"></div>
+<div id="bubble">
+  <div id="bubble-icon">💬</div>
+  <div id="bubble-content"></div>
+  <button id="bubble-close" onclick="closeBubble()">×</button>
+</div>
 
 <div id="password-modal">
   <div class="pass-box">
@@ -275,47 +317,73 @@ window.checkPass = function(){
 
 function setupNotificationListeners(committee){
   try {
+    // استماع للإشعارات العامة
     const allNotificationsRef = ref(db, "notifications/all");
+    let lastAllTimestamp = 0;
+    
     onValue(allNotificationsRef, (snapshot) => {
       const data = snapshot.val();
-      if(data){
-        Object.values(data).forEach(notif => {
-          if(notif && notif.message){
+      if(data && typeof data === 'object'){
+        Object.entries(data).forEach(([key, notif]) => {
+          if(notif && notif.message && notif.timestamp && notif.timestamp > lastAllTimestamp){
+            lastAllTimestamp = notif.timestamp;
             showFloatingNotification(notif.message, "عام");
           }
         });
       }
+    }, (error) => {
+      console.log("Listening to all notifications...");
     });
 
+    // استماع للإشعارات الخاصة باللجنة
     if(committee > 0){
       const committeeNotificationsRef = ref(db, "notifications/committee_" + committee);
+      let lastCommitteeTimestamp = 0;
+      
       onValue(committeeNotificationsRef, (snapshot) => {
         const data = snapshot.val();
-        if(data){
-          Object.values(data).forEach(notif => {
-            if(notif && notif.message){
+        if(data && typeof data === 'object'){
+          Object.entries(data).forEach(([key, notif]) => {
+            if(notif && notif.message && notif.timestamp && notif.timestamp > lastCommitteeTimestamp){
+              lastCommitteeTimestamp = notif.timestamp;
               showFloatingNotification(notif.message, "لجنتك");
             }
           });
         }
+      }, (error) => {
+        console.log("Listening to committee notifications...");
       });
     }
   } catch(e) {
-    console.error("Error:", e);
+    console.error("Error setting up listeners:", e);
   }
 }
 
 function showFloatingNotification(msg, type){
   const bubble = document.getElementById("bubble");
-  bubble.textContent = msg;
-  bubble.style.display = "block";
+  const content = document.getElementById("bubble-content");
+  const icon = document.getElementById("bubble-icon");
   
-  if(type === "عام") bubble.style.borderLeft = "4px solid #667eea";
-  else if(type === "لجنتك") bubble.style.borderLeft = "4px solid #11998e";
-  else bubble.style.borderLeft = "4px solid #ffcc00";
+  content.textContent = msg;
   
-  setTimeout(() => bubble.style.display = "none", 6000);
+  if(type === "عام"){
+    bubble.style.borderLeft = "4px solid #667eea";
+    icon.textContent = "📢";
+  } else if(type === "لجنتك"){
+    bubble.style.borderLeft = "4px solid #11998e";
+    icon.textContent = "📩";
+  } else {
+    bubble.style.borderLeft = "4px solid #ffcc00";
+    icon.textContent = "💬";
+  }
+  
+  bubble.classList.add("active");
 }
+
+window.closeBubble = function(){
+  const bubble = document.getElementById("bubble");
+  bubble.classList.remove("active");
+};
 
 const candidates = [
   ["1","ايهاب العمده","👑"],
