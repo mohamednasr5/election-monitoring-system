@@ -150,6 +150,15 @@ body {
   color: #999;
 }
 
+.admin-badge {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 8px 14px;
+  border-radius: 50px;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9em;
+}
+
 .live-badge {
   background: linear-gradient(135deg, #d4fc79 0%, #96f97b 100%);
   padding: 10px 18px;
@@ -262,7 +271,7 @@ body {
 
 .committee-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 12px;
   max-height: 400px;
   overflow-y: auto;
@@ -288,6 +297,19 @@ body {
 .committee-num {
   font-size: 1.1em;
   font-weight: 900;
+  margin-bottom: 8px;
+}
+
+.committee-name {
+  font-size: 0.85em;
+  font-weight: 700;
+  margin-bottom: 4px;
+  opacity: 0.9;
+}
+
+.committee-address {
+  font-size: 0.75em;
+  opacity: 0.8;
   margin-bottom: 8px;
 }
 
@@ -521,6 +543,10 @@ body {
   background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%) !important;
 }
 
+.btn-hidden {
+  display: none !important;
+}
+
 .table-wrap {
   max-height: 450px;
   overflow: auto;
@@ -705,16 +731,26 @@ tr:hover td {
 
 @media(max-width: 900px) {
   .charts-grid { grid-template-columns: 1fr; }
-  .committee-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+  .committee-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
   .dash-header { flex-direction: column; }
 }
 
 @media(max-width: 600px) {
   .dashboard { padding: 15px; }
   .dash-title { font-size: 1.6em; }
-  .committee-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+  .committee-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
   .table-header { flex-direction: column; align-items: flex-start; }
   .search-input { min-width: 100%; }
+}
+
+@keyframes glowGreen {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(17, 153, 142, 0.7); }
+  50% { box-shadow: 0 0 0 10px rgba(17, 153, 142, 0); }
+}
+
+@keyframes glowRed {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(235, 51, 73, 0.7); }
+  50% { box-shadow: 0 0 0 10px rgba(235, 51, 73, 0); }
 }
 </style>
 </head>
@@ -739,9 +775,12 @@ tr:hover td {
       <div class="dash-title"> النتائج الإنتخابية | دائرة المنزلة والدقهلية</div>
       <div class="dash-subtitle">متابعة مباشرة وتحليل شامل | النظام الأول من نوعه فى مصر</div>
     </div>
-    <div class="live-badge">
-      <span class="live-dot"></span>
-      <span id="live-status">بث مباشر</span>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <div class="live-badge">
+        <span class="live-dot"></span>
+        <span id="live-status">بث مباشر</span>
+      </div>
+      <div id="admin-level-badge" class="admin-badge"></div>
     </div>
   </div>
 
@@ -827,7 +866,7 @@ tr:hover td {
       <input id="search" class="search-input" placeholder="بحث...">
       <div style="display:flex; gap:8px;">
         <button class="btn-sm btn-export" onclick="exportCSV()">تصدير CSV</button>
-        <button class="btn-sm btn-reset-all" onclick="resetAll()">تصفير</button>
+        <button id="btn-reset-all" class="btn-sm btn-reset-all" onclick="resetAll()">تصفير</button>
       </div>
     </div>
     <div class="table-wrap">
@@ -840,7 +879,7 @@ tr:hover td {
             <th data-sort="validity">الحالة</th>
             <th>حالة الصوت</th>
             <th data-sort="time">الوقت</th>
-            <th>تعديل</th>
+            <th id="edit-col">تعديل</th>
           </tr>
         </thead>
         <tbody id="votes-table"></tbody>
@@ -909,6 +948,70 @@ let sortState = { key: "index", dir: "asc" };
 let chartCandidates = null;
 let chartValidity = null;
 let chartVPM = null;
+let adminLevel = 0;
+
+const committeeData = {
+  1: { name: "لجنة ابتدائي", address: "مدرسة الشهيد عبده محمود" },
+  2: { name: "لجنة ابتدائي", address: "مدرسة الحديثة الابتدائية" },
+  3: { name: "لجنة ابتدائي", address: "مدرسة الشرقاوي الابتدائية" },
+  4: { name: "لجنة ابتدائي", address: "مدرسة المنزلة الابتدائية" },
+  5: { name: "لجنة ابتدائي", address: "مدرسة البحر الابتدائية" },
+  6: { name: "لجنة ابتدائي", address: "مدرسة القصير الابتدائية" },
+  7: { name: "لجنة ابتدائي", address: "مدرسة الرياح الابتدائية" },
+  8: { name: "لجنة ابتدائي", address: "مدرسة النخيل الابتدائية" },
+  9: { name: "لجنة ابتدائي", address: "مدرسة الجيزة الابتدائية" },
+  10: { name: "لجنة ابتدائي", address: "مدرسة المرج الابتدائية" },
+  11: { name: "لجنة إعدادي", address: "مدرسة المنزلة الإعدادية" },
+  12: { name: "لجنة إعدادي", address: "مدرسة الدقهلية الإعدادية" },
+  13: { name: "لجنة إعدادي", address: "مدرسة النيل الإعدادية" },
+  14: { name: "لجنة إعدادي", address: "مدرسة الوحدة الإعدادية" },
+  15: { name: "لجنة إعدادي", address: "مدرسة القومية الإعدادية" },
+  16: { name: "لجنة إعدادي", address: "مدرسة الرياح الإعدادية" },
+  17: { name: "لجنة إعدادي", address: "مدرسة السلام الإعدادية" },
+  18: { name: "لجنة إعدادي", address: "مدرسة التحرير الإعدادية" },
+  19: { name: "لجنة إعدادي", address: "مدرسة الحرية الإعدادية" },
+  20: { name: "لجنة إعدادي", address: "مدرسة العدل الإعدادية" },
+  21: { name: "لجنة ثانوي", address: "مدرسة المنزلة الثانوية" },
+  22: { name: "لجنة ثانوي", address: "مدرسة الدقهلية الثانوية" },
+  23: { name: "لجنة ثانوي", address: "مدرسة النيل الثانوية" },
+  24: { name: "لجنة ثانوي", address: "مدرسة الوحدة الثانوية" },
+  25: { name: "لجنة ثانوي", address: "مدرسة القومية الثانوية" },
+  26: { name: "لجنة ثانوي", address: "مدرسة الرياح الثانوية" },
+  27: { name: "لجنة ثانوي", address: "مدرسة السلام الثانوية" },
+  28: { name: "لجنة ثانوي", address: "مدرسة التحرير الثانوية" },
+  29: { name: "لجنة ثانوي", address: "مدرسة الحرية الثانوية" },
+  30: { name: "لجنة ثانوي", address: "مدرسة العدل الثانوية" },
+  31: { name: "لجنة ابتدائي", address: "مدرسة الشهداء الابتدائية" },
+  32: { name: "لجنة ابتدائي", address: "مدرسة الأمل الابتدائية" },
+  33: { name: "لجنة ابتدائي", address: "مدرسة النور الابتدائية" },
+  34: { name: "لجنة ابتدائي", address: "مدرسة الفجر الابتدائية" },
+  35: { name: "لجنة ابتدائي", address: "مدرسة الشروق الابتدائية" },
+  36: { name: "لجنة ابتدائي", address: "مدرسة الغروب الابتدائية" },
+  37: { name: "لجنة ابتدائي", address: "مدرسة النجم الابتدائية" },
+  38: { name: "لجنة ابتدائي", address: "مدرسة القمر الابتدائية" },
+  39: { name: "لجنة ابتدائي", address: "مدرسة الشمس الابتدائية" },
+  40: { name: "لجنة ابتدائي", address: "مدرسة الليل الابتدائية" },
+  41: { name: "لجنة إعدادي", address: "مدرسة الشهداء الإعدادية" },
+  42: { name: "لجنة إعدادي", address: "مدرسة الأمل الإعدادية" },
+  43: { name: "لجنة إعدادي", address: "مدرسة النور الإعدادية" },
+  44: { name: "لجنة إعدادي", address: "مدرسة الفجر الإعدادية" },
+  45: { name: "لجنة إعدادي", address: "مدرسة الشروق الإعدادية" },
+  46: { name: "لجنة إعدادي", address: "مدرسة الغروب الإعدادية" },
+  47: { name: "لجنة إعدادي", address: "مدرسة النجم الإعدادية" },
+  48: { name: "لجنة إعدادي", address: "مدرسة القمر الإعدادية" },
+  49: { name: "لجنة إعدادي", address: "مدرسة الشمس الإعدادية" },
+  50: { name: "لجنة إعدادي", address: "مدرسة الليل الإعدادية" },
+  51: { name: "لجنة ثانوي", address: "مدرسة الشهداء الثانوية" },
+  52: { name: "لجنة ثانوي", address: "مدرسة الأمل الثانوية" },
+  53: { name: "لجنة ثانوي", address: "مدرسة النور الثانوية" },
+  54: { name: "لجنة ثانوي", address: "مدرسة الفجر الثانوية" },
+  55: { name: "لجنة ثانوي", address: "مدرسة الشروق الثانوية" },
+  56: { name: "لجنة ثانوي", address: "مدرسة الغروب الثانوية" },
+  57: { name: "لجنة ثانوي", address: "مدرسة النجم الثانوية" },
+  58: { name: "لجنة ثانوي", address: "مدرسة القمر الثانوية" },
+  59: { name: "لجنة ثانوي", address: "مدرسة الشمس الثانوية" },
+  60: { name: "لجنة ثانوي", address: "مدرسة الليل الثانوية" }
+};
 
 const candidatesNames = [
   "ايهاب العمده","محمد العتمانى","أحمد الحديدى",
@@ -926,10 +1029,22 @@ window.toggleLockPass = function(){
 window.unlockDashboard = function(){
   const value = document.getElementById("lock-pass").value.trim();
   const err = document.getElementById("lock-error");
-  if(value === "521988"){
+  
+  if(value === "251988"){
+    adminLevel = 1;
     document.getElementById("lock-screen").classList.add("hidden");
     document.getElementById("dashboard").classList.remove("hidden");
-    showNotification("مرحبا بك يا مهندس محمد حماد !");
+    document.getElementById("admin-level-badge").textContent = "🔑 مهندس محمد حماد";
+    showNotification("مرحبا بك يا مهندس محمد حماد - صلاحيات كاملة!");
+  } else if(value === "451125"){
+    adminLevel = 2;
+    document.getElementById("lock-screen").classList.add("hidden");
+    document.getElementById("dashboard").classList.remove("hidden");
+    document.getElementById("admin-level-badge").textContent = "👁 مراقب";
+    showNotification("مرحبا بكم فى عالم التحكم الكامل والمراقبة");
+    document.getElementById("btn-reset-all").classList.add("btn-hidden");
+    document.querySelectorAll(".btn-mini-edit").forEach(btn => btn.classList.add("btn-hidden"));
+    document.getElementById("edit-col").classList.add("hidden");
   } else {
     err.textContent = "كلمة سر غير صحيحة";
     err.style.display = "block";
@@ -962,22 +1077,6 @@ onValue(votesRef, snapshot => {
     committee: v.committee || 0
   }));
   renderAll();
-  
-  // إضافة تأثير إضاءة على اللجنة التي تم تسجيل صوت جديد فيها
-  if(allVotes.length > 0){
-    const lastVote = allVotes[allVotes.length - 1];
-    const committeeItem = document.querySelector('[data-committee="' + lastVote.committee + '"]');
-    if(committeeItem){
-      if(lastVote.validity === "صحيح"){
-        committeeItem.style.animation = "glowGreen 2s ease-in-out";
-      } else if(lastVote.validity === "باطل"){
-        committeeItem.style.animation = "glowRed 2s ease-in-out";
-      }
-      setTimeout(() => {
-        committeeItem.style.animation = "";
-      }, 2000);
-    }
-  }
 });
 
 function renderAll(){
@@ -1043,31 +1142,31 @@ function renderStats(){
 
 function renderCommitteeStats(){
   const grid = document.getElementById("committee-grid");
-  const committeeData = {};
+  const commData = {};
   
   for(let i = 1; i <= 60; i++){
-    committeeData[i] = { total: 0, valid: 0, invalid: 0, votes: [], lastVoteValidity: null };
+    commData[i] = { total: 0, valid: 0, invalid: 0, votes: [], lastVoteValidity: null };
   }
   
   allVotes.forEach(v => {
     const comm = v.committee || 0;
     if(comm >= 1 && comm <= 60){
-      committeeData[comm].total++;
-      committeeData[comm].votes.push(v);
-      if(v.validity === "صحيح") committeeData[comm].valid++;
-      if(v.validity === "باطل") committeeData[comm].invalid++;
-      committeeData[comm].lastVoteValidity = v.validity;
+      commData[comm].total++;
+      commData[comm].votes.push(v);
+      if(v.validity === "صحيح") commData[comm].valid++;
+      if(v.validity === "باطل") commData[comm].invalid++;
+      commData[comm].lastVoteValidity = v.validity;
     }
   });
   
   grid.innerHTML = "";
   for(let i = 1; i <= 60; i++){
-    const data = committeeData[i];
+    const data = commData[i];
+    const info = committeeData[i] || { name: "لجنة", address: "بدون عنوان" };
     const item = document.createElement("div");
     item.className = "committee-item";
     item.dataset.committee = i;
     
-    // تحديد اللون حسب آخر صوت
     if(data.lastVoteValidity === "صحيح"){
       item.style.background = "linear-gradient(135deg, rgba(17, 153, 142, 0.15) 0%, rgba(150, 249, 123, 0.15) 100%)";
       item.style.borderLeft = "4px solid #11998e";
@@ -1079,27 +1178,19 @@ function renderCommitteeStats(){
       item.style.borderLeft = "4px solid #667eea";
     }
     
-    // إضافة تأثير إضاءة عند آخر تصويت
-    if(data.total > 0 && data.lastVoteValidity){
-      if(data.lastVoteValidity === "صحيح"){
-        item.style.animation = "glowGreen 1.5s ease-in-out";
-      } else if(data.lastVoteValidity === "باطل"){
-        item.style.animation = "glowRed 1.5s ease-in-out";
-      }
-    }
-    
     item.onclick = () => showCommitteeDetails(i, data);
-    item.innerHTML = "لجنة " + i + "<div class='committee-count'>" + data.total + " صوت</div><div class='committee-count'>صحيح: " + data.valid + "</div><div class='committee-count'>باطل: " + data.invalid + "</div>";
+    item.innerHTML = "<div class='committee-num'>اللجنة " + i + "</div><div class='committee-name'>" + info.name + "</div><div class='committee-address'>" + info.address + "</div><div class='committee-count'>" + data.total + " صوت</div><div class='committee-count'>✓ " + data.valid + " | ✗ " + data.invalid + "</div>";
     grid.appendChild(item);
   }
-};
+}
 
 window.showCommitteeDetails = function(num, data){
   const popup = document.getElementById("committee-popup");
   const title = document.getElementById("committee-popup-title");
   const body = document.getElementById("committee-popup-body");
+  const info = committeeData[num] || { name: "لجنة", address: "بدون عنوان" };
   
-  title.textContent = "اللجنة " + num;
+  title.textContent = info.name + " " + num;
   
   const ourVotes = data.votes.filter(v => v.candidates.includes("أحمد الحديدى") && v.candidates.includes("البدوى جميز")).length;
   const theirVotes = data.total - ourVotes;
@@ -1125,6 +1216,7 @@ window.showCommitteeDetails = function(num, data){
   }
   
   let html = "<div style='background:#f5f7ff;padding:15px;border-radius:12px;margin-bottom:15px;border-left:4px solid #667eea;'>";
+  html += "<div style='margin-bottom:8px;font-size:0.9em;color:#667eea;font-weight:700;'>" + info.address + "</div>";
   html += "<div style='display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;'>";
   html += "<div><small style='color:#999;font-weight:600;'>إجمالي الأصوات</small><div style='font-size:1.5em;font-weight:900;color:#667eea;'>" + data.total + "</div></div>";
   html += "<div><small style='color:#999;font-weight:600;'>حالة اللجنة</small><div style='font-size:1.2em;font-weight:900;color:#11998e;'>نشطة</div></div>";
@@ -1294,7 +1386,8 @@ function renderTable(){
     const tr = document.createElement("tr");
     const isOur = v.candidates.includes("أحمد الحديدى") && v.candidates.includes("البدوى جميز");
     const statusLabel = isOur ? '<span class="vote-status-friend">تبعنا</span>' : '<span class="vote-status-enemy">مش تبعنا</span>';
-    tr.innerHTML = "<td>" + (i + 1) + "</td><td class='clickable-name' onclick=\"showDetails('" + v.id + "')\">" + v.name + "</td><td>" + (v.candidates.join(" و ") || "—") + "</td><td class='" + (v.validity === "صحيح" ? "status-valid" : "status-invalid") + "'>" + v.validity + "</td><td>" + statusLabel + "</td><td>" + (v.timestamp ? new Date(v.timestamp).toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "—") + "</td><td><button class='btn-mini-edit' onclick=\"openEdit('" + v.id + "')\">تعديل</button></td>";
+    const editBtn = adminLevel === 1 ? '<button class="btn-mini-edit" onclick="openEdit(\'' + v.id + '\')">تعديل</button>' : '';
+    tr.innerHTML = "<td>" + (i + 1) + "</td><td class='clickable-name' onclick=\"showDetails('" + v.id + "')\">" + v.name + "</td><td>" + (v.candidates.join(" و ") || "—") + "</td><td class='" + (v.validity === "صحيح" ? "status-valid" : "status-invalid") + "'>" + v.validity + "</td><td>" + statusLabel + "</td><td>" + (v.timestamp ? new Date(v.timestamp).toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "—") + "</td><td>" + editBtn + "</td>";
     body.appendChild(tr);
   });
 
@@ -1328,6 +1421,10 @@ window.closeDetails = function(){
 };
 
 window.openEdit = function(id){
+  if(adminLevel !== 1){
+    alert("ليس لديك الصلاحية");
+    return;
+  }
   const pw = prompt("ادخل كلمة السر:");
   if(pw !== "742018") return alert("كلمة سر خاطئة");
   const v = allVotes.find(x => x.id === id);
@@ -1386,6 +1483,10 @@ window.exportCSV = function(){
 };
 
 window.resetAll = function(){
+  if(adminLevel !== 1){
+    alert("ليس لديك الصلاحية");
+    return;
+  }
   const pw = prompt("ادخل كلمة السر:");
   if(pw !== "742018") return alert("خطأ");
   if(!confirm("تأكيد الحذف؟")) return;
@@ -1452,4 +1553,3 @@ window.sendNotification = async function(){
 </script>
 </body>
 </html>
-
