@@ -330,7 +330,7 @@ function renderTable(){
   filtered.forEach((v, i) => {
     const tr = document.createElement("tr");
     const commName = v.committee === 24 ? "النساء" : "الرجال";
-    const editBtn = adminLevel === 1 ? '<button class="btn-mini-edit" onclick="openEdit(\'' + v.id + '\')">تعديل</button>' : '';
+    const editBtn = window.adminLevel === 1 ? '<button class="btn-mini-edit" onclick="openEdit(\'' + v.id + '\')">تعديل</button>' : '';
     tr.innerHTML = "<td>" + (i + 1) + "</td><td class='clickable-name' onclick=\"showDetails('" + v.id + "')\">" + v.name + "</td><td>" + commName + "</td><td>" + (v.candidates.join(" و ") || "—") + "</td><td class='" + (v.validity === "صحيح" ? "status-valid" : "status-invalid") + "'>" + v.validity + "</td><td>" + (v.timestamp ? new Date(v.timestamp).toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "—") + "</td><td>" + editBtn + "</td>";
     body.appendChild(tr);
   });
@@ -356,7 +356,7 @@ window.closeDetails = function(){
 };
 
 window.openEdit = function(id){
-  if(adminLevel !== 1){
+  if(window.adminLevel !== 1){
     alert("ليس لديك الصلاحية");
     return;
   }
@@ -415,7 +415,7 @@ window.exportCSV = function(){
 };
 
 window.resetAll = function(){
-  if(adminLevel !== 1){
+  if(window.adminLevel !== 1){
     alert("ليس لديك الصلاحية");
     return;
   }
@@ -1251,12 +1251,58 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
+// تعريف الدوال بدون wait
+window.toggleLockPass = function(){
+  const inp = document.getElementById("lock-pass");
+  if(inp) inp.type = inp.type === "password" ? "text" : "password";
+};
+
+window.unlockDashboard = function(){
+  const value = document.getElementById("lock-pass").value.trim();
+  const err = document.getElementById("lock-error");
+  
+  console.log("Password entered:", value);
+  
+  if(value === "aziza100"){
+    console.log("Viewer login success");
+    window.adminLevel = 0;
+    document.getElementById("lock-screen").classList.add("hidden");
+    document.getElementById("dashboard").classList.remove("hidden");
+    document.getElementById("admin-badge").textContent = "👁 مشاهد";
+    const resetBtn = document.getElementById("btn-reset-all");
+    if(resetBtn) resetBtn.style.display = "none";
+    const editCol = document.getElementById("edit-col");
+    if(editCol) editCol.style.display = "none";
+    setupVotesListener();
+  } else if(value === "azizaadmin"){
+    console.log("Admin login success");
+    window.adminLevel = 1;
+    document.getElementById("lock-screen").classList.add("hidden");
+    document.getElementById("dashboard").classList.remove("hidden");
+    document.getElementById("admin-badge").textContent = "🔑 ادمن كامل";
+    const resetBtn = document.getElementById("btn-reset-all");
+    if(resetBtn) resetBtn.style.display = "inline-block";
+    const editCol = document.getElementById("edit-col");
+    if(editCol) editCol.style.display = "table-cell";
+    setupVotesListener();
+  } else {
+    console.log("Wrong password");
+    err.textContent = "كلمة سر غير صحيحة";
+    err.style.display = "block";
+    setTimeout(() => err.style.display = "none", 2300);
+  }
+};
+
+document.getElementById("lock-pass").addEventListener("keydown", e => {
+  if(e.key === "Enter") window.unlockDashboard();
+});
+
 let allVotes = [];
 let sortState = { key: "index", dir: "asc" };
 let chartCandidates = null;
 let chartValidity = null;
 let chartVPM = null;
-let adminLevel = 0;
+window.adminLevel = 0;
 
 const committeeData = {
   24: { name: "مجمع العزيزة لجنة النساء", address: "مدرسة مجمع العزيزة الابتدائية" },
