@@ -291,9 +291,12 @@ button{
 
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js"></script>
+
 <script type="module">
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { getDatabase, ref, onValue, update, remove, set } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCxxXV_6CEo1fTp3rRbfwfYbe7WH0Cyg38",
@@ -308,28 +311,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-let committeeNumber = 0;
-let closedNotifications = new Set();
-
-function loadClosedNotifications() {
-  const stored = localStorage.getItem("closedNotifications");
-  if (stored) {
-    try {
-      closedNotifications = new Set(JSON.parse(stored));
-    } catch (e) {
-      closedNotifications = new Set();
-    }
-  }
-}
-
-function saveClosedNotifications() {
-  localStorage.setItem(
-    "closedNotifications",
-    JSON.stringify(Array.from(closedNotifications))
-  );
-}
-
-loadClosedNotifications();
+let allVotes = [];
+let sortState = { key: "index", dir: "asc" };
+let chartCandidates = null;
+let chartValidity = null;
+let chartVPM = null;
+let adminLevel = 0;
 
 const committeeData = {
   1:  { name: "الفروسات", address: "مدرسة احمد القصبى الابتدائية" },
@@ -650,4 +637,3 @@ document.getElementById("password-input").addEventListener("keypress", function(
 
 </body>
 </html>
-
