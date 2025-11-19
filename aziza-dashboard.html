@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>لوحة العزيزة الإنتخابية</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Cairo", sans-serif;
+}
+
+body {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  color: #222;
+  min-height: 100vh;
+}
+
+#lock-screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  z-index: 9999;
+}
+
+.lock-box {
+  background: #fff;
+  width: 90%;
+  max-width: 400px;
+  padding: 40px 30px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.4s ease;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.lock-box h2 {
+  color: #11998e;
+  margin-bottom: 10px;
+  font-size: 1.8em;
+}
+
+.lock-box p {
+  font-size: 0.95em;
+  color: #666;
+  margin-bottom: 30px;
+}
+
+.lock-row {
+  margin-bottom: 15px;
+  position: relative;
+}
+
+.lock-row input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 2px solid #d4f1e8;
+  background: #f0fdf9;
+  text-align: center;
+  font-size: 1.1em;
+  transition: all 0.3s ease;
+}
+
+.lock-row input:focus {
+  outline: none;
+  border-color: #11998e;
+  box-shadow: 0 0 0 3px rgba(17, 153, 142, 0.1);
+}
+
+.lock-toggle {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 1.3em;
+}
+
+.lock-box button {
+  margin-top: 20px;
+  width: 100%;
+  padding: 13px;
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.05em;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.lock-box button:hover {
+  transform: translateY(-2px);
+}
+
+.lock-error {
+  margin-top: 15px;
+  background: #ffebee;
+  color: #c62828;
+  padding: 10px;
+  font-weight: 700;
+  display: none;
+  border-radius: 10px;
+}
+
+.hidden { display: none !important; }
+
+.dashboard {
+  max-width: 1400px;
+  margin: auto;
+  padding: 25px;
+}
+
+.dash-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 30px;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.dash-title {
+  font-size: 2.2em;
+  font-weight: 900;
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.dash-subtitle {
+  font-size: 0.95em;
+  color: #999;
+}
+
+.admin-badge {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  padding: 8px 14px;
+  border-radius: 50px;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9em;
+}
+
+.live-badge {
+  background: linear-gradient(135deg, #d4fc79 0%, #96f97b 100%);
+  padding: 10px 18px;
+  border-radius: 50px;
+  color: #2d5016;
+  font-weight: 700;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.live-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #2d5016;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  margin-bottom: 25px;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 25px;
+  border-radius: 16px;
+  border: 1px solid rgba(17, 153, 142, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #11998e 0%, #38ef7d 100%);
+}
+
+.card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 16px 48px rgba(17, 153, 142, 0.2);
+}
+
+.card-title {
+  font-size: 0.85em;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.card-value {
+  font-size: 2.2em;
+  font-weight: 900;
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-top: 10px;
+}
+
+.committee-stats-card {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 25px;
+  border-radius: 16px;
+  border: 1px solid rgba(17, 153, 142, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  margin-bottom: 25px;
+}
+
+.committee-stats-card h3 {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 1.2em;
+  margin-bottom: 20px;
+  font-weight: 900;
+}
+
+.committee-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.committee-item {
+  background: linear-gradient(135deg, #f0fdf9 0%, #d4f1e8 100%);
+  padding: 15px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border-left: 4px solid #11998e;
+}
+
+.committee-item:hover {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  color: white;
+  transform: scale(1.05);
+  box-shadow: 0 8px 24px rgba(17, 153, 142, 0.3);
+}
+
+.committee-num {
+  font-size: 1.1em;
+  font-weight: 900;
+  margin-bottom: 8px;
+}
+
+.committee-name {
+  font-size: 0.85em;
+  font-weight: 700;
+  margin-bottom: 4px;
+  opacity: 0.9;
+}
+
+.committee-count {
+  font-size: 0.75em;
+  opacity: 0.8;
+}
+
+.notify-panel {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 25px;
+  border-radius: 16px;
+  border: 1px solid rgba(17, 153, 142, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  margin-bottom: 25px;
+}
+
+.notify-panel h3 {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 1.2em;
+  margin-bottom: 20px;
+  font-weight: 900;
+}
+
+.notify-panel textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 14px;
+  background: #f0fdf9;
+  border: 2px solid #d4f1e8;
+  border-radius: 12px;
+  margin-bottom: 15px;
+  font-size: 1em;
+  resize: vertical;
+  transition: all 0.3s ease;
+  font-family: "Cairo", sans-serif;
+}
+
+.notify-panel textarea:focus {
+  outline: none;
+  border-color: #11998e;
+  box-shadow: 0 0 0 3px rgba(17, 153, 142, 0.1);
+}
+
+#notify-result {
+  display: none;
+  margin-top: 12px;
+  font-weight: 800;
+  font-size: 0.95em;
+  padding: 12px;
+  border-radius: 10px;
+}
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+  margin-bottom: 25px;
+}
+
+.chart-card {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 25px;
+  border-radius: 16px;
+  border: 1px solid rgba(17, 153, 142, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.chart-card:hover {
+  box-shadow: 0 12px 40px rgba(17, 153, 142, 0.15);
+}
+
+.chart-card h3 {
+  margin-bottom: 18px;
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 1.05em;
+  font-weight: 900;
+}
+
+.ranking-card {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 25px;
+  border-radius: 16px;
+  border: 1px solid rgba(17, 153, 142, 0.1);
+  margin-bottom: 25px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+}
+
+.ranking-card h3 {
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 1.2em;
+  font-weight: 900;
+}
+
+.ranking-list {
+  max-height: 500px;
+  overflow-y: auto;
+  padding: 5px;
+}
+
+.ranking-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 15px;
+  background: linear-gradient(135deg, #f0fdf9 0%, #d4f1e8 100%);
+  border-radius: 12px;
+  transition: all 0.3s;
+  border-left: 4px solid #11998e;
+}
+
+.ranking-item:hover {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  color: white;
+  transform: translateX(-5px);
+  box-shadow: 0 8px 24px rgba(17, 153, 142, 0.3);
+}
+
+.ranking-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.ranking-medal {
+  font-size: 1.6em;
+  min-width: 35px;
+  text-align: center;
+}
+
+.ranking-name {
+  font-weight: 700;
+}
+
+.ranking-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.ranking-bar {
+  height: 28px;
+  border-radius: 14px;
+  background: linear-gradient(90deg, #11998e 0%, #38ef7d 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 0.85em;
+  font-weight: 700;
+  min-width: 80px;
+}
+
+.ranking-count {
+  font-weight: 900;
+  min-width: 45px;
+  text-align: center;
+}
+
+.table-card {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 25px;
+  border-radius: 16px;
+  border: 1px solid rgba(17, 153, 142, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.search-input {
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 2px solid #d4f1e8;
+  background: #f0fdf9;
+  min-width: 220px;
+  font-size: 0.95em;
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #11998e;
+}
+
+.btn-sm {
+  padding: 11px 18px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  color: #fff;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.9em;
+  transition: all 0.3s ease;
+}
+
+.btn-sm:hover {
+  transform: translateY(-2px);
+}
+
+.btn-export {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%) !important;
+}
+
+.btn-reset-all {
+  background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%) !important;
+}
+
+.table-wrap {
+  max-height: 450px;
+  overflow: auto;
+  border: 1px solid #d4f1e8;
+  border-radius: 12px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9em;
+}
+
+thead {
+  background: linear-gradient(135deg, #f0fdf9 0%, #d4f1e8 100%);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+th, td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #d4f1e8;
+}
+
+th {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  cursor: pointer;
+  font-weight: 900;
+  user-select: none;
+}
+
+tr:hover td {
+  background: rgba(17, 153, 142, 0.05);
+}
+
+.status-valid {
+  color: #11998e;
+  font-weight: 900;
+}
+
+.status-invalid {
+  color: #eb3349;
+  font-weight: 900;
+}
+
+.clickable-name {
+  text-decoration: underline;
+  cursor: pointer;
+  color: #11998e;
+}
+
+.vote-status-friend {
+  display: inline-block;
+  padding: 5px 10px;
+  background: linear-gradient(135deg, #d4fc79 0%, #96f97b 100%);
+  color: #2d5016;
+  border-radius: 8px;
+  font-size: 0.8em;
+  font-weight: 700;
+}
+
+.vote-status-enemy {
+  display: inline-block;
+  padding: 5px 10px;
+  background: linear-gradient(135deg, #ffb347 0%, #ffcc99 100%);
+  color: #5c2e0f;
+  border-radius: 8px;
+  font-size: 0.8em;
+  font-weight: 700;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9000;
+  backdrop-filter: blur(5px);
+}
+
+.overlay.hidden {
+  display: none !important;
+}
+
+.popup {
+  background: #fff;
+  width: 92%;
+  max-width: 500px;
+  border-radius: 16px;
+  padding: 25px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-height: 85vh;
+  overflow-y: auto;
+  animation: slideUp 0.3s ease;
+}
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 900;
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 18px;
+  font-size: 1.2em;
+}
+
+.popup-close {
+  background: none;
+  border: none;
+  font-size: 1.5em;
+  cursor: pointer;
+  color: #11998e;
+  transition: all 0.3s ease;
+}
+
+.popup-close:hover {
+  transform: scale(1.2);
+}
+
+.footer-note {
+  margin-top: 12px;
+  color: #999;
+  font-size: 0.85em;
+  font-weight: 600;
+}
+
+@media(max-width: 900px) {
+  .charts-grid { grid-template-columns: 1fr; }
+  .committee-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+  .dash-header { flex-direction: column; }
+}
+
+@media(max-width: 600px) {
+  .dashboard { padding: 15px; }
+  .dash-title { font-size: 1.6em; }
+  .committee-grid { grid-template-columns: 1fr; }
+  .table-header { flex-direction: column; align-items: flex-start; }
+  .search-input { min-width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<div id="lock-screen">
+  <div class="lock-box">
+    <h2>لوحة العزيزة</h2>
+    <p>كلمة السر المطلوبة</p>
+    <div class="lock-row">
+      <input id="lock-pass" type="password" placeholder="ادخل كلمة السر" autocomplete="off">
+      <span class="lock-toggle" onclick="toggleLockPass()">👁</span>
+    </div>
+    <button onclick="unlockDashboard()">دخول</button>
+    <div id="lock-error" class="lock-error"></div>
+  </div>
+</div>
+
+<div id="dashboard" class="dashboard hidden">
+  <div class="dash-header">
+    <div>
+      <div class="dash-title">🏛️ لوحة احصائيات مجمع العزيزة</div>
+      <div class="dash-subtitle">اللجنة 24 (النساء) + اللجنة 25 (الرجال) | متابعة مباشرة</div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <div class="live-badge">
+        <span class="live-dot"></span>
+        <span id="live-status">بث مباشر</span>
+      </div>
+      <div class="admin-badge">🔐 إدارة العزيزة</div>
+    </div>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-title">إجمالي الأصوات</div>
+      <div id="total-votes" class="card-value">0</div>
+      <div class="card-note">من اللجنتين</div>
+    </div>
+    <div class="card">
+      <div class="card-title">الأصوات الصحيحة</div>
+      <div id="valid-votes" class="card-value">0</div>
+      <div class="card-note">صحيح</div>
+    </div>
+    <div class="card">
+      <div class="card-title">الأصوات الباطلة</div>
+      <div id="invalid-votes" class="card-value">0</div>
+      <div class="card-note">باطل</div>
+    </div>
+    <div class="card">
+      <div class="card-title">متوسط أصوات/دقيقة</div>
+      <div id="vpm" class="card-value">0</div>
+      <div class="card-note">من البداية</div>
+    </div>
+  </div>
+
+  <div class="committee-stats-card">
+    <h3>تفاصيل اللجنتين</h3>
+    <div class="committee-grid" id="committee-grid">
+      <div style="padding:20px;text-align:center;color:#999;grid-column:1/-1">جاري التحميل...</div>
+    </div>
+  </div>
+
+  <div class="charts-grid">
+    <div class="chart-card">
+      <h3>الأصوات لكل مرشح</h3>
+      <canvas id="chartCandidates"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>نسبة الصحيح والباطل</h3>
+      <canvas id="chartValidity"></canvas>
+    </div>
+  </div>
+
+  <div class="ranking-card">
+    <h3>ترتيب المرشحين</h3>
+    <div id="ranking-list" class="ranking-list">
+      <div style="padding:20px;text-align:center;color:#999">جاري التحميل...</div>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-header">
+      <input id="search" class="search-input" placeholder="بحث...">
+      <div style="display:flex; gap:8px;">
+        <button class="btn-sm btn-export" onclick="exportCSV()">تصدير CSV</button>
+        <button class="btn-sm btn-reset-all" onclick="resetAll()">تصفير</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>الاسم</th>
+            <th>اللجنة</th>
+            <th>المرشحين</th>
+            <th>الحالة</th>
+            <th>الوقت</th>
+          </tr>
+        </thead>
+        <tbody id="votes-table"></tbody>
+      </table>
+    </div>
+    <div id="footer-note" class="footer-note">لا توجد بيانات</div>
+  </div>
+</div>
+
+<div id="details-popup" class="overlay hidden">
+  <div class="popup">
+    <div class="popup-header">
+      <h3>تفاصيل الناخب</h3>
+      <button class="popup-close" onclick="closeDetails()">x</button>
+    </div>
+    <div id="details-body" style="padding:10px;"></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js"></script>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCxxXV_6CEo1fTp3rRbfwfYbe7WH0Cyg38",
+  authDomain: "elahmadiya.firebaseapp.com",
+  databaseURL: "https://elahmadiya-default-rtdb.firebaseio.com",
+  projectId: "elahmadiya",
+  storageBucket: "elahmadiya.firebasestorage.app",
+  messagingSenderId: "594580767620",
+  appId: "1:594580767620:web:f5be3b87d4c704854e53d1"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+let allVotes = [];
+let sortState = { key: "index", dir: "asc" };
+let chartCandidates = null;
+let chartValidity = null;
+
+const candidatesNames = [
+  "ايهاب العمده","محمد العتمانى","أحمد الحديدى",
+  "عادل الجيار","احمد محمد محمد سمره","وليد تيسير الامير",
+  "كمال العيسوى","البدوى جميز","احمد الريس",
+  "أحمد عوف","حسن الملهاط","عمرو محمد بحيرى",
+  "السيد طمان","محمد دندن","مجدى الأمير"
+];
+
+window.toggleLockPass = function(){
+  const inp = document.getElementById("lock-pass");
+  inp.type = inp.type === "password" ? "text" : "password";
+};
+
+window.unlockDashboard = function(){
+  const value = document.getElementById("lock-pass").value.trim();
+  const err = document.getElementById("lock-error");
+  
+  if(value === "aziza100"){
+    document.getElementById("lock-screen").classList.add("hidden");
+    document.getElementById("dashboard").classList.remove("hidden");
+    setupVotesListener();
+  } else {
+    err.textContent = "كلمة سر غير صحيحة";
+    err.style.display = "block";
+    setTimeout(() => err.style.display = "none", 2300);
+  }
+};
+
+document.getElementById("lock-pass").addEventListener("keydown", e => {
+  if(e.key === "Enter") unlockDashboard();
+});
+
+let votesListener = null;
+
+function setupVotesListener() {
+  if(votesListener) votesListener();
+  
+  const votesRef = ref(db, "votes");
+  votesListener = onValue(votesRef, snapshot => {
+    const data = snapshot.val() || {};
+    // تصفية الأصوات من اللجنتين 24 و 25 فقط
+    allVotes = Object.entries(data)
+      .filter(([id, v]) => v.committee === 24 || v.committee === 25)
+      .map(([id, v], i) => ({
+        id,
+        index: i + 1,
+        name: v.name || "بدون اسم",
+        candidates: Array.isArray(v.selected) ? v.selected : [],
+        validity: v.vote_validity || "",
+        timestamp: v.timestamp || 0,
+        committee: v.committee || 0
+      }));
+    renderAll();
+  });
+}
+
+setupVotesListener();
+
+function renderAll(){
+  renderStats();
+  renderCommitteeStats();
+  renderCharts();
+  renderRanking();
+  renderTable();
+}
+
+function renderStats(){
+  const total = allVotes.length;
+  const valid = allVotes.filter(v => v.validity === "صحيح").length;
+  const invalid = allVotes.filter(v => v.validity === "باطل").length;
+
+  document.getElementById("total-votes").textContent = total;
+  document.getElementById("valid-votes").textContent = valid;
+  document.getElementById("invalid-votes").textContent = invalid;
+
+  const liveTxt = document.getElementById("live-status");
+  const now = Date.now();
+
+  if(total > 0){
+    const sorted = [...allVotes].filter(v => v.timestamp).sort((a, b) => a.timestamp - b.timestamp);
+    if(sorted.length === 0){
+      document.getElementById("vpm").textContent = "0";
+      liveTxt.textContent = "لا يوجد تصويت حالياً";
+      return;
+    }
+
+    const firstTs = sorted[0].timestamp;
+    const lastTs = sorted[sorted.length - 1].timestamp;
+    const diffMin = (lastTs - firstTs) / 60000;
+    let vpm = diffMin > 0 ? (total / diffMin) : 0;
+    document.getElementById("vpm").textContent = vpm.toFixed(2);
+
+    if(now - lastTs < 25000) liveTxt.textContent = "🟢 نشاط عالي";
+    else liveTxt.textContent = "⚪ نشاط مستقر";
+  } else {
+    document.getElementById("vpm").textContent = "0";
+    liveTxt.textContent = "⚫ لا يوجد تصويت";
+  }
+}
+
+function renderCommitteeStats(){
+  const grid = document.getElementById("committee-grid");
+  
+  const comm24Data = { total: 0, valid: 0, invalid: 0, name: "مجمع العزيزة لجنة النساء", address: "مدرسة مجمع العزيزة الابتدائية" };
+  const comm25Data = { total: 0, valid: 0, invalid: 0, name: "مجمع العزيزة لجنة الرجال", address: "مدرسة مجمع العزيزة الابتدائية" };
+  
+  allVotes.forEach(v => {
+    if(v.committee === 24){
+      comm24Data.total++;
+      if(v.validity === "صحيح") comm24Data.valid++;
+      if(v.validity === "باطل") comm24Data.invalid++;
+    } else if(v.committee === 25){
+      comm25Data.total++;
+      if(v.validity === "صحيح") comm25Data.valid++;
+      if(v.validity === "باطل") comm25Data.invalid++;
+    }
+  });
+  
+  grid.innerHTML = "";
+  [comm24Data, comm25Data].forEach((data, idx) => {
+    const commNum = idx === 0 ? 24 : 25;
+    const item = document.createElement("div");
+    item.className = "committee-item";
+    
+    item.innerHTML = "<div class='committee-num'>اللجنة " + commNum + "</div><div class='committee-name'>" + data.name + "</div><div class='committee-address'>" + data.address + "</div><div class='committee-count' style='margin-top:8px;font-weight:900;'>📊 " + data.total + " صوت</div><div class='committee-count'>✓ " + data.valid + " | ✗ " + data.invalid + "</div>";
+    grid.appendChild(item);
+  });
+}
+
+function renderCharts(){
+  const ctx1 = document.getElementById("chartCandidates").getContext("2d");
+  const ctx2 = document.getElementById("chartValidity").getContext("2d");
+
+  const counts = {};
+  allVotes.forEach(v => v.candidates.forEach(c => counts[c] = (counts[c] || 0) + 1));
+  const labels = Object.keys(counts).length > 0 ? Object.keys(counts) : ["لا توجد بيانات"];
+  const data = Object.keys(counts).length > 0 ? Object.values(counts) : [0];
+
+  if(chartCandidates){
+    chartCandidates.data.labels = labels;
+    chartCandidates.data.datasets[0].data = data;
+    chartCandidates.update();
+  } else {
+    chartCandidates = new Chart(ctx1, {
+      type: "bar",
+      data: { labels: labels, datasets: [{ label: "الأصوات", data: data, backgroundColor: "#11998e" }] },
+      options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+    });
+  }
+
+  const valid = allVotes.filter(v => v.validity === "صحيح").length;
+  const invalid = allVotes.filter(v => v.validity === "باطل").length;
+  const total = valid + invalid;
+
+  if(chartValidity){
+    chartValidity.data.datasets[0].data = total > 0 ? [valid, invalid] : [0, 0];
+    chartValidity.update();
+  } else {
+    chartValidity = new Chart(ctx2, {
+      type: "doughnut",
+      data: { 
+        labels: ["صحيح (" + valid + ")", "باطل (" + invalid + ")"], 
+        datasets: [{ data: total > 0 ? [valid, invalid] : [0, 0], backgroundColor: ["#11998e", "#eb3349"] }] 
+      },
+      options: { cutout: "55%", plugins: { legend: { position: "bottom" } } }
+    });
+  }
+}
+
+function renderRanking(){
+  const list = document.getElementById("ranking-list");
+  const counts = {};
+  allVotes.forEach(v => v.candidates.forEach(c => counts[c] = (counts[c] || 0) + 1));
+  const sorted = Object.entries(counts).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
+
+  if(sorted.length === 0){
+    list.innerHTML = "<div style='padding:20px;text-align:center;color:#999'>لا توجد بيانات</div>";
+    return;
+  }
+
+  const max = sorted[0].count;
+  list.innerHTML = sorted.map((c, i) => {
+    const rank = i + 1;
+    let medal = "🥇";
+    if(rank === 2) medal = "🥈";
+    else if(rank === 3) medal = "🥉";
+    else medal = rank;
+    const width = Math.max((c.count / max) * 100, 12);
+    return "<div class='ranking-item'><div class='ranking-left'><div class='ranking-medal'>" + medal + "</div><div class='ranking-name'>" + c.name + "</div></div><div class='ranking-right'><div class='ranking-bar' style='width:" + width + "%'>" + c.count + "</div><div class='ranking-count'>" + c.count + "</div></div></div>";
+  }).join("");
+}
+
+function renderTable(){
+  const body = document.getElementById("votes-table");
+  const note = document.getElementById("footer-note");
+  const search = document.getElementById("search").value.toLowerCase().trim();
+
+  let filtered = [...allVotes];
+  if(search) filtered = filtered.filter(v => (v.name || "").toLowerCase().includes(search) || v.candidates.join(" ").toLowerCase().includes(search));
+
+  filtered.sort((a, b) => {
+    const dir = (sortState.dir === "asc" ? 1 : -1);
+    let av = a[sortState.key];
+    let bv = b[sortState.key];
+    if(sortState.key === "candidates"){ av = a.candidates.join(","); bv = b.candidates.join(","); }
+    if(av < bv) return -1 * dir;
+    if(av > bv) return 1 * dir;
+    return 0;
+  });
+
+  body.innerHTML = "";
+  filtered.forEach((v, i) => {
+    const tr = document.createElement("tr");
+    const commName = v.committee === 24 ? "النساء" : "الرجال";
+    tr.innerHTML = "<td>" + (i + 1) + "</td><td class='clickable-name' onclick=\"showDetails('" + v.id + "')\">" + v.name + "</td><td>" + commName + "</td><td>" + (v.candidates.join(" و ") || "—") + "</td><td class='" + (v.validity === "صحيح" ? "status-valid" : "status-invalid") + "'>" + v.validity + "</td><td>" + (v.timestamp ? new Date(v.timestamp).toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "—") + "</td>";
+    body.appendChild(tr);
+  });
+
+  note.textContent = filtered.length === 0 ? (allVotes.length === 0 ? "لا توجد بيانات" : "لا توجد نتائج") : "عرض " + filtered.length + " من " + allVotes.length;
+}
+
+document.getElementById("search").addEventListener("input", renderTable);
+
+window.showDetails = function(id){
+  const v = allVotes.find(x => x.id === id);
+  if(!v) return;
+  const body = document.getElementById("details-body");
+  const time = v.timestamp ? new Date(v.timestamp).toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "—";
+  const chosen = v.candidates.join(" و ") || "—";
+  const commName = v.committee === 24 ? "النساء" : "الرجال";
+  body.innerHTML = "<table style='width:100%;'><tr><td><b>الاسم</b></td><td>" + v.name + "</td></tr><tr><td><b>اللجنة</b></td><td>" + commName + "</td></tr><tr><td><b>الوقت</b></td><td>" + time + "</td></tr><tr><td><b>المرشحين</b></td><td>" + chosen + "</td></tr><tr><td><b>الحالة</b></td><td style='color:" + (v.validity === "صحيح" ? "#11998e" : "#eb3349") + "'>" + v.validity + "</td></tr></table>";
+  document.getElementById("details-popup").classList.remove("hidden");
+};
+
+window.closeDetails = function(){
+  document.getElementById("details-popup").classList.add("hidden");
+};
+
+window.exportCSV = function(){
+  if(allVotes.length === 0) return alert("لا توجد بيانات");
+  const header = "Index,Name,Committee,Candidates,Validity,Timestamp\n";
+  const rows = allVotes.map((v, i) => {
+    const commName = v.committee === 24 ? "النساء" : "الرجال";
+    return [i + 1, '"' + v.name.replace(/"/g, '""') + '"', commName, '"' + v.candidates.join(" | ").replace(/"/g, '""') + '"', v.validity, v.timestamp].join(",");
+  });
+  const csv = header + rows.join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "aziza_votes_" + Date.now() + ".csv";
+  a.click();
+  URL.revokeObjectURL(url);
+};
+
+window.resetAll = function(){
+  const pw = prompt("ادخل كلمة السر:");
+  if(pw !== "azizaadmin") return alert("كلمة سر خاطئة");
+  if(!confirm("تأكيد حذف جميع أصوات العزيزة؟")) return;
+  alert("تم الحذف - سيتم تحديث البيانات");
+};
+
+</script>
+
+</body>
+</html>
