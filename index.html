@@ -311,6 +311,26 @@ const db = getDatabase(app);
 let committeeNumber = 0;
 let closedNotifications = new Set();
 
+function loadClosedNotifications() {
+  const stored = localStorage.getItem("closedNotifications");
+  if (stored) {
+    try {
+      closedNotifications = new Set(JSON.parse(stored));
+    } catch (e) {
+      closedNotifications = new Set();
+    }
+  }
+}
+
+function saveClosedNotifications() {
+  localStorage.setItem(
+    "closedNotifications",
+    JSON.stringify(Array.from(closedNotifications))
+  );
+}
+
+loadClosedNotifications();
+
 const committeeData = {
   1:  { name: "الفروسات", address: "مدرسة احمد القصبى الابتدائية" },
   2:  { name: "الفروسات", address: "مدرسة احمد القصبى الابتدائية" },
@@ -630,3 +650,4 @@ document.getElementById("password-input").addEventListener("keypress", function(
 
 </body>
 </html>
+
