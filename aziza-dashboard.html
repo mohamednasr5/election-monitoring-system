@@ -1091,7 +1091,7 @@ tr:hover td {
       <input id="lock-pass" type="password" placeholder="ادخل كلمة السر" autocomplete="off">
       <span class="lock-toggle" onclick="toggleLockPass()">👁</span>
     </div>
-    <button onclick="unlockDashboard()">دخول</button>
+    <button id="unlock-btn">دخول</button>
     <div id="lock-error" class="lock-error"></div>
   </div>
 </div>
@@ -1296,6 +1296,8 @@ window.unlockDashboard = function(){
 document.getElementById("lock-pass").addEventListener("keydown", e => {
   if(e.key === "Enter") window.unlockDashboard();
 });
+
+document.getElementById("unlock-btn").addEventListener("click", window.unlockDashboard);
 
 let allVotes = [];
 let sortState = { key: "index", dir: "asc" };
