@@ -281,13 +281,13 @@ button{
     <div id="msg-confirm" class="msg-confirm"></div>
   </form>
 
- <div class="sig">
-  تم البرمجة بواسطة 
-  <a href="https://www.facebook.com/en.mohamed.nasr" target="_blank" 
-     style="color:#1e3c72; font-weight:900; text-decoration:underline;">
-     المهندس محمد حماد
-  </a>
-</div>
+  <div class="sig">
+    تم البرمجة بواسطة 
+    <a href="https://www.facebook.com/en.mohamed.nasr" target="_blank" 
+       style="color:#1e3c72; font-weight:900; text-decoration:underline;">
+       المهندس محمد حماد
+    </a>
+  </div>
 
 </div>
 
@@ -317,16 +317,21 @@ function loadClosedNotifications() {
     try {
       closedNotifications = new Set(JSON.parse(stored));
     } catch (e) {
+      console.error("Error loading notifications:", e);
       closedNotifications = new Set();
     }
   }
 }
 
 function saveClosedNotifications() {
-  localStorage.setItem(
-    "closedNotifications",
-    JSON.stringify(Array.from(closedNotifications))
-  );
+  try {
+    localStorage.setItem(
+      "closedNotifications",
+      JSON.stringify(Array.from(closedNotifications))
+    );
+  } catch (e) {
+    console.error("Error saving notifications:", e);
+  }
 }
 
 loadClosedNotifications();
@@ -413,7 +418,6 @@ window.checkPass = function(){
     return;
   }
 
-  // التحقق من اليوزرات الجديدة
   if(val === "wa100124"){
     committeeNumber = 24;
     const info = { name: "مجمع العزيزة لجنة النساء", address: "مدرسة مجمع العزيزة الابتدائية" };
@@ -438,18 +442,19 @@ window.checkPass = function(){
     return;
   }
 
-  if (val < 100101 || val > 100160) {
+  const numVal = parseInt(val);
+  if (isNaN(numVal) || numVal < 100101 || numVal > 100160) {
     err.style.display = "block";
     setTimeout(() => err.style.display = "none", 1800);
     return;
   }
 
-  committeeNumber = parseInt(val) - 100100;
+  committeeNumber = numVal - 100100;
   const info = committeeData[committeeNumber] || { name: "لجنة", address: "بدون عنوان" };
   
   document.getElementById("password-modal").classList.add("hidden");
   document.getElementById("main-container").classList.remove("hidden");
-  document.getElementById("welcome-title").textContent = " " + committeeNumber;
+  document.getElementById("welcome-title").textContent = "اللجنة " + committeeNumber;
   document.getElementById("committee-name-display").textContent = info.name;
   document.getElementById("committee-address-display").textContent = info.address;
   setupNotificationListeners(committeeNumber);
@@ -635,7 +640,6 @@ document.getElementById("vote-form").addEventListener("submit", function(e){
 
   const voteKey = Date.now();
   
-  // تحديد المسار - إذا كان من اللجنة 24 أو 25 يحفظ في مسار منفصل
   let votePath = "votes/" + voteKey;
   if(committeeNumber === 24 || committeeNumber === 25){
     votePath = "votes/aziza/" + voteKey;
@@ -662,3 +666,7 @@ document.getElementById("vote-form").addEventListener("submit", function(e){
 document.getElementById("password-input").addEventListener("keypress", function(e){
   if(e.key === "Enter") checkPass();
 });
+</script>
+
+</body>
+</html>
