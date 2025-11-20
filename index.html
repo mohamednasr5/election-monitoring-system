@@ -173,34 +173,31 @@ html, body {width:100%; overflow-x:hidden !important;}
    <div id="msg-warn" class="msg-warn"></div>
    <div id="msg-confirm" class="msg-confirm"></div>
  </form>
-<div class="upload-box">
-  <!-- زر رفع محضر اللجنة -->
-  <label class="upload-btn" for="uploadFile">📄 رفع محضر اللجنة</label>
-  <input type="file" id="uploadFile" accept="image/*">
+<!-- زر بنفس ستايل زر تسجيل التصويت -->
+<button id="openUpload" class="action-btn" style="width:100%; margin-top:15px;">
+  رفع محضر اللجنة 📄
+</button>
 
-  <!-- زر إرسال -->
-  <button class="send-btn" id="sendReport" onclick="uploadImage()">📤 إرسال صورة المحضر</button>
-</div>
-
+<!-- حقل اختيار الصورة (مخفي بالكامل) -->
+<input type="file" id="uploadFile" accept="image/*" style="display:none">
 <script>
   const imgbbKey = "4580317b11de33e7c7630672bfc20bf9";
 
-  // عند اختيار صورة يظهر زر الإرسال
-  document.getElementById("uploadFile").addEventListener("change", () => {
-    document.getElementById("sendReport").style.display = "block";
+  // عند الضغط على زر "رفع محضر اللجنة" يفتح اختيار الصورة
+  document.getElementById("openUpload").addEventListener("click", () => {
+    document.getElementById("uploadFile").click();
   });
 
-  function uploadImage() {
-    const fileInput = document.getElementById('uploadFile');
-    const file = fileInput.files[0];
-
-    if (!file) {
-      alert("⚠️ من فضلك اختر صورة أولاً");
-      return;
-    }
+  // عند اختيار الصورة يبدأ الرفع مباشرة
+  document.getElementById("uploadFile").addEventListener("change", function () {
+    const file = this.files[0];
+    if (!file) return;
 
     const formData = new FormData();
     formData.append("image", file);
+
+    // تغيير نص الزر أثناء الرفع
+    document.getElementById("openUpload").innerText = "جاري رفع المحضر... ⏳";
 
     fetch(`https://api.imgbb.com/1/upload?key=${imgbbKey}`, {
       method: "POST",
@@ -210,25 +207,26 @@ html, body {width:100%; overflow-x:hidden !important;}
     .then(data => {
       if (data.success) {
         const url = data.data.url;
+        alert("✅ تم رفع صورة المحضر بنجاح!\n" + url);
+
+        // هنا لو عايز تحفظ الرابط بقاعدة بيانات Firebase أو Realtime
         console.log("Image URL:", url);
-        alert("✅ تم رفع الصورة بنجاح!\n\n" + url);
 
-        // هنا لو عايز تحفظ الرابط في Firebase أو DB عندك
-        // sendToDatabase(url);
-
+        document.getElementById("openUpload").innerText = "✔ تم الرفع";
+        document.getElementById("openUpload").style.background = "#28a745";
       } else {
-        alert("❌ فشل رفع الصورة!");
+        alert("❌ فشل رفع الصورة");
+        document.getElementById("openUpload").innerText = "رفع محضر اللجنة 📄";
       }
-
-      document.getElementById("sendReport").style.display = "none";
-      fileInput.value = "";
     })
     .catch(err => {
       console.error(err);
-      alert("❌ حصل خطأ أثناء رفع الصورة");
+      alert("❌ حدث خطأ أثناء رفع الصورة");
+      document.getElementById("openUpload").innerText = "رفع محضر اللجنة 📄";
     });
-  }
+  });
 </script>
+
  <div class="sig">
    تم البرمجة بواسطة
    <a href="https://www.facebook.com/en.mohamed.nasr" target="_blank" style="color:#1e3c72; font-weight:900; text-decoration:underline;">
@@ -558,4 +556,5 @@ document.getElementById("password-input").addEventListener("keypress", function(
 </script>
 </body>
 </html>
+
 
