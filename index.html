@@ -85,7 +85,41 @@ html, body {width:100%; max-width:100%; overflow-x:hidden !important;}
 body {display:block !important;}
 html, body {width:100%; overflow-x:hidden !important;}
 #bubble {max-width:calc(100vw - 30px); right:10px !important;}
-#bubble-close {position:absolute; right:5px; top:5px;}
+#bubble-close {position:absolute; right:5px; top:5px;}  .upload-box {
+    margin-top: 10px;
+    text-align: center;
+  }
+
+  .upload-btn {
+    background: linear-gradient(90deg, #4c28d3, #7d45ff);
+    color: #fff;
+    padding: 14px;
+    border-radius: 12px;
+    cursor: pointer;
+    width: 100%;
+    font-size: 18px;
+    border: none;
+    font-weight: bold;
+  }
+
+  #uploadFile {
+    display: none;
+  }
+
+  .send-btn {
+    background: linear-gradient(90deg, #7d45ff, #4c28d3);
+    color: white;
+    padding: 14px;
+    border-radius: 12px;
+    cursor: pointer;
+    width: 100%;
+    font-size: 18px;
+    border: none;
+    margin-top: 10px;
+    font-weight: bold;
+    display: none;
+  }
+ 
 }
 </style>
 </head>
@@ -139,10 +173,62 @@ html, body {width:100%; overflow-x:hidden !important;}
    <div id="msg-warn" class="msg-warn"></div>
    <div id="msg-confirm" class="msg-confirm"></div>
  </form>
-<button class="btn-sm" style="width:100%;margin:14px 0;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;font-size:1.1em;border-radius:12px;"
-        onclick="window.open('https://forms.gle/LxwiZwofK5xDtsKd7','_blank')">
-  رفع محضر اللجنة
-</button>
+<div class="upload-box">
+  <!-- زر رفع محضر اللجنة -->
+  <label class="upload-btn" for="uploadFile">📄 رفع محضر اللجنة</label>
+  <input type="file" id="uploadFile" accept="image/*">
+
+  <!-- زر إرسال -->
+  <button class="send-btn" id="sendReport" onclick="uploadImage()">📤 إرسال صورة المحضر</button>
+</div>
+
+<script>
+  const imgbbKey = "4580317b11de33e7c7630672bfc20bf9";
+
+  // عند اختيار صورة يظهر زر الإرسال
+  document.getElementById("uploadFile").addEventListener("change", () => {
+    document.getElementById("sendReport").style.display = "block";
+  });
+
+  function uploadImage() {
+    const fileInput = document.getElementById('uploadFile');
+    const file = fileInput.files[0];
+
+    if (!file) {
+      alert("⚠️ من فضلك اختر صورة أولاً");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("image", file);
+
+    fetch(`https://api.imgbb.com/1/upload?key=${imgbbKey}`, {
+      method: "POST",
+      body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        const url = data.data.url;
+        console.log("Image URL:", url);
+        alert("✅ تم رفع الصورة بنجاح!\n\n" + url);
+
+        // هنا لو عايز تحفظ الرابط في Firebase أو DB عندك
+        // sendToDatabase(url);
+
+      } else {
+        alert("❌ فشل رفع الصورة!");
+      }
+
+      document.getElementById("sendReport").style.display = "none";
+      fileInput.value = "";
+    })
+    .catch(err => {
+      console.error(err);
+      alert("❌ حصل خطأ أثناء رفع الصورة");
+    });
+  }
+</script>
  <div class="sig">
    تم البرمجة بواسطة
    <a href="https://www.facebook.com/en.mohamed.nasr" target="_blank" style="color:#1e3c72; font-weight:900; text-decoration:underline;">
@@ -472,3 +558,4 @@ document.getElementById("password-input").addEventListener("keypress", function(
 </script>
 </body>
 </html>
+
