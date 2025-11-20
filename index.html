@@ -86,6 +86,47 @@ body {display:block !important;}
 html, body {width:100%; overflow-x:hidden !important;}
 #bubble {max-width:calc(100vw - 30px); right:10px !important;}
 #bubble-close {position:absolute; right:5px; top:5px;}
+   .upload-box {
+    margin: 20px 0;
+    text-align: center;
+    font-family: "Tahoma", sans-serif;
+  }
+
+  .upload-btn {
+    background: #007bff;
+    color: white;
+    padding: 12px 22px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 18px;
+    border: none;
+    margin-top: 10px;
+    transition: 0.3s;
+  }
+
+  .upload-btn:hover {
+    background: #0056b3;
+  }
+
+  #uploadFile {
+    display: none;
+  }
+
+  .send-btn {
+    background: #28a745;
+    color: white;
+    padding: 12px 22px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 18px;
+    border: none;
+    margin-top: 15px;
+    transition: 0.3s;
+  }
+
+  .send-btn:hover {
+    background: #1e7e34;
+  }
 }
 </style>
 </head>
@@ -141,7 +182,14 @@ html, body {width:100%; overflow-x:hidden !important;}
  </form>
 <input type="file" id="uploadFile">
 
-<button onclick="uploadImage()">رفع صورة المحضر</button>
+<div class="upload-box">
+  <label class="upload-btn" for="uploadFile">📄 رفع صورة المحضر</label>
+  <input type="file" id="uploadFile" accept="image/*">
+
+  <br>
+
+  <button class="send-btn" onclick="uploadImage()">📤 إرسال</button>
+</div>
 
 <script type="module">
   // Import Firebase
@@ -152,15 +200,15 @@ html, body {width:100%; overflow-x:hidden !important;}
     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
   // Firebase Config
-const firebaseConfig = {
-  apiKey: "AIzaSyCxxXV_6CEo1fTp3rRbfwfYbe7WH0Cyg38",
-  authDomain: "elahmadiya.firebaseapp.com",
-  databaseURL: "https://elahmadiya-default-rtdb.firebaseio.com",
-  projectId: "elahmadiya",
-  storageBucket: "elahmadiya.firebasestorage.app",
-  messagingSenderId: "594580767620",
-  appId: "1:594580767620:web:f5be3b87d4c704854e53d1"
-};
+  const firebaseConfig = {
+    apiKey: "AIzaSyCxxXV_6CEo1fTp3rRbfwfYbe7WH0Cyg38",
+    authDomain: "elahmadiya.firebaseapp.com",
+    databaseURL: "https://elahmadiya-default-rtdb.firebaseio.com",
+    projectId: "elahmadiya",
+    storageBucket: "elahmadiya.firebasestorage.app",
+    messagingSenderId: "594580767620",
+    appId: "1:594580767620:web:f5be3b87d4c704854e53d1"
+  };
 
   const app = initializeApp(firebaseConfig);
   const storage = getStorage(app);
@@ -169,29 +217,29 @@ const firebaseConfig = {
   window.uploadImage = function () {
     const file = document.getElementById('uploadFile').files[0];
     if (!file) {
-      alert("اختار صورة الأول");
+      alert("⚠️ من فضلك اختر صورة المحضر أولًا");
       return;
     }
 
     const imgRef = ref(storage, 'images/' + Date.now() + "_" + file.name);
 
-    uploadBytes(imgRef, file).then(snapshot => {
-      return getDownloadURL(snapshot.ref);
-    }).then(url => {
+    uploadBytes(imgRef, file)
+      .then(snapshot => getDownloadURL(snapshot.ref))
+      .then(url => {
 
-      // حفظ رابط الصورة في قاعدة البيانات
-      const newRef = push(ref(db, "uploads"));
-      set(newRef, { imageUrl: url });
+        const newRef = push(ref(db, "uploads"));
+        set(newRef, { imageUrl: url });
 
-      alert("تم رفع الصورة! الرابط: " + url);
-      console.log("Image URL:", url);
-
-    }).catch(err => {
-      console.error(err);
-      alert("حصل خطأ");
-    });
+        alert("✅ تم رفع الصورة بنجاح!");
+        console.log("Image URL:", url);
+      })
+      .catch(err => {
+        console.error(err);
+        alert("❌ حدث خطأ أثناء رفع الصورة");
+      });
   }
 </script>
+
 
  <div class="sig">
    تم البرمجة بواسطة
@@ -522,5 +570,6 @@ document.getElementById("password-input").addEventListener("keypress", function(
 </script>
 </body>
 </html>
+
 
 
