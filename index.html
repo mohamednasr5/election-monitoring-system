@@ -413,6 +413,31 @@ window.checkPass = function(){
     return;
   }
 
+  // التحقق من اليوزرات الجديدة
+  if(val === "wa100124"){
+    committeeNumber = 24;
+    const info = { name: "مجمع العزيزة لجنة النساء", address: "مدرسة مجمع العزيزة الابتدائية" };
+    document.getElementById("password-modal").classList.add("hidden");
+    document.getElementById("main-container").classList.remove("hidden");
+    document.getElementById("welcome-title").textContent = "اللجنة " + committeeNumber;
+    document.getElementById("committee-name-display").textContent = info.name;
+    document.getElementById("committee-address-display").textContent = info.address;
+    setupNotificationListeners(committeeNumber);
+    return;
+  }
+
+  if(val === "ma100125"){
+    committeeNumber = 25;
+    const info = { name: "مجمع العزيزة لجنة الرجال", address: "مدرسة مجمع العزيزة الابتدائية" };
+    document.getElementById("password-modal").classList.add("hidden");
+    document.getElementById("main-container").classList.remove("hidden");
+    document.getElementById("welcome-title").textContent = "اللجنة " + committeeNumber;
+    document.getElementById("committee-name-display").textContent = info.name;
+    document.getElementById("committee-address-display").textContent = info.address;
+    setupNotificationListeners(committeeNumber);
+    return;
+  }
+
   if (val < 100101 || val > 100160) {
     err.style.display = "block";
     setTimeout(() => err.style.display = "none", 1800);
@@ -609,7 +634,14 @@ document.getElementById("vote-form").addEventListener("submit", function(e){
   if(!val) return showWarn("اختر حالة الصوت");
 
   const voteKey = Date.now();
-  const voteRef = ref(db, "votes/" + voteKey);
+  
+  // تحديد المسار - إذا كان من اللجنة 24 أو 25 يحفظ في مسار منفصل
+  let votePath = "votes/" + voteKey;
+  if(committeeNumber === 24 || committeeNumber === 25){
+    votePath = "votes/aziza/" + voteKey;
+  }
+  
+  const voteRef = ref(db, votePath);
   
   set(voteRef, {
     name: name,
@@ -630,7 +662,3 @@ document.getElementById("vote-form").addEventListener("submit", function(e){
 document.getElementById("password-input").addEventListener("keypress", function(e){
   if(e.key === "Enter") checkPass();
 });
-</script>
-
-</body>
-</html>
