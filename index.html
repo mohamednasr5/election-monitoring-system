@@ -259,7 +259,21 @@ button{
 @media(max-width:400px){
   #bubble{ padding:8px; font-size:0.95em; max-width:90vw; }
   .container{ padding:6vw 2vw;}
+/* ==== Fix overflow and positioning issues ==== */
+html, body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden !important;
 }
+
+body {
+    display: block !important; /* Prevent flex from breaking fixed elements */
+}
+
+* {
+    max-width: 100vw;
+}
+
 </style>
 </head>
 <body>
@@ -833,3 +847,4 @@ document.getElementById("password-input").addEventListener("keypress", function(
 
 </body>
 </html>
+
