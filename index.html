@@ -47,6 +47,16 @@ body{
 .pass-btn:hover{ transform:translateY(-2px); }
 .pass-err{ margin-top:12px; color:#c62828; font-weight:bold; display:none; font-size:0.95em; }
 
+.logout-btn{
+  position:fixed; top:20px; left:20px; z-index:1000;
+  background:linear-gradient(135deg,#ff6b6b 0%,#c62828 100%);
+  color:#fff; border:none; padding:12px 24px;
+  border-radius:12px; font-weight:700; font-size:1em;
+  cursor:pointer; transition:all 0.3s;
+  box-shadow:0 4px 12px rgba(198,40,40,0.3);
+}
+.logout-btn:hover{ transform:translateY(-2px); box-shadow:0 6px 16px rgba(198,40,40,0.4); }
+
 .container{
   width:100%; max-width:800px; background:#fff; color:#222;
   padding:35px; border-radius:20px;
@@ -220,11 +230,14 @@ button{
   h2{ font-size:1.6em; }
   .radio-group{ grid-template-columns:1fr; }
   .candidate-list{ max-height:400px; }
+  .logout-btn{ top:10px; left:10px; padding:10px 18px; font-size:0.9em; }
 }
 </style>
 </head>
 
 <body>
+
+<button class="logout-btn hidden" id="logout-btn" onclick="logoutCommittee()">تسجيل الخروج</button>
 
 <div id="bubble">
   <div id="bubble-icon">💬</div>
@@ -293,7 +306,7 @@ button{
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { getDatabase, ref, set, onValue, onDisconnect, get, serverTimestamp, remove } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCxxXV_6CEo1fTp3rRbfwfYbe7WH0Cyg38",
@@ -310,6 +323,7 @@ const db = getDatabase(app);
 
 let committeeNumber = 0;
 let closedNotifications = new Set();
+let myPresenceRef = null;
 
 function loadClosedNotifications() {
   const stored = localStorage.getItem("closedNotifications");
@@ -404,7 +418,74 @@ window.togglePass = function(){
   p.type = (p.type === "password") ? "text" : "password";
 };
 
-window.checkPass = function(){
+async function tryCommitteeLogin(committee, info) {
+  const presenceRef = ref(db, `presence/committee_${committee}`);
+  
+  try {
+    const snapshot = await get(presenceRef);
+    
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      const err = document.getElementById("pw-err");
+      err.textContent = "⚠️ يوجد مندوب آخر فاتح هذه اللجنة";
+      err.style.display = "block";
+      err.style.background = "#fff3cd";
+      err.style.color = "#856404";
+      setTimeout(() => err.style.display = "none", 3500);
+      return false;
+    }
+    
+    committeeNumber = committee;
+    myPresenceRef = presenceRef;
+    
+    const connectedRef = ref(db, '.info/connected');
+    onValue(connectedRef, async (snap) => {
+      if (snap.val() === true) {
+        await onDisconnect(presenceRef).remove();
+        
+        await set(presenceRef, {
+          online: true,
+          loginTime: serverTimestamp(),
+          committee: committee
+        });
+        
+        console.log("تم تسجيل الدخول للجنة", committee);
+      }
+    });
+    
+    document.getElementById("password-modal").classList.add("hidden");
+    document.getElementById("main-container").classList.remove("hidden");
+    document.getElementById("logout-btn").classList.remove("hidden");
+    document.getElementById("welcome-title").textContent = "اللجنة " + committee;
+    document.getElementById("committee-name-display").textContent = info.name;
+    document.getElementById("committee-address-display").textContent = info.address;
+    setupNotificationListeners(committee);
+    
+    return true;
+  } catch (error) {
+    console.error("خطأ في تسجيل الدخول:", error);
+    const err = document.getElementById("pw-err");
+    err.textContent = "خطأ في الاتصال";
+    err.style.display = "block";
+    setTimeout(() => err.style.display = "none", 2000);
+    return false;
+  }
+}
+
+window.logoutCommittee = async function() {
+  if (myPresenceRef && committeeNumber > 0) {
+    try {
+      await remove(myPresenceRef);
+      console.log("تم تسجيل الخروج من اللجنة", committeeNumber);
+    } catch (error) {
+      console.error("خطأ في تسجيل الخروج:", error);
+    }
+  }
+  
+  location.reload();
+};
+
+window.checkPass = async function(){
   const val = document.getElementById("password-input").value.trim();
   const err = document.getElementById("pw-err");
 
@@ -419,45 +500,28 @@ window.checkPass = function(){
   }
 
   if(val === "wa100124"){
-    committeeNumber = 24;
     const info = { name: "مجمع العزيزة لجنة النساء", address: "مدرسة مجمع العزيزة الابتدائية" };
-    document.getElementById("password-modal").classList.add("hidden");
-    document.getElementById("main-container").classList.remove("hidden");
-    document.getElementById("welcome-title").textContent = "اللجنة " + committeeNumber;
-    document.getElementById("committee-name-display").textContent = info.name;
-    document.getElementById("committee-address-display").textContent = info.address;
-    setupNotificationListeners(committeeNumber);
+    await tryCommitteeLogin(24, info);
     return;
   }
 
   if(val === "ma100125"){
-    committeeNumber = 25;
     const info = { name: "مجمع العزيزة لجنة الرجال", address: "مدرسة مجمع العزيزة الابتدائية" };
-    document.getElementById("password-modal").classList.add("hidden");
-    document.getElementById("main-container").classList.remove("hidden");
-    document.getElementById("welcome-title").textContent = "اللجنة " + committeeNumber;
-    document.getElementById("committee-name-display").textContent = info.name;
-    document.getElementById("committee-address-display").textContent = info.address;
-    setupNotificationListeners(committeeNumber);
+    await tryCommitteeLogin(25, info);
     return;
   }
 
   const numVal = parseInt(val);
   if (isNaN(numVal) || numVal < 100101 || numVal > 100160) {
+    err.textContent = "كلمة السر غير صحيحة";
     err.style.display = "block";
     setTimeout(() => err.style.display = "none", 1800);
     return;
   }
 
-  committeeNumber = numVal - 100100;
-  const info = committeeData[committeeNumber] || { name: "لجنة", address: "بدون عنوان" };
-  
-  document.getElementById("password-modal").classList.add("hidden");
-  document.getElementById("main-container").classList.remove("hidden");
-  document.getElementById("welcome-title").textContent = "اللجنة " + committeeNumber;
-  document.getElementById("committee-name-display").textContent = info.name;
-  document.getElementById("committee-address-display").textContent = info.address;
-  setupNotificationListeners(committeeNumber);
+  const committee = numVal - 100100;
+  const info = committeeData[committee] || { name: "لجنة", address: "بدون عنوان" };
+  await tryCommitteeLogin(committee, info);
 };
 
 function setupNotificationListeners(committee){
