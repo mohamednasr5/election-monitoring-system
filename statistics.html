@@ -1097,21 +1097,36 @@ let votesListener = null;
 function setupVotesListener() {
   if(votesListener) votesListener();
   
-  const votesRef = ref(db, "votes");
+const votesRef = ref(db, "/");
   votesListener = onValue(votesRef, snapshot => {
-    const data = snapshot.val() || {};
-    allVotes = Object.entries(data).map(([id, v], i) => ({
-      id,
-      index: i + 1,
-      name: v.name || "No Name",
-      candidates: Array.isArray(v.selected) ? v.selected : [],
-      validity: v.vote_validity || "",
-      timestamp: v.timestamp || 0,
-      committee: v.committee || 0
-    }));
-    renderAll();
-  });
-}
+  const root = snapshot.val() || {};
+
+  let combined = {};
+
+  // الأصوات الموجودة داخل votes/
+  if (root.votes) {
+    Object.entries(root.votes).forEach(([id, v]) => combined[id] = v);
+  }
+
+  // الأصوات الموجودة داخل aziza/
+  if (root.aziza) {
+    Object.entries(root.aziza).forEach(([id, v]) => combined[id] = v);
+  }
+
+  // تحويلها إلى نفس بنية الكود الأصلي
+  allVotes = Object.entries(combined).map(([id, v], i) => ({
+    id,
+    index: i + 1,
+    name: v.name || "No Name",
+    candidates: Array.isArray(v.selected) ? v.selected : [],
+    validity: v.vote_validity || "",
+    timestamp: v.timestamp || 0,
+    committee: Number(v.committee) || 0
+  }));
+
+  renderAll();
+});
+
 
 setupVotesListener();
 
@@ -1623,3 +1638,4 @@ window.sendNotification = async function(){
 </script>
 </body>
 </html>
+
