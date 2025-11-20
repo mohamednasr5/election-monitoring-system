@@ -4,496 +4,758 @@
 <meta charset="UTF-8">
 <title>لوحة التحكم الانتخابية</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
 <style>
-/* =========================
-   ROOT THEME VARIABLES - نظام ألوان فاتح وزاهي وعصري 2025
-   ========================= */
-:root {
-  /* خلفيات عصرية نابضة - Vibrant & Fresh */
-  --color-bg: linear-gradient(135deg, #f8f9ff 0%, #fff5f7 50%, #fffaf0 100%);
-  --color-bg-soft: rgba(255, 250, 245, 0.90);
-  --color-surface: rgba(255, 255, 255, 0.98);
-  --color-surface-strong: #ffffff;
-  --color-border-subtle: rgba(139, 92, 246, 0.12);
-
-  /* نصوص واضحة وحيوية */
-  --color-text-main: #1e1b4b;      /* بنفسجي داكن */
-  --color-text-muted: #6366f1;     /* بنفسجي نابض */
-  --color-text-soft: #a78bfa;      /* بنفسجي فاتح */
-
-  /* Primary Gradient - بنفسجي وبرتقالي عصري */
-  --primary-from: #8b5cf6;
-  --primary-to: #f97316;
-  --gradient-primary: linear-gradient(135deg, #8b5cf6 0%, #ec4899 50%, #f97316 100%);
-
-  /* Success - أخضر زمردي */
-  --success-from: #10b981;
-  --success-to: #34d399;
-  --gradient-success: linear-gradient(135deg, #10b981 0%, #34d399 100%);
-
-  /* Error / Warning - أحمر وردي حيوي */
-  --error-from: #f43f5e;
-  --error-to: #fb7185;
-  --gradient-error: linear-gradient(135deg, #f43f5e 0%, #fb7185 100%);
-
-  /* Info - سماوي فيروزي */
-  --info-from: #06b6d4;
-  --info-to: #22d3ee;
-  --gradient-info: linear-gradient(135deg, #06b6d4 0%, #22d3ee 100%);
-
-  /* Glassmorphism عصري */
-  --glass-bg: rgba(255, 255, 255, 0.80);
-  --glass-border: rgba(139, 92, 246, 0.18);
-  --glass-shadow: 0 20px 70px rgba(139, 92, 246, 0.15);
-
-  /* Cards */
-  --card-radius: 20px;
-  --card-bg: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,249,255,0.90) 100%);
-  --card-border: rgba(139, 92, 246, 0.15);
-  --card-shadow: 0 20px 70px rgba(139, 92, 246, 0.12);
-
-  /* Transitions / Animations */
-  --transition-fast: 0.20s ease-out;
-  --transition-med: 0.30s ease-out;
-  --transition-slow: 0.50s cubic-bezier(0.34, 1.56, 0.64, 1);
-
-  --shadow-soft: 0 15px 40px rgba(139, 92, 246, 0.10);
-  --shadow-strong: 0 30px 90px rgba(139, 92, 246, 0.20);
-
-  --border-gradient: linear-gradient(135deg, #8b5cf6, #ec4899, #f97316);
-  --success-glow: 0 0 20px rgba(16, 185, 129, 0.5);
-
-  --blur-glass: 20px;
-  --card-entry-delay-step: 70ms;
-
-  --skeleton-base: rgba(139, 92, 246, 0.08);
-  --skeleton-highlight: rgba(236, 72, 153, 0.12);
-
-  /* gradient angle */
-  --gradient-angle: 135deg;
-
-  /* ألوان إضافية عصرية */
-  --electric-purple: #8b5cf6;
-  --hot-pink: #ec4899;
-  --vibrant-orange: #f97316;
-  --emerald-green: #10b981;
-  --sky-cyan: #06b6d4;
-  --sunset-yellow: #fbbf24;
-}
-
-/* DARK THEME (اختياري للوضع المسائي العصري) */
-:root[data-theme="dark"] {
-  --color-bg: linear-gradient(135deg, #1e1b4b 0%, #6366f1 80%, #a78bfa 100%);
-  --color-bg-soft: rgba(99,102,241,0.81);
-  --color-surface: rgba(99,102,241,0.92);
-  --color-surface-strong: rgba(99,102,241,0.98);
-  --color-border-subtle: rgba(236,72,153,0.13);
-
-  --color-text-main: #f4f1fa;
-  --color-text-muted: #a78bfa;
-  --color-text-soft: #fbbf24;
-
-  --glass-bg: rgba(99,102,241,0.84);
-  --glass-border: rgba(236,72,153,0.11);
-  --glass-shadow: 0 20px 70px rgba(236, 72, 153, 0.12);
-
-  --card-bg: linear-gradient(135deg,#6366f1 0%, #8b5cf6 100%);
-  --card-border: rgba(236,72,153,0.13);
-  --card-shadow: 0 20px 70px rgba(236,72,153,0.10);
-
-  --skeleton-base: rgba(236,72,153,0.11);
-  --skeleton-highlight: rgba(99,102,241,0.16);
-}
-
-/* GLOBAL STYLES */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Cairo", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: "Cairo", sans-serif;
 }
 
 body {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #222;
   min-height: 100vh;
-  color: var(--color-text-main);
-  background:
-    radial-gradient(circle at 15% 15%, rgba(139,92,246,0.14), transparent 38%),
-    radial-gradient(circle at 85% 27%, rgba(236,72,153,0.13), transparent 46%),
-    radial-gradient(circle at 45% 90%, rgba(16,185,129,0.12), transparent 38%),
-    linear-gradient(135deg, #f8f9ff 0%, #fff5f7 62%, #fffaf0 100%);
-  background-attachment: fixed;
-  background-size: 320% 320%;
-  animation: bgGradientShift 18s ease infinite;
 }
 
-@keyframes bgGradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-.hidden { display: none !important; }
-
-/* LOCK SCREEN */
 #lock-screen {
   position: fixed;
   inset: 0;
   display: flex;
   justify-content: center;
   align-items: center;
-  background: radial-gradient(circle at top, rgba(139,92,246,0.19), transparent 50%),
-              radial-gradient(circle at bottom, rgba(236,72,153,0.17), transparent 55%),
-              rgba(255,255,255,0.96);
-  backdrop-filter: blur(var(--blur-glass));
-  -webkit-backdrop-filter: blur(var(--blur-glass));
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
   z-index: 9999;
 }
 
 .lock-box {
-  background: var(--card-bg);
-  border-radius: 26px;
-  padding: 32px 26px 26px;
+  background: #fff;
   width: 90%;
-  max-width: 420px;
-  border: 2px solid rgba(139,92,246,0.16);
-  box-shadow: 0 28px 80px var(--skeleton-base), 0 0 0 1px rgba(139,92,246,0.08);
+  max-width: 400px;
+  padding: 40px 30px;
+  border-radius: 20px;
   text-align: center;
-  position: relative;
-  overflow: hidden;
-  animation: slideUp 0.45s var(--transition-slow) forwards;
-  contain: layout paint;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.4s ease;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .lock-box h2 {
-  margin-bottom: 8px;
-  font-size: 2em;
-  font-weight: 900;
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 2px 9px var(--skeleton-highlight));
+  color: #667eea;
+  margin-bottom: 10px;
+  font-size: 1.8em;
 }
 
 .lock-box p {
-  font-size: 0.99em;
-  color: var(--color-text-muted);
-  margin-bottom: 26px;
-  font-weight: 700;
+  font-size: 0.95em;
+  color: #666;
+  margin-bottom: 30px;
 }
 
 .lock-row {
-  margin-bottom: 18px;
+  margin-bottom: 15px;
   position: relative;
 }
+
 .lock-row input {
   width: 100%;
   padding: 14px 16px;
-  border-radius: 14px;
-  border: 2px solid var(--card-border);
-  background: rgba(255,255,255,0.98);
-  color: var(--color-text-main);
+  border-radius: 12px;
+  border: 2px solid #e0e7ff;
+  background: #f8f9ff;
   text-align: center;
-  font-size: 1.07em;
-  font-weight: 700;
-  transition: all var(--transition-med);
-  box-shadow: 0 4px 12px var(--skeleton-base);
-  outline: none;
+  font-size: 1.1em;
+  transition: all 0.3s ease;
 }
 
-.lock-row input::placeholder { color: var(--color-text-soft); }
 .lock-row input:focus {
-  border-color: var(--primary-to);
-  box-shadow: 0 0 0 3px var(--skeleton-highlight), 0 8px 24px var(--skeleton-base);
-  background: #fff;
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.lock-toggle {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 1.3em;
+}
+
+.lock-box button {
+  margin-top: 20px;
+  width: 100%;
+  padding: 13px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.05em;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.lock-box button:hover {
   transform: translateY(-2px);
 }
-.lock-toggle {
-  position: absolute; left: 18px; top: 50%; transform: translateY(-50%);
-  cursor: pointer; font-size: 1.27em; color: var(--color-text-soft);
-  transition: transform var(--transition-fast), color var(--transition-fast);
-}
-.lock-toggle:hover {
-  transform: translateY(-50%) scale(1.08);
-  color: var(--primary-from);
-}
+
 .lock-error {
-  margin-top: 14px;
-  background: var(--skeleton-base);
-  color: var(--color-text-main);
-  padding: 12px 14px;
-  font-weight: 800;
+  margin-top: 15px;
+  background: #ffebee;
+  color: #c62828;
+  padding: 10px;
+  font-weight: 700;
   display: none;
-  border-radius: 14px;
-  border: 2px solid var(--card-border);
-  font-size: 0.93em;
-  animation: shakeX 0.32s var(--transition-fast);
+  border-radius: 10px;
 }
 
-/* BUTTONS */
-.btn-primary {
-  position: relative;
-  width: 100%; margin-top: 20px; padding: 15px;
-  border-radius: 15px; border: none;
-  background: var(--gradient-primary);
-  color: #fff;
-  font-size: 1.09em;
-  font-weight: 900;
-  cursor: pointer;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast), filter 0.15s;
-  box-shadow: 0 15px 42px var(--skeleton-base);
-}
-.btn-primary:hover {
-  transform: translateY(-2px) scale(1.04);
-  box-shadow: 0 20px 55px var(--skeleton-highlight);
-  filter: brightness(1.10);
-}
-.btn-primary:active {
-  transform: translateY(1px) scale(0.98);
-  box-shadow: 0 8px 22px var(--skeleton-base);
-}
-.ripple {
-  position: absolute; border-radius: 999px; transform: scale(0);
-  background: radial-gradient(circle, rgba(255,255,255,0.5) 0, transparent 60%);
-  animation: rippleAnim 0.6s ease-out forwards; pointer-events: none;
-}
-@keyframes rippleAnim { to { transform: scale(2.85); opacity: 0; } }
+.hidden { display: none !important; }
 
-/* TOAST NOTIFICATION */
-#global-toast {
-  position: fixed; bottom: 18px; right: 18px; left: auto; max-width: 330px;
-  padding: 16px 18px; border-radius: 15px;
-  background: var(--card-bg);
-  border: 2px solid var(--card-border);
-  box-shadow: 0 20px 70px var(--skeleton-base);
-  color: var(--color-text-main);
-  font-size: 0.97em;
-  font-weight: 900;
-  z-index: 99999;
-  opacity: 0;
-  display: flex; gap: 12px; align-items: flex-start;
-  pointer-events: none;
-  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-}
-#global-toast.show { pointer-events: auto; animation: toastIn 0.39s ease-out forwards; }
-#global-toast.hide { animation: toastOut 0.28s ease-in forwards; }
-.toast-icon { font-size: 1.35em; color: var(--primary-from); }
-.toast-message { flex: 1; }
-.toast-close {
-  background: none; border: none; color: var(--color-text-soft);
-  cursor: pointer; font-size: 1.13em; padding: 0 0 0 6px;
-  transition: color 0.16s, transform 0.17s;
-}
-.toast-close:hover { color: var(--primary-to); transform: scale(1.15); }
-@keyframes toastIn {
-  from {transform: translateY(120%) translateZ(0); opacity: 0;}
-  to {transform: translateY(0) translateZ(0); opacity: 1;}
-}
-@keyframes toastOut {
-  from {transform: translateY(0) translateZ(0); opacity: 1;}
-  to {transform: translateY(130%) translateZ(0); opacity: 0;}
+.dashboard {
+  max-width: 1400px;
+  margin: auto;
+  padding: 25px;
 }
 
-/* DASHBOARD HEADER */
 .dash-header {
-  display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 22px;
-  margin-bottom: 32px; background: var(--card-bg);
-  padding: 25px 24px 22px; border-radius: 24px;
-  border: 2px solid var(--card-border);
-  box-shadow: 0 24px 80px var(--skeleton-base), 0 0 0 1px var(--card-border);
-  position: relative; overflow: hidden; contain: layout paint;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 30px;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
+
 .dash-title {
-  font-size: 2.22em; font-weight: 900; letter-spacing: 0.03em;
-  background: var(--gradient-primary);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 3px 10px var(--skeleton-highlight));
-}
-.dash-subtitle { font-size: 1em; color: var(--color-text-muted); margin-top: 7px; font-weight: 700; }
-
-/* BADGES */
-.admin-badge {
-  background: var(--gradient-primary); padding: 8px 16px; border-radius: 999px;
-  color: #fff; font-weight: 900; font-size: 0.96em;
-  box-shadow: 0 0 0 4px var(--skeleton-base), 0 14px 40px var(--skeleton-base);
-  display: inline-flex; align-items: center; gap: 6px; animation: badgePulse 2.2s ease-in-out infinite;
-}
-@keyframes badgePulse {
-  0%, 100% {box-shadow: 0 0 0 4px var(--skeleton-base), 0 14px 40px var(--skeleton-base);}
-  50% {box-shadow: 0 0 0 7px var(--skeleton-highlight),0 18px 52px var(--skeleton-base);}
-}
-.live-badge {
-  background: var(--gradient-success); padding: 8px 16px; border-radius: 999px; color: #065f46;
-  font-weight: 900; display: inline-flex; gap: 9px; align-items: center; box-shadow: 0 0 0 4px var(--skeleton-base),0 16px 44px var(--skeleton-base); animation: liveBreath 3s ease-in-out infinite;
-}
-.live-dot {
-  width: 12px; height: 12px; border-radius: 999px; background: var(--success-from);
-  box-shadow: 0 0 0 0 var(--success-from); animation: livePulse 1.9s ease-out infinite;
-}
-@keyframes livePulse {
-  0% {transform: scale(1); box-shadow: 0 0 0 0 var(--success-from);}
-  70% {transform: scale(1.3); box-shadow: 0 0 0 14px rgba(16,185,129,0);}
-  100% {transform: scale(1); box-shadow: 0 0 0 0 var(--success-from);}
-}
-@keyframes liveBreath {
-  0%,100% {transform: scale(1); filter: brightness(1);}
-  50% {transform: scale(1.03); filter: brightness(1.08);}
-}
-
-/* CARDS (General) */
-.cards {display: grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap:22px;}
-.card {
-  position: relative; background: var(--card-bg);
-  padding: 20px 20px 18px; border-radius: var(--card-radius);
-  border: 2px solid var(--card-border); box-shadow: var(--card-shadow),0 0 0 1px var(--card-border);
-  transition: transform var(--transition-med), box-shadow var(--transition-med), border-color 0.2s;
-  overflow: hidden; opacity: 0; transform: translateY(24px) scale(0.97); will-change: transform,opacity;
-}
-.card.card--visible {animation: cardIn 0.61s cubic-bezier(.15,.7,.35,1.18) forwards;}
-.card::before {
-  content: ''; position: absolute; inset: 0;
-  background: radial-gradient(circle at top left,rgba(139,92,246,0.12),transparent 52%),radial-gradient(circle at bottom right,rgba(229,231,241,0.09),transparent 53%);
-  pointer-events: none;
-  opacity: 1;
-}
-.card:hover {
-  transform: translateY(-9px) scale(1.025);
-  border-color: var(--primary-to);
-  box-shadow: 0 28px 80px var(--skeleton-base), 0 0 0 3px var(--primary-from);
-}
-.card:active {transform: translateY(-3px) scale(0.99);}
-.card-title {
-  font-size: 1em; color: var(--color-text-muted);
-  text-transform: uppercase; letter-spacing: 0.12em; font-weight: 900;
-  position: relative; z-index: 2;
-}
-.card-value {
-  font-size: 2.45em; font-weight: 900;
-  background: var(--gradient-primary);
+  font-size: 2.2em;
+  font-weight: 900;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  margin-top: 10px; z-index: 2; letter-spacing: 0.03em;
-  filter: drop-shadow(0 2px 6px var(--skeleton-base));
 }
+
+.dash-subtitle {
+  font-size: 0.95em;
+  color: #999;
+}
+
+.admin-badge {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 8px 14px;
+  border-radius: 50px;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9em;
+}
+
+.live-badge {
+  background: linear-gradient(135deg, #d4fc79 0%, #96f97b 100%);
+  padding: 10px 18px;
+  border-radius: 50px;
+  color: #2d5016;
+  font-weight: 700;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.live-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #2d5016;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+#spike-alert {
+  display: none;
+  background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
+  padding: 15px;
+  color: #fff;
+  border-radius: 12px;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  margin-bottom: 25px;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 25px;
+  border-radius: 16px;
+  border: 1px solid rgba(102, 126, 234, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+}
+
+.card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 16px 48px rgba(102, 126, 234, 0.2);
+}
+
+.card-title {
+  font-size: 0.85em;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.card-value {
+  font-size: 2.2em;
+  font-weight: 900;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-top: 10px;
+}
+
 .card-note {
-  font-size: 0.8em; color: var(--color-text-soft); margin-top: 9px;
-  z-index: 2; font-weight: 700;
+  font-size: 0.75em;
+  color: #bbb;
+  margin-top: 8px;
 }
 
-/* TABLES */
+.committee-stats-card {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 25px;
+  border-radius: 16px;
+  border: 1px solid rgba(102, 126, 234, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  margin-bottom: 25px;
+}
+
+.committee-stats-card h3 {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 1.2em;
+  margin-bottom: 20px;
+  font-weight: 900;
+}
+
+.committee-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 5px;
+}
+
+.committee-item {
+  background: linear-gradient(135deg, #f5f7ff 0%, #eff2ff 100%);
+  padding: 15px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border-left: 4px solid #667eea;
+}
+
+.committee-item:hover {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  transform: scale(1.05);
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+}
+
+.committee-num {
+  font-size: 1.1em;
+  font-weight: 900;
+  margin-bottom: 8px;
+}
+
+.committee-name {
+  font-size: 0.85em;
+  font-weight: 700;
+  margin-bottom: 4px;
+  opacity: 0.9;
+}
+
+.committee-address {
+  font-size: 0.75em;
+  opacity: 0.8;
+  margin-bottom: 8px;
+}
+
+.committee-count {
+  font-size: 0.8em;
+  opacity: 0.8;
+}
+
+.notify-panel {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 25px;
+  border-radius: 16px;
+  border: 1px solid rgba(102, 126, 234, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  margin-bottom: 25px;
+}
+
+.notify-panel h3 {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 1.2em;
+  margin-bottom: 20px;
+  font-weight: 900;
+}
+
+.notify-option {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 12px;
+  font-weight: 600;
+  color: #333;
+}
+
+.notify-panel textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 14px;
+  background: #f8f9ff;
+  border: 2px solid #e0e7ff;
+  border-radius: 12px;
+  margin-bottom: 15px;
+  font-size: 1em;
+  resize: vertical;
+  transition: all 0.3s ease;
+  font-family: "Cairo", sans-serif;
+}
+
+.notify-panel textarea:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+#notify-result {
+  display: none;
+  margin-top: 12px;
+  font-weight: 800;
+  font-size: 0.95em;
+  padding: 12px;
+  border-radius: 10px;
+}
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+  margin-bottom: 25px;
+}
+
+.chart-card {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 25px;
+  border-radius: 16px;
+  border: 1px solid rgba(102, 126, 234, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.chart-card:hover {
+  box-shadow: 0 12px 40px rgba(102, 126, 234, 0.15);
+}
+
+.chart-card h3 {
+  margin-bottom: 18px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 1.05em;
+  font-weight: 900;
+}
+
+.ranking-card {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 25px;
+  border-radius: 16px;
+  border: 1px solid rgba(102, 126, 234, 0.1);
+  margin-bottom: 25px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+}
+
+.ranking-card h3 {
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 1.2em;
+  font-weight: 900;
+}
+
+.ranking-list {
+  max-height: 500px;
+  overflow-y: auto;
+  padding: 5px;
+}
+
+.ranking-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 15px;
+  background: linear-gradient(135deg, #f5f7ff 0%, #eff2ff 100%);
+  border-radius: 12px;
+  transition: all 0.3s;
+  border-left: 4px solid #667eea;
+}
+
+.ranking-item:hover {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  transform: translateX(-5px);
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+}
+
+.ranking-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ranking-medal {
+  font-size: 1.6em;
+  min-width: 35px;
+  text-align: center;
+}
+
+.ranking-name {
+  font-weight: 700;
+}
+
+.ranking-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.ranking-bar {
+  height: 28px;
+  border-radius: 14px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 0.85em;
+  font-weight: 700;
+  min-width: 80px;
+}
+
+.ranking-count {
+  font-weight: 900;
+  min-width: 45px;
+  text-align: center;
+}
+
 .table-card {
-  background: var(--card-bg); padding: 23px 18px 20px;
-  border-radius: var(--card-radius); border: 2px solid var(--card-border);
-  box-shadow: 0 20px 60px var(--skeleton-base), 0 0 0 1px var(--card-border);
-  position: relative; overflow: hidden; contain: layout paint;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 25px;
+  border-radius: 16px;
+  border: 1px solid rgba(102, 126, 234, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
 }
+
 .table-header {
-  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap:12px; margin-bottom:14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 18px;
 }
+
 .search-input {
-  padding: 12px 14px; border-radius: 14px; border: 2px solid var(--card-border); background: #fff;
-  min-width: 220px; font-size: 0.97em; font-weight: 700; color: var(--color-text-main); transition: all var(--transition-med);
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 2px solid #e0e7ff;
+  background: #f8f9ff;
+  min-width: 220px;
+  font-size: 0.95em;
+  transition: all 0.3s ease;
 }
-.search-input::placeholder {color: var(--color-text-soft);}
+
 .search-input:focus {
-  outline: none; border-color: var(--primary-to);
-  box-shadow: 0 0 0 3px var(--skeleton-highlight), 0 8px 24px var(--skeleton-base); background: #fff;
+  outline: none;
+  border-color: #667eea;
 }
-.table-wrap {max-height: 435px; overflow: auto; border-radius: 14px; border: 2px solid var(--card-border); background: #fff;}
-table {width: 100%; border-collapse: collapse; font-size: 0.91em; table-layout: fixed;}
-thead {background: var(--card-bg); position: sticky; top: 0; z-index: 10;}
-th,td {padding: 12px 13px; border-bottom: 1px solid var(--card-border);}
-th {
-  background: var(--gradient-primary);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  cursor: pointer; font-weight: 900; user-select: none; position: relative;
-}
-th[data-sort]::after {
-  content: "▾"; font-size: 0.7em; position: absolute; left: 8px; top:50%; transform: translateY(-50%); opacity: 0.40;
-}
-th[data-sort].sorted-asc::after {content: "▲"; opacity: 0.97;}
-th[data-sort].sorted-desc::after {content: "▼"; opacity: 0.97;}
-tbody tr {transition: background var(--transition-fast), transform 0.16s;}
-tbody tr:hover td {background: var(--skeleton-base);}
-.status-valid {color: var(--success-to); font-weight: 900;}
-.status-invalid {color: var(--error-to); font-weight: 900;}
-.clickable-name {text-decoration: underline; cursor: pointer; color: var(--primary-to); font-weight: 800;}
 
-/* MINI BUTTONS */
-.btn-mini-edit {
-  padding: 6px 14px; border-radius: 999px;
-  background: var(--gradient-primary); color: #fff; border: none; cursor: pointer; font-weight: 800; font-size: 0.82em;
-  transition: all var(--transition-fast); box-shadow: 0 7px 18px var(--skeleton-base);
-}
-.btn-mini-edit:hover {
-  transform: translateY(-1px); box-shadow: 0 12px 34px var(--primary-to); filter: brightness(1.09);
-}
-.btn-mini-edit:active {transform: translateY(1px) scale(0.98);}
-
-/* SMALL BUTTONS */
 .btn-sm {
-  position:relative; padding:11px 18px; border:none; border-radius:999px;
-  background: var(--gradient-primary); color:#fff; cursor:pointer;
-  font-weight:900; font-size:0.85em; transition:transform var(--transition-fast),
-  box-shadow var(--transition-fast), filter 0.17s;
-  box-shadow:0 11px 27px var(--primary-to); overflow:hidden;
+  padding: 11px 18px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.9em;
+  transition: all 0.3s ease;
 }
+
 .btn-sm:hover {
-  transform: translateY(-2px); box-shadow: 0 16px 48px var(--primary-from);
-  filter: brightness(1.09);
-}
-.btn-sm:active {transform: translateY(1px) scale(0.98);}
-.btn-export {background: var(--gradient-success) !important; box-shadow: 0 11px 27px var(--success-to);}
-.btn-export:hover {box-shadow: 0 17px 46px var(--success-to) !important;}
-.btn-reset-all {background: var(--gradient-error) !important; box-shadow: 0 11px 27px var(--error-to);}
-.btn-reset-all:hover {box-shadow: 0 17px 46px var(--error-to) !important;}
-.btn-hidden {display:none !important;}
-.btn-loading {pointer-events:none;opacity:0.82;}
-.btn-loading::after {
-  content: ""; width:17px; height:17px; border-radius:999px; border:2px solid var(--card-border);
-  border-top-color: var(--primary-from); position:absolute; right:14px; top:50%;
-  transform:translateY(-50%); animation:spin 0.7s linear infinite;
+  transform: translateY(-2px);
 }
 
-/* SKELETON LOADING */
-.skeleton {
-  background: linear-gradient(120deg, var(--skeleton-base) 8%, var(--skeleton-highlight) 18%, var(--skeleton-base) 33%);
-  background-size: 200% 100%; animation: skeletonShine 1.3s ease-in-out infinite; border-radius: 999px;
+.btn-export {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%) !important;
 }
-.skeleton-text {height:12px;margin-bottom:8px;}
-.skeleton-block {border-radius:14px;}
-@keyframes skeletonShine {to {background-position-x:-200%;}}
-@keyframes spin {to {transform:translateY(-50%) rotate(360deg);}}
 
-@keyframes slideUp {from {opacity:0;transform:translateY(40px) scale(0.94);} to {opacity:1;transform:translateY(0) scale(1);}}
-@keyframes cardIn {from {opacity:0;transform:translateY(26px) scale(0.94);} to {opacity:1;transform:translateY(0) scale(1);}}
-@keyframes shakeX {0%,100%{transform:translateX(0);} 20%{transform:translateX(-4px);} 40%{transform:translateX(4px);} 60%{transform:translateX(-3px);} 80%{transform:translateX(3px);}}
+.btn-reset-all {
+  background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%) !important;
+}
 
-@media (max-width: 900px) {
-  .cards{grid-template-columns:1fr;}
-  .dash-header{flex-direction:column;align-items:flex-start;}
+.btn-hidden {
+  display: none !important;
 }
-@media (max-width: 600px) {
-  .dashboard{padding:15px 12px 26px;}
-  .dash-title{font-size:1.55em;}
-  .table-header{flex-direction:column;align-items:stretch;}
-  .search-input{min-width:100%;}
-  .cards,.table-wrap{scroll-snap-type:y proximity;}
-  tbody tr{scroll-snap-align:start;}
+
+.table-wrap {
+  max-height: 450px;
+  overflow: auto;
+  border: 1px solid #e0e7ff;
+  border-radius: 12px;
 }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9em;
+}
+
+thead {
+  background: linear-gradient(135deg, #f5f7ff 0%, #eff2ff 100%);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+th, td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #e8ecff;
+}
+
+th {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  cursor: pointer;
+  font-weight: 900;
+  user-select: none;
+}
+
+tr:hover td {
+  background: rgba(102, 126, 234, 0.05);
+}
+
+.status-valid {
+  color: #11998e;
+  font-weight: 900;
+}
+
+.status-invalid {
+  color: #eb3349;
+  font-weight: 900;
+}
+
+.clickable-name {
+  text-decoration: underline;
+  cursor: pointer;
+  color: #667eea;
+}
+
+.vote-status-friend {
+  display: inline-block;
+  padding: 5px 10px;
+  background: linear-gradient(135deg, #d4fc79 0%, #96f97b 100%);
+  color: #2d5016;
+  border-radius: 8px;
+  font-size: 0.8em;
+  font-weight: 700;
+}
+
+.vote-status-enemy {
+  display: inline-block;
+  padding: 5px 10px;
+  background: linear-gradient(135deg, #ffb347 0%, #ffcc99 100%);
+  color: #5c2e0f;
+  border-radius: 8px;
+  font-size: 0.8em;
+  font-weight: 700;
+}
+
+.btn-mini-edit {
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: #667eea;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.8em;
+  transition: all 0.3s ease;
+}
+
+.btn-mini-edit:hover {
+  background: #764ba2;
+}
+
+.footer-note {
+  margin-top: 12px;
+  color: #999;
+  font-size: 0.85em;
+  font-weight: 600;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9000;
+  backdrop-filter: blur(5px);
+}
+
+.overlay.hidden {
+  display: none !important;
+}
+
+.popup {
+  background: #fff;
+  width: 92%;
+  max-width: 500px;
+  border-radius: 16px;
+  padding: 25px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-height: 85vh;
+  overflow-y: auto;
+  animation: slideUp 0.3s ease;
+}
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 900;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 18px;
+  font-size: 1.2em;
+}
+
+.popup-close {
+  background: none;
+  border: none;
+  font-size: 1.5em;
+  cursor: pointer;
+  color: #667eea;
+  transition: all 0.3s ease;
+}
+
+.popup-close:hover {
+  transform: scale(1.2);
+}
+
+.edit-list {
+  max-height: 280px;
+  overflow: auto;
+  border: 2px solid #e0e7ff;
+  border-radius: 12px;
+  padding: 12px;
+  background: #f8f9ff;
+}
+
+.edit-list label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 8px 0;
+  font-weight: 700;
+  color: #333;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.edit-list label:hover {
+  background: #eff2ff;
+}
+
+.edit-list input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #667eea;
+  cursor: pointer;
+}
+
+@media(max-width: 900px) {
+  .charts-grid { grid-template-columns: 1fr; }
+  .committee-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+  .dash-header { flex-direction: column; }
+}
+
+@media(max-width: 600px) {
+  .dashboard { padding: 15px; }
+  .dash-title { font-size: 1.6em; }
+  .committee-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+  .table-header { flex-direction: column; align-items: flex-start; }
+  .search-input { min-width: 100%; }
+}
+
+@keyframes glowGreen {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(17, 153, 142, 0.7); }
+  50% { box-shadow: 0 0 0 10px rgba(17, 153, 142, 0); }
+}
+
+@keyframes glowRed {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(235, 51, 73, 0.7); }
+  50% { box-shadow: 0 0 0 10px rgba(235, 51, 73, 0); }
 }
 </style>
 </head>
 <body>
 
-<!-- Global toast -->
-<div id="global-toast">
-  <div class="toast-icon">🔔</div>
-  <div class="toast-message" id="toast-message"></div>
-  <button class="toast-close" onclick="window.__hideToast()">&times;</button>
-</div>
-
-<!-- Lock Screen -->
 <div id="lock-screen">
   <div class="lock-box">
     <h2>لوحة التحكم</h2>
@@ -502,75 +764,63 @@ tbody tr:hover td {background: var(--skeleton-base);}
       <input id="lock-pass" type="password" placeholder="ادخل كلمة السر" autocomplete="off">
       <span class="lock-toggle" onclick="toggleLockPass()">👁</span>
     </div>
-    <button id="lock-btn" class="btn-primary" onclick="unlockDashboard(event)">دخول</button>
+    <button onclick="unlockDashboard()">دخول</button>
     <div id="lock-error" class="lock-error"></div>
   </div>
 </div>
 
-<!-- Dashboard -->
 <div id="dashboard" class="dashboard hidden">
   <div class="dash-header">
     <div>
-      <div class="dash-title">النتائج الإنتخابية | دائرة المنزلة والدقهلية</div>
+      <div class="dash-title"> النتائج الإنتخابية | دائرة المنزلة والدقهلية</div>
       <div class="dash-subtitle">متابعة مباشرة وتحليل شامل | النظام الأول من نوعه فى مصر</div>
     </div>
-    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+    <div style="display:flex;gap:10px;align-items:center;">
       <div class="live-badge">
         <span class="live-dot"></span>
         <span id="live-status">بث مباشر</span>
       </div>
       <div id="admin-level-badge" class="admin-badge"></div>
-      <button id="theme-toggle" class="theme-toggle" type="button">
-        <span id="theme-icon">🌙</span>
-        <span id="theme-label">الوضع الليلي</span>
-      </button>
     </div>
   </div>
 
   <div id="spike-alert">تنبيه: قفزة عالية في الأصوات!</div>
 
-  <!-- Stat cards -->
   <div class="cards">
-    <div class="card" data-card-index="0">
+    <div class="card">
       <div class="card-title">إجمالي الأصوات</div>
       <div id="total-votes" class="card-value">0</div>
       <div class="card-note">جميع الأصوات المسجلة</div>
     </div>
-    <div class="card" data-card-index="1">
+    <div class="card">
       <div class="card-title">الأصوات الصحيحة</div>
       <div id="valid-votes" class="card-value">0</div>
       <div class="card-note">صحيح</div>
     </div>
-    <div class="card" data-card-index="2">
+    <div class="card">
       <div class="card-title">الأصوات الباطلة</div>
       <div id="invalid-votes" class="card-value">0</div>
       <div class="card-note">باطل</div>
     </div>
-    <div class="card" data-card-index="3">
+    <div class="card">
       <div class="card-title">متوسط أصوات/دقيقة</div>
       <div id="vpm" class="card-value">0</div>
       <div class="card-note">من البداية</div>
     </div>
-    <div class="card" data-card-index="4">
+    <div class="card">
       <div class="card-title">آخر 10 دقائق</div>
       <div id="vpm10" class="card-value">0</div>
       <div class="card-note">السرعة الحالية</div>
     </div>
   </div>
 
-  <!-- Committee Stats -->
   <div class="committee-stats-card">
     <h3>إحصائيات اللجان</h3>
     <div id="committee-grid" class="committee-grid">
-      <!-- Skeleton loading -->
-      <div class="skeleton-block" style="grid-column:1/-1;padding:18px;border-radius:14px;">
-        <div class="skeleton skeleton-text" style="width:30%;height:12px;margin-bottom:8px;"></div>
-        <div class="skeleton skeleton-text" style="width:50%;height:10px;"></div>
-      </div>
+      <div style="padding:20px;text-align:center;color:#999;grid-column:1/-1">جاري التحميل...</div>
     </div>
   </div>
 
-  <!-- Notify Panel -->
   <div class="notify-panel">
     <h3>إرسال رسالة مباشرة</h3>
     <label class="notify-option">
@@ -580,15 +830,14 @@ tbody tr:hover td {background: var(--skeleton-base);}
     <label class="notify-option">
       <input type="radio" name="notify-target" value="one">
       <span>لجنة رقم:
-        <input id="notify-committee" type="number" min="1" max="60" value="1" style="width:80px; padding:6px; border-radius:8px; border:1px solid rgba(148,163,184,0.6); background:rgba(15,23,42,0.9); color:#e5e7eb;">
+        <input id="notify-committee" type="number" min="1" max="60" value="1" style="width:80px; padding:6px; border-radius:8px; border:2px solid #e0e7ff;">
       </span>
     </label>
     <textarea id="notify-message" placeholder="اكتب الرسالة..."></textarea>
-    <button id="notify-btn" class="btn-sm" style="width:100%;margin-top:6px" onclick="sendNotification(event)">ارسال</button>
+    <button class="btn-sm" style="width:100%;margin-top:8px" onclick="sendNotification()">ارسال</button>
     <div id="notify-result"></div>
   </div>
 
-  <!-- Charts -->
   <div class="charts-grid">
     <div class="chart-card">
       <h3>الأصوات لكل مرشح</h3>
@@ -605,24 +854,19 @@ tbody tr:hover td {background: var(--skeleton-base);}
     <canvas id="chartVPM"></canvas>
   </div>
 
-  <!-- Ranking -->
   <div class="ranking-card">
     <h3>ترتيب المرشحين</h3>
     <div id="ranking-list" class="ranking-list">
-      <div class="skeleton-block" style="padding:18px;border-radius:14px;">
-        <div class="skeleton skeleton-text" style="width:50%;height:12px;margin-bottom:7px;"></div>
-        <div class="skeleton skeleton-text" style="width:30%;height:10px;"></div>
-      </div>
+      <div style="padding:20px;text-align:center;color:#999">جاري التحميل...</div>
     </div>
   </div>
 
-  <!-- Table -->
   <div class="table-card">
     <div class="table-header">
       <input id="search" class="search-input" placeholder="بحث...">
-      <div style="display:flex; gap:8px;flex-wrap:wrap;">
-        <button class="btn-sm btn-export" onclick="exportCSV(event)">تصدير CSV</button>
-        <button id="btn-reset-all" class="btn-sm btn-reset-all" onclick="resetAll(event)">تصفير</button>
+      <div style="display:flex; gap:8px;">
+        <button class="btn-sm btn-export" onclick="exportCSV()">تصدير CSV</button>
+        <button id="btn-reset-all" class="btn-sm btn-reset-all" onclick="resetAll()">تصفير</button>
       </div>
     </div>
     <div class="table-wrap">
@@ -638,53 +882,38 @@ tbody tr:hover td {background: var(--skeleton-base);}
             <th id="edit-col">تعديل</th>
           </tr>
         </thead>
-        <tbody id="votes-table">
-          <!-- Skeleton rows -->
-          <tr>
-            <td colspan="7">
-              <div class="skeleton-block" style="height:32px;"></div>
-            </td>
-          </tr>
-          <tr>
-            <td colspan="7">
-              <div class="skeleton-block" style="height:32px;"></div>
-            </td>
-          </tr>
-        </tbody>
+        <tbody id="votes-table"></tbody>
       </table>
     </div>
     <div id="footer-note" class="footer-note">لا توجد بيانات</div>
   </div>
 </div>
 
-<!-- Details Popup -->
 <div id="details-popup" class="overlay hidden">
   <div class="popup">
     <div class="popup-header">
       <h3>تفاصيل الناخب</h3>
-      <button class="popup-close" onclick="closeDetails()">×</button>
+      <button class="popup-close" onclick="closeDetails()">x</button>
     </div>
     <div id="details-body" style="padding:10px;"></div>
   </div>
 </div>
 
-<!-- Committee Popup -->
 <div id="committee-popup" class="overlay hidden">
   <div class="popup">
     <div class="popup-header">
       <h3 id="committee-popup-title">تفاصيل اللجنة</h3>
-      <button class="popup-close" onclick="closeCommitteePopup()">×</button>
+      <button class="popup-close" onclick="closeCommitteePopup()">x</button>
     </div>
     <div id="committee-popup-body" style="padding:10px;"></div>
   </div>
 </div>
 
-<!-- Edit Popup -->
 <div id="edit-popup" class="overlay hidden">
   <div class="popup">
     <div class="popup-header">
       <h3>تعديل المرشحين</h3>
-      <button class="popup-close" onclick="closeEdit()">×</button>
+      <button class="popup-close" onclick="closeEdit()">x</button>
     </div>
     <div style="padding:10px;">
       <p id="edit-name" style="font-weight:700;margin-bottom:10px;"></p>
@@ -697,6 +926,7 @@ tbody tr:hover td {background: var(--skeleton-base);}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js"></script>
 
 <script type="module">
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getDatabase, ref, onValue, update, remove, set } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
@@ -719,262 +949,7 @@ let chartCandidates = null;
 let chartValidity = null;
 let chartVPM = null;
 let adminLevel = 0;
-let votesListener = null;
 
-/* =========== THEME HANDLING =========== */
-const root = document.documentElement;
-const THEME_KEY = "election-dashboard-theme";
-
-function applyTheme(theme) {
-  root.setAttribute("data-theme", theme);
-  const icon = document.getElementById("theme-icon");
-  const label = document.getElementById("theme-label");
-  if (theme === "light") {
-    icon.textContent = "☀️";
-    label.textContent = "الوضع الفاتح";
-  } else {
-    icon.textContent = "🌙";
-    label.textContent = "الوضع الليلي";
-  }
-}
-
-function initTheme() {
-  const saved = localStorage.getItem(THEME_KEY);
-  if (saved === "light" || saved === "dark") {
-    applyTheme(saved);
-  } else {
-    // auto based on system
-    const pref = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
-    applyTheme(pref);
-  }
-}
-
-document.getElementById("theme-toggle").addEventListener("click", () => {
-  const current = root.getAttribute("data-theme") || "dark";
-  const next = current === "dark" ? "light" : "dark";
-  applyTheme(next);
-  localStorage.setItem(THEME_KEY, next);
-});
-
-initTheme();
-
-/* =========== TOAST =========== */
-let toastTimeout = null;
-const toastEl = document.getElementById("global-toast");
-const toastMsg = document.getElementById("toast-message");
-
-window.__showToast = function(message, options = {}) {
-  const { type = "info", duration = 3800 } = options;
-  toastMsg.textContent = message;
-
-  // icon and gradient based on type
-  const iconEl = toastEl.querySelector(".toast-icon");
-  if (type === "success") {
-    iconEl.textContent = "✅";
-    toastEl.style.borderColor = "rgba(16, 185, 129, 0.9)";
-  } else if (type === "error") {
-    iconEl.textContent = "⚠️";
-    toastEl.style.borderColor = "rgba(248, 113, 113, 0.9)";
-  } else if (type === "warning") {
-    iconEl.textContent = "⚠️";
-    toastEl.style.borderColor = "rgba(250, 204, 21, 0.9)";
-  } else {
-    iconEl.textContent = "🔔";
-    toastEl.style.borderColor = "rgba(129, 140, 248, 0.9)";
-  }
-
-  toastEl.classList.remove("hide");
-  toastEl.classList.add("show");
-
-  if (toastTimeout) clearTimeout(toastTimeout);
-  toastTimeout = setTimeout(() => {
-    window.__hideToast();
-  }, duration);
-};
-
-window.__hideToast = function() {
-  toastEl.classList.remove("show");
-  toastEl.classList.add("hide");
-};
-
-/* =========== LOCK SCREEN / AUTH =========== */
-window.toggleLockPass = function() {
-  const inp = document.getElementById("lock-pass");
-  inp.type = inp.type === "password" ? "text" : "password";
-};
-
-window.unlockDashboard = function(evt) {
-  if (evt) evt.preventDefault();
-  const value = document.getElementById("lock-pass").value.trim();
-  const err = document.getElementById("lock-error");
-  const btn = document.getElementById("lock-btn");
-
-  const showError = (msg) => {
-    err.textContent = msg;
-    err.style.display = "block";
-    err.classList.remove("hidden");
-    window.__showToast(msg, { type: "error" });
-    setTimeout(() => {
-      err.style.display = "none";
-    }, 2300);
-  };
-
-  if (!value) {
-    showError("ادخل كلمة السر");
-    return;
-  }
-
-  btn.classList.add("btn-loading");
-
-  // Simulate tiny delay for micro interaction
-  setTimeout(() => {
-    if (value === "251988") {
-      adminLevel = 1;
-      document.getElementById("lock-screen").classList.add("hidden");
-      document.getElementById("dashboard").classList.remove("hidden");
-      document.getElementById("admin-level-badge").textContent = "🔑 مهندس محمد حماد";
-      __showToast("مرحبا بك يا مهندس محمد حماد - صلاحيات كاملة!", { type: "success" });
-      setupVotesListener();
-    } else if (value === "451125") {
-      adminLevel = 2;
-      document.getElementById("lock-screen").classList.add("hidden");
-      document.getElementById("dashboard").classList.remove("hidden");
-      document.getElementById("admin-level-badge").textContent = "👁 مراقب";
-      __showToast("مرحبا بكم فى عالم التحكم الكامل والمراقبة", { type: "info" });
-      document.getElementById("btn-reset-all").classList.add("btn-hidden");
-      document.getElementById("edit-col").classList.add("hidden");
-      setupVotesListener();
-    } else {
-      showError("كلمة سر غير صحيحة");
-    }
-    btn.classList.remove("btn-loading");
-  }, 350);
-};
-
-document.getElementById("lock-pass").addEventListener("keydown", e => {
-  if (e.key === "Enter") unlockDashboard(e);
-});
-
-/* =========== FIREBASE LISTENER =========== */
-function setupVotesListener() {
-  if (votesListener) votesListener();
-
-  const votesRef = ref(db, "votes");
-  votesListener = onValue(votesRef, snapshot => {
-    const data = snapshot.val() || {};
-    allVotes = Object.entries(data).map(([id, v], i) => ({
-      id,
-      index: i + 1,
-      name: v.name || "No Name",
-      candidates: Array.isArray(v.selected) ? v.selected : [],
-      validity: v.vote_validity || "",
-      timestamp: v.timestamp || 0,
-      committee: v.committee || 0
-    }));
-    renderAll();
-  });
-}
-
-/* =========== RENDERING =========== */
-function renderAll() {
-  renderStats();
-  renderCommitteeStats();
-  renderCharts();
-  renderRanking();
-  renderTable();
-  revealCardsStaggered();
-}
-
-/* Number counter helper */
-function animateCounter(el, to, duration = 700) {
-  const from = Number(el.textContent.replace(/,/g, "")) || 0;
-  const diff = to - from;
-  if (diff === 0) return;
-  const start = performance.now();
-
-  const step = (now) => {
-    const progress = Math.min((now - start) / duration, 1);
-    const value = from + diff * progress;
-    el.textContent = Number.isInteger(to)
-      ? Math.floor(value).toLocaleString("ar-EG")
-      : value.toFixed(2);
-    if (progress < 1) requestAnimationFrame(step);
-  };
-  requestAnimationFrame(step);
-}
-
-/* Cards staggered entry */
-function revealCardsStaggered() {
-  const cards = document.querySelectorAll(".card");
-  cards.forEach((card, index) => {
-    if (card.classList.contains("card--visible")) return;
-    setTimeout(() => {
-      card.classList.add("card--visible");
-    }, index * 80);
-  });
-}
-
-/* STATS */
-function renderStats() {
-  const total = allVotes.length;
-  const valid = allVotes.filter(v => v.validity === "صحيح").length;
-  const invalid = allVotes.filter(v => v.validity === "باطل").length;
-
-  animateCounter(document.getElementById("total-votes"), total);
-  animateCounter(document.getElementById("valid-votes"), valid);
-  animateCounter(document.getElementById("invalid-votes"), invalid);
-
-  const liveTxt = document.getElementById("live-status");
-  const now = Date.now();
-
-  if (total > 0) {
-    const sorted = [...allVotes].filter(v => v.timestamp).sort((a, b) => a.timestamp - b.timestamp);
-    if (sorted.length === 0) {
-      document.getElementById("vpm").textContent = "0";
-      document.getElementById("vpm10").textContent = "0";
-      liveTxt.textContent = "لا يوجد تصويت حالياً";
-      return;
-    }
-
-    const firstTs = sorted[0].timestamp;
-    const lastTs = sorted[sorted.length - 1].timestamp;
-    const diffMin = (lastTs - firstTs) / 60000;
-    let vpm = diffMin > 0 ? (total / diffMin) : 0;
-    animateCounter(document.getElementById("vpm"), vpm, 800);
-
-    const tenMinAgo = now - (10 * 60 * 1000);
-    const last10 = allVotes.filter(v => v.timestamp >= tenMinAgo);
-    let vpm10 = 0;
-    if (last10.length > 0) {
-      const firstInWindow = Math.min(...last10.map(x => x.timestamp));
-      const span = (now - firstInWindow) / 60000;
-      vpm10 = last10.length / (span || 1);
-    }
-    animateCounter(document.getElementById("vpm10"), vpm10, 800);
-
-    if (now - lastTs < 25000) liveTxt.textContent = "نشاط عالي";
-    else liveTxt.textContent = "نشاط مستقر";
-
-    const lastMin = allVotes.filter(v => v.timestamp >= (now - 60000)).length;
-    const spikeEl = document.getElementById("spike-alert");
-    if (total >= 5 && vpm10 > 0 && lastMin >= 3 && lastMin > (vpm10 * 2)) {
-      if (spikeEl.style.display !== "block") {
-        spikeEl.style.display = "block";
-        spikeEl.style.animation = "spikeSlideIn 0.35s ease-out, spikeGlow 1.6s ease-out infinite";
-      }
-    } else {
-      spikeEl.style.display = "none";
-      spikeEl.style.animation = "none";
-    }
-  } else {
-    document.getElementById("vpm").textContent = "0";
-    document.getElementById("vpm10").textContent = "0";
-    liveTxt.textContent = "لا يوجد تصويت حالياً";
-    document.getElementById("spike-alert").style.display = "none";
-  }
-}
-
-/* Committee data constant */
 const committeeData = {
   1:  { name: "الفروسات", address: "مدرسة احمد القصبى الابتدائية" },
   2:  { name: "الفروسات", address: "مدرسة احمد القصبى الابتدائية" },
@@ -1038,160 +1013,281 @@ const committeeData = {
   60: { name: "سوق الجمعة", address: "مدرسة الامام علي الابتدائية" }
 };
 
-/* Committee stats */
-function renderCommitteeStats() {
+  
+const candidatesNames = [
+  "ايهاب العمده","محمد العتمانى","أحمد الحديدى",
+  "عادل الجيار","احمد محمد محمد سمره","وليد تيسير الامير",
+  "كمال العيسوى","البدوى جميز","احمد الريس",
+  "أحمد عوف","حسن الملهاط","عمرو محمد بحيرى",
+  "السيد طمان","محمد دندن","مجدى الأمير"
+];
+
+window.toggleLockPass = function(){
+  const inp = document.getElementById("lock-pass");
+  inp.type = inp.type === "password" ? "text" : "password";
+};
+
+window.unlockDashboard = function(){
+  const value = document.getElementById("lock-pass").value.trim();
+  const err = document.getElementById("lock-error");
+  
+  if(value === "251988"){
+    adminLevel = 1;
+    document.getElementById("lock-screen").classList.add("hidden");
+    document.getElementById("dashboard").classList.remove("hidden");
+    document.getElementById("admin-level-badge").textContent = "🔑 مهندس محمد حماد";
+    showNotification("مرحبا بك يا مهندس محمد حماد - صلاحيات كاملة!");
+    setupVotesListener();
+  } else if(value === "451125"){
+    adminLevel = 2;
+    document.getElementById("lock-screen").classList.add("hidden");
+    document.getElementById("dashboard").classList.remove("hidden");
+    document.getElementById("admin-level-badge").textContent = "👁 مراقب";
+    showNotification("مرحبا بكم فى عالم التحكم الكامل والمراقبة");
+    document.getElementById("btn-reset-all").classList.add("btn-hidden");
+    document.querySelectorAll(".btn-mini-edit").forEach(btn => btn.classList.add("btn-hidden"));
+    document.getElementById("edit-col").classList.add("hidden");
+    setupVotesListener();
+  } else {
+    err.textContent = "كلمة سر غير صحيحة";
+    err.style.display = "block";
+    setTimeout(() => err.style.display = "none", 2300);
+  }
+};
+
+document.getElementById("lock-pass").addEventListener("keydown", e => {
+  if(e.key === "Enter") unlockDashboard();
+});
+
+function showNotification(msg){
+  const box = document.createElement("div");
+  box.style.cssText = "position:fixed;bottom:20px;right:20px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:16px 20px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.3);z-index:99999;font-size:1em;max-width:300px;";
+  box.innerText = msg;
+  document.body.appendChild(box);
+  setTimeout(() => box.remove(), 4000);
+}
+
+let votesListener = null;
+
+function setupVotesListener() {
+  if(votesListener) votesListener();
+  
+  const votesRef = ref(db, "votes");
+  votesListener = onValue(votesRef, snapshot => {
+    const data = snapshot.val() || {};
+    allVotes = Object.entries(data).map(([id, v], i) => ({
+      id,
+      index: i + 1,
+      name: v.name || "No Name",
+      candidates: Array.isArray(v.selected) ? v.selected : [],
+      validity: v.vote_validity || "",
+      timestamp: v.timestamp || 0,
+      committee: v.committee || 0
+    }));
+    renderAll();
+  });
+}
+
+setupVotesListener();
+
+function renderAll(){
+  renderStats();
+  renderCommitteeStats();
+  renderCharts();
+  renderRanking();
+  renderTable();
+}
+
+function renderStats(){
+  const total = allVotes.length;
+  const valid = allVotes.filter(v => v.validity === "صحيح").length;
+  const invalid = allVotes.filter(v => v.validity === "باطل").length;
+
+  document.getElementById("total-votes").textContent = total;
+  document.getElementById("valid-votes").textContent = valid;
+  document.getElementById("invalid-votes").textContent = invalid;
+
+  const liveTxt = document.getElementById("live-status");
+  const now = Date.now();
+
+  if(total > 0){
+    const sorted = [...allVotes].filter(v => v.timestamp).sort((a, b) => a.timestamp - b.timestamp);
+    if(sorted.length === 0){
+      document.getElementById("vpm").textContent = "0";
+      document.getElementById("vpm10").textContent = "0";
+      liveTxt.textContent = "لا يوجد تصويت حالياً";
+      return;
+    }
+
+    const firstTs = sorted[0].timestamp;
+    const lastTs = sorted[sorted.length - 1].timestamp;
+    const diffMin = (lastTs - firstTs) / 60000;
+    let vpm = diffMin > 0 ? (total / diffMin) : 0;
+    document.getElementById("vpm").textContent = vpm.toFixed(2);
+
+    const tenMinAgo = now - (10 * 60 * 1000);
+    const last10 = allVotes.filter(v => v.timestamp >= tenMinAgo);
+    let vpm10 = 0;
+    if(last10.length > 0){
+      const firstInWindow = Math.min(...last10.map(x => x.timestamp));
+      const span = (now - firstInWindow) / 60000;
+      vpm10 = last10.length / (span || 1);
+    }
+    document.getElementById("vpm10").textContent = vpm10.toFixed(2);
+
+    if(now - lastTs < 25000) liveTxt.textContent = "نشاط عالي";
+    else liveTxt.textContent = "نشاط مستقر";
+
+    const lastMin = allVotes.filter(v => v.timestamp >= (now - 60000)).length;
+    if(total >= 5 && vpm10 > 0 && lastMin >= 3 && lastMin > (vpm10 * 2)){
+      document.getElementById("spike-alert").style.display = "block";
+    } else {
+      document.getElementById("spike-alert").style.display = "none";
+    }
+  } else {
+    document.getElementById("vpm").textContent = "0";
+    document.getElementById("vpm10").textContent = "0";
+    liveTxt.textContent = "لا يوجد تصويت حالياً";
+  }
+}
+
+function renderCommitteeStats(){
   const grid = document.getElementById("committee-grid");
   const commData = {};
-
-  for (let i = 1; i <= 60; i++) {
+  
+  for(let i = 1; i <= 60; i++){
     commData[i] = { total: 0, valid: 0, invalid: 0, votes: [], lastVoteValidity: null };
   }
-
+  
   allVotes.forEach(v => {
     const comm = v.committee || 0;
-    if (comm >= 1 && comm <= 60) {
+    if(comm >= 1 && comm <= 60){
       commData[comm].total++;
       commData[comm].votes.push(v);
-      if (v.validity === "صحيح") commData[comm].valid++;
-      if (v.validity === "باطل") commData[comm].invalid++;
+      if(v.validity === "صحيح") commData[comm].valid++;
+      if(v.validity === "باطل") commData[comm].invalid++;
       commData[comm].lastVoteValidity = v.validity;
     }
   });
-
+  
   grid.innerHTML = "";
-  for (let i = 1; i <= 60; i++) {
+  for(let i = 1; i <= 60; i++){
     const data = commData[i];
     const info = committeeData[i] || { name: "لجنة", address: "بدون عنوان" };
     const item = document.createElement("div");
     item.className = "committee-item";
     item.dataset.committee = i;
-
-    if (data.lastVoteValidity === "صحيح") {
-      item.style.background = "linear-gradient(135deg, rgba(17,153,142,0.35) 0%, rgba(150,249,123,0.2) 100%)";
-      item.style.borderColor = "#16a34a";
-    } else if (data.lastVoteValidity === "باطل") {
-      item.style.background = "linear-gradient(135deg, rgba(235,51,73,0.35) 0%, rgba(244,92,67,0.2) 100%)";
-      item.style.borderColor = "#f97373";
+    
+    if(data.lastVoteValidity === "صحيح"){
+      item.style.background = "linear-gradient(135deg, rgba(17, 153, 142, 0.15) 0%, rgba(150, 249, 123, 0.15) 100%)";
+      item.style.borderLeft = "4px solid #11998e";
+    } else if(data.lastVoteValidity === "باطل"){
+      item.style.background = "linear-gradient(135deg, rgba(235, 51, 73, 0.15) 0%, rgba(244, 92, 67, 0.15) 100%)";
+      item.style.borderLeft = "4px solid #eb3349";
+    } else {
+      item.style.background = "linear-gradient(135deg, #f5f7ff 0%, #eff2ff 100%)";
+      item.style.borderLeft = "4px solid #667eea";
     }
-
+    
     item.onclick = () => showCommitteeDetails(i, data);
-    item.innerHTML =
-      "<div class='committee-num'>اللجنة " + i + "</div>" +
-      "<div class='committee-name'>" + info.name + "</div>" +
-      "<div class='committee-address'>" + info.address + "</div>" +
-      "<div class='committee-count'>" + data.total + " صوت</div>" +
-      "<div class='committee-count'>✓ " + data.valid + " | ✗ " + data.invalid + "</div>";
+    item.innerHTML = "<div class='committee-num'>اللجنة " + i + "</div><div class='committee-name'>" + info.name + "</div><div class='committee-address'>" + info.address + "</div><div class='committee-count'>" + data.total + " صوت</div><div class='committee-count'>✓ " + data.valid + " | ✗ " + data.invalid + "</div>";
     grid.appendChild(item);
   }
-
-  // intersection observer for committee items
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.classList.add("committee--visible");
-        observer.unobserve(e.target);
-      }
-    });
-  }, { threshold: 0.15 });
-
-  document.querySelectorAll(".committee-item").forEach(el => observer.observe(el));
 }
 
-/* COMMITTEE POPUP */
-window.showCommitteeDetails = function(num, data) {
+window.showCommitteeDetails = function(num, data){
   const popup = document.getElementById("committee-popup");
   const title = document.getElementById("committee-popup-title");
   const body = document.getElementById("committee-popup-body");
   const info = committeeData[num] || { name: "لجنة", address: "بدون عنوان" };
-
+  
   title.textContent = info.name + " " + num;
-
+  
   const ourVotes = data.votes.filter(v => v.candidates.includes("أحمد الحديدى") && v.candidates.includes("البدوى جميز")).length;
   const theirVotes = data.total - ourVotes;
   const percentage = data.total > 0 ? ((ourVotes / data.total) * 100).toFixed(1) : 0;
   const now = Date.now();
-
+  
   let vpm = 0;
   const sorted = [...data.votes].filter(v => v.timestamp).sort((a, b) => a.timestamp - b.timestamp);
-  if (sorted.length > 0) {
+  if(sorted.length > 0){
     const firstTs = sorted[0].timestamp;
     const lastTs = sorted[sorted.length - 1].timestamp;
     const diffMin = (lastTs - firstTs) / 60000;
-    if (diffMin > 0) vpm = data.total / diffMin;
+    if(diffMin > 0) vpm = data.total / diffMin;
   }
-
+  
   let vpm10 = 0;
   const tenMinAgo = now - (10 * 60 * 1000);
   const last10 = data.votes.filter(v => v.timestamp >= tenMinAgo);
-  if (last10.length > 0) {
+  if(last10.length > 0){
     const firstInWindow = Math.min(...last10.map(x => x.timestamp));
     const span = (now - firstInWindow) / 60000;
     vpm10 = last10.length / (span || 1);
   }
-
-  let html = "<div style='background:#0f172a;padding:15px;border-radius:12px;margin-bottom:15px;border:1px solid rgba(148,163,184,0.6);'>";
-  html += "<div style='margin-bottom:8px;font-size:0.9em;color:#a5b4fc;font-weight:700;'>" + info.address + "</div>";
+  
+  let html = "<div style='background:#f5f7ff;padding:15px;border-radius:12px;margin-bottom:15px;border-left:4px solid #667eea;'>";
+  html += "<div style='margin-bottom:8px;font-size:0.9em;color:#667eea;font-weight:700;'>" + info.address + "</div>";
   html += "<div style='display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;'>";
-  html += "<div><small style='color:#9ca3af;font-weight:600;'>إجمالي الأصوات</small><div style='font-size:1.5em;font-weight:900;color:#f9fafb;'>" + data.total + "</div></div>";
-  html += "<div><small style='color:#22c55e;font-weight:600;'>حالة اللجنة</small><div style='font-size:1.2em;font-weight:900;color:#22c55e;'>نشطة</div></div>";
+  html += "<div><small style='color:#999;font-weight:600;'>إجمالي الأصوات</small><div style='font-size:1.5em;font-weight:900;color:#667eea;'>" + data.total + "</div></div>";
+  html += "<div><small style='color:#999;font-weight:600;'>حالة اللجنة</small><div style='font-size:1.2em;font-weight:900;color:#11998e;'>نشطة</div></div>";
   html += "</div>";
   html += "<div style='margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:10px;'>";
-  html += "<div><small style='color:#22c55e;font-weight:600;'>أصوات صحيحة</small><div style='font-size:1.3em;font-weight:900;color:#22c55e;'>" + data.valid + "</div></div>";
-  html += "<div><small style='color:#f97373;font-weight:600;'>أصوات باطلة</small><div style='font-size:1.3em;font-weight:900;color:#f97373;'>" + data.invalid + "</div></div>";
+  html += "<div><small style='color:#11998e;font-weight:600;'>أصوات صحيحة</small><div style='font-size:1.3em;font-weight:900;color:#11998e;'>" + data.valid + "</div></div>";
+  html += "<div><small style='color:#eb3349;font-weight:600;'>أصوات باطلة</small><div style='font-size:1.3em;font-weight:900;color:#eb3349;'>" + data.invalid + "</div></div>";
   html += "</div></div>";
-
-  html += "<div style='background:#022c22;padding:12px;border-radius:10px;margin-bottom:15px;border:1px solid rgba(45,212,191,0.6);'>";
-  html += "<small style='color:#6ee7b7;font-weight:600;'>متوسط الأصوات/دقيقة (من البداية)</small>";
-  html += "<div style='font-size:1.4em;font-weight:900;color:#a7f3d0;'>" + vpm.toFixed(2) + "</div>";
+  
+  html += "<div style='background:#e8f5e9;padding:12px;border-radius:10px;margin-bottom:15px;border-left:4px solid #11998e;'>";
+  html += "<small style='color:#11998e;font-weight:600;'>متوسط الأصوات/دقيقة (من البداية)</small>";
+  html += "<div style='font-size:1.5em;font-weight:900;color:#11998e;'>" + vpm.toFixed(2) + "</div>";
   html += "</div>";
-
-  html += "<div style='background:#451a03;padding:12px;border-radius:10px;margin-bottom:15px;border:1px solid rgba(251,191,36,0.7);'>";
-  html += "<small style='color:#fed7aa;font-weight:600;'>متوسط الأصوات/دقيقة (آخر 10 دقائق)</small>";
-  html += "<div style='font-size:1.4em;font-weight:900;color:#fed7aa;'>" + vpm10.toFixed(2) + "</div>";
+  
+  html += "<div style='background:#fff3e0;padding:12px;border-radius:10px;margin-bottom:15px;border-left:4px solid #ff9800;'>";
+  html += "<small style='color:#e65100;font-weight:600;'>متوسط الأصوات/دقيقة (آخر 10 دقائق)</small>";
+  html += "<div style='font-size:1.5em;font-weight:900;color:#e65100;'>" + vpm10.toFixed(2) + "</div>";
   html += "</div>";
-
-  html += "<div style='background:#166534;padding:12px;border-radius:10px;margin-bottom:15px;text-align:center;border:1px solid rgba(34,197,94,0.9);'>";
-  html += "<small style='color:#bbf7d0;font-weight:600;'>أصواتنا</small>";
-  html += "<div style='font-size:1.8em;font-weight:900;color:#bbf7d0;'>" + ourVotes + " (" + percentage + "%)</div>";
+  
+  html += "<div style='background:#d4fc79;padding:12px;border-radius:10px;margin-bottom:15px;text-align:center;border-left:4px solid #2d5016;'>";
+  html += "<small style='color:#2d5016;font-weight:600;'>أصواتنا</small>";
+  html += "<div style='font-size:1.8em;font-weight:900;color:#2d5016;'>" + ourVotes + " (" + percentage + "%)</div>";
   html += "</div>";
-
-  html += "<div style='background:#78350f;padding:12px;border-radius:10px;margin-bottom:15px;text-align:center;border:1px solid rgba(251,146,60,0.9);'>";
-  html += "<small style='color:#fed7aa;font-weight:600;'>أصوات أخرى</small>";
-  html += "<div style='font-size:1.8em;font-weight:900;color:#fed7aa;'>" + theirVotes + "</div>";
+  
+  html += "<div style='background:#ffb347;padding:12px;border-radius:10px;margin-bottom:15px;text-align:center;border-left:4px solid #5c2e0f;'>";
+  html += "<small style='color:#5c2e0f;font-weight:600;'>أصوات أخرى</small>";
+  html += "<div style='font-size:1.8em;font-weight:900;color:#5c2e0f;'>" + theirVotes + "</div>";
   html += "</div>";
-
-  if (data.votes.length > 0) {
-    html += "<h4 style='color:#a5b4fc;margin:15px 0 10px 0;font-weight:900;border-bottom:2px solid rgba(148,163,184,0.6);padding-bottom:8px;'>الناخبين (" + data.votes.length + ")</h4>";
+  
+  if(data.votes.length > 0){
+    html += "<h4 style='color:#667eea;margin:15px 0 10px 0;font-weight:900;border-bottom:2px solid #e0e7ff;padding-bottom:8px;'>الناخبين (" + data.votes.length + ")</h4>";
     html += "<div style='max-height:300px;overflow-y:auto;'>";
     data.votes.forEach((v, i) => {
       const isOur = v.candidates.includes("أحمد الحديدى") && v.candidates.includes("البدوى جميز");
       const statusLabel = isOur ? "تبعنا" : "مش تبعنا";
       const validityIcon = v.validity === "صحيح" ? "✓" : "✗";
-      const bgColor = isOur ? "rgba(22,163,74,0.1)" : "rgba(251,146,60,0.1)";
-      const borderColor = isOur ? "#22c55e" : "#fb923c";
+      const bgColor = isOur ? "rgba(212,252,121,0.2)" : "rgba(255,179,71,0.2)";
+      const borderColor = isOur ? "#96f97b" : "#ffb347";
       html += "<div style='padding:10px;margin-bottom:8px;background:" + bgColor + ";border-radius:10px;border-right:4px solid " + borderColor + ";'>";
-      html += "<div style='font-weight:700;color:#e5e7eb;margin-bottom:4px;'>" + (i + 1) + ". " + v.name + "</div>";
-      html += "<div style='font-size:0.85em;color:#9ca3af;margin-bottom:4px;'>المرشحين: " + (v.candidates.join(" و ") || "—") + "</div>";
+      html += "<div style='font-weight:700;color:#333;margin-bottom:4px;'>" + (i + 1) + ". " + v.name + "</div>";
+      html += "<div style='font-size:0.85em;color:#666;margin-bottom:4px;'>المرشحين: " + (v.candidates.join(" و ") || "—") + "</div>";
       html += "<div style='display:flex;gap:8px;font-size:0.85em;'>";
-      html += "<span style='padding:3px 8px;background:" + (v.validity === "صحيح" ? "#064e3b" : "#7f1d1d") + ";border-radius:6px;color:#f9fafb;font-weight:700;'>" + validityIcon + " " + v.validity + "</span>";
-      html += "<span style='padding:3px 8px;background:#111827;border-radius:6px;color:#e5e7eb;'>" + statusLabel + "</span>";
+      html += "<span style='padding:3px 8px;background:" + (v.validity === "صحيح" ? "#c8e6c9" : "#ffccbc") + ";border-radius:6px;color:#333;font-weight:700;'>" + validityIcon + " " + v.validity + "</span>";
+      html += "<span style='padding:3px 8px;background:#e8f5e9;border-radius:6px;color:#333;'>" + statusLabel + "</span>";
       html += "</div></div>";
     });
     html += "</div>";
   } else {
-    html += "<p style='color:#9ca3af;text-align:center;padding:20px;background:#020617;border-radius:10px;'>لا توجد أصوات</p>";
+    html += "<p style='color:#999;text-align:center;padding:20px;background:#f5f7ff;border-radius:10px;'>لا توجد أصوات</p>";
   }
-
+  
   body.innerHTML = html;
   popup.classList.remove("hidden");
 };
 
-window.closeCommitteePopup = function() {
+window.closeCommitteePopup = function(){
   document.getElementById("committee-popup").classList.add("hidden");
 };
 
-/* CHARTS */
-function renderCharts() {
+function renderCharts(){
   const ctx1 = document.getElementById("chartCandidates").getContext("2d");
   const ctx2 = document.getElementById("chartValidity").getContext("2d");
   const ctx3 = document.getElementById("chartVPM").getContext("2d");
@@ -1201,37 +1297,15 @@ function renderCharts() {
   const labels = Object.keys(counts).length > 0 ? Object.keys(counts) : ["لا توجد بيانات"];
   const data = Object.keys(counts).length > 0 ? Object.values(counts) : [0];
 
-  if (chartCandidates) {
+  if(chartCandidates){
     chartCandidates.data.labels = labels;
     chartCandidates.data.datasets[0].data = data;
     chartCandidates.update();
   } else {
     chartCandidates = new Chart(ctx1, {
       type: "bar",
-      data: {
-        labels: labels,
-        datasets: [{
-          label: "الأصوات",
-          data: data,
-          backgroundColor: "rgba(99, 102, 241, 0.85)",
-          borderColor: "#a855f7",
-          borderWidth: 1.5
-        }]
-      },
-      options: {
-        responsive: true,
-        animation: { duration: 600 },
-        plugins: { legend: { display: false } },
-        scales: {
-          x: {
-            ticks: { color: "#e5e7eb", maxRotation: 60, minRotation: 0 }
-          },
-          y: {
-            beginAtZero: true,
-            ticks: { color: "#e5e7eb" }
-          }
-        }
-      }
+      data: { labels: labels, datasets: [{ label: "الأصوات", data: data, backgroundColor: "#667eea" }] },
+      options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
     });
   }
 
@@ -1239,86 +1313,52 @@ function renderCharts() {
   const invalid = allVotes.filter(v => v.validity === "باطل").length;
   const total = valid + invalid;
 
-  if (chartValidity) {
+  if(chartValidity){
     chartValidity.data.datasets[0].data = total > 0 ? [valid, invalid] : [0, 0];
-    chartValidity.data.labels = [
-      "صحيح (" + valid + ")",
-      "باطل (" + invalid + ")"
-    ];
     chartValidity.update();
   } else {
     chartValidity = new Chart(ctx2, {
       type: "doughnut",
-      data: {
-        labels: ["صحيح (" + valid + ")", "باطل (" + invalid + ")"],
-        datasets: [{
-          data: total > 0 ? [valid, invalid] : [0, 0],
-          backgroundColor: ["#22c55e", "#f97373"]
-        }]
+      data: { 
+        labels: ["صحيح (" + valid + ")", "باطل (" + invalid + ")"], 
+        datasets: [{ data: total > 0 ? [valid, invalid] : [0, 0], backgroundColor: ["#11998e", "#eb3349"] }] 
       },
-      options: {
-        cutout: "55%",
-        animation: { duration: 600 },
-        plugins: { legend: { position: "bottom", labels: { color: "#e5e7eb" } } }
-      }
+      options: { cutout: "55%", plugins: { legend: { position: "bottom" } } }
     });
   }
 
   const minutes = {};
   allVotes.forEach(v => {
-    if (!v.timestamp) return;
+    if(!v.timestamp) return;
     const key = Math.floor(v.timestamp / 60000) * 60000;
     minutes[key] = (minutes[key] || 0) + 1;
   });
 
   const minuteKeys = Object.keys(minutes).map(Number).sort((a, b) => a - b);
-  const minuteLabels = minuteKeys.length > 0 ?
-    minuteKeys.map(t => new Date(t).toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" })) :
-    ["لا توجد"];
+  const minuteLabels = minuteKeys.length > 0 ? minuteKeys.map(t => new Date(t).toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" })) : ["لا توجد"];
   const minuteData = minuteKeys.length > 0 ? minuteKeys.map(k => minutes[k]) : [0];
 
-  if (chartVPM) {
+  if(chartVPM){
     chartVPM.data.labels = minuteLabels;
     chartVPM.data.datasets[0].data = minuteData;
     chartVPM.update();
   } else {
     chartVPM = new Chart(ctx3, {
       type: "line",
-      data: {
-        labels: minuteLabels,
-        datasets: [{
-          label: "أصوات/دقيقة",
-          data: minuteData,
-          borderColor: "#6366f1",
-          backgroundColor: "rgba(79,70,229,0.18)",
-          tension: 0.35,
-          fill: true,
-          pointRadius: 2.5,
-          pointBackgroundColor: "#e5e7eb"
-        }]
-      },
-      options: {
-        responsive: true,
-        animation: { duration: 650 },
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { ticks: { color: "#e5e7eb" } },
-          y: { beginAtZero: true, ticks: { color: "#e5e7eb" } }
-        }
-      }
+      data: { labels: minuteLabels, datasets: [{ label: "أصوات/دقيقة", data: minuteData, borderColor: "#667eea", backgroundColor: "rgba(102,126,234,0.1)", tension: 0.3 }] },
+      options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
     });
   }
 }
 
-/* RANKING */
-function renderRanking() {
+function renderRanking(){
   const list = document.getElementById("ranking-list");
   const counts = {};
   allVotes.forEach(v => v.candidates.forEach(c => counts[c] = (counts[c] || 0) + 1));
   const sorted = Object.entries(counts).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
 
-  if (sorted.length === 0) {
-    list.innerHTML = "<div style='padding:20px;text-align:center;color:#9ca3af'>لا توجد بيانات</div>";
+  if(sorted.length === 0){
+    list.innerHTML = "<div style='padding:20px;text-align:center;color:#999'>لا توجد بيانات</div>";
     return;
   }
 
@@ -1326,66 +1366,29 @@ function renderRanking() {
   list.innerHTML = sorted.map((c, i) => {
     const rank = i + 1;
     let medal = "🥇";
-    if (rank === 2) medal = "🥈";
-    else if (rank === 3) medal = "🥉";
+    if(rank === 2) medal = "🥈";
+    else if(rank === 3) medal = "🥉";
     else medal = rank;
     const width = Math.max((c.count / max) * 100, 12);
-    return (
-      "<div class='ranking-item'>" +
-        "<div class='ranking-left'>" +
-          "<div class='ranking-medal'>" + medal + "</div>" +
-          "<div class='ranking-name'>" + c.name + "</div>" +
-        "</div>" +
-        "<div class='ranking-right'>" +
-          "<div class='ranking-bar' style='width:" + width + "%'>" + c.count + "</div>" +
-          "<div class='ranking-count'>" + c.count + "</div>" +
-        "</div>" +
-      "</div>"
-    );
+    return "<div class='ranking-item'><div class='ranking-left'><div class='ranking-medal'>" + medal + "</div><div class='ranking-name'>" + c.name + "</div></div><div class='ranking-right'><div class='ranking-bar' style='width:" + width + "%'>" + c.count + "</div><div class='ranking-count'>" + c.count + "</div></div></div>";
   }).join("");
-
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.classList.add("rank--visible");
-        observer.unobserve(e.target);
-      }
-    });
-  }, { threshold: 0.2 });
-
-  document.querySelectorAll(".ranking-item").forEach((el, idx) => {
-    setTimeout(() => observer.observe(el), idx * 50);
-  });
 }
 
-/* TABLE */
-function renderTable() {
+function renderTable(){
   const body = document.getElementById("votes-table");
   const note = document.getElementById("footer-note");
   const search = document.getElementById("search").value.toLowerCase().trim();
 
   let filtered = [...allVotes];
-  if (search) {
-    filtered = filtered.filter(v =>
-      (v.name || "").toLowerCase().includes(search) ||
-      v.candidates.join(" ").toLowerCase().includes(search)
-    );
-  }
+  if(search) filtered = filtered.filter(v => (v.name || "").toLowerCase().includes(search) || v.candidates.join(" ").toLowerCase().includes(search));
 
   filtered.sort((a, b) => {
     const dir = (sortState.dir === "asc" ? 1 : -1);
     let av = a[sortState.key];
     let bv = b[sortState.key];
-    if (sortState.key === "candidates") {
-      av = a.candidates.join(",");
-      bv = b.candidates.join(",");
-    }
-    if (sortState.key === "time") {
-      av = a.timestamp || 0;
-      bv = b.timestamp || 0;
-    }
-    if (av < bv) return -1 * dir;
-    if (av > bv) return 1 * dir;
+    if(sortState.key === "candidates"){ av = a.candidates.join(","); bv = b.candidates.join(","); }
+    if(av < bv) return -1 * dir;
+    if(av > bv) return 1 * dir;
     return 0;
   });
 
@@ -1393,104 +1396,50 @@ function renderTable() {
   filtered.forEach((v, i) => {
     const tr = document.createElement("tr");
     const isOur = v.candidates.includes("أحمد الحديدى") && v.candidates.includes("البدوى جميز");
-    const statusLabel = isOur
-      ? '<span class="vote-status-friend">تبعنا</span>'
-      : '<span class="vote-status-enemy">مش تبعنا</span>';
-    const editBtn = adminLevel === 1
-      ? '<button class="btn-mini-edit" onclick="openEdit(\'' + v.id + '\')">تعديل</button>'
-      : "";
-    tr.innerHTML =
-      "<td>" + (i + 1) + "</td>" +
-      "<td class='clickable-name' onclick=\"showDetails('" + v.id + "')\">" + v.name + "</td>" +
-      "<td>" + (v.candidates.join(" و ") || "—") + "</td>" +
-      "<td class='" + (v.validity === "صحيح" ? "status-valid" : "status-invalid") + "'>" + v.validity + "</td>" +
-      "<td>" + statusLabel + "</td>" +
-      "<td>" + (v.timestamp ? new Date(v.timestamp).toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "—") + "</td>" +
-      "<td>" + editBtn + "</td>";
+    const statusLabel = isOur ? '<span class="vote-status-friend">تبعنا</span>' : '<span class="vote-status-enemy">مش تبعنا</span>';
+    const editBtn = adminLevel === 1 ? '<button class="btn-mini-edit" onclick="openEdit(\'' + v.id + '\')">تعديل</button>' : '';
+    tr.innerHTML = "<td>" + (i + 1) + "</td><td class='clickable-name' onclick=\"showDetails('" + v.id + "')\">" + v.name + "</td><td>" + (v.candidates.join(" و ") || "—") + "</td><td class='" + (v.validity === "صحيح" ? "status-valid" : "status-invalid") + "'>" + v.validity + "</td><td>" + statusLabel + "</td><td>" + (v.timestamp ? new Date(v.timestamp).toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "—") + "</td><td>" + editBtn + "</td>";
     body.appendChild(tr);
   });
 
-  note.textContent = filtered.length === 0
-    ? (allVotes.length === 0 ? "لا توجد بيانات" : "لا توجد نتائج")
-    : "عرض " + filtered.length + " من " + allVotes.length;
+  note.textContent = filtered.length === 0 ? (allVotes.length === 0 ? "لا توجد بيانات" : "لا توجد نتائج") : "عرض " + filtered.length + " من " + allVotes.length;
 }
 
-/* Sorting header visuals */
 document.querySelectorAll("th[data-sort]").forEach(th => {
   th.addEventListener("click", () => {
     const key = th.getAttribute("data-sort");
-    if (sortState.key === key) {
-      sortState.dir = sortState.dir === "asc" ? "desc" : "asc";
-    } else {
-      sortState.key = key;
-      sortState.dir = "asc";
-    }
-    document.querySelectorAll("th[data-sort]").forEach(x => {
-      x.classList.remove("sorted-asc", "sorted-desc");
-    });
-    th.classList.add(sortState.dir === "asc" ? "sorted-asc" : "sorted-desc");
+    if(sortState.key === key) sortState.dir = sortState.dir === "asc" ? "desc" : "asc";
+    else { sortState.key = key; sortState.dir = "asc"; }
     renderTable();
   });
 });
 
-/* Search with simple debouncing */
-let searchTimeout = null;
-document.getElementById("search").addEventListener("input", e => {
-  if (searchTimeout) clearTimeout(searchTimeout);
-  searchTimeout = setTimeout(() => {
-    renderTable();
-  }, 150);
-});
+document.getElementById("search").addEventListener("input", renderTable);
 
-/* DETAILS POPUP */
-window.showDetails = function(id) {
+window.showDetails = function(id){
   const v = allVotes.find(x => x.id === id);
-  if (!v) return;
+  if(!v) return;
   const body = document.getElementById("details-body");
-  const time = v.timestamp
-    ? new Date(v.timestamp).toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit", second: "2-digit" })
-    : "—";
+  const time = v.timestamp ? new Date(v.timestamp).toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "—";
   const chosen = v.candidates.join(" و ") || "—";
   const isOur = v.candidates.includes("أحمد الحديدى") && v.candidates.includes("البدوى جميز");
-  body.innerHTML =
-    "<table style='width:100%;color:#e5e7eb;'>" +
-      "<tr><td><b>الاسم</b></td><td>" + v.name + "</td></tr>" +
-      "<tr><td><b>اللجنة</b></td><td>" + (v.committee || "—") + "</td></tr>" +
-      "<tr><td><b>الوقت</b></td><td>" + time + "</td></tr>" +
-      "<tr><td><b>المرشحين</b></td><td>" + chosen + "</td></tr>" +
-      "<tr><td><b>الحالة</b></td><td style='color:" + (v.validity === "صحيح" ? "#22c55e" : "#f97373") + "'>" + v.validity + "</td></tr>" +
-    "</table>" +
-    (isOur
-      ? "<div style='display:inline-block;margin-top:12px;padding:8px 14px;border-radius:999px;background:#166534;color:#bbf7d0;font-weight:700;'>تبعنا</div>"
-      : "<div style='display:inline-block;margin-top:12px;padding:8px 14px;border-radius:999px;background:#7c2d12;color:#fed7aa;font-weight:700;'>مش تبعنا</div>");
+  body.innerHTML = "<table style='width:100%;'><tr><td><b>الاسم</b></td><td>" + v.name + "</td></tr><tr><td><b>اللجنة</b></td><td>" + (v.committee || "—") + "</td></tr><tr><td><b>الوقت</b></td><td>" + time + "</td></tr><tr><td><b>المرشحين</b></td><td>" + chosen + "</td></tr><tr><td><b>الحالة</b></td><td style='color:" + (v.validity === "صحيح" ? "#11998e" : "#eb3349") + "'>" + v.validity + "</td></tr></table>" + (isOur ? "<div style='display:inline-block;margin-top:12px;padding:8px 14px;border-radius:50px;background:#d4fc79;color:#2d5016;font-weight:700;'>تبعنا</div>" : "<div style='display:inline-block;margin-top:12px;padding:8px 14px;border-radius:50px;background:#ffb347;color:#5c2e0f;font-weight:700;'>مش تبعنا</div>");
   document.getElementById("details-popup").classList.remove("hidden");
 };
 
-window.closeDetails = function() {
+window.closeDetails = function(){
   document.getElementById("details-popup").classList.add("hidden");
 };
 
-/* EDIT POPUP */
-const candidatesNames = [
-  "ايهاب العمده","محمد العتمانى","أحمد الحديدى",
-  "عادل الجيار","احمد محمد محمد سمره","وليد تيسير الامير",
-  "كمال العيسوى","البدوى جميز","احمد الريس",
-  "أحمد عوف","حسن الملهاط","عمرو محمد بحيرى",
-  "السيد طمان","محمد دندن","مجدى الأمير"
-];
-
-window.openEdit = function(id) {
-  if (adminLevel !== 1) {
-    __showToast("ليس لديك الصلاحية", { type: "error" });
+window.openEdit = function(id){
+  if(adminLevel !== 1){
+    alert("ليس لديك الصلاحية");
     return;
   }
   const pw = prompt("ادخل كلمة السر:");
-  if (pw !== "742018") {
-    __showToast("كلمة سر خاطئة", { type: "error" });
-    return;
-  }
+  if(pw !== "742018") return alert("كلمة سر خاطئة");
   const v = allVotes.find(x => x.id === id);
-  if (!v) return;
+  if(!v) return;
   window.editID = id;
   document.getElementById("edit-name").textContent = "الناخب: " + v.name;
   const box = document.getElementById("edit-candidates");
@@ -1502,10 +1451,7 @@ window.openEdit = function(id) {
     chk.checked = v.candidates.includes(c);
     chk.addEventListener("change", () => {
       const checked = box.querySelectorAll("input:checked");
-      if (checked.length > 2) {
-        chk.checked = false;
-        __showToast("مرشحين فقط", { type: "warning" });
-      }
+      if(checked.length > 2){ chk.checked = false; alert("مرشحين فقط"); }
     });
     const lbl = document.createElement("label");
     lbl.innerHTML = "<span>" + c + "</span>";
@@ -1515,52 +1461,27 @@ window.openEdit = function(id) {
   document.getElementById("edit-popup").classList.remove("hidden");
 };
 
-window.closeEdit = function() {
+window.closeEdit = function(){
   document.getElementById("edit-popup").classList.add("hidden");
 };
 
-window.saveEdit = function() {
+window.saveEdit = function(){
   const box = document.getElementById("edit-candidates");
   const checked = [...box.querySelectorAll("input:checked")].map(x => x.value);
-  if (checked.length === 0) {
-    __showToast("اختر واحد على الأقل", { type: "warning" });
-    return;
-  }
-  if (checked.length > 2) {
-    __showToast("مرشحين فقط", { type: "warning" });
-    return;
-  }
+  if(checked.length === 0) return alert("اختر واحد");
+  if(checked.length > 2) return alert("مرشحين فقط");
   update(ref(db, "votes/" + window.editID), { selected: checked })
-    .then(() => {
-      __showToast("تم الحفظ", { type: "success" });
-      closeEdit();
-    })
-    .catch(() => __showToast("خطأ أثناء الحفظ", { type: "error" }));
+    .then(() => { showNotification("تم الحفظ"); closeEdit(); })
+    .catch(() => alert("خطأ"));
 };
 
-/* EXPORT CSV */
-window.exportCSV = function(evt) {
-  if (evt) evt.preventDefault();
-  if (allVotes.length === 0) {
-    __showToast("لا توجد بيانات للتصدير", { type: "warning" });
-    return;
-  }
-  const btn = evt?.currentTarget;
-  if (btn) btn.classList.add("btn-loading");
-
+window.exportCSV = function(){
+  if(allVotes.length === 0) return alert("لا توجد بيانات");
   const header = "Index,Name,Committee,Candidates,Validity,Vote_Status,Timestamp\n";
   const rows = allVotes.map((v, i) => {
     const isOur = v.candidates.includes("أحمد الحديدى") && v.candidates.includes("البدوى جميز");
     const status = isOur ? "Friend" : "Enemy";
-    return [
-      i + 1,
-      '"' + String(v.name || "").replace(/"/g, '""') + '"',
-      v.committee || "N/A",
-      '"' + v.candidates.join(" | ").replace(/"/g, '""') + '"',
-      v.validity,
-      status,
-      v.timestamp || ""
-    ].join(",");
+    return [i + 1, '"' + v.name.replace(/"/g, '""') + '"', v.committee || "N/A", '"' + v.candidates.join(" | ").replace(/"/g, '""') + '"', v.validity, status, v.timestamp].join(",");
   });
   const csv = header + rows.join("\n");
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -1570,75 +1491,54 @@ window.exportCSV = function(evt) {
   a.download = "votes_" + Date.now() + ".csv";
   a.click();
   URL.revokeObjectURL(url);
-
-  __showToast("تم تصدير الملف بنجاح", { type: "success" });
-  if (btn) setTimeout(() => btn.classList.remove("btn-loading"), 600);
 };
 
-/* RESET ALL */
-window.resetAll = function(evt) {
-  if (evt) evt.preventDefault();
-  if (adminLevel !== 1) {
-    __showToast("ليس لديك الصلاحية", { type: "error" });
+window.resetAll = function(){
+  if(adminLevel !== 1){
+    alert("ليس لديك الصلاحية");
     return;
   }
   const pw = prompt("ادخل كلمة السر:");
-  if (pw !== "742018") {
-    __showToast("كلمة السر غير صحيحة", { type: "error" });
-    return;
-  }
-  if (!confirm("تأكيد الحذف؟")) return;
+  if(pw !== "742018") return alert("خطأ");
+  if(!confirm("تأكيد الحذف؟")) return;
   remove(ref(db, "votes"))
-    .then(() => {
-      __showToast("تم تصفير البيانات", { type: "success" });
-      allVotes = [];
-      renderAll();
-    })
-    .catch(() => __showToast("خطأ أثناء التصفير", { type: "error" }));
+    .then(() => { showNotification("تم"); allVotes = []; renderAll(); })
+    .catch(() => alert("خطأ"));
 };
 
-/* SEND NOTIFICATION */
-window.sendNotification = async function(evt) {
-  if (evt) evt.preventDefault();
+window.sendNotification = async function(){
   const txt = document.getElementById("notify-message").value.trim();
   const result = document.getElementById("notify-result");
-  const btn = document.getElementById("notify-btn");
 
-  if (!txt) {
+  if(!txt){
     result.style.display = "block";
-    result.style.color = "#f97373";
-    result.style.background = "rgba(185,28,28,0.1)";
+    result.style.color = "#eb3349";
     result.textContent = "اكتب رسالة";
-    __showToast("اكتب رسالة أولا", { type: "warning" });
     return;
   }
 
   const mode = document.querySelector("input[name='notify-target']:checked").value;
   let topic = "all";
 
-  if (mode === "one") {
+  if(mode === "one"){
     const num = Number(document.getElementById("notify-committee").value);
-    if (num < 1 || num > 60 || !Number.isFinite(num)) {
+    if(num < 1 || num > 60){
       result.style.display = "block";
-      result.style.color = "#f97373";
-      result.style.background = "rgba(185,28,28,0.1)";
+      result.style.color = "#eb3349";
       result.textContent = "رقم اللجنة غير صحيح (1-60)";
-      __showToast("رقم اللجنة غير صحيح (1-60)", { type: "error" });
       return;
     }
     topic = "committee_" + num;
   }
 
   result.style.display = "block";
-  result.style.color = "#6366f1";
-  result.style.background = "rgba(79,70,229,0.08)";
+  result.style.color = "#667eea";
   result.textContent = "جاري الإرسال...";
-  btn.classList.add("btn-loading");
 
   try {
     const timestamp = Date.now();
     const messageRef = ref(db, "notifications/" + topic + "/" + timestamp);
-
+    
     await set(messageRef, {
       message: txt,
       topic: topic,
@@ -1646,55 +1546,23 @@ window.sendNotification = async function(evt) {
       sentAt: new Date().toISOString(),
       type: "dashboard_notification"
     });
-
-    result.style.color = "#22c55e";
-    result.style.background = "rgba(22,163,74,0.12)";
-    result.textContent =
-      "تم الإرسال لـ " + (mode === "all"
-        ? "جميع اللجان ✓"
-        : ("اللجنة " + document.getElementById("notify-committee").value + " ✓"));
+    
+    result.style.color = "#11998e";
+    result.textContent = "تم الإرسال لـ " + (mode === "all" ? "جميع اللجان ✓" : ("اللجنة " + document.getElementById("notify-committee").value + " ✓"));
     document.getElementById("notify-message").value = "";
-
-    __showToast("تم إرسال الرسالة بنجاح", { type: "success" });
-
-    setTimeout(() => { result.style.display = "none"; }, 3500);
-  } catch (err) {
-    result.style.color = "#f97373";
-    result.style.background = "rgba(185,28,28,0.1)";
+    
+    setTimeout(() => result.style.display = "none", 3500);
+    
+  } catch(err){
+    result.style.color = "#eb3349";
     result.textContent = "خطأ: " + err.message;
     console.error("Notification error:", err);
-    __showToast("حدث خطأ أثناء إرسال الرسالة", { type: "error" });
-    setTimeout(() => { result.style.display = "none"; }, 4000);
-  } finally {
-    btn.classList.remove("btn-loading");
+    setTimeout(() => result.style.display = "none", 4000);
   }
 };
 
-/* BUTTON RIPPLE EFFECT (delegated) */
-function attachRipple(selector) {
-  document.addEventListener("click", e => {
-    const target = e.target.closest(selector);
-    if (!target) return;
-    const rect = target.getBoundingClientRect();
-    const ripple = document.createElement("span");
-    ripple.className = "ripple";
-    const size = Math.max(rect.width, rect.height);
-    ripple.style.width = ripple.style.height = size + "px";
-    ripple.style.left = (e.clientX - rect.left - size / 2) + "px";
-    ripple.style.top = (e.clientY - rect.top - size / 2) + "px";
-    target.appendChild(ripple);
-    setTimeout(() => ripple.remove(), 650);
-  });
-}
-
-attachRipple(".btn-primary");
-attachRipple(".btn-sm");
-
-/* INITIAL CALL (for observer to start when empty) */
-renderAll();
 </script>
 </body>
 </html>
-
 
 
