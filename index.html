@@ -139,10 +139,60 @@ html, body {width:100%; overflow-x:hidden !important;}
    <div id="msg-warn" class="msg-warn"></div>
    <div id="msg-confirm" class="msg-confirm"></div>
  </form>
-<button class="btn-sm" style="width:100%;margin:14px 0;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;font-size:1.1em;border-radius:12px;"
-        onclick="window.open('https://forms.gle/LxwiZwofK5xDtsKd7','_blank')">
-  رفع محضر اللجنة
-</button>
+<input type="file" id="uploadFile">
+
+<button onclick="uploadImage()">رفع صورة المحضر</button>
+
+<script type="module">
+  // Import Firebase
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getStorage, ref, uploadBytes, getDownloadURL } 
+    from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+  import { getDatabase, set, push }
+    from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+  // Firebase Config
+const firebaseConfig = {
+  apiKey: "AIzaSyCxxXV_6CEo1fTp3rRbfwfYbe7WH0Cyg38",
+  authDomain: "elahmadiya.firebaseapp.com",
+  databaseURL: "https://elahmadiya-default-rtdb.firebaseio.com",
+  projectId: "elahmadiya",
+  storageBucket: "elahmadiya.firebasestorage.app",
+  messagingSenderId: "594580767620",
+  appId: "1:594580767620:web:f5be3b87d4c704854e53d1"
+};
+
+  const app = initializeApp(firebaseConfig);
+  const storage = getStorage(app);
+  const db = getDatabase(app);
+
+  window.uploadImage = function () {
+    const file = document.getElementById('uploadFile').files[0];
+    if (!file) {
+      alert("اختار صورة الأول");
+      return;
+    }
+
+    const imgRef = ref(storage, 'images/' + Date.now() + "_" + file.name);
+
+    uploadBytes(imgRef, file).then(snapshot => {
+      return getDownloadURL(snapshot.ref);
+    }).then(url => {
+
+      // حفظ رابط الصورة في قاعدة البيانات
+      const newRef = push(ref(db, "uploads"));
+      set(newRef, { imageUrl: url });
+
+      alert("تم رفع الصورة! الرابط: " + url);
+      console.log("Image URL:", url);
+
+    }).catch(err => {
+      console.error(err);
+      alert("حصل خطأ");
+    });
+  }
+</script>
+
  <div class="sig">
    تم البرمجة بواسطة
    <a href="https://www.facebook.com/en.mohamed.nasr" target="_blank" style="color:#1e3c72; font-weight:900; text-decoration:underline;">
@@ -472,4 +522,5 @@ document.getElementById("password-input").addEventListener("keypress", function(
 </script>
 </body>
 </html>
+
 
