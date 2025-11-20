@@ -314,10 +314,424 @@ button{
 </div>
 
 <script type="module">
-// --- نفس كود جافا سكريبت كما هو بدون تعديل جوهري ---
-// ضع الكود جافا سكريبت هنا كما بالنسخة الأصلية، لأنه جاهز للتجاوب
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getDatabase, ref, set, onValue, onDisconnect, get, serverTimestamp, remove } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-// يمكنك تعديل حاويات القوائم أو الأزرار وتكبيرها في الهواتف عند الحاجة حسب ملاحظتك الشخصية على المشروع.
+const firebaseConfig = {
+  apiKey: "AIzaSyCxxXV_6CEo1fTp3rRbfwfYbe7WH0Cyg38",
+  authDomain: "elahmadiya.firebaseapp.com",
+  databaseURL: "https://elahmadiya-default-rtdb.firebaseio.com",
+  projectId: "elahmadiya",
+  storageBucket: "elahmadiya.firebasestorage.app",
+  messagingSenderId: "594580767620",
+  appId: "1:594580767620:web:f5be3b87d4c704854e53d1"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+let committeeNumber = 0;
+let closedNotifications = new Set();
+let myPresenceRef = null;
+
+function loadClosedNotifications() {
+  const stored = localStorage.getItem("closedNotifications");
+  if (stored) {
+    try {
+      closedNotifications = new Set(JSON.parse(stored));
+    } catch (e) {
+      console.error("Error loading notifications:", e);
+      closedNotifications = new Set();
+    }
+  }
+}
+
+function saveClosedNotifications() {
+  try {
+    localStorage.setItem(
+      "closedNotifications",
+      JSON.stringify(Array.from(closedNotifications))
+    );
+  } catch (e) {
+    console.error("Error saving notifications:", e);
+  }
+}
+
+loadClosedNotifications();
+
+// بيانات اللجان من 1 إلى 60
+const committeeData = {
+  1:  { name: "الفروسات", address: "مدرسة احمد القصبى الابتدائية" },
+  2:  { name: "الفروسات", address: "مدرسة احمد القصبى الابتدائية" },
+  3:  { name: "أبو الأخضر", address: "مدرسة أبو الأخضر الابتدائية" },
+  4:  { name: "جديدة المنزلة", address: "مدرسة الشهيد محمد فوزى" },
+  5:  { name: "العامرة", address: "مدرسة العامرة الابتدائية" },
+  6:  { name: "جديدة المنزلة", address: "مدرسة عبده بطي الإعدادية" },
+  7:  { name: "عرب زيدان", address: "مدرسة عرب زيدان الابتدائية" },
+  8:  { name: "الستايتة", address: "مدرسة الشهيد محمد زغلول الابتدائية" },
+  9:  { name: "كفر حجاج", address: "مدرسة كفر حجاج الابتدائية" },
+  10: { name: "ميت خض", address: "مدرسة محمد إسماعيل الإعدادية" },
+  11: { name: "المواجدة", address: "مدرسة حسني الشناوى" },
+  12: { name: "البضاط", address: "مدرسة الشهيد محمد المحلاوى الإعدادية" },
+  13: { name: "البضاط", address: "مدرسة الشهيد محمد المحلاوى الإعدادية" },
+  14: { name: "الطوابرة", address: "مدرسة النصر الإعدادية" },
+  15: { name: "العمارنة", address: "مدرسة العمارنة الابتدائية" },
+  16: { name: "أولاد بانا", address: "مدرسة أولاد بانا الابتدائية" },
+  17: { name: "أولاد حانا", address: "مدرسة أولاد حانا الابتدائية" },
+  18: { name: "القزاقزة", address: "مدرسة القزاقزة الابتدائية" },
+  19: { name: "الحوته", address: "مدرسة الشهيد اسلام محمد" },
+  20: { name: "أولاد نور", address: "مدرسة أولاد نور الابتدائية" },
+  21: { name: "الخلايفة", address: "مدرسة الشهيد محمود فهيم الابتدائية" },
+  22: { name: "القطشة", address: "مدرسة القطشة الإعدادية" },
+  23: { name: "الجماملة", address: "مدرسة الجماملة الابتدائية" },
+  24: { name: "العزيزة", address: "مدرسة مجمع العزيزة الابتدائية" },
+  25: { name: "العزيزة", address: "مدرسة مجمع العزيزة الابتدائية" },
+  26: { name: "الأحمدية", address: "مدرسة الاحمدية الابتدائية" },
+  27: { name: "العربان", address: "مدرسة طاهر فرح" },
+  28: { name: "أولاد علم", address: "مدرسة الشني سليم الابتدائية" },
+  29: { name: "أولاد ناصر", address: "مدرسة الدكتور محمد النحاس" },
+  30: { name: "ببر هلال", address: "مدرسة ببر هلال الابتدائية" },
+  31: { name: "الشبول", address: "معهد بني الشبول الأزهرى" },
+  32: { name: "الشبول", address: "معهد بني الشبول الأزهرى" },
+  33: { name: "الرودة", address: "مدرسة الرودة الإعدادية" },
+  34: { name: "ميت شريف", address: "مدرسة أم المؤمنين الابتدائية" },
+  35: { name: "بحر حادوث", address: "مدرسة السيد قطب الإعدادية" },
+  36: { name: "النسايمة", address: "مدرسة النسايمة الابتدائية" },
+  37: { name: "النسايمة", address: "مدرسة النسايمة الابتدائية" },
+  38: { name: "شارع الثورة", address: "مدرسة الشهيد محمود النجدي الثانوية بنات" },
+  39: { name: "شارع الثورة", address: "مدرسة الشهيد محمود النجدي الثانوية بنات" },
+  40: { name: "شارع محمد فريد", address: "معهد فتيات المطرية ع ث" },
+  41: { name: "شارع المينا القبلي", address: "مدرسة أبو بكر الصديق" },
+  42: { name: "شارع الدقهلية", address: "مدرسة أحمد ماهر الثانوية بنين" },
+  43: { name: "شارع الدقهلية", address: "مدرسة أحمد ماهر الثانوية بنين" },
+  44: { name: "شارع المينا البحري", address: "مدرسة العاشر من رمضان الابتدائية" },
+  45: { name: "شارع المينا البحري", address: "مدرسة طارق ابن زياد الأعدادية" },
+  46: { name: "قرية العصافرة", address: "مدرسة السيدة نفسية الاعدادية بنات" },
+  47: { name: "قرية العصافرة", address: "مدرسة السيدة نفسية الاعدادية بنات" },
+  48: { name: "قرية الضهير", address: "مدرسة الضهير الإبتدائية" },
+  49: { name: "شارع صلاح الدين", address: "معهد عثمان بن عفان الابتدائي" },
+  50: { name: "شارع الدقهلية", address: "مدرسة خالد بن الوليد" },
+  51: { name: "شارع الدقهلية", address: "مدرسة خالد بن الوليد" },
+  52: { name: "شارع المينا البحري", address: "مدرسة المطرية الابتدائية" },
+  53: { name: "شارع الثانوية", address: "مدرسة الثانوية بنين" },
+  54: { name: "شارع مصنع البصل", address: "مدرسة عثمان بن عفان الإعدادية" },
+  55: { name: "شارع مصنع البصل", address: "مدرسة عثمان بن عفان الإعدادية" },
+  56: { name: "شارع بورسعيد", address: "مدرسة الأنصاري الابتدائية" },
+  57: { name: "هاشم شلباية", address: "مدرسة هاشم شلباية خلف المستشفى" },
+  58: { name: "شارع الزهراء", address: "مدرسة الزهراء الابتدائية" },
+  59: { name: "شارع الزهراء", address: "مدرسة الزهراء الابتدائية" },
+  60: { name: "سوق الجمعة", address: "مدرسة الامام علي الابتدائية" }
+};
+
+window.togglePass = function(){
+  const p = document.getElementById("password-input");
+  p.type = (p.type === "password") ? "text" : "password";
+};
+
+async function tryCommitteeLogin(committee, info) {
+  const presenceRef = ref(db, `presence/committee_${committee}`);
+  
+  try {
+    const snapshot = await get(presenceRef);
+    
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      const err = document.getElementById("pw-err");
+      err.textContent = "⚠️ يوجد مندوب آخر فاتح هذه اللجنة";
+      err.style.display = "block";
+      err.style.background = "#fff3cd";
+      err.style.color = "#856404";
+      setTimeout(() => err.style.display = "none", 3500);
+      return false;
+    }
+    
+    committeeNumber = committee;
+    myPresenceRef = presenceRef;
+    
+    const connectedRef = ref(db, '.info/connected');
+    onValue(connectedRef, async (snap) => {
+      if (snap.val() === true) {
+        await onDisconnect(presenceRef).remove();
+        
+        await set(presenceRef, {
+          online: true,
+          loginTime: serverTimestamp(),
+          committee: committee
+        });
+        
+        console.log("تم تسجيل الدخول للجنة", committee);
+      }
+    });
+    
+    document.getElementById("password-modal").classList.add("hidden");
+    document.getElementById("main-container").classList.remove("hidden");
+    document.getElementById("logout-btn").classList.remove("hidden");
+    document.getElementById("welcome-title").textContent = "اللجنة " + committee;
+    document.getElementById("committee-name-display").textContent = info.name;
+    document.getElementById("committee-address-display").textContent = info.address;
+    setupNotificationListeners(committee);
+    
+    return true;
+  } catch (error) {
+    console.error("خطأ في تسجيل الدخول:", error);
+    const err = document.getElementById("pw-err");
+    err.textContent = "خطأ في الاتصال";
+    err.style.display = "block";
+    setTimeout(() => err.style.display = "none", 2000);
+    return false;
+  }
+}
+
+window.logoutCommittee = async function() {
+  if (myPresenceRef && committeeNumber > 0) {
+    try {
+      await remove(myPresenceRef);
+      console.log("تم تسجيل الخروج من اللجنة", committeeNumber);
+    } catch (error) {
+      console.error("خطأ في تسجيل الخروج:", error);
+    }
+  }
+  
+  location.reload();
+};
+
+window.checkPass = async function(){
+  const val = document.getElementById("password-input").value.trim();
+  const err = document.getElementById("pw-err");
+
+  // 🔑 يوزر الأدمن الجديد: 251988 - يمكنه الدخول لأي لجنة دون قيود
+  if(val === "251988"){
+    document.getElementById("password-modal").classList.add("hidden");
+    document.getElementById("main-container").classList.remove("hidden");
+    document.getElementById("logout-btn").classList.remove("hidden");
+    document.getElementById("welcome-title").textContent = "مرحباً بـ Super Admin - 251988";
+    document.getElementById("committee-name-display").textContent = "وصول غير مقيد";
+    document.getElementById("committee-address-display").textContent = "يمكنه فتح أي لجنة";
+    committeeNumber = 0; // تعيين committeeNumber إلى 0 للإشارة لـ Admin
+    setupNotificationListeners(0);
+    return;
+  }
+  
+  const numVal = parseInt(val);
+  // تحديد نطاق كلمات السر من 100101 إلى 100160 (لجان من 1 إلى 60)
+  if (isNaN(numVal) || numVal < 100101 || numVal > 100160) {
+    err.textContent = "كلمة السر غير صحيحة";
+    err.style.display = "block";
+    setTimeout(() => err.style.display = "none", 3000);
+    return;
+  }
+
+  const committee = numVal - 100100;
+  const info = committeeData[committee] || { name: "لجنة", address: "بدون عنوان" };
+  await tryCommitteeLogin(committee, info);
+};
+
+function setupNotificationListeners(committee){
+  try {
+    const allNotificationsRef = ref(db, "notifications/all");
+    let lastAllTimestamp = 0;
+    
+    onValue(allNotificationsRef, (snapshot) => {
+      const data = snapshot.val();
+      if(data && typeof data === 'object'){
+        Object.entries(data).forEach(([key, notif]) => {
+          if(notif && notif.message && notif.timestamp && notif.timestamp > lastAllTimestamp){
+            lastAllTimestamp = notif.timestamp;
+            showFloatingNotification(notif.message, "عام");
+          }
+        });
+      }
+    }, (error) => {
+      console.log("Listening to all notifications...");
+    });
+
+    // الاستماع للإشعارات الخاصة باللجنة فقط للجان من 1 إلى 60 أو للمشرف العام (committee == 0)
+    if(committee >= 1 && committee <= 60 || committee === 0){
+      const committeeNotificationsRef = ref(db, "notifications/committee_" + committee);
+      let lastCommitteeTimestamp = 0;
+      
+      onValue(committeeNotificationsRef, (snapshot) => {
+        const data = snapshot.val();
+        if(data && typeof data === 'object'){
+          Object.entries(data).forEach(([key, notif]) => {
+            if(notif && notif.message && notif.timestamp && notif.timestamp > lastCommitteeTimestamp){
+              lastCommitteeTimestamp = notif.timestamp;
+              showFloatingNotification(notif.message, "لجنتك");
+            }
+          });
+        }
+      }, (error) => {
+        console.log("Listening to committee notifications...");
+      });
+    }
+  } catch(e) {
+    console.error("Error setting up listeners:", e);
+  }
+}
+
+function showFloatingNotification(msg, type){
+  const bubble = document.getElementById("bubble");
+  const content = document.getElementById("bubble-content");
+  const icon = document.getElementById("bubble-icon");
+  
+  const notificationId = type + "_" + Date.now();
+  bubble.dataset.notificationId = notificationId;
+  
+  if(closedNotifications.has(notificationId)){
+    return;
+  }
+  
+  content.textContent = msg;
+  
+  if(type === "عام"){
+    bubble.style.borderLeft = "4px solid #667eea";
+    icon.textContent = "📢";
+  } else if(type === "لجنتك"){
+    bubble.style.borderLeft = "4px solid #11998e";
+    icon.textContent = "📩";
+  } else {
+    bubble.style.borderLeft = "4px solid #ffcc00";
+    icon.textContent = "💬";
+  }
+  
+  bubble.classList.add("active");
+}
+
+window.closeBubble = function(){
+  const bubble = document.getElementById("bubble");
+  const notificationId = bubble.dataset.notificationId;
+  
+  if(notificationId){
+    closedNotifications.add(notificationId);
+    saveClosedNotifications();
+  }
+  
+  bubble.classList.remove("active");
+};
+
+const candidates = [
+  ["1","ايهاب العمده","👑"],
+  ["2","محمد العتمانى","🍞"],
+  ["3","أحمد الحديدى","🦁"],
+  ["4","عادل الجيار","🦅"],
+  ["5","احمد محمد محمد سمره","💣"],
+  ["6","وليد تيسير الامير","🐊"],
+  ["7","كمال العيسوى","🌀"],
+  ["8","البدوى جميز","🐋"],
+  ["9","احمد الريس","🦂"],
+  ["10","أحمد عوف","✋"],
+  ["11","حسن الملهاط","🌿"],
+  ["12","عمرو محمد بحيرى","🚌"],
+  ["13","السيد طمان","🔫"],
+  ["14","محمد دندن","🚁"],
+  ["15","مجدى الأمير","🖊"]
+];
+
+const listBox = document.getElementById("candidate-list");
+candidates.forEach((c, idx) => {
+  const item = document.createElement("div");
+  item.className = "candidate-item";
+
+  const checkbox = document.createElement("input");
+  checkbox.type = "checkbox";
+  checkbox.value = c[1];
+  checkbox.className = "candidate-checkbox";
+
+  item.innerHTML = '<div class="c-left"><div class="num-circle">' + c[0] + '</div><div class="c-name">' + c[1] + '</div></div><div class="c-right"><span class="c-icon">' + c[2] + '</span></div>';
+  item.appendChild(checkbox);
+
+  item.addEventListener("click", (e) => {
+    if(e.target !== checkbox) checkbox.checked = !checkbox.checked;
+    checkLimit();
+    updateStyle();
+  });
+
+  checkbox.addEventListener("change", () => {
+    checkLimit();
+    updateStyle();
+  });
+
+  listBox.appendChild(item);
+});
+
+function updateStyle(){
+  document.querySelectorAll(".candidate-item").forEach((item) => {
+    if(item.querySelector("input[type='checkbox']").checked) 
+      item.classList.add("selected");
+    else 
+      item.classList.remove("selected");
+  });
+}
+
+function checkLimit(){
+  const sel = document.querySelectorAll('.candidate-checkbox:checked');
+  if(sel.length > 2){
+    sel[sel.length - 1].checked = false;
+    showWarn("يمكن اختيار مرشحين فقط");
+    updateStyle();
+  }
+}
+
+function showWarn(msg){
+  const el = document.getElementById("msg-warn");
+  el.textContent = msg;
+  el.style.display = "block";
+  setTimeout(() => el.style.display = "none", 2500);
+}
+
+function showConfirm(msg){
+  const el = document.getElementById("msg-confirm");
+  el.textContent = msg;
+  el.style.display = "block";
+  setTimeout(() => el.style.display = "none", 3000);
+}
+
+document.querySelectorAll("input[type='radio']").forEach(radio => {
+  radio.addEventListener("change", function(){
+    document.querySelectorAll(".radio-item").forEach(item => item.classList.remove("selected"));
+    this.closest(".radio-item").classList.add("selected");
+  });
+});
+
+document.getElementById("vote-form").addEventListener("submit", function(e){
+  e.preventDefault();
+
+  if(committeeNumber === 0) return showWarn("لا يمكن تسجيل الأصوات بصلاحية المشرف العام.");
+  if(committeeNumber < 1 || committeeNumber > 60) return showWarn("يرجى تسجيل الدخول للجنة أولاً.");
+
+  let name = document.getElementById("voter-name").value.trim();
+  if(!name) name = "بدون اسم";
+
+  const sel = Array.from(document.querySelectorAll('.candidate-checkbox:checked')).map(v => v.value);
+  const val = document.querySelector('input[name="vvalid"]:checked');
+
+  if(sel.length < 1) return showWarn("اختر مرشح واحد على الأقل");
+  if(!val) return showWarn("اختر حالة الصوت");
+
+  const voteKey = Date.now();
+  
+  // مسار التصويت موحد لجميع اللجان من 1 إلى 60
+  const voteRef = ref(db, "votes/" + voteKey);
+  
+  set(voteRef, {
+    name: name,
+    selected: sel,
+    vote_validity: val.value,
+    committee: committeeNumber,
+    timestamp: voteKey
+  }).then(() => {
+    showConfirm("تم التسجيل بنجاح!");
+    document.getElementById("vote-form").reset();
+    updateStyle();
+    document.querySelectorAll(".radio-item").forEach(item => item.classList.remove("selected"));
+  }).catch(err => {
+    showWarn("خطأ: " + err.message);
+  });
+});
+
+document.getElementById("password-input").addEventListener("keypress", function(e){
+  if(e.key === "Enter") checkPass();
+});
 </script>
 
 </body>
