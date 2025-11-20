@@ -5,6 +5,7 @@
 <title>تسجيل التصويت - العزيزة</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <style>
+/* نفس CSS الموجود لديك */
 *{ margin:0; padding:0; box-sizing:border-box; font-family:"Cairo",sans-serif; }
 body{
   background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
@@ -249,7 +250,9 @@ button{
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging.js";
 
+// تهيئة Firebase للأحمدية (قاعدة البيانات والإشعارات)
 const firebaseConfig = {
   apiKey: "AIzaSyCxxXV_6CEo1fTp3rRbfwfYbe7WH0Cyg38",
   authDomain: "elahmadiya.firebaseapp.com",
@@ -262,6 +265,10 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+const messaging = getMessaging(app);
+
+// VAPID Key للإشعارات (يجب الحصول عليه من Firebase Console)
+const VAPID_KEY = "BBc4i5tl6yb0Z584Vb5J4n-zHzSEMRZzW-Bh63PFkyJ5nkjx4-3qb3c_gn4BpwnN1ewUD47tx5UWedR06ulmW_o";
 
 let committeeNumber = 0;
 let committeeName = "";
@@ -289,13 +296,60 @@ document.getElementById("welcome-title").textContent = "اللجنة " + committ
 document.getElementById("committee-name-display").textContent = committeeName;
 document.getElementById("committee-address-display").textContent = "مدرسة مجمع العزيزة الابتدائية";
 
+// طلب إذن الإشعارات وتسجيل FCM Token
+async function requestNotificationPermission() {
+  try {
+    const permission = await Notification.requestPermission();
+    
+    if (permission === 'granted') {
+      console.log('تم منح إذن الإشعارات');
+      
+      // الحصول على FCM Token
+      const currentToken = await getToken(messaging, { vapidKey: VAPID_KEY });
+      
+      if (currentToken) {
+        console.log('FCM Token:', currentToken);
+        // يمكنك حفظ الـ Token في قاعدة البيانات لإرسال إشعارات مخصصة
+        saveTokenToDatabase(currentToken);
+      } else {
+        console.log('لم يتم الحصول على Token');
+      }
+    } else {
+      console.log('تم رفض إذن الإشعارات');
+    }
+  } catch (error) {
+    console.error('خطأ في طلب إذن الإشعارات:', error);
+  }
+}
+
+// حفظ Token في قاعدة البيانات
+function saveTokenToDatabase(token) {
+  const tokenRef = ref(db, `fcm_tokens/${committeeNumber}/${Date.now()}`);
+  set(tokenRef, {
+    token: token,
+    committee: committeeNumber,
+    timestamp: Date.now()
+  }).catch(err => console.error('خطأ في حفظ Token:', err));
+}
+
+// استقبال الإشعارات أثناء تشغيل التطبيق
+onMessage(messaging, (payload) => {
+  console.log('تم استلام رسالة:', payload);
+  
+  const notificationTitle = payload.notification?.title || 'إشعار جديد';
+  const notificationBody = payload.notification?.body || 'لديك إشعار جديد';
+  
+  showFloatingNotification(notificationBody, notificationTitle);
+});
+
+// تحميل الإشعارات المغلقة من localStorage
 function loadClosedNotifications() {
   const stored = localStorage.getItem("closedNotifications_aziza");
   if (stored) {
     try {
       closedNotifications = new Set(JSON.parse(stored));
     } catch (e) {
-      console.error("Error loading notifications:", e);
+      console.error("خطأ في تحميل الإشعارات:", e);
       closedNotifications = new Set();
     }
   }
@@ -308,12 +362,13 @@ function saveClosedNotifications() {
       JSON.stringify(Array.from(closedNotifications))
     );
   } catch (e) {
-    console.error("Error saving notifications:", e);
+    console.error("خطأ في حفظ الإشعارات:", e);
   }
 }
 
 loadClosedNotifications();
 
+// إعداد مستمعي الإشعارات من قاعدة البيانات
 function setupNotificationListeners(committee){
   try {
     const allNotificationsRef = ref(db, "notifications/all");
@@ -325,16 +380,16 @@ function setupNotificationListeners(committee){
         Object.entries(data).forEach(([key, notif]) => {
           if(notif && notif.message && notif.timestamp && notif.timestamp > lastAllTimestamp){
             lastAllTimestamp = notif.timestamp;
-            showFloatingNotification(notif.message, "عام");
+            showFloatingNotification(notif.message, "📢 إشعار عام");
           }
         });
       }
     }, (error) => {
-      console.log("Listening to all notifications...");
+      console.log("الاستماع للإشعارات العامة...");
     });
 
     if(committee > 0){
-      const committeeNotificationsRef = ref(db, "notifications/committee_" + committee);
+      const committeeNotificationsRef = ref(db, `notifications/committee_${committee}`);
       let lastCommitteeTimestamp = 0;
       
       onValue(committeeNotificationsRef, (snapshot) => {
@@ -343,16 +398,16 @@ function setupNotificationListeners(committee){
           Object.entries(data).forEach(([key, notif]) => {
             if(notif && notif.message && notif.timestamp && notif.timestamp > lastCommitteeTimestamp){
               lastCommitteeTimestamp = notif.timestamp;
-              showFloatingNotification(notif.message, "لجنتك");
+              showFloatingNotification(notif.message, "📩 إشعار لجنتك");
             }
           });
         }
       }, (error) => {
-        console.log("Listening to committee notifications...");
+        console.log("الاستماع لإشعارات اللجنة...");
       });
     }
   } catch(e) {
-    console.error("Error setting up listeners:", e);
+    console.error("خطأ في إعداد المستمعين:", e);
   }
 }
 
@@ -370,10 +425,10 @@ function showFloatingNotification(msg, type){
   
   content.textContent = msg;
   
-  if(type === "عام"){
+  if(type.includes("عام") || type.includes("📢")){
     bubble.style.borderLeft = "4px solid #667eea";
     icon.textContent = "📢";
-  } else if(type === "لجنتك"){
+  } else if(type.includes("لجنتك") || type.includes("📩")){
     bubble.style.borderLeft = "4px solid #11998e";
     icon.textContent = "📩";
   } else {
@@ -382,6 +437,13 @@ function showFloatingNotification(msg, type){
   }
   
   bubble.classList.add("active");
+  
+  // إغلاق تلقائي بعد 10 ثواني
+  setTimeout(() => {
+    if(bubble.classList.contains("active")){
+      closeBubble();
+    }
+  }, 10000);
 }
 
 window.closeBubble = function(){
@@ -402,6 +464,9 @@ window.logout = function(){
 
 // بدء الاستماع للإشعارات
 setupNotificationListeners(committeeNumber);
+
+// طلب إذن الإشعارات عند تحميل الصفحة
+requestNotificationPermission();
 
 const candidates = [
   ["1","ايهاب العمده","👑"],
@@ -431,7 +496,7 @@ candidates.forEach((c, idx) => {
   checkbox.value = c[1];
   checkbox.className = "candidate-checkbox";
 
-  item.innerHTML = '<div class="c-left"><div class="num-circle">' + c[0] + '</div><div class="c-name">' + c[1] + '</div></div><div class="c-right"><span class="c-icon">' + c[2] + '</span></div>';
+  item.innerHTML = `<div class="c-left"><div class="num-circle">${c[0]}</div><div class="c-name">${c[1]}</div></div><div class="c-right"><span class="c-icon">${c[2]}</span></div>`;
   item.appendChild(checkbox);
 
   item.addEventListener("click", (e) => {
@@ -500,7 +565,7 @@ document.getElementById("vote-form").addEventListener("submit", function(e){
   if(!val) return showWarn("اختر حالة الصوت");
 
   const voteKey = Date.now();
-  const votePath = "votes/aziza/" + voteKey;
+  const votePath = `votes/aziza/${voteKey}`;
   const voteRef = ref(db, votePath);
   
   set(voteRef, {
@@ -510,12 +575,12 @@ document.getElementById("vote-form").addEventListener("submit", function(e){
     committee: committeeNumber,
     timestamp: voteKey
   }).then(() => {
-    showConfirm("تم التسجيل بنجاح!");
+    showConfirm("✅ تم التسجيل بنجاح!");
     document.getElementById("vote-form").reset();
     updateStyle();
     document.querySelectorAll(".radio-item").forEach(item => item.classList.remove("selected"));
   }).catch(err => {
-    showWarn("خطأ: " + err.message);
+    showWarn("❌ خطأ: " + err.message);
   });
 });
 </script>
