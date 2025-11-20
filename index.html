@@ -5,831 +5,495 @@
 <title>تسجيل التصويت</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <style>
-*{ margin:0; padding:0; box-sizing:border-box; font-family:"Cairo",sans-serif; }
-body{
-  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-  min-height:100vh; display:flex; justify-content:center; align-items:center;
-  padding:20px; color:#fff;
-  overflow-x: hidden;
-}
-.hidden{ display:none !important; }
-
-#password-modal{
-  position:fixed; inset:0; background:rgba(0,0,0,.7); backdrop-filter:blur(10px);
-  display:flex; justify-content:center; align-items:center; z-index:9999;
-}
-.pass-box{
-  width:95%; max-width:400px; background:#fff; color:#222;
-  padding:35px 18px; border-radius:18px; box-shadow:0 20px 60px rgba(0,0,0,.4);
-  animation:pop .4s ease; text-align:center;
-}
-@keyframes pop{ from{transform:scale(.6);opacity:.2} to{transform:scale(1);opacity:1} }
-
-.pass-title{ font-size:1.6em; font-weight:900; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent; }
-.pass-row{ position:relative; margin-top:20px; }
-.pass-input{
-  width:100%; padding:14px 16px; text-align:center;
-  border-radius:12px; border:2px solid #e0e7ff; background:#f8f9ff; font-size:1.1em;
-  transition:all 0.3s;
-}
-.pass-input:focus{
-  outline:none; border-color:#667eea; box-shadow:0 0 0 3px rgba(102,126,234,0.1);
-}
-.pass-toggle{
-  position:absolute; left:15px; top:50%; transform:translateY(-50%);
-  font-size:1.3em; color:#667eea; cursor:pointer; opacity:0.6;
-  transition:all 0.3s;
-}
-.pass-btn{
-  margin-top:20px; width:100%; padding:13px; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-  color:#fff; border:none; border-radius:12px; font-size:1.05em;
-  font-weight:bold; cursor:pointer; transition:all 0.3s;
-}
-.pass-btn:hover{ transform:translateY(-2px); }
-.pass-err{ margin-top:12px; color:#c62828; font-weight:bold; display:none; font-size:0.95em; }
-
-.logout-btn{
-  position:fixed; top:20px; left:20px; z-index:1000;
-  background:linear-gradient(135deg,#ff6b6b 0%,#c62828 100%);
-  color:#fff; border:none; padding:14px 26px;
-  border-radius:12px; font-weight:700; font-size:1.07em;
-  cursor:pointer; transition:all 0.3s;
-  box-shadow:0 4px 12px rgba(198,40,40,0.3);
-}
-.logout-btn:hover{ transform:translateY(-2px); box-shadow:0 6px 16px rgba(198,40,40,0.4); }
-
-/* زر الإخراج الإداري */
-.remote-logout-btn{
-    margin-top: 15px;
-    padding: 10px;
-    background: #ffc107;
-    color: #333;
-    font-weight: bold;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: background 0.3s;
-}
-.remote-logout-btn:hover{
-    background: #ff9800;
-}
-
-
-.container{
-  width:100%; max-width:420px; background:#fff; color:#222;
-  padding:26px; border-radius:20px;
-  box-shadow:0 20px 60px rgba(0,0,0,.3);
-  animation:fade .5s ease;
-  box-sizing: border-box;
-}
-@keyframes fade{
-  from{opacity:0; transform:translateY(20px);}
-  to{opacity:1; transform:translateY(0);}
-}
-
-h2{
-  text-align:center; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-  font-size:2em; font-weight:900;
-}
-
-.committee-info{
-  text-align:center; margin-top:12px; margin-bottom:25px;
-  background:linear-gradient(135deg,#f5f7ff 0%,#eff2ff 100%);
-  padding:12px; border-radius:12px; border-left:4px solid #667eea;
-}
-
-.committee-name{
-  font-size:1.06em; font-weight:700; color:#667eea; margin-bottom:4px;
-}
-
-.committee-address{
-  font-size:0.88em; color:#666; font-weight:500;
-}
-
+*{margin:0; padding:0; box-sizing:border-box; font-family:"Cairo",sans-serif;}
+body{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; color:#fff; overflow-x:hidden;}
+.hidden{display:none !important;}
+#password-modal{position:fixed; inset:0; background:rgba(0,0,0,.7); backdrop-filter:blur(10px); display:flex; justify-content:center; align-items:center; z-index:9999;}
+.pass-box{width:95%; max-width:400px; background:#fff; color:#222; padding:35px 18px; border-radius:18px; box-shadow:0 20px 60px rgba(0,0,0,.4); animation:pop .4s ease; text-align:center;}
+@keyframes pop{from{transform:scale(.6);opacity:.2} to{transform:scale(1);opacity:1}}
+.pass-title{font-size:1.6em; font-weight:900; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.pass-row{position:relative; margin-top:20px;}
+.pass-input{width:100%; padding:14px 16px; text-align:center; border-radius:12px; border:2px solid #e0e7ff; background:#f8f9ff; font-size:1.1em; transition:all 0.3s;}
+.pass-input:focus{outline:none; border-color:#667eea; box-shadow:0 0 0 3px rgba(102,126,234,0.1);}
+.pass-toggle{position:absolute; left:15px; top:52%; transform:translateY(-50%); font-size:1.3em; color:#667eea; cursor:pointer; opacity:0.6; transition:all 0.3s;}
+.pass-btn{margin-top:20px; width:100%; padding:13px; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:#fff; border:none; border-radius:12px; font-size:1.05em; font-weight:bold; cursor:pointer; transition:all 0.3s;}
+.pass-btn:hover{transform:translateY(-2px);}
+.unlock-btn{margin-top:17px; width:100%; padding:12px; background:linear-gradient(135deg,#44c442 0%,#36b734 100%); color:#fff; border:none; border-radius:10px; font-size:1em; font-weight:bold; cursor:pointer; transition:all 0.3s;}
+.unlock-btn:hover{box-shadow:0 4px 14px rgba(68,196,66,0.2);}
+.pass-err{margin-top:12px; color:#c62828; font-weight:bold; display:none; font-size:0.95em;}
+.logout-btn{position:fixed; top:20px; left:20px; z-index:1000; background:linear-gradient(135deg,#ff6b6b 0%,#c62828 100%); color:#fff; border:none; padding:14px 26px; border-radius:12px; font-weight:700; font-size:1.07em; cursor:pointer; transition:all 0.3s; box-shadow:0 4px 12px rgba(198,40,40,0.3);}
+.logout-btn:hover{transform:translateY(-2px); box-shadow:0 6px 16px rgba(198,40,40,0.4);}
+.remote-logout-btn{margin-top:15px; padding:10px; background:#ffc107; color:#333; font-weight:bold; border:none; border-radius:10px; cursor:pointer; transition:background 0.3s;}
+.remote-logout-btn:hover{background:#ff9800;}
+.container{width:100%; max-width:420px; background:#fff; color:#222; padding:26px; border-radius:20px; box-shadow:0 20px 60px rgba(0,0,0,.3); animation:fade .5s ease; box-sizing:border-box;}
+@keyframes fade{from{opacity:0; transform:translateY(20px);} to{opacity:1; transform:translateY(0);}}
+h2{text-align:center; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; font-size:2em; font-weight:900;}
+.committee-info{text-align:center; margin-top:12px; margin-bottom:25px; background:linear-gradient(135deg,#f5f7ff 0%,#eff2ff 100%); padding:12px; border-radius:12px; border-left:4px solid #667eea;}
+.committee-name{font-size:1.06em; font-weight:700; color:#667eea; margin-bottom:4px;}
+.committee-address{font-size:0.88em; color:#666; font-weight:500;}
 .subtitle{text-align:center; color:#999; margin-top:8px; margin-bottom:25px; font-size:0.93em;}
-
-label{ font-weight:700; color:#333; margin-top:16px; display:block; }
-input[type=text]{
-  width:100%; padding:13px 12px; border-radius:12px;
-  border:2px solid #e0e7ff; background:#f8f9ff; font-size:1em; transition:all 0.3s;
-}
-input[type=text]:focus{
-  outline:none; border-color:#667eea; box-shadow:0 0 0 3px rgba(102,126,234,0.1);
-}
-
-.candidate-list{
-  margin-top:10px; background:#f8f9ff; border:2px solid #e0e7ff;
-  border-radius:14px; max-height:320px; overflow-y:auto; padding:8px;
-}
-.candidate-item{
-  background:#fff; border:1px solid #e8ecff; padding:10px;
-  border-radius:12px; margin-bottom:9px;
-  display:flex; justify-content:space-between; align-items:center;
-  transition:all 0.3s; cursor:pointer; border-left:4px solid #667eea;
-  min-height:47px;
-}
-.candidate-item:hover{
-  background:linear-gradient(135deg,#f5f7ff 0%,#eff2ff 100%);
-  border-color:#667eea; box-shadow:0 4px 12px rgba(102,126,234,0.17);
-}
-.candidate-item.selected{
-  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-  color:#fff; border-left-color:#fff;
-}
-.c-left{ display:flex; align-items:center; gap:10px; flex:1; }
-.num-circle{
-  width:32px; height:32px; border-radius:50%;
-  background:#667eea; color:#fff;
-  display:flex; align-items:center; justify-content:center;
-  font-size:0.97em; font-weight:900;
-}
-.candidate-item.selected .num-circle{
-  background:#fff; color:#667eea;
-}
-.c-name{ font-weight:700; word-break:break-word; }
-.c-right{ display:flex; align-items:center; gap:10px; }
-.c-icon{ font-size:1.5em; }
-input[type="checkbox"]{ width:22px; height:22px; cursor:pointer; accent-color:#667eea; }
-
-.sec-box{
-  margin-top:13px; background:linear-gradient(135deg,#f5f7ff 0%,#eff2ff 100%);
-  border:2px solid #e0e7ff; border-radius:12px; padding:12px;
-}
-.sec-title{ font-weight:700; color:#667eea; display:block; margin-bottom:12px; font-size:1em; }
-.radio-group{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-.radio-item{
-  display:flex; align-items:center; gap:8px; cursor:pointer;
-  padding:8px; background:#fff; border-radius:10px;
-  border:2px solid #e0e7ff; transition:all 0.3s;
-}
-.radio-item:hover{ border-color:#667eea; background:#f8f9ff; }
-.radio-item input[type="radio"]{ width:18px; height:18px; cursor:pointer; }
-.radio-item.selected{
-  background:#667eea; color:#fff; border-color:#667eea;
-}
-.radio-item.selected input[type="radio"]{ accent-color:#fff; }
-
-.btn-row{ display:flex; gap:10px; margin-top:23px; }
-button{
-  flex:1; padding:13px; border:none; border-radius:12px;
-  cursor:pointer; font-weight:700; font-size:1.03em; transition:all 0.3s;
-}
-.btn-primary{ background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:#fff; }
-.btn-primary:hover{ transform:translateY(-2px); }
-.btn-reset{ background:#e0e7ff; color:#667eea; font-weight:700; }
-.btn-reset:hover{ background:#d3ddff; }
-
-.msg-warn, .msg-confirm{
-  display:none; margin-top:12px; padding:11px; border-radius:10px;
-  text-align:center; font-weight:700; animation:slideDown 0.3s ease;
-  font-size: 1em;
-}
-@keyframes slideDown{
-  from{opacity:0; transform:translateY(-10px);}
-  to{opacity:1; transform:translateY(0);}
-}
-.msg-warn{ background:#ffebee; color:#c62828; border-left:4px solid #c62828; }
-.msg-confirm{ background:#e8f5e9; color:#2e7d32; border-left:4px solid #2e7d32; }
-
-#bubble{
-  position:fixed; bottom:13px; right:13px;
-  background:#fff; color:#222;
-  padding:16px; border-radius:12px;
-  box-shadow:0 8px 24px rgba(0,0,0,.25);
-  font-size:1em; font-weight:700;
-  display:none; width:320px; max-width:calc(100vw - 26px);
-  animation:slide .4s ease; border-left:4px solid #667eea;
-  z-index:99999;
-}
-
-#bubble.active{
-  display:flex;
-  align-items:flex-start;
-  gap:10px;
-}
-
-#bubble-icon{
-  font-size:1.3em;
-  min-width:28px;
-  text-align:center;
-  margin-top:2px;
-}
-
-#bubble-content{
-  flex:1;
-  line-height:1.55;
-}
-
-#bubble-close{
-  background:none;
-  border:none;
-  font-size:1.4em;
-  color:#999;
-  cursor:pointer;
-  padding:0;
-  min-width:28px;
-  text-align:center;
-  transition:all 0.3s;
-  opacity:0.6;
-}
-
-#bubble-close:hover{
-  opacity:1;
-  color:#667eea;
-}
-
-@keyframes slide{
-  from{transform:translateY(18px);opacity:0;}
-  to{transform:translateY(0);opacity:1;}
-}
-
+label{font-weight:700; color:#333; margin-top:16px; display:block;}
+input[type=text]{width:100%; padding:13px 12px; border-radius:12px; border:2px solid #e0e7ff; background:#f8f9ff; font-size:1em; transition:all 0.3s;}
+input[type=text]:focus{outline:none; border-color:#667eea; box-shadow:0 0 0 3px rgba(102,126,234,0.1);}
+.candidate-list{margin-top:10px; background:#f8f9ff; border:2px solid #e0e7ff; border-radius:14px; max-height:320px; overflow-y:auto; padding:8px;}
+.candidate-item{background:#fff; border:1px solid #e8ecff; padding:10px; border-radius:12px; margin-bottom:9px; display:flex; justify-content:space-between; align-items:center; transition:all 0.3s; cursor:pointer; border-left:4px solid #667eea; min-height:47px;}
+.candidate-item:hover{background:linear-gradient(135deg,#f5f7ff 0%,#eff2ff 100%); border-color:#667eea; box-shadow:0 4px 12px rgba(102,126,234,0.17);}
+.candidate-item.selected{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:#fff; border-left-color:#fff;}
+.c-left{display:flex; align-items:center; gap:10px; flex:1;}
+.num-circle{width:32px; height:32px; border-radius:50%; background:#667eea; color:#fff; display:flex; align-items:center; justify-content:center; font-size:0.97em; font-weight:900;}
+.candidate-item.selected .num-circle{background:#fff; color:#667eea;}
+.c-name{font-weight:700; word-break:break-word;}
+.c-right{display:flex; align-items:center; gap:10px;}
+.c-icon{font-size:1.5em;}
+input[type="checkbox"]{width:22px; height:22px; cursor:pointer; accent-color:#667eea;}
+.sec-box{margin-top:13px; background:linear-gradient(135deg,#f5f7ff 0%,#eff2ff 100%); border:2px solid #e0e7ff; border-radius:12px; padding:12px;}
+.sec-title{font-weight:700; color:#667eea; display:block; margin-bottom:12px; font-size:1em;}
+.radio-group{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+.radio-item{display:flex; align-items:center; gap:8px; cursor:pointer; padding:8px; background:#fff; border-radius:10px; border:2px solid #e0e7ff; transition:all 0.3s;}
+.radio-item:hover{border-color:#667eea; background:#f8f9ff;}
+.radio-item input[type="radio"]{width:18px; height:18px; cursor:pointer;}
+.radio-item.selected{background:#667eea; color:#fff; border-color:#667eea;}
+.radio-item.selected input[type="radio"]{accent-color:#fff;}
+.btn-row{display:flex; gap:10px; margin-top:23px;}
+button{flex:1; padding:13px; border:none; border-radius:12px; cursor:pointer; font-weight:700; font-size:1.03em; transition:all 0.3s;}
+.btn-primary{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:#fff;}
+.btn-primary:hover{transform:translateY(-2px);}
+.btn-reset{background:#e0e7ff; color:#667eea; font-weight:700;}
+.btn-reset:hover{background:#d3ddff;}
+.msg-warn, .msg-confirm{display:none; margin-top:12px; padding:11px; border-radius:10px; text-align:center; font-weight:700; animation:slideDown 0.3s ease; font-size:1em;}
+@keyframes slideDown{from{opacity:0; transform:translateY(-10px);} to{opacity:1; transform:translateY(0);}}
+.msg-warn{background:#ffebee; color:#c62828; border-left:4px solid #c62828;}
+.msg-confirm{background:#e8f5e9; color:#2e7d32; border-left:4px solid #2e7d32;}
+#bubble{position:fixed; bottom:13px; right:13px; background:#fff; color:#222; padding:16px; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,.25); font-size:1em; font-weight:700; display:none; width:320px; max-width:calc(100vw - 26px); animation:slide .4s ease; border-left:4px solid #667eea; z-index:99999;}
+#bubble.active{display:flex; align-items:flex-start; gap:10px;}
+#bubble-icon{font-size:1.3em; min-width:28px; text-align:center; margin-top:2px;}
+#bubble-content{flex:1; line-height:1.55;}
+#bubble-close{background:none; border:none; font-size:1.4em; color:#999; cursor:pointer; padding:0; min-width:28px; text-align:center; transition:all 0.3s; opacity:0.6;}
+#bubble-close:hover{opacity:1; color:#667eea;}
+@keyframes slide{from{transform:translateY(18px);opacity:0;} to{transform:translateY(0);opacity:1;}}
 .sig{text-align:left; margin-top:17px; color:#999; font-style:italic; font-size:0.82em;}
-
-/* تجاوب أقوى */
 @media(max-width:600px){
-  .container{ max-width:98vw; padding:9vw 4vw; border-radius:8px; }
-  h2{ font-size:1.17em; }
-  .radio-group{ grid-template-columns:1fr; }
-  .candidate-list{ max-height:340px; }
-  .logout-btn{ top:7px; left:6px; padding:9px 13px; font-size:0.95em; border-radius:9px;}
-  .c-name, .committee-address{ font-size:1em;}
+.container{max-width:98vw; padding:9vw 4vw; border-radius:8px;}
+h2{font-size:1.17em;}
+.radio-group{grid-template-columns:1fr;}
+.candidate-list{max-height:340px;}
+.logout-btn{top:7px; left:6px; padding:9px 13px; font-size:0.95em; border-radius:9px;}
+.c-name, .committee-address{font-size:1em;}
 }
-
 @media(max-width:400px){
-  #bubble{ padding:8px; font-size:0.95em; max-width:90vw; }
-  .container{ padding:6vw 2vw;}
+#bubble{padding:8px; font-size:0.95em; max-width:90vw;}
+.container{padding:6vw 2vw;}
+html, body {width:100%; max-width:100%; overflow-x:hidden !important;}
+body {display:block !important;}
+html, body {width:100%; overflow-x:hidden !important;}
+#bubble {max-width:calc(100vw - 30px); right:10px !important;}
+#bubble-close {position:absolute; right:5px; top:5px;}
 }
 </style>
 </head>
 <body>
-
 <button class="logout-btn hidden" id="logout-btn" onclick="logoutCommittee()">تسجيل الخروج</button>
-
 <div id="bubble">
-  <div id="bubble-icon">💬</div>
-  <div id="bubble-content"></div>
-  <button id="bubble-close" onclick="closeBubble()">×</button>
+ <div id="bubble-icon">💬</div>
+ <div id="bubble-content"></div>
+ <button id="bubble-close" onclick="closeBubble()">×</button>
 </div>
-
 <div id="password-modal">
-  <div class="pass-box">
-    <div class="pass-title">تسجيل الدخول</div>
-    <div class="pass-row">
-      <input type="password" id="password-input" class="pass-input" placeholder="ادخل كلمة السر (حتى 8 أرقام للمشرف)" autocomplete="off">
-      <span class="pass-toggle" onclick="togglePass()">👁</span>
-    </div>
-    <button class="pass-btn" onclick="checkPass()">دخول</button>
-    <div id="pw-err" class="pass-err">كلمة السر غير صحيحة</div>
-  </div>
+ <div class="pass-box">
+   <div class="pass-title">تسجيل الدخول</div>
+   <div class="pass-row">
+     <input type="password" id="password-input" class="pass-input" placeholder="ادخل كلمة السر (حتى 8 أرقام للمشرف)" autocomplete="off">
+     <span class="pass-toggle" onclick="togglePass()">👁</span>
+   </div>
+   <button class="pass-btn" onclick="checkPass()">دخول</button>
+   <div id="pw-err" class="pass-err">كلمة السر غير صحيحة</div>
+   <button type="button" class="unlock-btn hidden" id="unlock-btn" onclick="unlockCommittee()">إعادة تفعيل اللجنة</button>
+ </div>
 </div>
-
 <div class="container hidden" id="main-container">
-  <h2 id="welcome-title">تسجيل التصويت</h2>
-  <div class="committee-info">
-    <div class="committee-name" id="committee-name-display"></div>
-    <div class="committee-address" id="committee-address-display"></div>
-  </div>
-
-    <button class="remote-logout-btn hidden" id="remote-logout-btn" onclick="remoteLogout()">إخراج المشرف الحالي</button>
-    
-  <form id="vote-form">
-    <label>اسم الناخب:</label>
-    <input type="text" id="voter-name" placeholder="اكتب اسم الناخب (اختياري)">
-
-    <label>اختر المرشح (حتى 2):</label>
-    <div class="candidate-list" id="candidate-list"></div>
-
-    <div class="sec-box">
-      <span class="sec-title">حالة الصوت:</span>
-      <div class="radio-group">
-        <label class="radio-item">
-          <input type="radio" name="vvalid" value="صحيح">
-          <span>✓ صحيح</span>
-        </label>
-        <label class="radio-item">
-          <input type="radio" name="vvalid" value="باطل">
-          <span>✗ باطل</span>
-        </label>
-      </div>
-    </div>
-
-    <div class="btn-row">
-      <button type="submit" class="btn-primary">تسجيل التصويت</button>
-      <button type="reset" class="btn-reset">إعادة ضبط</button>
-    </div>
-
-    <div id="msg-warn" class="msg-warn"></div>
-    <div id="msg-confirm" class="msg-confirm"></div>
-  </form>
-
-  <div class="sig">
-    تم البرمجة بواسطة
-    <a href="https://www.facebook.com/en.mohamed.nasr" target="_blank"
-       style="color:#1e3c72; font-weight:900; text-decoration:underline;">
-       المهندس محمد حماد
-    </a>
-  </div>
+ <h2 id="welcome-title">تسجيل التصويت</h2>
+ <div class="committee-info">
+   <div class="committee-name" id="committee-name-display"></div>
+   <div class="committee-address" id="committee-address-display"></div>
+ </div>
+ <button class="remote-logout-btn hidden" id="remote-logout-btn" onclick="remoteLogout()">إخراج المشرف الحالي</button>
+ <form id="vote-form">
+   <label>اسم الناخب:</label>
+   <input type="text" id="voter-name" placeholder="اكتب اسم الناخب (اختياري)">
+   <label>اختر المرشح (حتى 2):</label>
+   <div class="candidate-list" id="candidate-list"></div>
+   <div class="sec-box">
+     <span class="sec-title">حالة الصوت:</span>
+     <div class="radio-group">
+       <label class="radio-item">
+         <input type="radio" name="vvalid" value="صحيح">
+         <span>✓ صحيح</span>
+       </label>
+       <label class="radio-item">
+         <input type="radio" name="vvalid" value="باطل">
+         <span>✗ باطل</span>
+       </label>
+     </div>
+   </div>
+   <div class="btn-row">
+     <button type="submit" class="btn-primary">تسجيل التصويت</button>
+     <button type="reset" class="btn-reset">إعادة ضبط</button>
+   </div>
+   <div id="msg-warn" class="msg-warn"></div>
+   <div id="msg-confirm" class="msg-confirm"></div>
+ </form>
+ <div class="sig">
+   تم البرمجة بواسطة
+   <a href="https://www.facebook.com/en.mohamed.nasr" target="_blank" style="color:#1e3c72; font-weight:900; text-decoration:underline;">
+      المهندس محمد حماد
+   </a>
+ </div>
 </div>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getDatabase, ref, set, onValue, onDisconnect, get, serverTimestamp, remove } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
-
 const firebaseConfig = {
-  apiKey: "AIzaSyCxxXV_6CEo1fTp3rRbfwfYbe7WH0Cyg38",
-  authDomain: "elahmadiya.firebaseapp.com",
-  databaseURL: "https://elahmadiya-default-rtdb.firebaseio.com",
-  projectId: "elahmadiya",
-  storageBucket: "elahmadiya.firebasestorage.app",
-  messagingSenderId: "594580767620",
-  appId: "1:594580767620:web:f5be3b87d4c704854e53d1"
+ apiKey: "AIzaSyCxxXV_6CEo1fTp3rRbfwfYbe7WH0Cyg38",
+ authDomain: "elahmadiya.firebaseapp.com",
+ databaseURL: "https://elahmadiya-default-rtdb.firebaseio.com",
+ projectId: "elahmadiya",
+ storageBucket: "elahmadiya.firebasestorage.app",
+ messagingSenderId: "594580767620",
+ appId: "1:594580767620:web:f5be3b87d4c704854e53d1"
 };
-
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-
 let committeeNumber = 0;
 let closedNotifications = new Set();
 let myPresenceRef = null;
-let isAdmin = false; // 🌟 جديد: لتحديد ما إذا كان المستخدم الحالي مشرفاً عاماً
-
+let isAdmin = false;
+let lockedCommittee = 0;
 function loadClosedNotifications() {
-  const stored = localStorage.getItem("closedNotifications");
-  if (stored) {
-    try {
-      closedNotifications = new Set(JSON.parse(stored));
-    } catch (e) {
-      console.error("Error loading notifications:", e);
-      closedNotifications = new Set();
-    }
-  }
+ const stored = localStorage.getItem("closedNotifications");
+ if (stored) {
+   try {
+     closedNotifications = new Set(JSON.parse(stored));
+   } catch (e) {
+     closedNotifications = new Set();
+   }
+ }
 }
-
 function saveClosedNotifications() {
-  try {
-    localStorage.setItem(
-      "closedNotifications",
-      JSON.stringify(Array.from(closedNotifications))
-    );
-  } catch (e) {
-    console.error("Error saving notifications:", e);
-  }
+ try {
+   localStorage.setItem("closedNotifications", JSON.stringify(Array.from(closedNotifications)));
+ } catch (e) {}
 }
-
 loadClosedNotifications();
-
-// بيانات اللجان من 1 إلى 60
-const committeeData = {
-  1:  { name: "الفروسات", address: "مدرسة احمد القصبى الابتدائية" },
-  2:  { name: "الفروسات", address: "مدرسة احمد القصبى الابتدائية" },
-  3:  { name: "أبو الأخضر", address: "مدرسة أبو الأخضر الابتدائية" },
-  4:  { name: "جديدة المنزلة", address: "مدرسة الشهيد محمد فوزى" },
-  5:  { name: "العامرة", address: "مدرسة العامرة الابتدائية" },
-  6:  { name: "جديدة المنزلة", address: "مدرسة عبده بطي الإعدادية" },
-  7:  { name: "عرب زيدان", address: "مدرسة عرب زيدان الابتدائية" },
-  8:  { name: "الستايتة", address: "مدرسة الشهيد محمد زغلول الابتدائية" },
-  9:  { name: "كفر حجاج", address: "مدرسة كفر حجاج الابتدائية" },
-  10: { name: "ميت خض", address: "مدرسة محمد إسماعيل الإعدادية" },
-  11: { name: "المواجدة", address: "مدرسة حسني الشناوى" },
-  12: { name: "البضاط", address: "مدرسة الشهيد محمد المحلاوى الإعدادية" },
-  13: { name: "البضاط", address: "مدرسة الشهيد محمد المحلاوى الإعدادية" },
-  14: { name: "الطوابرة", address: "مدرسة النصر الإعدادية" },
-  15: { name: "العمارنة", address: "مدرسة العمارنة الابتدائية" },
-  16: { name: "أولاد بانا", address: "مدرسة أولاد بانا الابتدائية" },
-  17: { name: "أولاد حانا", address: "مدرسة أولاد حانا الابتدائية" },
-  18: { name: "القزاقزة", address: "مدرسة القزاقزة الابتدائية" },
-  19: { name: "الحوته", address: "مدرسة الشهيد اسلام محمد" },
-  20: { name: "أولاد نور", address: "مدرسة أولاد نور الابتدائية" },
-  21: { name: "الخلايفة", address: "مدرسة الشهيد محمود فهيم الابتدائية" },
-  22: { name: "القطشة", address: "مدرسة القطشة الإعدادية" },
-  23: { name: "الجماملة", address: "مدرسة الجماملة الابتدائية" },
-  24: { name: "العزيزة", address: "مدرسة مجمع العزيزة الابتدائية" },
-  25: { name: "العزيزة", address: "مدرسة مجمع العزيزة الابتدائية" },
-  26: { name: "الأحمدية", address: "مدرسة الاحمدية الابتدائية" },
-  27: { name: "العربان", address: "مدرسة طاهر فرح" },
-  28: { name: "أولاد علم", address: "مدرسة الشني سليم الابتدائية" },
-  29: { name: "أولاد ناصر", address: "مدرسة الدكتور محمد النحاس" },
-  30: { name: "ببر هلال", address: "مدرسة ببر هلال الابتدائية" },
-  31: { name: "الشبول", address: "معهد بني الشبول الأزهرى" },
-  32: { name: "الشبول", address: "معهد بني الشبول الأزهرى" },
-  33: { name: "الرودة", address: "مدرسة الرودة الإعدادية" },
-  34: { name: "ميت شريف", address: "مدرسة أم المؤمنين الابتدائية" },
-  35: { name: "بحر حادوث", address: "مدرسة السيد قطب الإعدادية" },
-  36: { name: "النسايمة", address: "مدرسة النسايمة الابتدائية" },
-  37: { name: "النسايمة", address: "مدرسة النسايمة الابتدائية" },
-  38: { name: "شارع الثورة", address: "مدرسة الشهيد محمود النجدي الثانوية بنات" },
-  39: { name: "شارع الثورة", address: "مدرسة الشهيد محمود النجدي الثانوية بنات" },
-  40: { name: "شارع محمد فريد", address: "معهد فتيات المطرية ع ث" },
-  41: { name: "شارع المينا القبلي", address: "مدرسة أبو بكر الصديق" },
-  42: { name: "شارع الدقهلية", address: "مدرسة أحمد ماهر الثانوية بنين" },
-  43: { name: "شارع الدقهلية", address: "مدرسة أحمد ماهر الثانوية بنين" },
-  44: { name: "شارع المينا البحري", address: "مدرسة العاشر من رمضان الابتدائية" },
-  45: { name: "شارع المينا البحري", address: "مدرسة طارق ابن زياد الأعدادية" },
-  46: { name: "قرية العصافرة", address: "مدرسة السيدة نفسية الاعدادية بنات" },
-  47: { name: "قرية العصافرة", address: "مدرسة السيدة نفسية الاعدادية بنات" },
-  48: { name: "قرية الضهير", address: "مدرسة الضهير الإبتدائية" },
-  49: { name: "شارع صلاح الدين", address: "معهد عثمان بن عفان الابتدائي" },
-  50: { name: "شارع الدقهلية", address: "مدرسة خالد بن الوليد" },
-  51: { name: "شارع الدقهلية", address: "مدرسة خالد بن الوليد" },
-  52: { name: "شارع المينا البحري", address: "مدرسة المطرية الابتدائية" },
-  53: { name: "شارع الثانوية", address: "مدرسة الثانوية بنين" },
-  54: { name: "شارع مصنع البصل", address: "مدرسة عثمان بن عفان الإعدادية" },
-  55: { name: "شارع مصنع البصل", address: "مدرسة عثمان بن عفان الإعدادية" },
-  56: { name: "شارع بورسعيد", address: "مدرسة الأنصاري الابتدائية" },
-  57: { name: "هاشم شلباية", address: "مدرسة هاشم شلباية خلف المستشفى" },
-  58: { name: "شارع الزهراء", address: "مدرسة الزهراء الابتدائية" },
-  59: { name: "شارع الزهراء", address: "مدرسة الزهراء الابتدائية" },
-  60: { name: "سوق الجمعة", address: "مدرسة الامام علي الابتدائية" }
-};
-
+const committeeData = {1:{name:"الفروسات",address:"مدرسة احمد القصبى الابتدائية"},2:{name:"الفروسات",address:"مدرسة احمد القصبى الابتدائية"},3:{name:"أبو الأخضر",address:"مدرسة أبو الأخضر الابتدائية"},4:{name:"جديدة المنزلة",address:"مدرسة الشهيد محمد فوزى"},5:{name:"العامرة",address:"مدرسة العامرة الابتدائية"},6:{name:"جديدة المنزلة",address:"مدرسة عبده بطي الإعدادية"},7:{name:"عرب زيدان",address:"مدرسة عرب زيدان الابتدائية"},8:{name:"الستايتة",address:"مدرسة الشهيد محمد زغلول الابتدائية"},9:{name:"كفر حجاج",address:"مدرسة كفر حجاج الابتدائية"},10:{name:"ميت خض",address:"مدرسة محمد إسماعيل الإعدادية"},11:{name:"المواجدة",address:"مدرسة حسني الشناوى"},12:{name:"البضاط",address:"مدرسة الشهيد محمد المحلاوى الإعدادية"},13:{name:"البضاط",address:"مدرسة الشهيد محمد المحلاوى الإعدادية"},14:{name:"الطوابرة",address:"مدرسة النصر الإعدادية"},15:{name:"العمارنة",address:"مدرسة العمارنة الابتدائية"},16:{name:"أولاد بانا",address:"مدرسة أولاد بانا الابتدائية"},17:{name:"أولاد حانا",address:"مدرسة أولاد حانا الابتدائية"},18:{name:"القزاقزة",address:"مدرسة القزاقزة الابتدائية"},19:{name:"الحوته",address:"مدرسة الشهيد اسلام محمد"},20:{name:"أولاد نور",address:"مدرسة أولاد نور الابتدائية"},21:{name:"الخلايفة",address:"مدرسة الشهيد محمود فهيم الابتدائية"},22:{name:"القطشة",address:"مدرسة القطشة الإعدادية"},23:{name:"الجماملة",address:"مدرسة الجماملة الابتدائية"},24:{name:"العزيزة",address:"مدرسة مجمع العزيزة الابتدائية"},25:{name:"العزيزة",address:"مدرسة مجمع العزيزة الابتدائية"},26:{name:"الأحمدية",address:"مدرسة الاحمدية الابتدائية"},27:{name:"العربان",address:"مدرسة طاهر فرح"},28:{name:"أولاد علم",address:"مدرسة الشني سليم الابتدائية"},29:{name:"أولاد ناصر",address:"مدرسة الدكتور محمد النحاس"},30:{name:"ببر هلال",address:"مدرسة ببر هلال الابتدائية"},31:{name:"الشبول",address:"معهد بني الشبول الأزهرى"},32:{name:"الشبول",address:"معهد بني الشبول الأزهرى"},33:{name:"الرودة",address:"مدرسة الرودة الإعدادية"},34:{name:"ميت شريف",address:"مدرسة أم المؤمنين الابتدائية"},35:{name:"بحر حادوث",address:"مدرسة السيد قطب الإعدادية"},36:{name:"النسايمة",address:"مدرسة النسايمة الابتدائية"},37:{name:"النسايمة",address:"مدرسة النسايمة الابتدائية"},38:{name:"شارع الثورة",address:"مدرسة الشهيد محمود النجدي الثانوية بنات"},39:{name:"شارع الثورة",address:"مدرسة الشهيد محمود النجدي الثانوية بنات"},40:{name:"شارع محمد فريد",address:"معهد فتيات المطرية ع ث"},41:{name:"شارع المينا القبلي",address:"مدرسة أبو بكر الصديق"},42:{name:"شارع الدقهلية",address:"مدرسة أحمد ماهر الثانوية بنين"},43:{name:"شارع الدقهلية",address:"مدرسة أحمد ماهر الثانوية بنين"},44:{name:"شارع المينا البحري",address:"مدرسة العاشر من رمضان الابتدائية"},45:{name:"شارع المينا البحري",address:"مدرسة طارق ابن زياد الأعدادية"},46:{name:"قرية العصافرة",address:"مدرسة السيدة نفسية الاعدادية بنات"},47:{name:"قرية العصافرة",address:"مدرسة السيدة نفسية الاعدادية بنات"},48:{name:"قرية الضهير",address:"مدرسة الضهير الإبتدائية"},49:{name:"شارع صلاح الدين",address:"معهد عثمان بن عفان الابتدائي"},50:{name:"شارع الدقهلية",address:"مدرسة خالد بن الوليد"},51:{name:"شارع الدقهلية",address:"مدرسة خالد بن الوليد"},52:{name:"شارع المينا البحري",address:"مدرسة المطرية الابتدائية"},53:{name:"شارع الثانوية",address:"مدرسة الثانوية بنين"},54:{name:"شارع مصنع البصل",address:"مدرسة عثمان بن عفان الإعدادية"},55:{name:"شارع مصنع البصل",address:"مدرسة عثمان بن عفان الإعدادية"},56:{name:"شارع بورسعيد",address:"مدرسة الأنصاري الابتدائية"},57:{name:"هاشم شلباية",address:"مدرسة هاشم شلباية خلف المستشفى"},58:{name:"شارع الزهراء",address:"مدرسة الزهراء الابتدائية"},59:{name:"شارع الزهراء",address:"مدرسة الزهراء الابتدائية"},60:{name:"سوق الجمعة",address:"مدرسة الامام علي الابتدائية"}};
 window.togglePass = function(){
-  const p = document.getElementById("password-input");
-  p.type = (p.type === "password") ? "text" : "password";
+ const p = document.getElementById("password-input");
+ p.type = (p.type === "password") ? "text" : "password";
 };
-
 async function tryCommitteeLogin(committee, info) {
-  const presenceRef = ref(db, `presence/committee_${committee}`);
-  const remoteLogoutBtn = document.getElementById("remote-logout-btn"); // 🌟 عنصر الزر
-
-  try {
-    const snapshot = await get(presenceRef);
-    
-    if (snapshot.exists()) {
-        // حالة وجود مشرف آخر (أو تسجيل دخول عادي للمشرف العام)
-      const data = snapshot.val();
-        
-        if (isAdmin) {
-            // 🌟 إذا كان المستخدم الحالي هو المشرف العام ووجد تسجيل دخول للجنة
-            remoteLogoutBtn.classList.remove("hidden");
-            // لا تمنع الدخول، بل اعرض زر الإخراج
-        } else {
-            // إذا كان مستخدماً عادياً، امنع الدخول وأظهر رسالة
-            const err = document.getElementById("pw-err");
-            err.textContent = "⚠️ يوجد مندوب آخر فاتح هذه اللجنة";
-            err.style.display = "block";
-            err.style.background = "#fff3cd";
-            err.style.color = "#856404";
-            setTimeout(() => err.style.display = "none", 3500);
-            return false;
-        }
-    } else {
-         // إذا لم يكن هناك أحد مسجل للجنة، أخفِ زر الإخراج الإداري
-         remoteLogoutBtn.classList.add("hidden");
-    }
-
-    // يتم تسجيل الدخول للجنة (سواء مشرف عام أو مشرف لجنة عادي)
-    if (!isAdmin) {
-        // إذا لم يكن مشرفاً عاماً، قم بتسجيل الوجود وonDisconnect
-        committeeNumber = committee;
-        myPresenceRef = presenceRef;
-        
-        const connectedRef = ref(db, '.info/connected');
-        onValue(connectedRef, async (snap) => {
-            if (snap.val() === true) {
-                await onDisconnect(presenceRef).remove();
-                
-                await set(presenceRef, {
-                    online: true,
-                    loginTime: serverTimestamp(),
-                    committee: committee
-                });
-                
-                console.log("تم تسجيل الدخول للجنة", committee);
-            }
-        });
-    } else {
-        // إذا كان مشرفاً عاماً، لا نسجل وجوده في Firebase presence
-        committeeNumber = committee; 
-        console.log("المشرف العام دخل لعرض اللجنة:", committee);
-        myPresenceRef = null; 
-    }
-    
-    document.getElementById("password-modal").classList.add("hidden");
-    document.getElementById("main-container").classList.remove("hidden");
-    document.getElementById("logout-btn").classList.remove("hidden");
-    document.getElementById("welcome-title").textContent = (isAdmin ? "إدارة " : "اللجنة ") + " " + committee;
-    document.getElementById("committee-name-display").textContent = info.name;
-    document.getElementById("committee-address-display").textContent = info.address;
-
-    // 🌟 إخفاء زر تسجيل التصويت عن المشرف العام
-    document.getElementById("vote-form").style.display = isAdmin ? 'none' : 'block';
-
-
-    setupNotificationListeners(committee);
-    
-    return true;
-  } catch (error) {
-    console.error("خطأ في تسجيل الدخول:", error);
-    const err = document.getElementById("pw-err");
-    err.textContent = "خطأ في الاتصال";
-    err.style.display = "block";
-    setTimeout(() => err.style.display = "none", 2000);
-    return false;
-  }
+ const presenceRef = ref(db, `presence/committee_${committee}`);
+ const remoteLogoutBtn = document.getElementById("remote-logout-btn");
+ const unlockBtn = document.getElementById("unlock-btn");
+ unlockBtn.classList.add("hidden");
+ let locked = false;
+ try {
+   const snapshot = await get(presenceRef);
+   if (snapshot.exists() && snapshot.val().locked) {
+     locked = true;
+     committeeNumber = committee;
+     lockedCommittee = committee;
+     isAdmin
+       ? unlockBtn.classList.remove("hidden")
+       : unlockBtn.classList.add("hidden");
+     const err = document.getElementById("pw-err");
+     err.textContent = "هذه اللجنة تم تعطيل دخول المشرف إليها من قبل الأدمن. يرجى مراجعة المسؤول.";
+     err.style.display = "block";
+     setTimeout(() => err.style.display = "none", 4200);
+     return false;
+   }
+   if (snapshot.exists()) {
+     if (isAdmin) {
+       remoteLogoutBtn.classList.remove("hidden");
+     } else {
+       const err = document.getElementById("pw-err");
+       err.textContent = "⚠️ يوجد مندوب آخر فاتح هذه اللجنة";
+       err.style.display = "block";
+       err.style.background = "#fff3cd";
+       err.style.color = "#856404";
+       setTimeout(() => err.style.display = "none", 3500);
+       return false;
+     }
+   } else {
+     remoteLogoutBtn.classList.add("hidden");
+   }
+   if (!isAdmin) {
+     committeeNumber = committee;
+     myPresenceRef = presenceRef;
+     const connectedRef = ref(db, '.info/connected');
+     onValue(connectedRef, async (snap) => {
+       if (snap.val() === true) {
+         await onDisconnect(presenceRef).remove();
+         await set(presenceRef, {online:true,loginTime:serverTimestamp(),committee:committee});
+       }
+     });
+   } else {
+     committeeNumber = committee;
+     myPresenceRef = null;
+   }
+   document.getElementById("password-modal").classList.add("hidden");
+   document.getElementById("main-container").classList.remove("hidden");
+   document.getElementById("logout-btn").classList.remove("hidden");
+   document.getElementById("welcome-title").textContent = (isAdmin ? "إدارة " : "اللجنة ") + " " + committee;
+   document.getElementById("committee-name-display").textContent = info.name;
+   document.getElementById("committee-address-display").textContent = info.address;
+   document.getElementById("vote-form").style.display = isAdmin ? 'none' : 'block';
+   setupNotificationListeners(committee);
+   return true;
+ } catch (error) {
+   const err = document.getElementById("pw-err");
+   err.textContent = "خطأ في الاتصال";
+   err.style.display = "block";
+   setTimeout(() => err.style.display = "none", 2000);
+   return false;
+ }
 }
-
-// 🌟🌟🌟 الدالة الجديدة لتسجيل الخروج الإداري عن بُعد 🌟🌟🌟
 window.remoteLogout = async function() {
-    if (!isAdmin || committeeNumber < 1 || committeeNumber > 60) {
-        alert("خطأ: لا تملك الصلاحية لإجراء هذه العملية.");
-        return;
-    }
-
-    const confirmLogout = confirm(`هل أنت متأكد من إخراج المشرف الحالي من اللجنة ${committeeNumber}؟`);
-    if (!confirmLogout) return;
-
-    const presenceRef = ref(db, `presence/committee_${committeeNumber}`);
-    try {
-        await remove(presenceRef);
-        document.getElementById("remote-logout-btn").classList.add("hidden");
-        showConfirm(`تم إخراج المشرف من اللجنة ${committeeNumber} بنجاح!`);
-        console.log("Remote logout successful for committee", committeeNumber);
-    } catch (error) {
-        showWarn("فشل في إخراج المشرف.");
-        console.error("Remote logout error:", error);
-    }
+ if (!isAdmin || committeeNumber < 1 || committeeNumber > 60) {
+   alert("خطأ: لا تملك الصلاحية لإجراء هذه العملية.");
+   return;
+ }
+ const confirmLogout = confirm(`هل أنت متأكد من إخراج المشرف الحالي من اللجنة ${committeeNumber}؟`);
+ if (!confirmLogout) return;
+ const presenceRef = ref(db, `presence/committee_${committeeNumber}`);
+ try {
+   await remove(presenceRef);
+   await set(presenceRef, {locked:true});
+   document.getElementById("remote-logout-btn").classList.add("hidden");
+   showConfirm(`تم إخراج المشرف وقفل اللجنة ${committeeNumber} بنجاح!`);
+ } catch (error) {
+   showWarn("فشل في إخراج المشرف.");
+ }
 };
-
-
+window.unlockCommittee = async function() {
+ if (!isAdmin || lockedCommittee < 1 || lockedCommittee > 60) return;
+ const presenceRef = ref(db, `presence/committee_${lockedCommittee}`);
+ await remove(presenceRef);
+ showConfirm("تمت إعادة تفعيل اللجنة. يمكن الآن دخول المشرف.");
+ document.getElementById("unlock-btn").classList.add("hidden");
+ lockedCommittee = 0;
+};
 window.logoutCommittee = async function() {
-  if (myPresenceRef && committeeNumber > 0 && !isAdmin) {
-    try {
-      await remove(myPresenceRef);
-      console.log("تم تسجيل الخروج من اللجنة", committeeNumber);
-    } catch (error) {
-      console.error("خطأ في تسجيل الخروج:", error);
-    }
-  }
-  
-  location.reload();
+ if (myPresenceRef && committeeNumber > 0 && !isAdmin) {
+   try {
+     await remove(myPresenceRef);
+   } catch (error) {}
+ }
+ location.reload();
 };
-
-
 window.checkPass = async function(){
-  const val = document.getElementById("password-input").value.trim();
-  const err = document.getElementById("pw-err");
-  const numVal = parseInt(val);
-  const ADMIN_PREFIX = "251988"; // الرقم الثابت للمشرف
-  const MAX_COMMITTEE = 60;
-  
-  // 1. التحقق من كود المشرف العام (251988)
-  if(val === ADMIN_PREFIX){
-    isAdmin = true; // 🌟 تعيين حالة المشرف العام
-    document.getElementById("password-modal").classList.add("hidden");
-    document.getElementById("main-container").classList.remove("hidden");
-    document.getElementById("logout-btn").classList.remove("hidden");
-    document.getElementById("welcome-title").textContent = "مرحباً بـ Super Admin - 251988";
-    document.getElementById("committee-name-display").textContent = "وصول غير مقيد";
-    document.getElementById("committee-address-display").textContent = "صلاحيات مشرف عام";
-    committeeNumber = 0; // تعيين committeeNumber إلى 0 للإشارة لـ Admin
-    document.getElementById("remote-logout-btn").classList.add("hidden"); // أخفِ الزر هنا
-    document.getElementById("vote-form").style.display = 'none'; // أخفِ النموذج
-    setupNotificationListeners(0);
-    return;
-  }
-
-  // 2. التحقق من كود المشرف الخاص باللجنة (الرقم الثابت + رقم اللجنة)
-  if (val.startsWith(ADMIN_PREFIX) && val.length >= 7 && val.length <= 8) {
-    // فصل رقم اللجنة عن الرقم الثابت
-    const committeeStr = val.substring(ADMIN_PREFIX.length);
-    const committee = parseInt(committeeStr);
-    
-    // التحقق من أن الرقم المفصول يقع بين 1 و 60
-    if (!isNaN(committee) && committee >= 1 && committee <= MAX_COMMITTEE) {
-      const info = committeeData[committee] || { name: "لجنة", address: "بدون عنوان" };
-      isAdmin = true; // 🌟 تعيين حالة المشرف العام لدخول إدارة اللجنة
-      // ندخلهم مباشرة كـ مشرف على اللجنة (سيتم فحص التواجد في tryCommitteeLogin)
-      await tryCommitteeLogin(committee, info);
-      return;
-    }
-  }
-  
-  // 🌟 مسح حالة المشرف العام قبل التحقق من كلمات السر العادية
-  isAdmin = false;
-  
-  // 3. التحقق من كلمة السر العادية (100101 إلى 100160)
-  if (isNaN(numVal) || numVal < 100101 || numVal > 100160) {
-    err.textContent = "كلمة السر غير صحيحة";
-    err.style.display = "block";
-    setTimeout(() => err.style.display = "none", 3000);
-    return;
-  }
-
-  const committee = numVal - 100100;
-  const info = committeeData[committee] || { name: "لجنة", address: "بدون عنوان" };
-  await tryCommitteeLogin(committee, info);
+ const val = document.getElementById("password-input").value.trim();
+ const err = document.getElementById("pw-err");
+ const numVal = parseInt(val);
+ const ADMIN_PREFIX = "251988";
+ const MAX_COMMITTEE = 60;
+ document.getElementById("unlock-btn").classList.add("hidden");
+ if(val === ADMIN_PREFIX){
+   isAdmin = true;
+   document.getElementById("password-modal").classList.add("hidden");
+   document.getElementById("main-container").classList.remove("hidden");
+   document.getElementById("logout-btn").classList.remove("hidden");
+   document.getElementById("welcome-title").textContent = "مرحباً بـ Super Admin - 251988";
+   document.getElementById("committee-name-display").textContent = "وصول غير مقيد";
+   document.getElementById("committee-address-display").textContent = "صلاحيات مشرف عام";
+   committeeNumber = 0;
+   document.getElementById("remote-logout-btn").classList.add("hidden");
+   document.getElementById("vote-form").style.display = 'none';
+   setupNotificationListeners(0);
+   return;
+ }
+ if (val.startsWith(ADMIN_PREFIX) && val.length >= 7 && val.length <= 8) {
+   const committeeStr = val.substring(ADMIN_PREFIX.length);
+   const committee = parseInt(committeeStr);
+   if (!isNaN(committee) && committee >= 1 && committee <= MAX_COMMITTEE) {
+     const info = committeeData[committee] || { name: "لجنة", address: "بدون عنوان" };
+     isAdmin = true;
+     await tryCommitteeLogin(committee, info);
+     return;
+   }
+ }
+ isAdmin = false;
+ if (isNaN(numVal) || numVal < 100101 || numVal > 100160) {
+   err.textContent = "كلمة السر غير صحيحة";
+   err.style.display = "block";
+   setTimeout(() => err.style.display = "none", 3000);
+   return;
+ }
+ const committee = numVal - 100100;
+ const info = committeeData[committee] || { name: "لجنة", address: "بدون عنوان" };
+ await tryCommitteeLogin(committee, info);
 };
-// 🌟🌟🌟 نهاية الدالة المُعدَّلة 🌟🌟🌟
-
-
 function setupNotificationListeners(committee){
-  try {
-    const allNotificationsRef = ref(db, "notifications/all");
-    let lastAllTimestamp = 0;
-    
-    onValue(allNotificationsRef, (snapshot) => {
-      const data = snapshot.val();
-      if(data && typeof data === 'object'){
-        Object.entries(data).forEach(([key, notif]) => {
-          if(notif && notif.message && notif.timestamp && notif.timestamp > lastAllTimestamp){
-            lastAllTimestamp = notif.timestamp;
-            showFloatingNotification(notif.message, "عام");
-          }
-        });
-      }
-    }, (error) => {
-      console.log("Listening to all notifications...");
-    });
-
-    // الاستماع للإشعارات الخاصة باللجنة فقط للجان من 1 إلى 60 أو للمشرف العام (committee == 0)
-    if(committee >= 1 && committee <= 60 || committee === 0){
-      const committeeNotificationsRef = ref(db, "notifications/committee_" + committee);
-      let lastCommitteeTimestamp = 0;
-      
-      onValue(committeeNotificationsRef, (snapshot) => {
-        const data = snapshot.val();
-        if(data && typeof data === 'object'){
-          Object.entries(data).forEach(([key, notif]) => {
-            if(notif && notif.message && notif.timestamp && notif.timestamp > lastCommitteeTimestamp){
-              lastCommitteeTimestamp = notif.timestamp;
-              showFloatingNotification(notif.message, "لجنتك");
-            }
-          });
-        }
-      }, (error) => {
-        console.log("Listening to committee notifications...");
-      });
-    }
-  } catch(e) {
-    console.error("Error setting up listeners:", e);
-  }
+ try {
+   const allNotificationsRef = ref(db, "notifications/all");
+   let lastAllTimestamp = 0;
+   onValue(allNotificationsRef, (snapshot) => {
+     const data = snapshot.val();
+     if(data && typeof data === 'object'){
+       Object.entries(data).forEach(([key, notif]) => {
+         if(notif && notif.message && notif.timestamp && notif.timestamp > lastAllTimestamp){
+           lastAllTimestamp = notif.timestamp;
+           showFloatingNotification(notif.message, "عام");
+         }
+       });
+     }
+   });
+   if(committee >= 1 && committee <= 60 || committee === 0){
+     const committeeNotificationsRef = ref(db, "notifications/committee_" + committee);
+     let lastCommitteeTimestamp = 0;
+     onValue(committeeNotificationsRef, (snapshot) => {
+       const data = snapshot.val();
+       if(data && typeof data === 'object'){
+         Object.entries(data).forEach(([key, notif]) => {
+           if(notif && notif.message && notif.timestamp && notif.timestamp > lastCommitteeTimestamp){
+             lastCommitteeTimestamp = notif.timestamp;
+             showFloatingNotification(notif.message, "لجنتك");
+           }
+         });
+       }
+     });
+   }
+ } catch(e) {}
 }
-
 function showFloatingNotification(msg, type){
-  const bubble = document.getElementById("bubble");
-  const content = document.getElementById("bubble-content");
-  const icon = document.getElementById("bubble-icon");
-  
-  const notificationId = type + "_" + Date.now();
-  bubble.dataset.notificationId = notificationId;
-  
-  if(closedNotifications.has(notificationId)){
-    return;
-  }
-  
-  content.textContent = msg;
-  
-  if(type === "عام"){
-    bubble.style.borderLeft = "4px solid #667eea";
-    icon.textContent = "📢";
-  } else if(type === "لجنتك"){
-    bubble.style.borderLeft = "4px solid #11998e";
-    icon.textContent = "📩";
-  } else {
-    bubble.style.borderLeft = "4px solid #ffcc00";
-    icon.textContent = "💬";
-  }
-  
-  bubble.classList.add("active");
+ const bubble = document.getElementById("bubble");
+ const content = document.getElementById("bubble-content");
+ const icon = document.getElementById("bubble-icon");
+ const notificationId = type + "_" + Date.now();
+ bubble.dataset.notificationId = notificationId;
+ if(closedNotifications.has(notificationId)) return;
+ content.textContent = msg;
+ if(type === "عام"){
+   bubble.style.borderLeft = "4px solid #667eea";
+   icon.textContent = "📢";
+ } else if(type === "لجنتك"){
+   bubble.style.borderLeft = "4px solid #11998e";
+   icon.textContent = "📩";
+ } else {
+   bubble.style.borderLeft = "4px solid #ffcc00";
+   icon.textContent = "💬";
+ }
+ bubble.classList.add("active");
 }
-
 window.closeBubble = function(){
-  const bubble = document.getElementById("bubble");
-  const notificationId = bubble.dataset.notificationId;
-  
-  if(notificationId){
-    closedNotifications.add(notificationId);
-    saveClosedNotifications();
-  }
-  
-  bubble.classList.remove("active");
+ const bubble = document.getElementById("bubble");
+ const notificationId = bubble.dataset.notificationId;
+ if(notificationId){
+   closedNotifications.add(notificationId);
+   saveClosedNotifications();
+ }
+ bubble.classList.remove("active");
 };
-
 const candidates = [
-  ["1","ايهاب العمده","👑"],
-  ["2","محمد العتمانى","🍞"],
-  ["3","أحمد الحديدى","🦁"],
-  ["4","عادل الجيار","🦅"],
-  ["5","احمد محمد محمد سمره","💣"],
-  ["6","وليد تيسير الامير","🐊"],
-  ["7","كمال العيسوى","🌀"],
-  ["8","البدوى جميز","🐋"],
-  ["9","احمد الريس","🦂"],
-  ["10","أحمد عوف","✋"],
-  ["11","حسن الملهاط","🌿"],
-  ["12","عمرو محمد بحيرى","🚌"],
-  ["13","السيد طمان","🔫"],
-  ["14","محمد دندن","🚁"],
-  ["15","مجدى الأمير","🖊"]
+ ["1","ايهاب العمده","👑"],
+ ["2","محمد العتمانى","🍞"],
+ ["3","أحمد الحديدى","🦁"],
+ ["4","عادل الجيار","🦅"],
+ ["5","احمد محمد محمد سمره","💣"],
+ ["6","وليد تيسير الامير","🐊"],
+ ["7","كمال العيسوى","🌀"],
+ ["8","البدوى جميز","🐋"],
+ ["9","احمد الريس","🦂"],
+ ["10","أحمد عوف","✋"],
+ ["11","حسن الملهاط","🌿"],
+ ["12","عمرو محمد بحيرى","🚌"],
+ ["13","السيد طمان","🔫"],
+ ["14","محمد دندن","🚁"],
+ ["15","مجدى الأمير","🖊"]
 ];
-
 const listBox = document.getElementById("candidate-list");
 candidates.forEach((c, idx) => {
-  const item = document.createElement("div");
-  item.className = "candidate-item";
-
-  const checkbox = document.createElement("input");
-  checkbox.type = "checkbox";
-  checkbox.value = c[1];
-  checkbox.className = "candidate-checkbox";
-
-  item.innerHTML = '<div class="c-left"><div class="num-circle">' + c[0] + '</div><div class="c-name">' + c[1] + '</div></div><div class="c-right"><span class="c-icon">' + c[2] + '</span></div>';
-  item.appendChild(checkbox);
-
-  item.addEventListener("click", (e) => {
-    if(e.target !== checkbox) checkbox.checked = !checkbox.checked;
-    checkLimit();
-    updateStyle();
-  });
-
-  checkbox.addEventListener("change", () => {
-    checkLimit();
-    updateStyle();
-  });
-
-  listBox.appendChild(item);
+ const item = document.createElement("div");
+ item.className = "candidate-item";
+ const checkbox = document.createElement("input");
+ checkbox.type = "checkbox";
+ checkbox.value = c[1];
+ checkbox.className = "candidate-checkbox";
+ item.innerHTML = '<div class="c-left"><div class="num-circle">' + c[0] + '</div><div class="c-name">' + c[1] + '</div></div><div class="c-right"><span class="c-icon">' + c[2] + '</span></div>';
+ item.appendChild(checkbox);
+ item.addEventListener("click", (e) => {
+   if(e.target !== checkbox) checkbox.checked = !checkbox.checked;
+   checkLimit();
+   updateStyle();
+ });
+ checkbox.addEventListener("change", () => {
+   checkLimit();
+   updateStyle();
+ });
+ listBox.appendChild(item);
 });
-
 function updateStyle(){
-  document.querySelectorAll(".candidate-item").forEach((item) => {
-    if(item.querySelector("input[type='checkbox']").checked) 
-      item.classList.add("selected");
-    else 
-      item.classList.remove("selected");
-  });
+ document.querySelectorAll(".candidate-item").forEach((item) => {
+   if(item.querySelector("input[type='checkbox']").checked)
+     item.classList.add("selected");
+   else
+     item.classList.remove("selected");
+ });
 }
-
 function checkLimit(){
-  const sel = document.querySelectorAll('.candidate-checkbox:checked');
-  if(sel.length > 2){
-    sel[sel.length - 1].checked = false;
-    showWarn("يمكن اختيار مرشحين فقط");
-    updateStyle();
-  }
+ const sel = document.querySelectorAll('.candidate-checkbox:checked');
+ if(sel.length > 2){
+   sel[sel.length - 1].checked = false;
+   showWarn("يمكن اختيار مرشحين فقط");
+   updateStyle();
+ }
 }
-
 function showWarn(msg){
-  const el = document.getElementById("msg-warn");
-  el.textContent = msg;
-  el.style.display = "block";
-  setTimeout(() => el.style.display = "none", 2500);
+ const el = document.getElementById("msg-warn");
+ el.textContent = msg;
+ el.style.display = "block";
+ setTimeout(() => el.style.display = "none", 2500);
 }
-
 function showConfirm(msg){
-  const el = document.getElementById("msg-confirm");
-  el.textContent = msg;
-  el.style.display = "block";
-  setTimeout(() => el.style.display = "none", 3000);
+ const el = document.getElementById("msg-confirm");
+ el.textContent = msg;
+ el.style.display = "block";
+ setTimeout(() => el.style.display = "none", 3000);
 }
-
 document.querySelectorAll("input[type='radio']").forEach(radio => {
-  radio.addEventListener("change", function(){
-    document.querySelectorAll(".radio-item").forEach(item => item.classList.remove("selected"));
-    this.closest(".radio-item").classList.add("selected");
-  });
+ radio.addEventListener("change", function(){
+   document.querySelectorAll(".radio-item").forEach(item => item.classList.remove("selected"));
+   this.closest(".radio-item").classList.add("selected");
+ });
 });
-
 document.getElementById("vote-form").addEventListener("submit", function(e){
-  e.preventDefault();
-
-  if(committeeNumber === 0) return showWarn("لا يمكن تسجيل الأصوات بصلاحية المشرف العام.");
-  if(committeeNumber < 1 || committeeNumber > 60) return showWarn("يرجى تسجيل الدخول للجنة أولاً.");
-
-  let name = document.getElementById("voter-name").value.trim();
-  if(!name) name = "بدون اسم";
-
-  const sel = Array.from(document.querySelectorAll('.candidate-checkbox:checked')).map(v => v.value);
-  const val = document.querySelector('input[name="vvalid"]:checked');
-
-  if(sel.length < 1) return showWarn("اختر مرشح واحد على الأقل");
-  if(!val) return showWarn("اختر حالة الصوت");
-
-  const voteKey = Date.now();
-  
-  // مسار التصويت موحد لجميع اللجان من 1 إلى 60
-  const voteRef = ref(db, "votes/" + voteKey);
-  
-  set(voteRef, {
-    name: name,
-    selected: sel,
-    vote_validity: val.value,
-    committee: committeeNumber,
-    timestamp: voteKey
-  }).then(() => {
-    showConfirm("تم التسجيل بنجاح!");
-    document.getElementById("vote-form").reset();
-    updateStyle();
-    document.querySelectorAll(".radio-item").forEach(item => item.classList.remove("selected"));
-  }).catch(err => {
-    showWarn("خطأ: " + err.message);
-  });
+ e.preventDefault();
+ if(committeeNumber === 0) return showWarn("لا يمكن تسجيل الأصوات بصلاحية المشرف العام.");
+ if(committeeNumber < 1 || committeeNumber > 60) return showWarn("يرجى تسجيل الدخول للجنة أولاً.");
+ let name = document.getElementById("voter-name").value.trim();
+ if(!name) name = "بدون اسم";
+ const sel = Array.from(document.querySelectorAll('.candidate-checkbox:checked')).map(v => v.value);
+ const val = document.querySelector('input[name="vvalid"]:checked');
+ if(sel.length < 1) return showWarn("اختر مرشح واحد على الأقل");
+ if(!val) return showWarn("اختر حالة الصوت");
+ const voteKey = Date.now();
+ const voteRef = ref(db, "votes/" + voteKey);
+ set(voteRef, {
+   name: name,
+   selected: sel,
+   vote_validity: val.value,
+   committee: committeeNumber,
+   timestamp: voteKey
+ }).then(() => {
+   showConfirm("تم التسجيل بنجاح!");
+   document.getElementById("vote-form").reset();
+   updateStyle();
+   document.querySelectorAll(".radio-item").forEach(item => item.classList.remove("selected"));
+ }).catch(err => {
+   showWarn("خطأ: " + err.message);
+ });
 });
-
 document.getElementById("password-input").addEventListener("keypress", function(e){
-  if(e.key === "Enter") checkPass();
+ if(e.key === "Enter") checkPass();
 });
 </script>
-
 </body>
 </html>
