@@ -1019,7 +1019,6 @@ const committeeData = {
   58: { name: "شارع الزهراء", address: "مدرسة الزهراء الابتدائية" },
   59: { name: "شارع الزهراء", address: "مدرسة الزهراء الابتدائية" },
   60: { name: "سوق الجمعة", address: "مدرسة الامام علي الابتدائية" },
-  // 38, 39 missing in original committeeData, but added to originalVotersCount
   38: { name: "شارع الثورة", address: "مدرسة الشهيد محمود النجدي الثانوية بنات" },
   39: { name: "شارع الثورة", address: "مدرسة الشهيد محمود النجدي الثانوية بنات" }
 };
@@ -1037,7 +1036,8 @@ const originalVotersCount = {
   55: 8436, 56: 9689, 57: 10055, 58: 6975, 59: 5580, 60: 10989
 };
 
-const totalOriginalVoters = Object.values(originalVotersCount).reduce((sum, count) => sum + count, 0);
+// إجمالي أصوات الدائرة العامة المثبت
+const totalOriginalVoters = 350757;
 
 const candidatesNames = [
   "ايهاب العمده","محمد العتمانى","أحمد الحديدى",
@@ -1349,7 +1349,12 @@ function renderCharts(){
     chartCandidates = new Chart(ctx1, {
       type: "bar",
       data: { labels: labels, datasets: [{ label: "الأصوات", data: data, backgroundColor: "#667eea" }] },
-      options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+      options: { 
+        responsive: true, 
+        parsing: false, // تم الإضافة لحل مشكلة CSP
+        plugins: { legend: { display: false } }, 
+        scales: { y: { beginAtZero: true } } 
+      }
     });
   }
 
@@ -1368,7 +1373,11 @@ function renderCharts(){
         labels: ["صحيح (" + valid + ")", "باطل (" + invalid + ")"], 
         datasets: [{ data: total > 0 ? [valid, invalid] : [0, 0], backgroundColor: ["#11998e", "#eb3349"] }] 
       },
-      options: { cutout: "55%", plugins: { legend: { position: "bottom" } } }
+      options: { 
+        cutout: "55%", 
+        parsing: false, // تم الإضافة لحل مشكلة CSP
+        plugins: { legend: { position: "bottom" } } 
+      }
     });
   }
 
@@ -1391,7 +1400,12 @@ function renderCharts(){
     chartVPM = new Chart(ctx3, {
       type: "line",
       data: { labels: minuteLabels, datasets: [{ label: "أصوات/دقيقة", data: minuteData, borderColor: "#667eea", backgroundColor: "rgba(102,126,234,0.1)", tension: 0.3 }] },
-      options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+      options: { 
+        responsive: true, 
+        parsing: false, // تم الإضافة لحل مشكلة CSP
+        plugins: { legend: { display: false } }, 
+        scales: { y: { beginAtZero: true } } 
+      }
     });
   }
 }
