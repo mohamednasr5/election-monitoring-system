@@ -648,7 +648,11 @@ button {
   
   <button class="remote-logout-btn hidden" id="remote-logout-btn" onclick="remoteLogout()">إخراج المشرف الحالي</button>
   
-  <form id="vote-form">
+  <!-- Admin Panel -->
+  <div id="admin-panel" class="hidden" style="margin-top: 20px;">
+    <div class="sec-box">
+      <span class="sec-title">لوحة تحكم الأدمن</span>
+      
     <label>اسم الناخب:</label>
     <input type="text" id="voter-name" placeholder="اكتب اسم الناخب (اختياري)">
     
@@ -880,10 +884,18 @@ async function tryCommitteeLogin(committee, info) {
     document.getElementById("password-modal").classList.add("hidden");
     document.getElementById("main-container").classList.remove("hidden");
     document.getElementById("logout-btn").classList.remove("hidden");
-    document.getElementById("welcome-title").textContent = (isAdmin ? "إدارة " : "اللجنة ") + committee;
+    document.getElementById("welcome-title").textContent = (isAdmin ? "إدارة اللجنة " : "اللجنة ") + committee;
     document.getElementById("committee-name-display").textContent = info.name;
     document.getElementById("committee-address-display").textContent = info.address;
-    document.getElementById("vote-form").style.display = isAdmin ? 'none' : 'block';
+    
+    // إظهار أو إخفاء النموذج حسب نوع المستخدم
+    if (isAdmin) {
+      document.getElementById("vote-form").style.display = 'none';
+      document.getElementById("openUpload").style.display = 'none';
+    } else {
+      document.getElementById("vote-form").style.display = 'block';
+      document.getElementById("openUpload").style.display = 'block';
+    }
     
     setupNotificationListeners(committee);
     return true;
