@@ -1,1084 +1,95 @@
-} else if(value === "azizaadmin"){
-    adminLevel = 1;
-    document.getElementById("lock-screen").classList.add("hidden");
-    document.getElementById("dashboard").classList.remove("hidden");
-    document.getElementById("admin-badge").textContent = "🔑 ادمن كامل";
-    setupVotesListener();
-  } else {
-    err.textContent = "كلمة سر غير صحيحة";
-    err.style.display = "block";
-    setTimeout(() => err.style.display = "none", 2300);
-  }
-};
-
-document.getElementById("lock-pass").addEventListener("keydown", e => {
-  if(e.key === "Enter") unlockDashboard();
-});
-
-function showNotification(msg){
-  const box = document.createElement("div");
-  box.style.cssText = "position:fixed;bottom:20px;right:20px;background:linear-gradient(135deg,#11998e 0%,#38ef7d 100%);color:#fff;padding:16px 20px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.3);z-index:99999;font-size:1em;max-width:300px;";
-  box.innerText = msg;
-  document.body.appendChild(box);
-  setTimeout(() => box.remove(), 4000);
-}
-
-let votesListener = null;
-
-function setupVotesListener() {
-  if(votesListener) votesListener();
-  
-  const votesRef = ref(db, "votes/aziza");
-  votesListener = onValue(votesRef, snapshot => {
-    const data = snapshot.val() || {};
-    allVotes = Object.entries(data).map(([id, v], i) => ({
-      id,
-      index: i + 1,
-      name: v.name || "بدون اسم",
-      candidates: Array.isArray(v.selected) ? v.selected : [],
-      validity: v.vote_validity || "",
-      timestamp: v.timestamp || 0,
-      committee: v.committee || 0
-    }));
-    renderAll();
-  });
-}
-
-setupVotesListener();
-
-function renderAll(){
-  renderStats();
-  renderCommitteeStats();
-  renderCharts();
-  renderRanking();
-  renderTable();
-}
-
-function renderStats(){
-  const total = allVotes.length;
-  const valid = allVotes.filter(v => v.validity === "صحيح").length;
-  const invalid = allVotes.filter(v => v.validity === "باطل").length;
-
-  document.getElementById("total-votes").textContent = total;
-  document.getElementById("valid-votes").textContent = valid;
-  document.getElementById("invalid-votes").textContent = invalid;
-
-  const liveTxt = document.getElementById("live-status");
-  const now = Date.now();
-
-  if(total > 0){
-    const sorted = [...allVotes].filter(v => v.timestamp).sort((a, b) => a.timestamp - b.timestamp);
-    if(sorted.length === 0){
-      document.getElementById("vpm").textContent = "0";
-      document.getElementById("vpm10").textContent = "0";
-      liveTxt.textContent = "لا يوجد تصويت";
-      return;
-    }
-
-    const firstTs = sorted[0].timestamp;
-    const lastTs = sorted[sorted.length - 1].timestamp;
-    const diffMin = (lastTs - firstTs) / 60000;
-    let vpm = diffMin > 0 ? (total / diffMin) : 0;
-    document.getElementById("vpm").textContent = vpm.toFixed(2);
-
-    const tenMinAgo = now - (10 * 60 * 1000);
-    const last10 = allVotes.filter(v => v.timestamp >= tenMinAgo);
-    let vpm10 = 0;
-    if(last10.length > 0){
-      const firstInWindow = Math.min(...last10.map(x => x.timestamp));
-      const span = (now - firstInWindow) / 60000;
-      vpm10 = last10.length / (span || 1);
-    }
-    document.getElementById("vpm10").textContent = vpm10.toFixed(2);
-
-    if(now - lastTs < 25000) liveTxt.textContent = "🟢 نشاط عالي";
-    else liveTxt.textContent = "⚪ نشاط مستقر";
-  } else {
-    document.getElementById("vpm").textContent = "0";
-    document.getElementById("vpm10").textContent = "0";
-    liveTxt.textContent = "⚫ لا يوجد تصويت";
-  }
-}
-
-function renderCommitteeStats(){
-  const grid = document.getElementById("committee-grid");
-  
-  const comm24Data = { total: 0, valid: 0, invalid: 0, votes: [], lastVoteValidity: null };
-  const comm25Data = { total: 0, valid: 0, invalid: 0, votes: [], lastVoteValidity: null };
-  
-  allVotes.forEach(v => {
-    if(v.committee === 24){
-      comm24Data.total++;
-      comm24Data.votes.push(v);
-      if(v.validity === "صحيح") comm24Data.valid++;
-      if(v.validity === "باطل") comm24Data.invalid++;
-      comm24Data.lastVoteValidity = v.validity;
-    } else if(v.committee === 25){
-      comm25Data.total++;
-      comm25Data.votes.push(v);
-      if(v.validity === "صحيح") comm25Data.valid++;
-      if(v.validity === "باطل") comm25Data.invalid++;
-      comm25Data.lastVoteValidity = v.validity;
-    }
-  });
-  
-  grid.innerHTML = "";
-  [{ num: 24, data: comm24Data }, { num: 25, data: comm25Data }].forEach(({ num, data }) => {
-    const info = committeeData[num];
-    const item = document.createElement("div");
-    item.className = "committee-item";
-    
-    if(data.lastVoteValidity === "صحيح"){
-      item.style.background = "linear-gradient(135deg, rgba(17, 153, 142, 0.15) 0%, rgba(150, 249, 123, 0.15) 100%)";
-      item.style.borderLeft = "4px solid #11998e";
-    } else if(data.lastVoteValidity === "باطل"){
-      item.style.background = "linear-gradient(135deg, rgba(235, 51, 73, 0.15) 0%, rgba(244, 92, 67, 0.15) 100%)";
-      item.style.borderLeft = "4px solid #eb3349";
-    } else {
-      item.style.background = "linear-gradient(135deg, #f0fdf9 0%, #d4f1e8 100%)";
-      item.style.borderLeft = "4px solid #11998e";
-    }
-    
-    item.onclick = () => showCommitteeDetails(num, data);
-    item.innerHTML = "<div class='committee-num'>اللجنة " + num + "</div><div class='committee-name'>" + info.name + "</div><div class='committee-address'>" + info.address + "</div><div class='committee-count' style='margin-top:8px;font-weight:900;'>📊 " + data.total + " صوت</div><div class='committee-count'>✓ " + data.valid + " | ✗ " + data.invalid + "</div>";
-    grid.appendChild(item);
-  });
-}
-
-window.showCommitteeDetails = function(num, data){
-  const popup = document.getElementById("committee-popup");
-  const title = document.getElementById("committee-popup-title");
-  const body = document.getElementById("committee-popup-body");
-  const info = committeeData[num] || { name: "لجنة", address: "بدون عنوان" };
-  
-  title.textContent = info.name;
-  
-  const now = Date.now();
-  
-  let vpm = 0;
-  const sorted = [...data.votes].filter(v => v.timestamp).sort((a, b) => a.timestamp - b.timestamp);
-  if(sorted.length > 0){
-    const firstTs = sorted[0].timestamp;
-    const lastTs = sorted[sorted.length - 1].timestamp;
-    const diffMin = (lastTs - firstTs) / 60000;
-    if(diffMin > 0) vpm = data.total / diffMin;
-  }
-  
-  let vpm10 = 0;
-  const tenMinAgo = now - (10 * 60 * 1000);
-  const last10 = data.votes.filter(v => v.timestamp >= tenMinAgo);
-  if(last10.length > 0){
-    const firstInWindow = Math.min(...last10.map(x => x.timestamp));
-    const span = (now - firstInWindow) / 60000;
-    vpm10 = last10.length / (span || 1);
-  }
-  
-  let html = "<div style='background:#f0fdf9;padding:15px;border-radius:12px;margin-bottom:15px;border-left:4px solid #11998e;'>";
-  html += "<div style='margin-bottom:8px;font-size:0.9em;color:#11998e;font-weight:700;'>" + info.address + "</div>";
-  html += "<div style='display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;'>";
-  html += "<div><small style='color:#999;font-weight:600;'>إجمالي الأصوات</small><div style='font-size:1.5em;font-weight:900;color:#11998e;'>" + data.total + "</div></div>";
-  html += "<div><small style='color:#999;font-weight:600;'>حالة اللجنة</small><div style='font-size:1.2em;font-weight:900;color:#11998e;'>🟢 نشطة</div></div>";
-  html += "</div>";
-  html += "<div style='margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:10px;'>";
-  html += "<div><small style='color:#11998e;font-weight:600;'>أصوات صحيحة</small><div style='font-size:1.3em;font-weight:900;color:#11998e;'>" + data.valid + "</div></div>";
-  html += "<div><small style='color:#eb3349;font-weight:600;'>أصوات باطلة</small><div style='font-size:1.3em;font-weight:900;color:#eb3349;'>" + data.invalid + "</div></div>";
-  html += "</div></div>";
-  
-  html += "<div style='background:#e8f5e9;padding:12px;border-radius:10px;margin-bottom:15px;border-left:4px solid #11998e;'>";
-  html += "<small style='color:#11998e;font-weight:600;'>متوسط الأصوات/دقيقة (من البداية)</small>";
-  html += "<div style='font-size:1.5em;font-weight:900;color:#11998e;'>" + vpm.toFixed(2) + "</div>";
-  html += "</div>";
-  
-  html += "<div style='background:#fff3e0;padding:12px;border-radius:10px;margin-bottom:15px;border-left:4px solid #ff9800;'>";
-  html += "<small style='color:#e65100;font-weight:600;'>متوسط الأصوات/دقيقة (آخر 10 دقائق)</small>";
-  html += "<div style='font-size:1.5em;font-weight:900;color:#e65100;'>" + vpm10.toFixed(2) + "</div>";
-  html += "</div>";
-  
-  if(data.votes.length > 0){
-    html += "<h4 style='color:#11998e;margin:15px 0 10px 0;font-weight:900;border-bottom:2px solid #d4f1e8;padding-bottom:8px;'>الناخبين (" + data.votes.length + ")</h4>";
-    html += "<div style='max-height:300px;overflow-y:auto;'>";
-    data.votes.forEach((v, i) => {
-      const validityIcon = v.validity === "صحيح" ? "✓" : "✗";
-      const bgColor = v.validity === "صحيح" ? "rgba(17,153,142,0.1)" : "rgba(235,51,73,0.1)";
-      const borderColor = v.validity === "صحيح" ? "#11998e" : "#eb3349";
-      html += "<div style='padding:10px;margin-bottom:8px;background:" + bgColor + ";border-radius:10px;border-right:4px solid " + borderColor + ";'>";
-      html += "<div style='font-weight:700;color:#333;margin-bottom:4px;'>" + (i + 1) + ". " + v.name + "</div>";
-      html += "<div style='font-size:0.85em;color:#666;margin-bottom:4px;'>المرشحين: " + (v.candidates.join(" و ") || "—") + "</div>";
-      html += "<div style='display:flex;gap:8px;font-size:0.85em;'>";
-      html += "<span style='padding:3px 8px;background:" + (v.validity === "صحيح" ? "#c8e6c9" : "#ffccbc") + ";border-radius:6px;color:#333;font-weight:700;'>" + validityIcon + " " + v.validity + "</span>";
-      html += "</div></div>";
-    });
-    html += "</div>";
-  } else {
-    html += "<p style='color:#999;text-align:center;padding:20px;background:#f0fdf9;border-radius:10px;'>لا توجد أصوات</p>";
-  }
-  
-  body.innerHTML = html;
-  popup.classList.remove("hidden");
-};
-
-window.closeCommitteePopup = function(){
-  document.getElementById("committee-popup").classList.add("hidden");
-};
-
-function renderCharts(){
-  const ctx1 = document.getElementById("chartCandidates").getContext("2d");
-  const ctx2 = document.getElementById("chartValidity").getContext("2d");
-  const ctx3 = document.getElementById("chartVPM").getContext("2d");
-
-  const counts = {};
-  allVotes.forEach(v => v.candidates.forEach(c => counts[c] = (counts[c] || 0) + 1));
-  const labels = Object.keys(counts).length > 0 ? Object.keys(counts) : ["لا توجد بيانات"];
-  const data = Object.keys(counts).length > 0 ? Object.values(counts) : [0];
-
-  if(chartCandidates){
-    chartCandidates.data.labels = labels;
-    chartCandidates.data.datasets[0].data = data;
-    chartCandidates.update();
-  } else {
-    chartCandidates = new Chart(ctx1, {
-      type: "bar",
-      data: { labels: labels, datasets: [{ label: "الأصوات", data: data, backgroundColor: "#11998e" }] },
-      options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
-    });
-  }
-
-  const valid = allVotes.filter(v => v.validity === "صحيح").length;
-  const invalid = allVotes.filter(v => v.validity === "باطل").length;
-  const total = valid + invalid;
-
-  if(chartValidity){
-    chartValidity.data.datasets[0].data = total > 0 ? [valid, invalid] : [0, 0];
-    chartValidity.update();
-  } else {
-    chartValidity = new Chart(ctx2, {
-      type: "doughnut",
-      data: { 
-        labels: ["صحيح (" + valid + ")", "باطل (" + invalid + ")"], 
-        datasets: [{ data: total > 0 ? [valid, invalid] : [0, 0], backgroundColor: ["#11998e", "#eb3349"] }] 
-      },
-      options: { cutout: "55%", plugins: { legend: { position: "bottom" } } }
-    });
-  }
-
-  const minutes = {};
-  allVotes.forEach(v => {
-    if(!v.timestamp) return;
-    const key = Math.floor(v.timestamp / 60000) * 60000;
-    minutes[key] = (minutes[key] || 0) + 1;
-  });
-
-  const minuteKeys = Object.keys(minutes).map(Number).sort((a, b) => a - b);
-  const minuteLabels = minuteKeys.length > 0 ? minuteKeys.map(t => new Date(t).toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" })) : ["لا توجد"];
-  const minuteData = minuteKeys.length > 0 ? minuteKeys.map(k => minutes[k]) : [0];
-
-  if(chartVPM){
-    chartVPM.data.labels = minuteLabels;
-    chartVPM.data.datasets[0].data = minuteData;
-    chartVPM.update();
-  } else {
-    chartVPM = new Chart(ctx3, {
-      type: "line",
-      data: { labels: minuteLabels, datasets: [{ label: "أصوات/دقيقة", data: minuteData, borderColor: "#11998e", backgroundColor: "rgba(17,153,142,0.1)", tension: 0.3 }] },
-      options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
-    });
-  }
-}
-
-function renderRanking(){
-  const list = document.getElementById("ranking-list");
-  const counts = {};
-  allVotes.forEach(v => v.candidates.forEach(c => counts[c] = (counts[c] || 0) + 1));
-  const sorted = Object.entries(counts).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
-
-  if(sorted.length === 0){
-    list.innerHTML = "<div style='padding:20px;text-align:center;color:#999'>لا توجد بيانات</div>";
-    return;
-  }
-
-  const max = sorted[0].count;
-  list.innerHTML = sorted.map((c, i) => {
-    const rank = i + 1;
-    let medal = "🥇";
-    if(rank === 2) medal = "🥈";
-    else if(rank === 3) medal = "🥉";
-    else medal = rank;
-    const width = Math.max((c.count / max) * 100, 12);
-    return "<div class='ranking-item'><div class='ranking-left'><div class='ranking-medal'>" + medal + "</div><div class='ranking-name'>" + c.name + "</div></div><div class='ranking-right'><div class='ranking-bar' style='width:" + width + "%'>" + c.count + "</div><div class='ranking-count'>" + c.count + "</div></div></div>";
-  }).join("");
-}
-
-function renderTable(){
-  const body = document.getElementById("votes-table");
-  const note = document.getElementById("footer-note");
-  const search = document.getElementById("search").value.toLowerCase().trim();
-
-  let filtered = [...allVotes];
-  if(search) filtered = filtered.filter(v => (v.name || "").toLowerCase().includes(search) || v.candidates.join(" ").toLowerCase().includes(search));
-
-  filtered.sort((a, b) => {
-    const dir = (sortState.dir === "asc" ? 1 : -1);
-    let av = a[sortState.key];
-    let bv = b[sortState.key];
-    if(sortState.key === "candidates"){ av = a.candidates.join(","); bv = b.candidates.join(","); }
-    if(av < bv) return -1 * dir;
-    if(av > bv) return 1 * dir;
-    return 0;
-  });
-
-  body.innerHTML = "";
-  filtered.forEach((v, i) => {
-    const tr = document.createElement("tr");
-    const commName = v.committee === 24 ? "النساء" : "الرجال";
-    const editBtn = window.adminLevel === 1 ? '<button class="btn-mini-edit" onclick="openEdit(\'' + v.id + '\')">تعديل</button>' : '';
-    tr.innerHTML = "<td>" + (i + 1) + "</td><td class='clickable-name' onclick=\"showDetails('" + v.id + "')\">" + v.name + "</td><td>" + commName + "</td><td>" + (v.candidates.join(" و ") || "—") + "</td><td class='" + (v.validity === "صحيح" ? "status-valid" : "status-invalid") + "'>" + v.validity + "</td><td>" + (v.timestamp ? new Date(v.timestamp).toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "—") + "</td><td>" + editBtn + "</td>";
-    body.appendChild(tr);
-  });
-
-  note.textContent = filtered.length === 0 ? (allVotes.length === 0 ? "لا توجد بيانات" : "لا توجد نتائج") : "عرض " + filtered.length + " من " + allVotes.length;
-}
-
-document.getElementById("search").addEventListener("input", renderTable);
-
-window.showDetails = function(id){
-  const v = allVotes.find(x => x.id === id);
-  if(!v) return;
-  const body = document.getElementById("details-body");
-  const time = v.timestamp ? new Date(v.timestamp).toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "—";
-  const chosen = v.candidates.join(" و ") || "—";
-  const commName = v.committee === 24 ? "النساء" : "الرجال";
-  body.innerHTML = "<table style='width:100%;'><tr><td><b>الاسم</b></td><td>" + v.name + "</td></tr><tr><td><b>اللجنة</b></td><td>" + commName + "</td></tr><tr><td><b>الوقت</b></td><td>" + time + "</td></tr><tr><td><b>المرشحين</b></td><td>" + chosen + "</td></tr><tr><td><b>الحالة</b></td><td style='color:" + (v.validity === "صحيح" ? "#11998e" : "#eb3349") + "'>" + v.validity + "</td></tr></table>";
-  document.getElementById("details-popup").classList.remove("hidden");
-};
-
-window.closeDetails = function(){
-  document.getElementById("details-popup").classList.add("hidden");
-};
-
-window.openEdit = function(id){
-  if(window.adminLevel !== 1){
-    alert("ليس لديك الصلاحية");
-    return;
-  }
-  const v = allVotes.find(x => x.id === id);
-  if(!v) return;
-  window.editID = id;
-  document.getElementById("edit-name").textContent = "الناخب: " + v.name;
-  const box = document.getElementById("edit-candidates");
-  box.innerHTML = "";
-  candidatesNames.forEach(c => {
-    const chk = document.createElement("input");
-    chk.type = "checkbox";
-    chk.value = c;
-    chk.checked = v.candidates.includes(c);
-    chk.addEventListener("change", () => {
-      const checked = box.querySelectorAll("input:checked");
-      if(checked.length > 2){ chk.checked = false; alert("مرشحين فقط"); }
-    });
-    const lbl = document.createElement("label");
-    lbl.innerHTML = "<span>" + c + "</span>";
-    lbl.appendChild(chk);
-    box.appendChild(lbl);
-  });
-  document.getElementById("edit-popup").classList.remove("hidden");
-};
-
-window.closeEdit = function(){
-  document.getElementById("edit-popup").classList.add("hidden");
-};
-
-window.saveEdit = function(){
-  const box = document.getElementById("edit-candidates");
-  const checked = [...box.querySelectorAll("input:checked")].map(x => x.value);
-  if(checked.length === 0) return alert("اختر واحد");
-  if(checked.length > 2) return alert("مرشحين فقط");
-  update(ref(db, "votes/aziza/" + window.editID), { selected: checked })
-    .then(() => { showNotification("تم الحفظ ✓"); closeEdit(); })
-    .catch(() => alert("خطأ"));
-};
-
-window.exportCSV = function(){
-  if(allVotes.length === 0) return alert("لا توجد بيانات");
-  const header = "Index,Name,Committee,Candidates,Validity,Timestamp\n";
-  const rows = allVotes.map((v, i) => {
-    const commName = v.committee === 24 ? "النساء" : "الرجال";
-    return [i + 1, '"' + v.name.replace(/"/g, '""') + '"', commName, '"' + v.candidates.join(" | ").replace(/"/g, '""') + '"', v.validity, v.timestamp].join(",");
-  });
-  const csv = header + rows.join("\n");
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "aziza_votes_" + Date.now() + ".csv";
-  a.click();
-  URL.revokeObjectURL(url);
-};
-
-window.resetAll = function(){
-  if(window.adminLevel !== 1){
-    alert("ليس لديك الصلاحية");
-    return;
-  }
-  const pw = prompt("ادخل كلمة السر:");
-  if(pw !== "azizaadmin") return alert("كلمة سر خاطئة");
-  if(!confirm("تأكيد حذف جميع أصوات العزيزة؟")) return;
-  
-  remove(ref(db, "votes/aziza"))
-    .then(() => { 
-      showNotification("تم الحذف بنجاح ✓");
-      allVotes = []; 
-      renderAll(); 
-    })
-    .catch(err => alert("خطأ: " + err.message));
-};
-
-</script>
-
-</body>
-</html><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <title>لوحة العزيزة الإنتخابية</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Cairo", sans-serif;
-}
-
-body {
-  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-  color: #222;
-  min-height: 100vh;
-}
-
-#lock-screen {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(10px);
-  z-index: 9999;
-}
-
-.lock-box {
-  background: #fff;
-  width: 90%;
-  max-width: 400px;
-  padding: 40px 30px;
-  border-radius: 20px;
-  text-align: center;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  animation: slideUp 0.4s ease;
-}
-
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(40px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.lock-box h2 {
-  color: #11998e;
-  margin-bottom: 10px;
-  font-size: 1.8em;
-}
-
-.lock-box p {
-  font-size: 0.95em;
-  color: #666;
-  margin-bottom: 30px;
-}
-
-.lock-row {
-  margin-bottom: 15px;
-  position: relative;
-}
-
-.lock-row input {
-  width: 100%;
-  padding: 14px 16px;
-  border-radius: 12px;
-  border: 2px solid #d4f1e8;
-  background: #f0fdf9;
-  text-align: center;
-  font-size: 1.1em;
-  transition: all 0.3s ease;
-}
-
-.lock-row input:focus {
-  outline: none;
-  border-color: #11998e;
-  box-shadow: 0 0 0 3px rgba(17, 153, 142, 0.1);
-}
-
-.lock-toggle {
-  position: absolute;
-  left: 15px;
-  top: 50%;
-  transform: translateY(-50%);
-  cursor: pointer;
-  font-size: 1.3em;
-}
-
-.lock-box button {
-  margin-top: 20px;
-  width: 100%;
-  padding: 13px;
-  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-  color: #fff;
-  border: none;
-  border-radius: 12px;
-  font-size: 1.05em;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.lock-box button:hover {
-  transform: translateY(-2px);
-}
-
-.lock-error {
-  margin-top: 15px;
-  background: #ffebee;
-  color: #c62828;
-  padding: 10px;
-  font-weight: 700;
-  display: none;
-  border-radius: 10px;
-}
-
-.hidden { display: none !important; }
-
-.dashboard {
-  max-width: 1400px;
-  margin: auto;
-  padding: 25px;
-}
-
-.dash-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  gap: 20px;
-  margin-bottom: 30px;
-  background: rgba(255, 255, 255, 0.95);
-  padding: 25px;
-  border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-}
-
-.dash-title {
-  font-size: 2.2em;
-  font-weight: 900;
-  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.dash-subtitle {
-  font-size: 0.95em;
-  color: #999;
-}
-
-.admin-badge {
-  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-  padding: 8px 14px;
-  border-radius: 50px;
-  color: #fff;
-  font-weight: 700;
-  font-size: 0.9em;
-}
-
-.live-badge {
-  background: linear-gradient(135deg, #d4fc79 0%, #96f97b 100%);
-  padding: 10px 18px;
-  border-radius: 50px;
-  color: #2d5016;
-  font-weight: 700;
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.live-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: #2d5016;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.2); }
-}
-
-.cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
-  margin-bottom: 25px;
-}
-
-.card {
-  background: rgba(255, 255, 255, 0.95);
-  padding: 25px;
-  border-radius: 16px;
-  border: 1px solid rgba(17, 153, 142, 0.1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s;
-  position: relative;
-  overflow: hidden;
-}
-
-.card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #11998e 0%, #38ef7d 100%);
-}
-
-.card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 16px 48px rgba(17, 153, 142, 0.2);
-}
-
-.card-title {
-  font-size: 0.85em;
-  color: #999;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-weight: 600;
-}
-
-.card-value {
-  font-size: 2.2em;
-  font-weight: 900;
-  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-top: 10px;
-}
-
-.card-note {
-  font-size: 0.75em;
-  color: #bbb;
-  margin-top: 8px;
-}
-
-.committee-stats-card {
-  background: rgba(255, 255, 255, 0.95);
-  padding: 25px;
-  border-radius: 16px;
-  border: 1px solid rgba(17, 153, 142, 0.1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-  margin-bottom: 25px;
-}
-
-.committee-stats-card h3 {
-  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-size: 1.2em;
-  margin-bottom: 20px;
-  font-weight: 900;
-}
-
-.committee-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 12px;
-}
-
-.committee-item {
-  background: linear-gradient(135deg, #f0fdf9 0%, #d4f1e8 100%);
-  padding: 15px;
-  border-radius: 12px;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  border-left: 4px solid #11998e;
-}
-
-.committee-item:hover {
-  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-  color: white;
-  transform: scale(1.05);
-  box-shadow: 0 8px 24px rgba(17, 153, 142, 0.3);
-}
-
-.committee-num {
-  font-size: 1.1em;
-  font-weight: 900;
-  margin-bottom: 8px;
-}
-
-.committee-name {
-  font-size: 0.85em;
-  font-weight: 700;
-  margin-bottom: 4px;
-  opacity: 0.9;
-}
-
-.committee-count {
-  font-size: 0.75em;
-  opacity: 0.8;
-}
-
-.charts-grid {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 20px;
-  margin-bottom: 25px;
-}
-
-.chart-card {
-  background: rgba(255, 255, 255, 0.95);
-  padding: 25px;
-  border-radius: 16px;
-  border: 1px solid rgba(17, 153, 142, 0.1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
-}
-
-.chart-card:hover {
-  box-shadow: 0 12px 40px rgba(17, 153, 142, 0.15);
-}
-
-.chart-card h3 {
-  margin-bottom: 18px;
-  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-size: 1.05em;
-  font-weight: 900;
-}
-
-.ranking-card {
-  background: rgba(255, 255, 255, 0.95);
-  padding: 25px;
-  border-radius: 16px;
-  border: 1px solid rgba(17, 153, 142, 0.1);
-  margin-bottom: 25px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-}
-
-.ranking-card h3 {
-  margin-bottom: 20px;
-  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-size: 1.2em;
-  font-weight: 900;
-}
-
-.ranking-list {
-  max-height: 500px;
-  overflow-y: auto;
-  padding: 5px;
-}
-
-.ranking-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-  padding: 15px;
-  background: linear-gradient(135deg, #f0fdf9 0%, #d4f1e8 100%);
-  border-radius: 12px;
-  transition: all 0.3s;
-  border-left: 4px solid #11998e;
-}
-
-.ranking-item:hover {
-  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-  color: white;
-  transform: translateX(-5px);
-  box-shadow: 0 8px 24px rgba(17, 153, 142, 0.3);
-}
-
-.ranking-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex: 1;
-}
-
-.ranking-medal {
-  font-size: 1.6em;
-  min-width: 35px;
-  text-align: center;
-}
-
-.ranking-name {
-  font-weight: 700;
-}
-
-.ranking-right {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-.ranking-bar {
-  height: 28px;
-  border-radius: 14px;
-  background: linear-gradient(90deg, #11998e 0%, #38ef7d 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 0.85em;
-  font-weight: 700;
-  min-width: 80px;
-}
-
-.ranking-count {
-  font-weight: 900;
-  min-width: 45px;
-  text-align: center;
-}
-
-.table-card {
-  background: rgba(255, 255, 255, 0.95);
-  padding: 25px;
-  border-radius: 16px;
-  border: 1px solid rgba(17, 153, 142, 0.1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-}
-
-.table-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 18px;
-}
-
-.search-input {
-  padding: 12px 16px;
-  border-radius: 12px;
-  border: 2px solid #d4f1e8;
-  background: #f0fdf9;
-  min-width: 220px;
-  font-size: 0.95em;
-  transition: all 0.3s ease;
-}
-
-.search-input:focus {
-  outline: none;
-  border-color: #11998e;
-}
-
-.btn-sm {
-  padding: 11px 18px;
-  border: none;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-  color: #fff;
-  cursor: pointer;
-  font-weight: 700;
-  font-size: 0.9em;
-  transition: all 0.3s ease;
-}
-
-.btn-sm:hover {
-  transform: translateY(-2px);
-}
-
-.btn-export {
-  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%) !important;
-}
-
-.btn-reset-all {
-  background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%) !important;
-}
-
-.table-wrap {
-  max-height: 450px;
-  overflow: auto;
-  border: 1px solid #d4f1e8;
-  border-radius: 12px;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.9em;
-}
-
-thead {
-  background: linear-gradient(135deg, #f0fdf9 0%, #d4f1e8 100%);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-th, td {
-  padding: 12px 14px;
-  border-bottom: 1px solid #d4f1e8;
-}
-
-th {
-  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  cursor: pointer;
-  font-weight: 900;
-  user-select: none;
-}
-
-tr:hover td {
-  background: rgba(17, 153, 142, 0.05);
-}
-
-.status-valid {
-  color: #11998e;
-  font-weight: 900;
-}
-
-.status-invalid {
-  color: #eb3349;
-  font-weight: 900;
-}
-
-.clickable-name {
-  text-decoration: underline;
-  cursor: pointer;
-  color: #11998e;
-}
-
-.btn-mini-edit {
-  padding: 6px 12px;
-  border-radius: 8px;
-  background: #11998e;
-  color: #fff;
-  border: none;
-  cursor: pointer;
-  font-weight: 700;
-  font-size: 0.8em;
-  transition: all 0.3s ease;
-}
-
-.btn-mini-edit:hover {
-  background: #0d6b63;
-}
-
-.footer-note {
-  margin-top: 12px;
-  color: #999;
-  font-size: 0.85em;
-  font-weight: 600;
-}
-
-.overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9000;
-  backdrop-filter: blur(5px);
-}
-
-.overlay.hidden {
-  display: none !important;
-}
-
-.popup {
-  background: #fff;
-  width: 92%;
-  max-width: 500px;
-  border-radius: 16px;
-  padding: 25px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  max-height: 85vh;
-  overflow-y: auto;
-  animation: slideUp 0.3s ease;
-}
-
-.popup-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-weight: 900;
-  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-bottom: 18px;
-  font-size: 1.2em;
-}
-
-.popup-close {
-  background: none;
-  border: none;
-  font-size: 1.5em;
-  cursor: pointer;
-  color: #11998e;
-  transition: all 0.3s ease;
-}
-
-.popup-close:hover {
-  transform: scale(1.2);
-}
-
-.edit-list {
-  max-height: 280px;
-  overflow: auto;
-  border: 2px solid #d4f1e8;
-  border-radius: 12px;
-  padding: 12px;
-  background: #f0fdf9;
-}
-
-.edit-list label {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 8px 0;
-  font-weight: 700;
-  color: #333;
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-}
-
-.edit-list label:hover {
-  background: #d4f1e8;
-}
-
-.edit-list input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  accent-color: #11998e;
-  cursor: pointer;
-}
-
-@media(max-width: 900px) {
-  .charts-grid { grid-template-columns: 1fr; }
-  .committee-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
-  .dash-header { flex-direction: column; }
-}
-
-@media(max-width: 600px) {
-  .dashboard { padding: 15px; }
-  .dash-title { font-size: 1.6em; }
-  .committee-grid { grid-template-columns: 1fr; }
-  .table-header { flex-direction: column; align-items: flex-start; }
-  .search-input { min-width: 100%; }
-}
+* {margin:0;padding:0;box-sizing:border-box;font-family:"Cairo",sans-serif;}
+body {background:linear-gradient(135deg,#11998e 0%,#38ef7d 100%);color:#222;min-height:100vh;}
+#lock-screen {position:fixed;inset:0;display:flex;justify-content:center;align-items:center;background:rgba(0,0,0,0.7);backdrop-filter:blur(10px);z-index:9999;}
+.lock-box {background:#fff;width:90%;max-width:400px;padding:40px 30px;border-radius:20px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);animation:slideUp 0.4s ease;}
+@keyframes slideUp {from{opacity:0;transform:translateY(40px);}to{opacity:1;transform:translateY(0);}}
+.lock-box h2 {color:#11998e;margin-bottom:10px;font-size:1.8em;}
+.lock-box p {font-size:0.95em;color:#666;margin-bottom:30px;}
+.lock-row {margin-bottom:15px;position:relative;}
+.lock-row input {width:100%;padding:14px 16px;border-radius:12px;border:2px solid #d4f1e8;background:#f0fdf9;text-align:center;font-size:1.1em;transition:all 0.3s ease;}
+.lock-row input:focus {outline:none;border-color:#11998e;box-shadow:0 0 0 3px rgba(17,153,142,0.1);}
+.lock-toggle {position:absolute;left:15px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:1.3em;}
+.lock-box button {margin-top:20px;width:100%;padding:13px;background:linear-gradient(135deg,#11998e 0%,#38ef7d 100%);color:#fff;border:none;border-radius:12px;font-size:1.05em;font-weight:700;cursor:pointer;transition:all 0.3s ease;}
+.lock-box button:hover {transform:translateY(-2px);}
+.lock-error {margin-top:15px;background:#ffebee;color:#c62828;padding:10px;font-weight:700;display:none;border-radius:10px;}
+.hidden {display:none !important;}
+.dashboard {max-width:1400px;margin:auto;padding:25px;}
+.dash-header {display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:20px;margin-bottom:30px;background:rgba(255,255,255,0.95);padding:25px;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.1);}
+.dash-title {font-size:2.2em;font-weight:900;background:linear-gradient(135deg,#11998e 0%,#38ef7d 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.dash-subtitle {font-size:0.95em;color:#999;}
+.admin-badge {background:linear-gradient(135deg,#11998e 0%,#38ef7d 100%);padding:8px 14px;border-radius:50px;color:#fff;font-weight:700;font-size:0.9em;}
+.live-badge {background:linear-gradient(135deg,#d4fc79 0%,#96f97b 100%);padding:10px 18px;border-radius:50px;color:#2d5016;font-weight:700;display:flex;gap:8px;align-items:center;}
+.live-dot {width:12px;height:12px;border-radius:50%;background:#2d5016;animation:pulse 2s infinite;}
+@keyframes pulse {0%,100%{transform:scale(1);}50%{transform:scale(1.2);}}
+.cards {display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;margin-bottom:25px;}
+.card {background:rgba(255,255,255,0.95);padding:25px;border-radius:16px;border:1px solid rgba(17,153,142,0.1);box-shadow:0 8px 32px rgba(0,0,0,0.08);transition:all 0.3s;position:relative;overflow:hidden;}
+.card::before {content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#11998e 0%,#38ef7d 100%);}
+.card:hover {transform:translateY(-8px);box-shadow:0 16px 48px rgba(17,153,142,0.2);}
+.card-title {font-size:0.85em;color:#999;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;}
+.card-value {font-size:2.2em;font-weight:900;background:linear-gradient(135deg,#11998e 0%,#38ef7d 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-top:10px;}
+.card-note {font-size:0.75em;color:#bbb;margin-top:8px;}
+.committee-stats-card {background:rgba(255,255,255,0.95);padding:25px;border-radius:16px;border:1px solid rgba(17,153,142,0.1);box-shadow:0 8px 32px rgba(0,0,0,0.08);margin-bottom:25px;}
+.committee-stats-card h3 {background:linear-gradient(135deg,#11998e 0%,#38ef7d 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-size:1.2em;margin-bottom:20px;font-weight:900;}
+.committee-grid {display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;}
+.committee-item {background:linear-gradient(135deg,#f0fdf9 0%,#d4f1e8 100%);padding:15px;border-radius:12px;transition:all 0.3s ease;cursor:pointer;border-left:4px solid #11998e;}
+.committee-item:hover {background:linear-gradient(135deg,#11998e 0%,#38ef7d 100%);color:white;transform:scale(1.05);box-shadow:0 8px 24px rgba(17,153,142,0.3);}
+.committee-num {font-size:1.1em;font-weight:900;margin-bottom:8px;}
+.committee-name {font-size:0.85em;font-weight:700;margin-bottom:4px;opacity:0.9;}
+.committee-count {font-size:0.75em;opacity:0.8;}
+.charts-grid {display:grid;grid-template-columns:2fr 1fr;gap:20px;margin-bottom:25px;}
+.chart-card {background:rgba(255,255,255,0.95);padding:25px;border-radius:16px;border:1px solid rgba(17,153,142,0.1);box-shadow:0 8px 32px rgba(0,0,0,0.08);transition:all 0.3s ease;}
+.chart-card:hover {box-shadow:0 12px 40px rgba(17,153,142,0.15);}
+.chart-card h3 {margin-bottom:18px;background:linear-gradient(135deg,#11998e 0%,#38ef7d 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-size:1.05em;font-weight:900;}
+.ranking-card {background:rgba(255,255,255,0.95);padding:25px;border-radius:16px;border:1px solid rgba(17,153,142,0.1);margin-bottom:25px;box-shadow:0 8px 32px rgba(0,0,0,0.08);}
+.ranking-card h3 {margin-bottom:20px;background:linear-gradient(135deg,#11998e 0%,#38ef7d 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-size:1.2em;font-weight:900;}
+.ranking-list {max-height:500px;overflow-y:auto;padding:5px;}
+.ranking-item {display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding:15px;background:linear-gradient(135deg,#f0fdf9 0%,#d4f1e8 100%);border-radius:12px;transition:all 0.3s;border-left:4px solid #11998e;}
+.ranking-item:hover {background:linear-gradient(135deg,#11998e 0%,#38ef7d 100%);color:white;transform:translateX(-5px);box-shadow:0 8px 24px rgba(17,153,142,0.3);}
+.ranking-left {display:flex;align-items:center;gap:12px;flex:1;}
+.ranking-medal {font-size:1.6em;min-width:35px;text-align:center;}
+.ranking-name {font-weight:700;}
+.ranking-right {display:flex;align-items:center;gap:15px;}
+.ranking-bar {height:28px;border-radius:14px;background:linear-gradient(90deg,#11998e 0%,#38ef7d 100%);display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.85em;font-weight:700;min-width:80px;}
+.ranking-count {font-weight:900;min-width:45px;text-align:center;}
+.table-card {background:rgba(255,255,255,0.95);padding:25px;border-radius:16px;border:1px solid rgba(17,153,142,0.1);box-shadow:0 8px 32px rgba(0,0,0,0.08);}
+.table-header {display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px;}
+.search-input {padding:12px 16px;border-radius:12px;border:2px solid #d4f1e8;background:#f0fdf9;min-width:220px;font-size:0.95em;transition:all 0.3s ease;}
+.search-input:focus {outline:none;border-color:#11998e;}
+.btn-sm {padding:11px 18px;border:none;border-radius:12px;background:linear-gradient(135deg,#11998e 0%,#38ef7d 100%);color:#fff;cursor:pointer;font-weight:700;font-size:0.9em;transition:all 0.3s ease;}
+.btn-sm:hover {transform:translateY(-2px);}
+.btn-export {background:linear-gradient(135deg,#11998e 0%,#38ef7d 100%) !important;}
+.btn-reset-all {background:linear-gradient(135deg,#eb3349 0%,#f45c43 100%) !important;}
+.table-wrap {max-height:450px;overflow:auto;border:1px solid #d4f1e8;border-radius:12px;}
+table {width:100%;border-collapse:collapse;font-size:0.9em;}
+thead {background:linear-gradient(135deg,#f0fdf9 0%,#d4f1e8 100%);position:sticky;top:0;z-index:10;}
+th, td {padding:12px 14px;border-bottom:1px solid #d4f1e8;}
+th {background:linear-gradient(135deg,#11998e 0%,#38ef7d 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;cursor:pointer;font-weight:900;user-select:none;}
+tr:hover td {background:rgba(17,153,142,0.05);}
+.status-valid {color:#11998e;font-weight:900;}
+.status-invalid {color:#eb3349;font-weight:900;}
+.clickable-name {text-decoration:underline;cursor:pointer;color:#11998e;}
+.btn-mini-edit {padding:6px 12px;border-radius:8px;background:#11998e;color:#fff;border:none;cursor:pointer;font-weight:700;font-size:0.8em;transition:all 0.3s ease;}
+.btn-mini-edit:hover {background:#0d6b63;}
+.footer-note {margin-top:12px;color:#999;font-size:0.85em;font-weight:600;}
+.overlay {position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;justify-content:center;align-items:center;z-index:9000;backdrop-filter:blur(5px);}
+.overlay.hidden {display:none !important;}
+.popup {background:#fff;width:92%;max-width:500px;border-radius:16px;padding:25px;box-shadow:0 20px 60px rgba(0,0,0,0.3);max-height:85vh;overflow-y:auto;animation:slideUp 0.3s ease;}
+.popup-header {display:flex;justify-content:space-between;align-items:center;font-weight:900;background:linear-gradient(135deg,#11998e 0%,#38ef7d 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:18px;font-size:1.2em;}
+.popup-close {background:none;border:none;font-size:1.5em;cursor:pointer;color:#11998e;transition:all 0.3s ease;}
+.popup-close:hover {transform:scale(1.2);}
+.edit-list {max-height:280px;overflow:auto;border:2px solid #d4f1e8;border-radius:12px;padding:12px;background:#f0fdf9;}
+.edit-list label {display:flex;justify-content:space-between;align-items:center;margin:8px 0;font-weight:700;color:#333;cursor:pointer;padding:8px;border-radius:8px;transition:all 0.3s ease;}
+.edit-list label:hover {background:#d4f1e8;}
+.edit-list input[type="checkbox"] {width:18px;height:18px;accent-color:#11998e;cursor:pointer;}
+@media(max-width:900px){.charts-grid{grid-template-columns:1fr;}.committee-grid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr));}.dash-header{flex-direction:column;}}
+@media(max-width:600px){.dashboard{padding:15px;}.dash-title{font-size:1.6em;}.committee-grid{grid-template-columns:1fr;}.table-header{flex-direction:column;align-items:flex-start;}.search-input{min-width:100%;}.lock-box{padding:30px 20px;}.lock-box h2{font-size:1.5em;}.cards{grid-template-columns:1fr;}.card-value{font-size:1.8em;}.table-wrap{max-height:300px;}th,td{padding:8px 10px;font-size:0.85em;}.btn-sm{padding:9px 14px;font-size:0.85em;}}
 </style>
 </head>
 <body>
@@ -1089,7 +100,7 @@ tr:hover td {
     <p>ادخل كلمة السر</p>
     <div class="lock-row">
       <input id="lock-pass" type="password" placeholder="ادخل كلمة السر" autocomplete="off">
-      <span class="lock-toggle" onclick="toggleLockPass()">👁</span>
+      <span id="toggle-pass" class="lock-toggle">👁</span>
     </div>
     <button id="unlock-btn">دخول</button>
     <div id="lock-error" class="lock-error"></div>
@@ -1112,31 +123,11 @@ tr:hover td {
   </div>
 
   <div class="cards">
-    <div class="card">
-      <div class="card-title">إجمالي الأصوات</div>
-      <div id="total-votes" class="card-value">0</div>
-      <div class="card-note">من اللجنتين</div>
-    </div>
-    <div class="card">
-      <div class="card-title">الأصوات الصحيحة</div>
-      <div id="valid-votes" class="card-value">0</div>
-      <div class="card-note">صحيح</div>
-    </div>
-    <div class="card">
-      <div class="card-title">الأصوات الباطلة</div>
-      <div id="invalid-votes" class="card-value">0</div>
-      <div class="card-note">باطل</div>
-    </div>
-    <div class="card">
-      <div class="card-title">متوسط أصوات/دقيقة</div>
-      <div id="vpm" class="card-value">0</div>
-      <div class="card-note">من البداية</div>
-    </div>
-    <div class="card">
-      <div class="card-title">آخر 10 دقائق</div>
-      <div id="vpm10" class="card-value">0</div>
-      <div class="card-note">السرعة الحالية</div>
-    </div>
+    <div class="card"><div class="card-title">إجمالي الأصوات</div><div id="total-votes" class="card-value">0</div><div class="card-note">من اللجنتين</div></div>
+    <div class="card"><div class="card-title">الأصوات الصحيحة</div><div id="valid-votes" class="card-value">0</div><div class="card-note">صحيح</div></div>
+    <div class="card"><div class="card-title">الأصوات الباطلة</div><div id="invalid-votes" class="card-value">0</div><div class="card-note">باطل</div></div>
+    <div class="card"><div class="card-title">متوسط أصوات/دقيقة</div><div id="vpm" class="card-value">0</div><div class="card-note">من البداية</div></div>
+    <div class="card"><div class="card-title">آخر 10 دقائق</div><div id="vpm10" class="card-value">0</div><div class="card-note">السرعة الحالية</div></div>
   </div>
 
   <div class="committee-stats-card">
@@ -1147,32 +138,19 @@ tr:hover td {
   </div>
 
   <div class="charts-grid">
-    <div class="chart-card">
-      <h3>الأصوات لكل مرشح</h3>
-      <canvas id="chartCandidates"></canvas>
-    </div>
-    <div class="chart-card">
-      <h3>نسبة الصحيح والباطل</h3>
-      <canvas id="chartValidity"></canvas>
-    </div>
+    <div class="chart-card"><h3>الأصوات لكل مرشح</h3><canvas id="chartCandidates"></canvas></div>
+    <div class="chart-card"><h3>نسبة الصحيح والباطل</h3><canvas id="chartValidity"></canvas></div>
   </div>
+  <div class="chart-card"><h3>الأصوات لكل دقيقة</h3><canvas id="chartVPM"></canvas></div>
 
-  <div class="chart-card">
-    <h3>الأصوات لكل دقيقة</h3>
-    <canvas id="chartVPM"></canvas>
-  </div>
-
-  <div class="ranking-card">
-    <h3>🏆 ترتيب المرشحين</h3>
-    <div id="ranking-list" class="ranking-list">
-      <div style="padding:20px;text-align:center;color:#999">جاري التحميل...</div>
-    </div>
+  <div class="ranking-card"><h3>🏆 ترتيب المرشحين</h3>
+    <div id="ranking-list" class="ranking-list"><div style="padding:20px;text-align:center;color:#999">جاري التحميل...</div></div>
   </div>
 
   <div class="table-card">
     <div class="table-header">
       <input id="search" class="search-input" placeholder="بحث...">
-      <div style="display:flex; gap:8px;">
+      <div style="display:flex;gap:8px;">
         <button class="btn-sm btn-export" onclick="exportCSV()">تصدير CSV</button>
         <button id="btn-reset-all" class="btn-sm btn-reset-all" onclick="resetAll()">تصفير</button>
       </div>
@@ -1216,7 +194,6 @@ tr:hover td {
     <div id="details-body" style="padding:10px;"></div>
   </div>
 </div>
-
 <div id="edit-popup" class="overlay hidden">
   <div class="popup">
     <div class="popup-header">
@@ -1230,14 +207,12 @@ tr:hover td {
     </div>
   </div>
 </div>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js"></script>
-
 <script type="module">
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getDatabase, ref, onValue, remove, update } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
+// إعداد وربط Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyCxxXV_6CEo1fTp3rRbfwfYbe7WH0Cyg38",
   authDomain: "elahmadiya.firebaseapp.com",
@@ -1247,70 +222,14 @@ const firebaseConfig = {
   messagingSenderId: "594580767620",
   appId: "1:594580767620:web:f5be3b87d4c704854e53d1"
 };
-
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// تعريف الدوال بدون wait
-window.toggleLockPass = function(){
-  const inp = document.getElementById("lock-pass");
-  if(inp) inp.type = inp.type === "password" ? "text" : "password";
-};
-
-window.unlockDashboard = function(){
-  const value = document.getElementById("lock-pass").value.trim();
-  const err = document.getElementById("lock-error");
-  
-  console.log("Password entered:", value);
-  
-  if(value === "aziza100"){
-    console.log("Viewer login success");
-    window.adminLevel = 0;
-    document.getElementById("lock-screen").classList.add("hidden");
-    document.getElementById("dashboard").classList.remove("hidden");
-    document.getElementById("admin-badge").textContent = "👁 مشاهد";
-    const resetBtn = document.getElementById("btn-reset-all");
-    if(resetBtn) resetBtn.style.display = "none";
-    const editCol = document.getElementById("edit-col");
-    if(editCol) editCol.style.display = "none";
-    setupVotesListener();
-  } else if(value === "azizaadmin"){
-    console.log("Admin login success");
-    window.adminLevel = 1;
-    document.getElementById("lock-screen").classList.add("hidden");
-    document.getElementById("dashboard").classList.remove("hidden");
-    document.getElementById("admin-badge").textContent = "🔑 ادمن كامل";
-    const resetBtn = document.getElementById("btn-reset-all");
-    if(resetBtn) resetBtn.style.display = "inline-block";
-    const editCol = document.getElementById("edit-col");
-    if(editCol) editCol.style.display = "table-cell";
-    setupVotesListener();
-  } else {
-    console.log("Wrong password");
-    err.textContent = "كلمة سر غير صحيحة";
-    err.style.display = "block";
-    setTimeout(() => err.style.display = "none", 2300);
-  }
-};
-
-document.getElementById("lock-pass").addEventListener("keydown", e => {
-  if(e.key === "Enter") window.unlockDashboard();
-});
-
-document.getElementById("unlock-btn").addEventListener("click", window.unlockDashboard);
-
-let allVotes = [];
-let sortState = { key: "index", dir: "asc" };
-let chartCandidates = null;
-let chartValidity = null;
-let chartVPM = null;
-window.adminLevel = 0;
-
+// بيانات اللجان والمرشحين
 const committeeData = {
   24: { name: "مجمع العزيزة لجنة النساء", address: "مدرسة مجمع العزيزة الابتدائية" },
   25: { name: "مجمع العزيزة لجنة الرجال", address: "مدرسة مجمع العزيزة الابتدائية" }
 };
-
 const candidatesNames = [
   "ايهاب العمده","محمد العتمانى","أحمد الحديدى",
   "عادل الجيار","احمد محمد محمد سمره","وليد تيسير الامير",
@@ -1319,22 +238,341 @@ const candidatesNames = [
   "السيد طمان","محمد دندن","مجدى الأمير"
 ];
 
+// تبديل إظهار كلمة السر
 window.toggleLockPass = function(){
   const inp = document.getElementById("lock-pass");
   inp.type = inp.type === "password" ? "text" : "password";
 };
 
+// منظومة الدخول
 window.unlockDashboard = function(){
   const value = document.getElementById("lock-pass").value.trim();
   const err = document.getElementById("lock-error");
-  
   if(value === "aziza100"){
-    adminLevel = 0;
+    window.adminLevel = 0;
     document.getElementById("lock-screen").classList.add("hidden");
     document.getElementById("dashboard").classList.remove("hidden");
     document.getElementById("admin-badge").textContent = "👁 مشاهد";
-    document.getElementById("btn-reset-all").classList.add("hidden");
-    document.getElementById("edit-col").classList.add("hidden");
+    document.getElementById("btn-reset-all").style.display = "none";
+    document.getElementById("edit-col").style.display = "none";
     setupVotesListener();
   } else if(value === "azizaadmin"){
-    adminLevel = 1;
+    window.adminLevel = 1;
+    document.getElementById("lock-screen").classList.add("hidden");
+    document.getElementById("dashboard").classList.remove("hidden");
+    document.getElementById("admin-badge").textContent = "🔑 ادمن كامل";
+    document.getElementById("btn-reset-all").style.display = "inline-block";
+    document.getElementById("edit-col").style.display = "table-cell";
+    setupVotesListener();
+  } else {
+    err.textContent = "كلمة سر غير صحيحة";
+    err.style.display = "block";
+    setTimeout(() => err.style.display = "none", 2300);
+  }
+};
+// مستمع "Enter"
+document.getElementById("lock-pass").addEventListener("keydown", e => {
+  if(e.key === "Enter") window.unlockDashboard();
+});
+document.getElementById("unlock-btn").addEventListener("click", window.unlockDashboard);
+document.getElementById("toggle-pass").addEventListener("click", window.toggleLockPass);
+
+// إشعارات سريعة
+function showNotification(msg){
+  const box = document.createElement("div");
+  box.style.cssText = "position:fixed;bottom:20px;right:20px;background:linear-gradient(135deg,#11998e 0%,#38ef7d 100%);color:#fff;padding:16px 20px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.3);z-index:99999;font-size:1em;max-width:300px;";
+  box.innerText = msg;
+  document.body.appendChild(box);
+  setTimeout(() => box.remove(), 4000);
+}
+
+// جلب وتحديث الأصوات الحية من Firebase
+let allVotes = [];
+let votesListener = null;
+function setupVotesListener() {
+  if(votesListener) votesListener();
+  const votesRef = ref(db, "votes/aziza");
+  votesListener = onValue(votesRef, snapshot => {
+    const data = snapshot.val() || {};
+    allVotes = Object.entries(data).map(([id, v], i) => ({
+      id,
+      index: i + 1,
+      name: v.name || "بدون اسم",
+      candidates: Array.isArray(v.selected) ? v.selected : [],
+      validity: v.vote_validity || "",
+      timestamp: v.timestamp || 0,
+      committee: v.committee || 0
+    }));
+    renderAll();
+  });
+}
+// دوال عرض كل البيانات في اللوحة
+function renderAll(){
+  renderStats();
+  renderCommitteeStats();
+  renderCharts();
+  renderRanking();
+  renderTable();
+}
+
+// إحصائيات شاملة لكل الأصوات
+function renderStats(){
+  const total = allVotes.length;
+  const valid = allVotes.filter(v => v.validity === "صحيح").length;
+  const invalid = allVotes.filter(v => v.validity === "باطل").length;
+  document.getElementById("total-votes").textContent = total;
+  document.getElementById("valid-votes").textContent = valid;
+  document.getElementById("invalid-votes").textContent = invalid;
+
+  // السرعة من البداية
+  if(total > 1){
+    const sorted = [...allVotes].sort((a,b) => a.timestamp - b.timestamp);
+    const t0 = sorted[0].timestamp;
+    const t1 = sorted[sorted.length-1].timestamp;
+    const minutes = ((t1-t0)/60000) || 1;
+    document.getElementById("vpm").textContent = Math.round(total/minutes);
+  }else{
+    document.getElementById("vpm").textContent = "0";
+  }
+
+  // السرعة آخر 10 دقيقة
+  const now = Date.now();
+  const last10 = allVotes.filter(v => now-v.timestamp < (10*60000));
+  document.getElementById("vpm10").textContent = last10.length;
+}
+
+// تفاصيل إحصائيات اللجان
+function renderCommitteeStats(){
+  const grid = document.getElementById("committee-grid");
+  grid.innerHTML = "";
+  Object.entries(committeeData).forEach(([num, info]) => {
+    const votes = allVotes.filter(v => v.committee == num);
+    grid.innerHTML += `
+      <div class="committee-item" onclick="showCommitteeDetails(${num})">
+        <div class="committee-num">اللجنة ${num}</div>
+        <div class="committee-name">${info.name}</div>
+        <div class="committee-count">عدد الأصوات: ${votes.length}</div>
+      </div>`;
+  });
+}
+
+// رسم الرسوم البيانية
+let chartCandidates=null, chartValidity=null, chartVPM=null;
+
+function renderCharts(){
+  // بيانات المرشحين
+  const candidateCounts = candidatesNames.map(name =>
+    allVotes.filter(v => v.candidates.includes(name)).length
+  );
+  // رسم بياني للمرشحين
+  if(chartCandidates){chartCandidates.destroy();}
+  chartCandidates = new Chart(document.getElementById("chartCandidates"), {
+    type: "bar",
+    data: {
+      labels: candidatesNames,
+      datasets: [{
+        label: "أصوات المرشح",
+        data: candidateCounts,
+        backgroundColor: "#11998e"
+      }]
+    },
+    options: {
+      scales: {x:{ticks:{color:"#222",font:{weight:"bold"}}},y:{beginAtZero:true}},
+      plugins:{legend:{display:false},title:{display:false}}
+    }
+  });
+
+  // بياني للباطل والصحيح
+  const valid = allVotes.filter(v => v.validity === "صحيح").length;
+  const invalid = allVotes.filter(v => v.validity === "باطل").length;
+  if(chartValidity){chartValidity.destroy();}
+  chartValidity = new Chart(document.getElementById("chartValidity"), {
+    type: "doughnut",
+    data: {
+      labels: ["صحيح","باطل"],
+      datasets: [{
+        data: [valid,invalid],
+        backgroundColor: ["#38ef7d","#eb3349"]
+      }]
+    },
+    options: {plugins:{legend:{position:"bottom"}}}
+  });
+
+  // رسم الأصوات حسب الدقيقة
+  if(chartVPM){chartVPM.destroy();}
+  // تجميع لكل دقيقة
+  const byMin = {};
+  allVotes.forEach(v => {
+    const min = Math.floor(v.timestamp/60000);
+    byMin[min] = (byMin[min]||0)+1;
+  });
+  const minLabels = Object.keys(byMin).map(m => new Date(m*60000).toLocaleTimeString());
+  const minData = Object.values(byMin);
+  chartVPM = new Chart(document.getElementById("chartVPM"), {
+    type:"line",
+    data:{labels:minLabels,datasets:[{label:"أصوات/دقيقة",data:minData,fill:true,borderColor:"#11998e",backgroundColor:"rgba(56,239,125,0.12)"}]},
+    options:{scales:{x:{ticks:{color:"#222"}},y:{beginAtZero:true}},plugins:{legend:{display:false}}}
+  });
+}
+// رسم وترتيب المرشحين حسب عدد الأصوات
+function renderRanking(){
+  const list = document.getElementById("ranking-list");
+  // إحصاء المرشحين حسب عدد الأصوات
+  const counts = candidatesNames.map(name => ({
+    name,
+    count: allVotes.filter(v => v.candidates.includes(name)).length
+  })).sort((a,b) => b.count - a.count);
+  list.innerHTML = "";
+  counts.forEach((cand, i) => {
+    const medal = i==0 ? "🥇" : i==1 ? "🥈" : i==2 ? "🥉" : "";
+    list.innerHTML += `<div class="ranking-item">
+      <div class="ranking-left">
+        <div class="ranking-medal">${medal}</div>
+        <div class="ranking-name">${cand.name}</div>
+      </div>
+      <div class="ranking-right">
+        <div class="ranking-bar" style="width:${60+cand.count*6}px">${cand.count}</div>
+        <div class="ranking-count">${cand.count}</div>
+      </div>
+    </div>`;
+  });
+}
+
+// رسم جدول الأصوات والبحث
+function renderTable(){
+  const table = document.getElementById("votes-table");
+  const footer = document.getElementById("footer-note");
+  const query = document.getElementById("search").value.trim();
+  // بحث سريع
+  let results = allVotes;
+  if(query.length){
+    results = results.filter(v =>
+      v.name.includes(query) ||
+      v.candidates.some(n => n.includes(query)) ||
+      (""+v.committee).includes(query)
+    );
+  }
+  table.innerHTML = "";
+  results.forEach((v, i) => {
+    table.innerHTML += `<tr>
+      <td>${v.index}</td>
+      <td class="clickable-name" onclick="showDetails('${v.id}')">${v.name}</td>
+      <td>${v.committee}</td>
+      <td>${v.candidates.join(" | ")}</td>
+      <td class="${v.validity === 'صحيح' ? 'status-valid':'status-invalid'}">${v.validity || "-"}</td>
+      <td>${new Date(v.timestamp).toLocaleTimeString()}</td>
+      <td>${window.adminLevel==1 ? `<button class="btn-mini-edit" onclick="showEdit('${v.id}')">تعديل</button>`:""}</td>
+    </tr>`;
+  });
+  footer.textContent = results.length ? "" : "لا توجد بيانات";
+}
+// بحث تفاعلي
+document.getElementById("search").addEventListener("input", renderTable);
+
+// منبثقات تفاصيل كل لجنة
+window.showCommitteeDetails = function(num){
+  const popup = document.getElementById("committee-popup");
+  const body = document.getElementById("committee-popup-body");
+  const info = committeeData[num];
+  const votes = allVotes.filter(v => v.committee==num);
+  popup.classList.remove("hidden");
+  body.innerHTML = `<div style="font-weight:700;font-size:1.1em">${info.name}</div>
+    <div style="margin:7px 0">${info.address}</div>
+    <div>عدد الأصوات: <b>${votes.length}</b></div><div>تفاصيل الناخبين:</div>`;
+  votes.forEach(v => {
+    body.innerHTML += `<div style="margin-bottom:3px">${v.index}- <b>${v.name}</b> (${v.validity})</div>`;
+  });
+};
+window.closeCommitteePopup = function(){ document.getElementById("committee-popup").classList.add("hidden"); };
+
+// منبثق تفاصيل الناخب
+window.showDetails = function(id){
+  const popup = document.getElementById("details-popup"); popup.classList.remove("hidden");
+  const body = document.getElementById("details-body");
+  const v = allVotes.find(x=>x.id===id);
+  if(v){
+    body.innerHTML = `<div><b>الاسم:</b> ${v.name}</div>
+      <div><b>اللجنة:</b> ${v.committee}</div>
+      <div><b>المرشحون:</b> ${v.candidates.join(" | ")}</div>
+      <div><b>الحالة:</b> <span class="${v.validity==='صحيح'?'status-valid':'status-invalid'}">${v.validity}</span></div>
+      <div><b>التوقيت:</b> ${new Date(v.timestamp).toLocaleTimeString()}</div>`;
+  }
+};
+window.closeDetails = function(){ document.getElementById("details-popup").classList.add("hidden"); };
+
+// منبثق تعديل الأصوات (إداري فقط)
+window.showEdit = function(id){
+  const popup = document.getElementById("edit-popup"); popup.classList.remove("hidden");
+  const v = allVotes.find(x=>x.id===id);
+  if(v){
+    document.getElementById("edit-name").textContent = v.name;
+    const editList = document.getElementById("edit-candidates");
+    editList.innerHTML = "";
+    candidatesNames.forEach(name => {
+      editList.innerHTML += `<label>
+        <span>${name}</span>
+        <input type="checkbox" value="${name}" ${v.candidates.includes(name)?"checked":""}>
+      </label>`;
+    });
+    editList.querySelectorAll("input").forEach(inp => {
+      inp.addEventListener("change", ()=>{}); // يمكن الإضافة للحدث إذا رغبت
+    });
+    window._editId = id;
+  }
+};
+window.closeEdit = function(){ document.getElementById("edit-popup").classList.add("hidden"); window._editId = null; };
+
+// حفظ التعديل في البيانات
+window.saveEdit = function(){
+  const id = window._editId;
+  if(id){
+    const editList = document.getElementById("edit-candidates");
+    const selected = [...editList.querySelectorAll("input:checked")].map(inp=>inp.value);
+    update(ref(db, "votes/aziza/"+id), { selected });
+    showNotification("تم حفظ التعديل بنجاح");
+    window.closeEdit();
+  }
+};
+// تصدير كل الأصوات إلى ملف CSV
+window.exportCSV = function(){
+  if(!allVotes.length) { showNotification("لا توجد بيانات للتصدير"); return; }
+  const header = ["#", "الاسم", "اللجنة", "المرشحين", "الحالة", "الوقت"];
+  let csv = header.join(",") + "\n";
+  allVotes.forEach(v => {
+    csv += [
+      v.index,
+      `"${v.name.replace(/"/g, '""')}"`,
+      v.committee,
+      `"${v.candidates.join(" | ").replace(/"/g, '""')}"`,
+      v.validity,
+      new Date(v.timestamp).toLocaleTimeString()
+    ].join(",") + "\n";
+  });
+  const blob = new Blob([csv], {type:"text/csv"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "aziza-votes.csv";
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(()=>a.remove(), 600);
+  showNotification("تم تصدير ملف CSV بنجاح");
+};
+
+// تصفير جميع الأصوات (إداري فقط)
+window.resetAll = function(){
+  if(window.adminLevel!=1){ showNotification("صلاحية غير كافية"); return; }
+  if(!confirm("هل أنت متأكد من تصفير جميع البيانات؟")) return;
+  remove(ref(db, "votes/aziza"))
+    .then(()=>{ showNotification("تم تصفير جميع البيانات بنجاح"); })
+    .catch(()=>{ showNotification("حدث خطأ عند التصفير"); });
+};
+
+// تحديث حي لحالة البث المباشر
+setInterval(()=>{
+  const el = document.getElementById("live-status");
+  const dt = new Date();
+  el.textContent = "بث مباشر - " + dt.toLocaleTimeString();
+}, 10000);
+</script>
+</body>
+</html>
