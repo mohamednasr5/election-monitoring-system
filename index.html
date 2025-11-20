@@ -18,8 +18,6 @@ body{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); min-height:100v
 .pass-toggle{position:absolute; left:15px; top:52%; transform:translateY(-50%); font-size:1.3em; color:#667eea; cursor:pointer; opacity:0.6; transition:all 0.3s;}
 .pass-btn{margin-top:20px; width:100%; padding:13px; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:#fff; border:none; border-radius:12px; font-size:1.05em; font-weight:bold; cursor:pointer; transition:all 0.3s;}
 .pass-btn:hover{transform:translateY(-2px);}
-.unlock-btn{margin-top:17px; width:100%; padding:12px; background:linear-gradient(135deg,#44c442 0%,#36b734 100%); color:#fff; border:none; border-radius:10px; font-size:1em; font-weight:bold; cursor:pointer; transition:all 0.3s;}
-.unlock-btn:hover{box-shadow:0 4px 14px rgba(68,196,66,0.2);}
 .pass-err{margin-top:12px; color:#c62828; font-weight:bold; display:none; font-size:0.95em;}
 .logout-btn{position:fixed; top:20px; left:20px; z-index:1000; background:linear-gradient(135deg,#ff6b6b 0%,#c62828 100%); color:#fff; border:none; padding:14px 26px; border-radius:12px; font-weight:700; font-size:1.07em; cursor:pointer; transition:all 0.3s; box-shadow:0 4px 12px rgba(198,40,40,0.3);}
 .logout-btn:hover{transform:translateY(-2px); box-shadow:0 6px 16px rgba(198,40,40,0.4);}
@@ -107,7 +105,6 @@ html, body {width:100%; overflow-x:hidden !important;}
    </div>
    <button class="pass-btn" onclick="checkPass()">دخول</button>
    <div id="pw-err" class="pass-err">كلمة السر غير صحيحة</div>
-   <button type="button" class="unlock-btn hidden" id="unlock-btn" onclick="unlockCommittee()">إعادة تفعيل اللجنة</button>
  </div>
 </div>
 <div class="container hidden" id="main-container">
@@ -116,7 +113,7 @@ html, body {width:100%; overflow-x:hidden !important;}
    <div class="committee-name" id="committee-name-display"></div>
    <div class="committee-address" id="committee-address-display"></div>
  </div>
- <button class="remote-logout-btn hidden" id="remote-logout-btn" onclick="remoteLogout()">إخراج المشرف الحالي</button>
+    <button class="remote-logout-btn hidden" id="remote-logout-btn" onclick="remoteLogout()">إخراج المشرف الحالي</button>
  <form id="vote-form">
    <label>اسم الناخب:</label>
    <input type="text" id="voter-name" placeholder="اكتب اسم الناخب (اختياري)">
@@ -167,7 +164,6 @@ let committeeNumber = 0;
 let closedNotifications = new Set();
 let myPresenceRef = null;
 let isAdmin = false;
-let lockedCommittee = 0;
 function loadClosedNotifications() {
  const stored = localStorage.getItem("closedNotifications");
  if (stored) {
@@ -192,25 +188,10 @@ window.togglePass = function(){
 async function tryCommitteeLogin(committee, info) {
  const presenceRef = ref(db, `presence/committee_${committee}`);
  const remoteLogoutBtn = document.getElementById("remote-logout-btn");
- const unlockBtn = document.getElementById("unlock-btn");
- unlockBtn.classList.add("hidden");
- let locked = false;
  try {
    const snapshot = await get(presenceRef);
-   if (snapshot.exists() && snapshot.val().locked) {
-     locked = true;
-     committeeNumber = committee;
-     lockedCommittee = committee;
-     isAdmin
-       ? unlockBtn.classList.remove("hidden")
-       : unlockBtn.classList.add("hidden");
-     const err = document.getElementById("pw-err");
-     err.textContent = "هذه اللجنة تم تعطيل دخول المشرف إليها من قبل الأدمن. يرجى مراجعة المسؤول.";
-     err.style.display = "block";
-     setTimeout(() => err.style.display = "none", 4200);
-     return false;
-   }
    if (snapshot.exists()) {
+     const data = snapshot.val();
      if (isAdmin) {
        remoteLogoutBtn.classList.remove("hidden");
      } else {
@@ -266,20 +247,11 @@ window.remoteLogout = async function() {
  const presenceRef = ref(db, `presence/committee_${committeeNumber}`);
  try {
    await remove(presenceRef);
-   await set(presenceRef, {locked:true});
    document.getElementById("remote-logout-btn").classList.add("hidden");
-   showConfirm(`تم إخراج المشرف وقفل اللجنة ${committeeNumber} بنجاح!`);
+   showConfirm(`تم إخراج المشرف من اللجنة ${committeeNumber} بنجاح!`);
  } catch (error) {
    showWarn("فشل في إخراج المشرف.");
  }
-};
-window.unlockCommittee = async function() {
- if (!isAdmin || lockedCommittee < 1 || lockedCommittee > 60) return;
- const presenceRef = ref(db, `presence/committee_${lockedCommittee}`);
- await remove(presenceRef);
- showConfirm("تمت إعادة تفعيل اللجنة. يمكن الآن دخول المشرف.");
- document.getElementById("unlock-btn").classList.add("hidden");
- lockedCommittee = 0;
 };
 window.logoutCommittee = async function() {
  if (myPresenceRef && committeeNumber > 0 && !isAdmin) {
@@ -295,7 +267,6 @@ window.checkPass = async function(){
  const numVal = parseInt(val);
  const ADMIN_PREFIX = "251988";
  const MAX_COMMITTEE = 60;
- document.getElementById("unlock-btn").classList.add("hidden");
  if(val === ADMIN_PREFIX){
    isAdmin = true;
    document.getElementById("password-modal").classList.add("hidden");
