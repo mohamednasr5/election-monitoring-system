@@ -249,7 +249,7 @@ button{
   <div class="pass-box">
     <div class="pass-title">تسجيل الدخول</div>
     <div class="pass-row">
-      <input type="password" id="password-input" class="pass-input" placeholder="ادخل كلمة السر (من 100101 إلى 100160)" autocomplete="off">
+            <input type="password" id="password-input" class="pass-input" placeholder="ادخل كلمة السر" autocomplete="off">
       <span class="pass-toggle" onclick="togglePass()">👁</span>
     </div>
     <button class="pass-btn" onclick="checkPass()">دخول</button>
@@ -491,15 +491,23 @@ window.checkPass = async function(){
   const val = document.getElementById("password-input").value.trim();
   const err = document.getElementById("pw-err");
 
-  // إلغاء مدخلات الـ Super Admin واللجان المخصصة الأخرى
-  // if(val === "521988"){...}
-  // if(val === "wa100124"){...}
-  // if(val === "ma100125"){...}
-
+  // 🔑 يوزر الأدمن الجديد: 251988 - يمكنه الدخول لأي لجنة دون قيود
+  if(val === "251988"){
+    document.getElementById("password-modal").classList.add("hidden");
+    document.getElementById("main-container").classList.remove("hidden");
+    document.getElementById("logout-btn").classList.remove("hidden");
+    document.getElementById("welcome-title").textContent = "مرحباً بـ Super Admin - 251988";
+    document.getElementById("committee-name-display").textContent = "وصول غير مقيد";
+    document.getElementById("committee-address-display").textContent = "يمكنه فتح أي لجنة";
+    committeeNumber = 0; // تعيين committeeNumber إلى 0 للإشارة لـ Admin
+    setupNotificationListeners(0);
+    return;
+  }
+  
   const numVal = parseInt(val);
   // تحديد نطاق كلمات السر من 100101 إلى 100160 (لجان من 1 إلى 60)
   if (isNaN(numVal) || numVal < 100101 || numVal > 100160) {
-    err.textContent = "كلمة السر غير صحيحة. يجب أن تكون بين 100101 و 100160.";
+    err.textContent = "كلمة السر غير صحيحة";
     err.style.display = "block";
     setTimeout(() => err.style.display = "none", 3000);
     return;
@@ -529,8 +537,8 @@ function setupNotificationListeners(committee){
       console.log("Listening to all notifications...");
     });
 
-    // التأكد من أن الاستماع للإشعارات الخاصة باللجنة يتم فقط للجان من 1 إلى 60
-    if(committee >= 1 && committee <= 60){
+    // الاستماع للإشعارات الخاصة باللجنة فقط للجان من 1 إلى 60 أو للمشرف العام (committee == 0)
+    if(committee >= 1 && committee <= 60 || committee === 0){
       const committeeNotificationsRef = ref(db, "notifications/committee_" + committee);
       let lastCommitteeTimestamp = 0;
       
@@ -680,7 +688,8 @@ document.querySelectorAll("input[type='radio']").forEach(radio => {
 document.getElementById("vote-form").addEventListener("submit", function(e){
   e.preventDefault();
 
-  if(committeeNumber === 0) return showWarn("يرجى تسجيل الدخول أولاً للجنة.");
+  if(committeeNumber === 0) return showWarn("لا يمكن تسجيل الأصوات بصلاحية المشرف العام.");
+  if(committeeNumber < 1 || committeeNumber > 60) return showWarn("يرجى تسجيل الدخول للجنة أولاً.");
 
   let name = document.getElementById("voter-name").value.trim();
   if(!name) name = "بدون اسم";
