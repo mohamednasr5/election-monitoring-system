@@ -11,97 +11,98 @@
    ========================= */
 :root {
   /* خلفيات فاتحة ومشرقة */
-  --color-bg: linear-gradient(135deg, #fef3c7 0%, #fce7f3 50%, #ddd6fe 100%);
-  --color-bg-soft: rgba(254, 252, 252, 0.85);
-  --color-surface: rgba(255, 255, 255, 0.92);
-  --color-surface-strong: rgba(255, 255, 255, 0.98);
-  --color-border-subtle: rgba(209, 213, 219, 0.6);
-  --color-text-main: #1f2937;
-  --color-text-muted: #4b5563;
-  --color-text-soft: #6b7280;
+  --color-bg: linear-gradient(135deg, #d2f1fe 0%, #ffffff 100%);
+  --color-bg-soft: rgba(210, 241, 254, 0.85);
+  --color-surface: rgba(255, 255, 255, 0.95);
+  --color-surface-strong: #ffffff;
+  --color-border-subtle: rgba(66, 123, 156, 0.17);
 
-  /* Primary Gradient - بنفسجي فاتح + وردي زاهي */
-  --primary-from: #a78bfa;
-  --primary-to: #f472b6;
-  --gradient-primary: linear-gradient(135deg, #a78bfa 0%, #f472b6 100%);
+  /* نص واضح ومقروء مع الخلفية اللبني */
+  --color-text-main: #263744;      /* أزرق رمادي داكن جداً */
+  --color-text-muted: #487ba3;     /* أزرق متوسط للتعليقات */
+  --color-text-soft: #7ba9cb;      /* أزرق باهت جداً كالنصوص الثانوية */
 
-  /* Success - أخضر منعش + نعناعي */
-  --success-from: #6ee7b7;
-  --success-to: #34d399;
-  --gradient-success: linear-gradient(135deg, #6ee7b7 0%, #34d399 100%);
+  /* Primary Gradient - لبني سماوي وأزرق عصري */
+  --primary-from: #6ad3f8;
+  --primary-to: #13afe2;
+  --gradient-primary: linear-gradient(135deg, #6ad3f8 0%, #13afe2 100%);
 
-  /* Error / Warning - مرجاني + برتقالي زاهي */
-  --error-from: #fb923c;
-  --error-to: #f472b6;
-  --gradient-error: linear-gradient(135deg, #fb923c 0%, #f472b6 100%);
+  /* Success - أخضر نعناعي */
+  --success-from: #7fe9c5;
+  --success-to: #32dda4;
+  --gradient-success: linear-gradient(135deg, #7fe9c5 0%, #32dda4 100%);
 
-  /* Info - أزرق سماوي + تركواز */
-  --info-from: #7dd3fc;
-  --info-to: #5eead4;
-  --gradient-info: linear-gradient(135deg, #7dd3fc 0%, #5eead4 100%);
+  /* Error / Warning - وردي هادئ ومرجاني */
+  --error-from: #fdc5c6;
+  --error-to: #ff6f91;
+  --gradient-error: linear-gradient(135deg, #fdc5c6 0%, #ff6f91 100%);
+
+  /* Info - تركواز زاهي وسماوي فاتح */
+  --info-from: #5cb2e6;
+  --info-to: #aaffec;
+  --gradient-info: linear-gradient(135deg, #5cb2e6 0%, #aaffec 100%);
 
   /* Glassmorphism فاتح */
-  --glass-bg: rgba(255, 255, 255, 0.85);
-  --glass-border: rgba(167, 139, 250, 0.3);
-  --glass-shadow: 0 18px 60px rgba(167, 139, 250, 0.25);
+  --glass-bg: rgba(210, 241, 254, 0.85);
+  --glass-border: rgba(66, 123, 156, 0.12);
+  --glass-shadow: 0 18px 60px rgba(66, 123, 156, 0.10);
 
-  /* Cards فاتحة مع ظلال ملونة */
+  /* Cards */
   --card-radius: 18px;
-  --card-bg: rgba(255, 255, 255, 0.95);
-  --card-border: rgba(244, 114, 182, 0.3);
-  --card-shadow: 0 18px 60px rgba(244, 114, 182, 0.2);
+  --card-bg: linear-gradient(135deg, #d2f1fe 0%, #ffffff 100%);
+  --card-border: rgba(66, 123, 156, 0.15);
+  --card-shadow: 0 18px 60px rgba(66, 123, 156, 0.08);
 
   /* Transitions / Animations */
   --transition-fast: 0.18s ease-out;
   --transition-med: 0.28s ease-out;
   --transition-slow: 0.45s ease;
 
-  --shadow-soft: 0 12px 30px rgba(167, 139, 250, 0.25);
-  --shadow-strong: 0 24px 80px rgba(244, 114, 182, 0.3);
+  --shadow-soft: 0 12px 30px rgba(66, 123, 156, 0.08);
+  --shadow-strong: 0 24px 80px rgba(66, 123, 156, 0.16);
 
-  --border-gradient: linear-gradient(135deg, #a78bfa, #f472b6, #fbbf24);
+  --border-gradient: linear-gradient(135deg, #6ad3f8, #13afe2);
   --success-glow: 0 0 0 0 rgba(52, 211, 153, 0.7);
 
   --blur-glass: 18px;
-
   --card-entry-delay-step: 60ms;
 
-  --skeleton-base: rgba(167, 139, 250, 0.15);
-  --skeleton-highlight: rgba(244, 114, 182, 0.2);
+  --skeleton-base: rgba(66, 123, 156, 0.09);
+  --skeleton-highlight: rgba(210, 241, 254, 0.18);
 
-  /* Background gradient angle (animated) */
+  /* gradient angle */
   --gradient-angle: 120deg;
-  
-  /* ألوان إضافية زاهية */
-  --sunny-yellow: #fbbf24;
-  --coral-pink: #fb7185;
-  --mint-green: #6ee7b7;
-  --sky-blue: #7dd3fc;
-  --lavender: #c4b5fd;
-  --peach: #fda4af;
+
+  /* ألوان إضافية حديثة */
+  --sunny-yellow: #ffeeba;
+  --coral-pink: #ff6f91;
+  --mint-green: #7fe9c5;
+  --sky-blue: #d2f1fe;
+  --lavender: #c4e3fd;
+  --peach: #fde6e5;
 }
 
-/* DARK THEME (optional - للوضع المسائي) */
+/* DARK THEME (اختياري للوضع المسائي العصري) */
 :root[data-theme="dark"] {
-  --color-bg: linear-gradient(135deg, #1e1b4b 0%, #4c1d95 50%, #831843 100%);
-  --color-bg-soft: rgba(30, 27, 75, 0.80);
-  --color-surface: rgba(30, 27, 75, 0.92);
-  --color-surface-strong: rgba(30, 27, 75, 0.98);
-  --color-border-subtle: rgba(167, 139, 250, 0.3);
-  --color-text-main: #f3f4f6;
-  --color-text-muted: #d1d5db;
-  --color-text-soft: #9ca3af;
+  --color-bg: linear-gradient(135deg, #263744 0%, #344457 80%, #487ba3 100%);
+  --color-bg-soft: rgba(66, 123, 156, 0.80);
+  --color-surface: rgba(66, 123, 156, 0.90);
+  --color-surface-strong: rgba(66, 123, 156, 0.98);
+  --color-border-subtle: rgba(210, 241, 254, 0.19);
+  --color-text-main: #eaf6fc;
+  --color-text-muted: #b4d6ea;
+  --color-text-soft: #c5d9ea;
 
-  --glass-bg: rgba(30, 27, 75, 0.8);
-  --glass-border: rgba(167, 139, 250, 0.4);
-  --glass-shadow: 0 18px 60px rgba(167, 139, 250, 0.3);
+  --glass-bg: rgba(66, 123, 156, 0.83);
+  --glass-border: rgba(210, 241, 254, 0.16);
+  --glass-shadow: 0 18px 60px rgba(210, 241, 254, 0.14);
 
-  --card-bg: rgba(30, 27, 75, 0.96);
-  --card-border: rgba(244, 114, 182, 0.4);
-  --card-shadow: 0 18px 60px rgba(244, 114, 182, 0.25);
+  --card-bg: linear-gradient(135deg, #344457 0%, #487ba3 100%);
+  --card-border: rgba(210, 241, 254, 0.16);
+  --card-shadow: 0 18px 60px rgba(210, 241, 254, 0.10);
 
-  --skeleton-base: rgba(167, 139, 250, 0.2);
-  --skeleton-highlight: rgba(244, 114, 182, 0.25);
+  --skeleton-base: rgba(210, 241, 254, 0.12);
+  --skeleton-highlight: rgba(66, 123, 156, 0.16);
 }
 
 /* Allow animating CSS custom property for gradient angle */
@@ -112,7 +113,7 @@
 }
 
 /* =========================
-   GLOBAL STYLES
+   GLOBAL STYLES - بنظام ألوان لبني عصري
    ========================= */
 * {
   margin: 0;
@@ -125,17 +126,18 @@ body {
   min-height: 100vh;
   color: var(--color-text-main);
   background:
-    radial-gradient(circle at 20% 20%, rgba(167, 139, 250, 0.2), transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(244, 114, 182, 0.2), transparent 50%),
-    radial-gradient(circle at 50% 80%, rgba(110, 231, 183, 0.2), transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(251, 191, 36, 0.15), transparent 50%),
-    linear-gradient(135deg, #fef3c7 0%, #fce7f3 25%, #ddd6fe 50%, #cffafe 75%, #fef3c7 100%);
+    /* تدرجات لبني فاتح بدل كل التدرجات السابقة */
+    radial-gradient(circle at 20% 20%, rgba(210,241,254,0.25), transparent 40%),
+    radial-gradient(circle at 80% 20%, rgba(173, 226, 248,0.20), transparent 50%),
+    radial-gradient(circle at 50% 80%, rgba(146, 192, 231,0.20), transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(130, 173, 204,0.16), transparent 40%),
+    linear-gradient(135deg, #d2f1fe 0%, #fafdff 82%, #ffffff 100%);
   background-attachment: fixed;
-  background-size: 400% 400%;
+  background-size: 390% 390%;
   animation: bgGradientShift 15s ease infinite;
 }
 
-/* Animated background gradient shift */
+/* Animation: خلفية متحركة عصرية */
 @keyframes bgGradientShift {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
@@ -148,7 +150,7 @@ body {
 }
 
 /* =========================
-   LOCK SCREEN - شاشة القفل بألوان زاهية
+   LOCK SCREEN - شاشة القفل بألوان لبنية فاتحة
    ========================= */
 #lock-screen {
   position: fixed;
@@ -157,8 +159,8 @@ body {
   justify-content: center;
   align-items: center;
   background: 
-    radial-gradient(circle at top, rgba(244, 114, 182, 0.15), transparent 60%),
-    radial-gradient(circle at bottom, rgba(167, 139, 250, 0.15), transparent 60%),
+    radial-gradient(circle at top, rgba(210,241,254,0.19), transparent 50%),
+    radial-gradient(circle at bottom, rgba(173, 226, 248,0.16), transparent 60%),
     rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(var(--blur-glass));
   -webkit-backdrop-filter: blur(var(--blur-glass));
@@ -166,15 +168,15 @@ body {
 }
 
 .lock-box {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(254, 243, 199, 0.9) 100%);
+  background: linear-gradient(135deg, #d2f1fe 0%, #ffffff 100%);
   border-radius: 26px;
   padding: 32px 26px 26px;
   width: 90%;
   max-width: 420px;
-  border: 2px solid rgba(244, 114, 182, 0.3);
+  border: 2px solid rgba(173,226,248,0.18);
   box-shadow: 
-    0 25px 70px rgba(167, 139, 250, 0.3),
-    0 0 0 1px rgba(244, 114, 182, 0.2);
+    0 25px 70px rgba(210,241,254,0.18),
+    0 0 0 1px rgba(210,241,254,0.12);
   text-align: center;
   position: relative;
   overflow: hidden;
@@ -190,7 +192,7 @@ body {
   border-radius: inherit;
   padding: 2px;
   background:
-    linear-gradient(135deg, rgba(167, 139, 250, 0.8), rgba(244, 114, 182, 0.8), rgba(251, 191, 36, 0.8));
+    linear-gradient(135deg, rgba(210,241,254,0.42), rgba(173,226,248,0.32), rgba(130,173,204,0.25));
   -webkit-mask:
     linear-gradient(#000 0 0) content-box,
     linear-gradient(#000 0 0);
@@ -210,10 +212,10 @@ body {
   margin-bottom: 8px;
   font-size: 1.9em;
   font-weight: 900;
-  background: linear-gradient(135deg, #a78bfa 0%, #f472b6 50%, #fbbf24 100%);
+  background: linear-gradient(135deg, #6ad3f8 0%, #13afe2 50%, #263744 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 2px 8px rgba(167, 139, 250, 0.3));
+  filter: drop-shadow(0 2px 8px rgba(210,241,254,0.25));
 }
 
 .lock-box p {
@@ -232,13 +234,13 @@ body {
   width: 100%;
   padding: 14px 16px;
   border-radius: 14px;
-  border: 2px solid rgba(167, 139, 250, 0.3);
-  background: rgba(255, 255, 255, 0.95);
+  border: 2px solid rgba(173,226,248,0.22);
+  background: rgba(255,255,255,0.97);
   color: var(--color-text-main);
   text-align: center;
   font-size: 1.05em;
   transition: all var(--transition-med);
-  box-shadow: 0 4px 12px rgba(167, 139, 250, 0.1);
+  box-shadow: 0 4px 12px rgba(210,241,254,0.08);
   outline: none;
   font-weight: 600;
 }
@@ -248,11 +250,11 @@ body {
 }
 
 .lock-row input:focus {
-  border-color: #f472b6;
+  border-color: #13afe2;
   box-shadow:
-    0 0 0 3px rgba(244, 114, 182, 0.3),
-    0 8px 24px rgba(244, 114, 182, 0.2);
-  background: rgba(255, 255, 255, 1);
+    0 0 0 3px rgba(210,241,254,0.22),
+    0 8px 24px rgba(210,241,254,0.1);
+  background: rgba(255,255,255,1);
   transform: translateY(-2px);
 }
 
@@ -269,10 +271,11 @@ body {
 
 .lock-toggle:hover {
   transform: translateY(-50%) scale(1.1);
-  color: #f472b6;
+  color: #13afe2;
 }
 
-/* Primary button + micro interactions */
+
+/* Primary button + micro interactions - ألوان لبني حديثة */
 .btn-primary {
   position: relative;
   overflow: hidden;
@@ -281,33 +284,33 @@ body {
   padding: 14px;
   border-radius: 14px;
   border: none;
-  background: linear-gradient(135deg, #a78bfa 0%, #f472b6 50%, #fbbf24 100%);
-  color: #fff;
+  background: linear-gradient(135deg, #6ad3f8 0%, #13afe2 50%, #d2f1fe 100%);
+  color: #263744; /* نص داكن مع الخلفية اللبنية */
   font-size: 1.02em;
   font-weight: 800;
   cursor: pointer;
   transition: transform var(--transition-fast), box-shadow var(--transition-fast), filter 0.18s;
-  box-shadow: 0 14px 40px rgba(244, 114, 182, 0.4);
+  box-shadow: 0 14px 40px rgba(173, 226, 248, 0.28);
   will-change: transform;
 }
 
 .btn-primary:hover {
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 18px 55px rgba(244, 114, 182, 0.5);
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 18px 55px rgba(134, 188, 219, 0.33);
   filter: brightness(1.08);
 }
 
 .btn-primary:active {
   transform: translateY(1px) scale(0.98);
-  box-shadow: 0 10px 32px rgba(244, 114, 182, 0.4);
+  box-shadow: 0 10px 32px rgba(173,226,248, 0.22);
 }
 
-/* Ripple effect */
+/* Ripple effect يبقى جميل مع زر لبني */
 .ripple {
   position: absolute;
   border-radius: 999px;
   transform: scale(0);
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.6) 0, transparent 60%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.5) 0, transparent 60%);
   animation: rippleAnim 0.6s ease-out forwards;
   pointer-events: none;
 }
@@ -322,19 +325,19 @@ body {
 /* Lock error */
 .lock-error {
   margin-top: 14px;
-  background: rgba(251, 146, 60, 0.15);
-  color: #ea580c;
+  background: rgba(210,241,254,0.15);
+  color: #263744;
   padding: 10px 12px;
   font-weight: 700;
   display: none;
   border-radius: 12px;
-  border: 2px solid rgba(251, 146, 60, 0.4);
+  border: 2px solid rgba(173,226,248,0.22);
   font-size: 0.9em;
   animation: shakeX 0.32s ease;
 }
 
 /* =========================
-   TOAST NOTIFICATION
+   TOAST NOTIFICATION - لبني فاتح عصري
    ========================= */
 #global-toast {
   position: fixed;
@@ -344,10 +347,10 @@ body {
   max-width: 320px;
   padding: 14px 16px;
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.98);
-  border: 2px solid rgba(167, 139, 250, 0.4);
-  box-shadow: 0 18px 60px rgba(167, 139, 250, 0.3);
-  color: #1f2937;
+  background: linear-gradient(135deg, #d2f1fe 75%, #ffffff 100%);
+  border: 2px solid rgba(173,226,248,0.19);
+  box-shadow: 0 18px 60px rgba(173,226,248,0.23);
+  color: #263744;
   font-size: 0.95em;
   font-weight: 700;
   z-index: 99999;
@@ -373,6 +376,7 @@ body {
 .toast-icon {
   font-size: 1.2em;
   margin-top: 1px;
+  color: #13afe2; /* أيقونة بلون أزرق زاهي */
 }
 
 .toast-message {
@@ -382,7 +386,7 @@ body {
 .toast-close {
   background: none;
   border: none;
-  color: #6b7280;
+  color: #7ba9cb; /* لبني باهت */
   cursor: pointer;
   font-size: 1.1em;
   padding: 0 0 0 4px;
@@ -390,7 +394,7 @@ body {
 }
 
 .toast-close:hover {
-  color: #f472b6;
+  color: #13afe2;
   transform: scale(1.1);
 }
 
@@ -414,18 +418,6 @@ body {
     opacity: 0;
   }
 }
-
-/* =========================
-   DASHBOARD LAYOUT
-   ========================= */
-.dashboard {
-  max-width: 1420px;
-  margin: auto;
-  padding: 26px 24px 40px;
-  position: relative;
-}
-
-/* Header with glass and gradient border */
 .dash-header {
   display: flex;
   justify-content: space-between;
@@ -433,13 +425,13 @@ body {
   flex-wrap: wrap;
   gap: 18px;
   margin-bottom: 26px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(254, 243, 199, 0.8) 100%);
+  background: linear-gradient(135deg, #d2f1fe 0%, #ffffff 100%);
   padding: 22px 22px 18px;
   border-radius: 22px;
-  border: 2px solid rgba(244, 114, 182, 0.3);
-  box-shadow: 
-    0 20px 60px rgba(167, 139, 250, 0.25),
-    0 0 0 1px rgba(244, 114, 182, 0.1);
+  border: 2px solid rgba(173,226,248,0.16);
+  box-shadow:
+    0 20px 60px rgba(173,226,248,0.15),
+    0 0 0 1px rgba(173,226,248,0.07);
   position: relative;
   overflow: hidden;
   contain: layout paint;
@@ -452,12 +444,10 @@ body {
   border-radius: inherit;
   padding: 2px;
   background:
-    linear-gradient(135deg, rgba(167, 139, 250, 0.6), rgba(244, 114, 182, 0.6), rgba(110, 231, 183, 0.6), rgba(251, 191, 36, 0.6));
-  -webkit-mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
+    linear-gradient(135deg, rgba(173,226,248,0.30), rgba(130,173,204,0.16), rgba(210,241,254,0.22));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
-          mask-composite: exclude;
+  mask-composite: exclude;
   opacity: 0.5;
   pointer-events: none;
   animation: borderShine 4s linear infinite;
@@ -472,30 +462,31 @@ body {
   font-size: 2.05em;
   font-weight: 900;
   letter-spacing: 0.02em;
-  background: linear-gradient(135deg, #a78bfa 0%, #f472b6 50%, #fbbf24 100%);
+  background: linear-gradient(135deg, #13afe2 0%, #6ad3f8 50%, #263744 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 2px 8px rgba(167, 139, 250, 0.3));
+  filter: drop-shadow(0 2px 8px rgba(173,226,248,0.22));
 }
 
 .dash-subtitle {
   font-size: 0.9em;
-  color: var(--color-text-muted);
+  color: #487ba3;
   margin-top: 4px;
   font-weight: 600;
 }
 
-/* Admin badge with vibrant colors */
+
+/* Admin badge - شارة المشرف بلون لبني عصري */
 .admin-badge {
-  background: linear-gradient(135deg, #a78bfa 0%, #f472b6 100%);
+  background: linear-gradient(135deg, #13afe2 0%, #6ad3f8 100%);
   padding: 8px 16px;
   border-radius: 999px;
-  color: #fff;
+  color: #263744;            /* نص داكن وواضح */
   font-weight: 800;
   font-size: 0.88em;
   box-shadow:
-    0 0 0 3px rgba(244, 114, 182, 0.2),
-    0 12px 35px rgba(167, 139, 250, 0.4);
+    0 0 0 3px rgba(210,241,254,0.14),
+    0 12px 35px rgba(173,226,248,0.18);
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -505,19 +496,19 @@ body {
 @keyframes badgePulse {
   0%, 100% {
     box-shadow:
-      0 0 0 3px rgba(244, 114, 182, 0.2),
-      0 12px 35px rgba(167, 139, 250, 0.4);
+      0 0 0 3px rgba(210,241,254,0.14),
+      0 12px 35px rgba(173,226,248,0.18);
   }
   50% {
     box-shadow:
-      0 0 0 5px rgba(244, 114, 182, 0.3),
-      0 14px 40px rgba(167, 139, 250, 0.5);
+      0 0 0 5px rgba(173,226,248,0.22),
+      0 14px 40px rgba(210,241,254,0.22);
   }
 }
 
-/* Live badge with pulsing dot */
+/* Live badge with pulsing dot - شارة بث مباشر بألوان منعشة */
 .live-badge {
-  background: linear-gradient(135deg, #6ee7b7 0%, #34d399 100%);
+  background: linear-gradient(135deg, #7fe9c5 0%, #32dda4 100%);
   padding: 8px 16px;
   border-radius: 999px;
   color: #065f46;
@@ -526,8 +517,8 @@ body {
   gap: 8px;
   align-items: center;
   box-shadow:
-    0 0 0 3px rgba(52, 211, 153, 0.2),
-    0 16px 40px rgba(52, 211, 153, 0.3);
+    0 0 0 3px rgba(130, 173, 204, 0.12),
+    0 16px 40px rgba(173,226,248,0.16);
   animation: liveBreath 2.8s ease-in-out infinite;
 }
 
@@ -535,21 +526,47 @@ body {
   width: 11px;
   height: 11px;
   border-radius: 999px;
-  background: #10b981;
-  box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.75);
+  background: #13afe2;
+  box-shadow: 0 0 0 0 rgba(210,241,254,0.25);
   animation: livePulse 1.8s ease-out infinite;
 }
 
-/* Theme switcher */
+@keyframes livePulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(210,241,254,0.22);
+  }
+  70% {
+    transform: scale(1.25);
+    box-shadow: 0 0 0 14px rgba(210,241,254,0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(210,241,254,0);
+  }
+}
+
+@keyframes liveBreath {
+  0%, 100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  50% {
+    transform: scale(1.03);
+    filter: brightness(1.07);
+  }
+}
+
+/* Theme switcher - زر تبديل الثيم لبني */
 .theme-toggle {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 8px 14px;
   border-radius: 999px;
-  border: 2px solid rgba(167, 139, 250, 0.3);
-  background: rgba(255, 255, 255, 0.9);
-  color: var(--color-text-muted);
+  border: 2px solid rgba(173,226,248,0.15);
+  background: rgba(210,241,254,0.90);
+  color: #487ba3;
   font-size: 0.85em;
   cursor: pointer;
   font-weight: 700;
@@ -557,32 +574,40 @@ body {
 }
 
 .theme-toggle:hover {
-  background: rgba(167, 139, 250, 0.15);
-  border-color: rgba(244, 114, 182, 0.5);
+  background: rgba(173,226,248,0.21);
+  border-color: #13afe2;
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(167, 139, 250, 0.2);
+  box-shadow: 0 8px 20px rgba(173,226,248,0.16);
 }
 
-/* Spike alert */
+/* Spike alert - تنبيه شائك بتدرج لبني أصفر */
 #spike-alert {
   display: none;
-  background: linear-gradient(135deg, #fbbf24 0%, #f472b6 100%);
+  background: linear-gradient(135deg, #ffeeba 0%, #13afe2 100%);
   padding: 14px 16px;
-  color: #fff;
+  color: #263744;
   border-radius: 16px;
   font-weight: 800;
   text-align: center;
   margin-bottom: 18px;
   box-shadow:
-    0 10px 32px rgba(251, 191, 36, 0.4),
-    0 0 0 3px rgba(244, 114, 182, 0.2);
+    0 10px 32px rgba(210,241,254,0.18),
+    0 0 0 3px rgba(173,226,248,0.11);
   transform-origin: top;
   animation: spikeSlideIn 0.4s ease-out;
 }
 
-/* =========================
-   STAT CARDS - كروت إحصائية زاهية
-   ========================= */
+@keyframes spikeSlideIn {
+  from {
+    transform: translateY(-80%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -590,15 +615,16 @@ body {
   margin-bottom: 22px;
 }
 
+/* الكرت الرئيسي بتدرج لبني عصري */
 .card {
   position: relative;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(254, 243, 199, 0.9) 100%);
+  background: linear-gradient(135deg, #d2f1fe 0%, #ffffff 100%);
   padding: 20px 18px 18px;
   border-radius: var(--card-radius);
-  border: 2px solid rgba(167, 139, 250, 0.3);
-  box-shadow: 
-    0 15px 45px rgba(244, 114, 182, 0.2),
-    0 0 0 1px rgba(167, 139, 250, 0.1);
+  border: 2px solid rgba(173,226,248,0.14);
+  box-shadow:
+    0 15px 45px rgba(210,241,254,0.12),
+    0 0 0 1px rgba(173,226,248,0.09);
   transition:
     transform var(--transition-med),
     box-shadow var(--transition-med),
@@ -609,36 +635,39 @@ body {
   will-change: transform, opacity;
 }
 
+/* ظهور الكرت بالأنيميشن */
 .card.card--visible {
   animation: cardIn 0.55s cubic-bezier(.17,.67,.35,1.25) forwards;
 }
 
+/* لمسات شمسية ولبنية هادئة للظل داخل الكرت */
 .card::before {
   content: '';
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at top left, rgba(244, 114, 182, 0.12), transparent 55%),
-    radial-gradient(circle at bottom right, rgba(167, 139, 250, 0.12), transparent 55%);
+    radial-gradient(circle at top left, rgba(210,241,254,0.11), transparent 55%),
+    radial-gradient(circle at bottom right, rgba(173,226,248,0.09), transparent 55%);
   opacity: 1;
   pointer-events: none;
 }
 
 .card:hover {
   transform: translateY(-8px) scale(1.02);
-  border-color: rgba(244, 114, 182, 0.5);
+  border-color: #13afe2;
   box-shadow:
-    0 24px 70px rgba(244, 114, 182, 0.3),
-    0 0 0 3px rgba(167, 139, 250, 0.2);
+    0 24px 70px rgba(210,241,254,0.16),
+    0 0 0 3px rgba(173,226,248,0.15);
 }
 
 .card:active {
   transform: translateY(-4px) scale(0.99);
 }
 
+/* عنوان الكرت */
 .card-title {
   font-size: 0.86em;
-  color: #6b7280;
+  color: #487ba3;      /* أزرق متوسط وواضح */
   text-transform: uppercase;
   letter-spacing: 0.09em;
   font-weight: 800;
@@ -646,22 +675,24 @@ body {
   z-index: 2;
 }
 
+/* رقم أو قيمة الإحصائية بتدرج أزرق لبني */
 .card-value {
   font-size: 2.22em;
   font-weight: 900;
-  background: linear-gradient(135deg, #a78bfa 0%, #f472b6 50%, #fbbf24 100%);
+  background: linear-gradient(135deg, #13afe2 0%, #6ad3f8 85%, #263744 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-top: 6px;
   position: relative;
   z-index: 2;
   letter-spacing: 0.02em;
-  filter: drop-shadow(0 2px 4px rgba(167, 139, 250, 0.2));
+  filter: drop-shadow(0 2px 4px rgba(173,226,248,0.13));
 }
 
+/* ملاحظات أو نص ثانوي */
 .card-note {
   font-size: 0.78em;
-  color: #6b7280;
+  color: #7ba9cb;
   margin-top: 6px;
   position: relative;
   z-index: 2;
@@ -669,16 +700,16 @@ body {
 }
 
 /* =========================
-   COMMITTEE STATS + GRID
+   COMMITTEE STATS + GRID - لبني فاتح عصري
    ========================= */
 .committee-stats-card {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(207, 250, 254, 0.8) 100%);
+  background: linear-gradient(135deg, #d2f1fe 0%, #e9fbff 100%);
   padding: 20px 18px;
   border-radius: var(--card-radius);
-  border: 2px solid rgba(125, 211, 252, 0.4);
-  box-shadow: 
-    0 15px 45px rgba(125, 211, 252, 0.25),
-    0 0 0 1px rgba(94, 234, 212, 0.1);
+  border: 2px solid rgba(173,226,248,0.14);
+  box-shadow:
+    0 15px 45px rgba(210,241,254,0.13),
+    0 0 0 1px rgba(173,226,248,0.08);
   margin-bottom: 20px;
   position: relative;
   overflow: hidden;
@@ -689,18 +720,18 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at top right, rgba(125, 211, 252, 0.2), transparent 65%);
+  background: radial-gradient(circle at top right, rgba(173,226,248,0.09), transparent 65%);
   pointer-events: none;
 }
 
 .committee-stats-card h3 {
-  background: linear-gradient(135deg, #7dd3fc 0%, #5eead4 100%);
+  background: linear-gradient(135deg, #13afe2 0%, #6ad3f8 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-size: 1.12em;
   margin-bottom: 14px;
   font-weight: 900;
-  filter: drop-shadow(0 2px 6px rgba(125, 211, 252, 0.2));
+  filter: drop-shadow(0 2px 6px rgba(173,226,248,0.13));
 }
 
 .committee-grid {
@@ -713,15 +744,16 @@ body {
   scroll-behavior: smooth;
 }
 
+/* يفضل نفس ستايل الكروت مع تدرج لبني شفاف */
 .committee-item {
   position: relative;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(254, 243, 199, 0.9) 100%);
+  background: linear-gradient(135deg, #d2f1fe 0%, #ffffff 100%);
   padding: 14px 12px;
   border-radius: 14px;
   transition: all var(--transition-med);
   cursor: pointer;
-  border: 2px solid rgba(167, 139, 250, 0.3);
-  box-shadow: 0 10px 28px rgba(167, 139, 250, 0.2);
+  border: 2px solid rgba(173,226,248,0.11);
+  box-shadow: 0 10px 28px rgba(173,226,248,0.09);
   overflow: hidden;
   transform: translateY(16px);
   opacity: 0;
@@ -732,60 +764,62 @@ body {
   animation: committeeIn 0.45s cubic-bezier(.15,.7,.35,1.15) forwards;
 }
 
+/* ظل خفيف وصورة لبنية ناعمة */
 .committee-item::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at top left, rgba(244, 114, 182, 0.15), transparent 60%);
+  background: radial-gradient(circle at top left, rgba(210,241,254,0.08), transparent 60%);
   pointer-events: none;
 }
 
 .committee-item:hover {
   transform: translateY(-4px) scale(1.02);
-  border-color: rgba(244, 114, 182, 0.5);
+  border-color: #13afe2;
   box-shadow:
-    0 18px 40px rgba(244, 114, 182, 0.3),
-    0 0 0 2px rgba(167, 139, 250, 0.2);
+    0 18px 40px rgba(173,226,248,0.13),
+    0 0 0 2px rgba(173,226,248,0.10);
 }
 
 .committee-num {
   font-size: 1.02em;
   font-weight: 900;
   margin-bottom: 4px;
-  color: #1f2937;
+  color: #263744;         /* نص داكن */
 }
 
 .committee-name {
   font-size: 0.86em;
   font-weight: 700;
   margin-bottom: 2px;
-  color: #374151;
+  color: #487ba3;         /* أزرق متوسط */
 }
 
 .committee-address {
   font-size: 0.75em;
   margin-bottom: 6px;
-  color: #6b7280;
+  color: #7ba9cb;         /* أزرق باهت */
   font-weight: 600;
 }
 
 .committee-count {
   font-size: 0.78em;
-  color: #4b5563;
+  color: #263744;
   font-weight: 700;
 }
 
+
 /* =========================
-   NOTIFY PANEL
+   NOTIFY PANEL - لبني عصري ومنعش
    ========================= */
 .notify-panel {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(252, 231, 243, 0.9) 100%);
+  background: linear-gradient(135deg, #d2f1fe 0%, #ffffff 100%);
   padding: 18px 16px;
   border-radius: var(--card-radius);
-  border: 2px solid rgba(244, 114, 182, 0.3);
-  box-shadow: 
-    0 15px 45px rgba(244, 114, 182, 0.2),
-    0 0 0 1px rgba(167, 139, 250, 0.1);
+  border: 2px solid rgba(173,226,248,0.14);
+  box-shadow:
+    0 15px 45px rgba(210,241,254,0.11),
+    0 0 0 1px rgba(173,226,248,0.07);
   margin-bottom: 20px;
   position: relative;
   overflow: hidden;
@@ -796,12 +830,13 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at top left, rgba(244, 114, 182, 0.15), transparent 55%);
+  background: radial-gradient(circle at top left, rgba(210,241,254,0.09), transparent 55%);
   pointer-events: none;
 }
 
+/* عنوان */
 .notify-panel h3 {
-  background: linear-gradient(135deg, #a78bfa 0%, #f472b6 100%);
+  background: linear-gradient(135deg, #13afe2 0%, #6ad3f8 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-size: 1.04em;
@@ -809,52 +844,55 @@ body {
   font-weight: 900;
 }
 
+/* خيارات */
 .notify-option {
   display: flex;
   gap: 8px;
   align-items: center;
   margin-bottom: 10px;
   font-weight: 700;
-  color: var(--color-text-main);
+  color: #263744;
   font-size: 0.9em;
 }
 
 .notify-option input[type="radio"] {
-  accent-color: #f472b6;
+  accent-color: #13afe2;
   width: 18px;
   height: 18px;
   cursor: pointer;
 }
 
+/* مربع النص */
 .notify-panel textarea {
   width: 100%;
   min-height: 90px;
   padding: 12px;
-  background: rgba(255, 255, 255, 0.95);
-  border: 2px solid rgba(167, 139, 250, 0.3);
+  background: rgba(255,255,255,0.98);
+  border: 2px solid rgba(173,226,248,0.13);
   border-radius: 12px;
   margin-bottom: 10px;
   font-size: 0.96em;
+  font-family: "Cairo", system-ui, sans-serif;
+  color: #263744;
+  font-weight: 600;
   resize: vertical;
   transition: all var(--transition-med);
-  font-family: "Cairo", system-ui, sans-serif;
-  color: var(--color-text-main);
-  font-weight: 600;
 }
 
 .notify-panel textarea::placeholder {
-  color: var(--color-text-soft);
+  color: #7ba9cb;
 }
 
 .notify-panel textarea:focus {
   outline: none;
-  border-color: #f472b6;
+  border-color: #13afe2;
   box-shadow:
-    0 0 0 3px rgba(244, 114, 182, 0.2),
-    0 8px 24px rgba(244, 114, 182, 0.15);
-  background: rgba(255, 255, 255, 1);
+    0 0 0 3px rgba(173,226,248,0.11),
+    0 8px 24px rgba(210,241,254,0.10);
+  background: #fff;
 }
 
+/* رسالة النتيجة */
 #notify-result {
   display: none;
   margin-top: 10px;
@@ -862,10 +900,13 @@ body {
   font-size: 0.9em;
   padding: 10px 11px;
   border-radius: 10px;
+  background: linear-gradient(135deg, #e9fbff 0%, #d2f1fe 100%);
+  color: #263744;
+  border: 1.5px solid rgba(173,226,248,0.12);
 }
 
 /* =========================
-   CHARTS
+   CHARTS - كروت الرسم البياني لبني عصري
    ========================= */
 .charts-grid {
   display: grid;
@@ -875,13 +916,13 @@ body {
 }
 
 .chart-card {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(221, 214, 254, 0.9) 100%);
+  background: linear-gradient(135deg, #d2f1fe 0%, #fafdff 100%);
   padding: 18px 16px;
   border-radius: var(--card-radius);
-  border: 2px solid rgba(167, 139, 250, 0.3);
-  box-shadow: 
-    0 15px 45px rgba(167, 139, 250, 0.2),
-    0 0 0 1px rgba(244, 114, 182, 0.1);
+  border: 2px solid rgba(173,226,248,0.14);
+  box-shadow:
+    0 15px 45px rgba(210,241,254,0.13),
+    0 0 0 1px rgba(173,226,248,0.08);
   transition: transform var(--transition-med), box-shadow var(--transition-med);
   position: relative;
   overflow: hidden;
@@ -892,20 +933,21 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at top right, rgba(167, 139, 250, 0.15), transparent 60%);
+  background: radial-gradient(circle at top right, rgba(173,226,248,0.08), transparent 60%);
   pointer-events: none;
 }
 
 .chart-card:hover {
-  box-shadow: 
-    0 24px 70px rgba(167, 139, 250, 0.3),
-    0 0 0 3px rgba(244, 114, 182, 0.2);
+  box-shadow:
+    0 24px 70px rgba(210,241,254,0.18),
+    0 0 0 3px rgba(173,226,248,0.11);
   transform: translateY(-4px);
 }
 
+/* عنوان كرت الرسم البياني */
 .chart-card h3 {
   margin-bottom: 12px;
-  background: linear-gradient(135deg, #a78bfa 0%, #f472b6 100%);
+  background: linear-gradient(135deg, #13afe2 0%, #6ad3f8 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-size: 0.98em;
@@ -913,17 +955,17 @@ body {
 }
 
 /* =========================
-   RANKING
+   RANKING - كروت الترتيب لبني وأصفر رقيق
    ========================= */
 .ranking-card {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(254, 243, 199, 0.9) 100%);
+  background: linear-gradient(135deg, #d2f1fe 0%, #ffeeba 100%);
   padding: 20px 16px;
   border-radius: var(--card-radius);
-  border: 2px solid rgba(251, 191, 36, 0.3);
+  border: 2px solid rgba(254,234,186,0.16); /* أصفر باهت */
   margin-bottom: 20px;
-  box-shadow: 
-    0 15px 45px rgba(251, 191, 36, 0.25),
-    0 0 0 1px rgba(244, 114, 182, 0.1);
+  box-shadow:
+    0 15px 45px rgba(254,234,186,0.13),
+    0 0 0 1px rgba(173,226,248,0.09);
   position: relative;
   overflow: hidden;
   contain: layout paint;
@@ -933,13 +975,13 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at top, rgba(251, 191, 36, 0.15), transparent 60%);
+  background: radial-gradient(circle at top, rgba(254,234,186,0.15), transparent 60%);
   pointer-events: none;
 }
 
 .ranking-card h3 {
   margin-bottom: 14px;
-  background: linear-gradient(135deg, #fbbf24 0%, #f472b6 100%);
+  background: linear-gradient(135deg, #ffeeba 0%, #13afe2 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-size: 1.06em;
@@ -952,17 +994,18 @@ body {
   padding: 4px;
 }
 
+/* كل عنصر ترتيب بكرت لبني وصفر */
 .ranking-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 9px;
   padding: 11px 10px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(254, 243, 199, 0.8) 100%);
+  background: linear-gradient(135deg, #d2f1fe 0%, #ffeeba 100%);
   border-radius: 13px;
   transition: all var(--transition-med);
-  border: 2px solid rgba(251, 191, 36, 0.3);
-  box-shadow: 0 10px 32px rgba(251, 191, 36, 0.2);
+  border: 2px solid rgba(254,234,186,0.13);
+  box-shadow: 0 10px 32px rgba(254,234,186,0.09);
   transform: translateX(12px);
   opacity: 0;
   will-change: transform, opacity;
@@ -973,12 +1016,12 @@ body {
 }
 
 .ranking-item:hover {
-  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  background: linear-gradient(135deg, #fafdff 0%, #ffeeba 100%);
   transform: translateX(-4px);
-  border-color: rgba(244, 114, 182, 0.5);
+  border-color: #13afe2;
   box-shadow:
-    0 18px 48px rgba(251, 191, 36, 0.3),
-    0 0 0 2px rgba(244, 114, 182, 0.2);
+    0 18px 48px rgba(173,226,248,0.18),
+    0 0 0 2px rgba(173,226,248,0.13);
 }
 
 .ranking-left {
@@ -991,12 +1034,12 @@ body {
   font-size: 1.5em;
   min-width: 34px;
   text-align: center;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  filter: drop-shadow(0 2px 4px rgba(210,241,254,0.09));
 }
 
 .ranking-name {
   font-weight: 800;
-  color: #1f2937;
+  color: #263744;
 }
 
 .ranking-right {
@@ -1008,36 +1051,37 @@ body {
 .ranking-bar {
   height: 28px;
   border-radius: 999px;
-  background: linear-gradient(90deg, #a78bfa 0%, #f472b6 50%, #fbbf24 100%);
+  background: linear-gradient(90deg, #13afe2 0%, #6ad3f8 50%, #ffeeba 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: #263744;
   font-size: 0.82em;
   font-weight: 800;
   min-width: 72px;
   padding: 0 8px;
-  box-shadow: 0 4px 12px rgba(167, 139, 250, 0.3);
+  box-shadow: 0 4px 12px rgba(173,226,248,0.13);
 }
 
 .ranking-count {
   font-weight: 900;
   min-width: 40px;
   text-align: center;
-  color: #1f2937;
+  color: #263744;
 }
 
+
 /* =========================
-   TABLE + HEADER
+   TABLE + HEADER - لبني عصري حديث
    ========================= */
 .table-card {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(221, 214, 254, 0.9) 100%);
+  background: linear-gradient(135deg, #d2f1fe 0%, #fafdff 100%);
   padding: 20px 16px 18px;
   border-radius: var(--card-radius);
-  border: 2px solid rgba(167, 139, 250, 0.3);
+  border: 2px solid rgba(173,226,248,0.14);
   box-shadow: 
-    0 15px 45px rgba(167, 139, 250, 0.2),
-    0 0 0 1px rgba(244, 114, 182, 0.1);
+    0 15px 45px rgba(210,241,254,0.11),
+    0 0 0 1px rgba(173,226,248,0.07);
   position: relative;
   overflow: hidden;
   contain: layout paint;
@@ -1047,7 +1091,7 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at right, rgba(167, 139, 250, 0.12), transparent 60%);
+  background: radial-gradient(circle at right, rgba(173,226,248,0.09), transparent 60%);
   pointer-events: none;
 }
 
@@ -1063,101 +1107,34 @@ body {
 .search-input {
   padding: 11px 14px;
   border-radius: 12px;
-  border: 2px solid rgba(167, 139, 250, 0.3);
-  background: rgba(255, 255, 255, 0.95);
+  border: 2px solid rgba(173,226,248,0.13);
+  background: #fff;
   min-width: 220px;
   font-size: 0.9em;
-  transition: all var(--transition-med);
-  color: var(--color-text-main);
   font-weight: 600;
+  color: #263744;
+  transition: all var(--transition-med);
 }
 
 .search-input::placeholder {
-  color: var(--color-text-soft);
+  color: #7ba9cb;
 }
 
 .search-input:focus {
   outline: none;
-  border-color: #f472b6;
+  border-color: #13afe2;
   box-shadow:
-    0 0 0 3px rgba(244, 114, 182, 0.2),
-    0 8px 24px rgba(244, 114, 182, 0.15);
-  background: rgba(255, 255, 255, 1);
-}
-
-/* small button base */
-.btn-sm {
-  position: relative;
-  padding: 10px 16px;
-  border: none;
-  border-radius: 999px;
-  background: linear-gradient(135deg, #a78bfa 0%, #f472b6 100%);
-  color: #fff;
-  cursor: pointer;
-  font-weight: 800;
-  font-size: 0.82em;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast), filter 0.18s;
-  box-shadow: 0 12px 32px rgba(244, 114, 182, 0.3);
-  overflow: hidden;
-}
-
-.btn-sm:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 18px 46px rgba(244, 114, 182, 0.4);
-  filter: brightness(1.08);
-}
-
-.btn-sm:active {
-  transform: translateY(1px) scale(0.98);
-}
-
-.btn-export {
-  background: linear-gradient(135deg, #6ee7b7 0%, #34d399 100%) !important;
-  box-shadow: 0 12px 32px rgba(52, 211, 153, 0.3);
-}
-
-.btn-export:hover {
-  box-shadow: 0 18px 46px rgba(52, 211, 153, 0.4) !important;
-}
-
-.btn-reset-all {
-  background: linear-gradient(135deg, #fb923c 0%, #f472b6 100%) !important;
-  box-shadow: 0 12px 32px rgba(251, 146, 60, 0.3);
-}
-
-.btn-reset-all:hover {
-  box-shadow: 0 18px 46px rgba(251, 146, 60, 0.4) !important;
-}
-
-.btn-hidden {
-  display: none !important;
-}
-
-.btn-loading {
-  pointer-events: none;
-  opacity: 0.8;
-}
-
-.btn-loading::after {
-  content: "";
-  width: 15px;
-  height: 15px;
-  border-radius: 999px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: #fff;
-  position: absolute;
-  inset-inline-end: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  animation: spin 0.7s linear infinite;
+    0 0 0 3px rgba(173,226,248,0.11),
+    0 8px 24px rgba(210,241,254,0.10);
+  background: #fff;
 }
 
 .table-wrap {
   max-height: 420px;
   overflow: auto;
   border-radius: 12px;
-  border: 2px solid rgba(167, 139, 250, 0.3);
-  background: rgba(255, 255, 255, 0.98);
+  border: 2px solid rgba(173,226,248,0.13);
+  background: #fff;
 }
 
 table {
@@ -1168,7 +1145,7 @@ table {
 }
 
 thead {
-  background: linear-gradient(135deg, rgba(167, 139, 250, 0.15) 0%, rgba(244, 114, 182, 0.15) 100%);
+  background: linear-gradient(135deg, #d2f1fe 0%, #fafdff 100%);
   position: sticky;
   top: 0;
   z-index: 10;
@@ -1176,11 +1153,12 @@ thead {
 
 th, td {
   padding: 10px 12px;
-  border-bottom: 1px solid rgba(209, 213, 219, 0.5);
+  border-bottom: 1px solid rgba(173,226,248,0.18);
 }
 
+/* رؤوس الجدول بتدرج لبني */
 th {
-  background: linear-gradient(135deg, #a78bfa 0%, #f472b6 50%, #fbbf24 100%);
+  background: linear-gradient(135deg, #13afe2 0%, #6ad3f8 50%, #d2f1fe 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   cursor: pointer;
@@ -1189,6 +1167,7 @@ th {
   position: relative;
 }
 
+/* أيقونات الفرز */
 th[data-sort]::after {
   content: "▾";
   font-size: 0.6em;
@@ -1214,62 +1193,64 @@ tbody tr {
 }
 
 tbody tr:hover td {
-  background: rgba(167, 139, 250, 0.08);
+  background: rgba(173,226,248,0.07);
 }
 
+/* حالات القيم */
 .status-valid {
-  color: #10b981;
+  color: #32dda4;
   font-weight: 900;
 }
 
 .status-invalid {
-  color: #f97316;
+  color: #ff6f91;
   font-weight: 900;
 }
 
 .clickable-name {
   text-decoration: underline;
   cursor: pointer;
-  color: #a78bfa;
+  color: #13afe2;
   font-weight: 700;
 }
 
+/* حالات التصنيف */
 .vote-status-friend {
   display: inline-block;
   padding: 4px 9px;
-  background: linear-gradient(135deg, #6ee7b7 0%, #34d399 100%);
+  background: linear-gradient(135deg, #7fe9c5 0%, #32dda4 100%);
   color: #065f46;
   border-radius: 999px;
   font-size: 0.78em;
   font-weight: 800;
 }
-
 .vote-status-enemy {
   display: inline-block;
   padding: 4px 9px;
-  background: linear-gradient(135deg, #fb923c 0%, #fda4af 100%);
+  background: linear-gradient(135deg, #ff6f91 0%, #fde6e5 100%);
   color: #7c2d12;
   border-radius: 999px;
   font-size: 0.78em;
   font-weight: 800;
 }
 
+/* زر تعديل صغير */
 .btn-mini-edit {
   padding: 5px 11px;
   border-radius: 999px;
-  background: linear-gradient(135deg, #a78bfa 0%, #f472b6 100%);
+  background: linear-gradient(135deg, #13afe2 0%, #6ad3f8 100%);
   color: #fff;
   border: none;
   cursor: pointer;
   font-weight: 700;
   font-size: 0.78em;
   transition: all var(--transition-fast);
-  box-shadow: 0 8px 22px rgba(244, 114, 182, 0.3);
+  box-shadow: 0 8px 22px rgba(173,226,248,0.13);
 }
 
 .btn-mini-edit:hover {
   transform: translateY(-1px);
-  box-shadow: 0 10px 28px rgba(244, 114, 182, 0.4);
+  box-shadow: 0 10px 28px rgba(13,175,226,0.12);
   filter: brightness(1.08);
 }
 
@@ -1277,20 +1258,92 @@ tbody tr:hover td {
   transform: translateY(1px) scale(0.97);
 }
 
+/* زر صغير عام */
+.btn-sm {
+  position: relative;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #13afe2 0%, #6ad3f8 100%);
+  color: #fff;
+  cursor: pointer;
+  font-weight: 800;
+  font-size: 0.82em;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), filter 0.18s;
+  box-shadow: 0 12px 32px rgba(13,175,226,0.08);
+  overflow: hidden;
+}
+
+.btn-sm:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 46px rgba(13,175,226,0.15);
+  filter: brightness(1.08);
+}
+
+.btn-sm:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+.btn-export {
+  background: linear-gradient(135deg, #7fe9c5 0%, #32dda4 100%) !important;
+  box-shadow: 0 12px 32px rgba(51,221,164,0.14);
+}
+
+.btn-export:hover {
+  box-shadow: 0 18px 46px rgba(51,221,164,0.22) !important;
+}
+
+.btn-reset-all {
+  background: linear-gradient(135deg, #ff6f91 0%, #fde6e5 100%) !important;
+  box-shadow: 0 12px 32px rgba(255,111,145,0.13);
+}
+
+.btn-reset-all:hover {
+  box-shadow: 0 18px 46px rgba(255,111,145,0.21) !important;
+}
+
+.btn-hidden {
+  display: none !important;
+}
+
+.btn-loading {
+  pointer-events: none;
+  opacity: 0.8;
+}
+.btn-loading::after {
+  content: "";
+  width: 15px;
+  height: 15px;
+  border-radius: 999px;
+  border: 2px solid rgba(210,241,254,0.18);
+  border-top-color: #13afe2;
+  position: absolute;
+  inset-inline-end: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  animation: spin 0.7s linear infinite;
+}
+
 .footer-note {
   margin-top: 10px;
-  color: var(--color-text-muted);
+  color: #7ba9cb;
   font-size: 0.82em;
   font-weight: 600;
 }
 
+@keyframes spin {
+  to {
+    transform: translateY(-50%) rotate(360deg);
+  }
+}
+
 /* =========================
-   MODALS (OVERLAYS)
+   MODALS (OVERLAYS) - لبني حديث
    ========================= */
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(255, 255, 255, 0.95);
+  background: linear-gradient(135deg, #d2f1fe 0%, #fafdff 100%);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
   display: flex;
@@ -1307,57 +1360,60 @@ tbody tr:hover td {
   pointer-events: auto;
 }
 
+/* نافذة منبثقة خلفية لبنية */
 .popup {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(254, 243, 199, 0.9) 100%);
+  background: linear-gradient(135deg, #d2f1fe 0%, #fafdff 100%);
   width: 92%;
   max-width: 520px;
   border-radius: 22px;
   padding: 20px 18px 18px;
   box-shadow: 
-    0 25px 80px rgba(167, 139, 250, 0.3),
-    0 0 0 2px rgba(244, 114, 182, 0.2);
+    0 25px 80px rgba(210,241,254,0.13),
+    0 0 0 2px rgba(13,175,226,0.07);
   max-height: 86vh;
   overflow-y: auto;
   animation: modalIn 0.32s cubic-bezier(.18,.7,.35,1.1);
-  border: 2px solid rgba(167, 139, 250, 0.3);
+  border: 2px solid rgba(173,226,248,0.14);
   position: relative;
   contain: layout paint;
 }
 
+/* عنوان نافذة منبثقة بتدرج لبني */
 .popup-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-weight: 900;
-  background: linear-gradient(135deg, #a78bfa 0%, #f472b6 100%);
+  background: linear-gradient(135deg, #13afe2 0%, #6ad3f8 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-bottom: 12px;
   font-size: 1.08em;
 }
 
+/* زر إغلاق */
 .popup-close {
   background: none;
   border: none;
   font-size: 1.3em;
   cursor: pointer;
-  color: #6b7280;
+  color: #7ba9cb;
   transition: transform 0.16s, color 0.16s;
 }
 
 .popup-close:hover {
   transform: scale(1.1);
-  color: #f472b6;
+  color: #13afe2;
 }
 
-/* edit list */
+/* قائمة تعديل العناصر */
 .edit-list {
   max-height: 260px;
   overflow: auto;
-  border: 2px solid rgba(167, 139, 250, 0.3);
+  border: 2px solid rgba(173,226,248,0.13);
   border-radius: 12px;
   padding: 10px;
-  background: rgba(255, 255, 255, 0.98);
+  background: #fff;
 }
 
 .edit-list label {
@@ -1366,7 +1422,7 @@ tbody tr:hover td {
   align-items: center;
   margin: 6px 0;
   font-weight: 700;
-  color: var(--color-text-main);
+  color: #263744;
   cursor: pointer;
   padding: 7px 6px;
   border-radius: 9px;
@@ -1374,14 +1430,26 @@ tbody tr:hover td {
 }
 
 .edit-list label:hover {
-  background: rgba(167, 139, 250, 0.1);
+  background: rgba(173,226,248,0.11);
 }
 
 .edit-list input[type="checkbox"] {
   width: 18px;
   height: 18px;
-  accent-color: #f472b6;
+  accent-color: #13afe2;
   cursor: pointer;
+}
+
+/* Animation */
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 /* =========================
@@ -2778,4 +2846,5 @@ renderAll();
 </script>
 </body>
 </html>
+
 
