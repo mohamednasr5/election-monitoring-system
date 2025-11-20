@@ -1062,18 +1062,22 @@ window.unlockDashboard = function(){
     document.getElementById("dashboard").classList.remove("hidden");
     document.getElementById("admin-level-badge").textContent = "🔑 مهندس محمد حماد";
     showNotification("مرحبا بك يا مهندس محمد حماد - صلاحيات كاملة!");
-    setupVotesListener();
-  } else if(value === "451125"){
+    setupVotesListener();  // ✔ هنا فقط
+  } 
+  else if(value === "451125"){
     adminLevel = 2;
     document.getElementById("lock-screen").classList.add("hidden");
     document.getElementById("dashboard").classList.remove("hidden");
     document.getElementById("admin-level-badge").textContent = "👁 مراقب";
     showNotification("مرحبا بكم فى عالم التحكم الكامل والمراقبة");
+    
     document.getElementById("btn-reset-all").classList.add("btn-hidden");
     document.querySelectorAll(".btn-mini-edit").forEach(btn => btn.classList.add("btn-hidden"));
     document.getElementById("edit-col").classList.add("hidden");
-    setupVotesListener();
-  } else {
+
+    setupVotesListener(); // ✔ هنا فقط
+  } 
+  else {
     err.textContent = "كلمة سر غير صحيحة";
     err.style.display = "block";
     setTimeout(() => err.style.display = "none", 2300);
@@ -1095,40 +1099,41 @@ function showNotification(msg){
 let votesListener = null;
 
 function setupVotesListener() {
-  if(votesListener) votesListener();
-  
-const votesRef = ref(db, "/");
+  if (votesListener) votesListener();  // إلغاء أي مستمع قديم
+
+  const votesRef = ref(db, "/"); // قراءة قاعدة البيانات بالكامل
+
   votesListener = onValue(votesRef, snapshot => {
-  const root = snapshot.val() || {};
 
-  let combined = {};
+    const root = snapshot.val() || {};
+    let combined = {};
 
-  // الأصوات الموجودة داخل votes/
-  if (root.votes) {
-    Object.entries(root.votes).forEach(([id, v]) => combined[id] = v);
-  }
+    // الأصوات داخل votes/
+    if (root.votes) {
+      Object.entries(root.votes).forEach(([id, v]) => { combined[id] = v; });
+    }
 
-  // الأصوات الموجودة داخل aziza/
-  if (root.aziza) {
-    Object.entries(root.aziza).forEach(([id, v]) => combined[id] = v);
-  }
+    // الأصوات داخل aziza/
+    if (root.aziza) {
+      Object.entries(root.aziza).forEach(([id, v]) => { combined[id] = v; });
+    }
 
-  // تحويلها إلى نفس بنية الكود الأصلي
-  allVotes = Object.entries(combined).map(([id, v], i) => ({
-    id,
-    index: i + 1,
-    name: v.name || "No Name",
-    candidates: Array.isArray(v.selected) ? v.selected : [],
-    validity: v.vote_validity || "",
-    timestamp: v.timestamp || 0,
-    committee: Number(v.committee) || 0
-  }));
+    // تحويل البيانات لبنية النظام
+    allVotes = Object.entries(combined).map(([id, v], i) => ({
+      id,
+      index: i + 1,
+      name: v.name || "No Name",
+      candidates: Array.isArray(v.selected) ? v.selected : [],
+      validity: v.vote_validity || "",
+      timestamp: v.timestamp || 0,
+      committee: Number(v.committee) || 0
+    }));
 
-  renderAll();
-});
+    renderAll();
+  });
+}
 
-
-setupVotesListener();
+// ❌ مهم جداً: لا يوجد setupVotesListener() هنا خارج تسجيل الدخول
 
 function renderAll(){
   renderStats();
@@ -1638,4 +1643,5 @@ window.sendNotification = async function(){
 </script>
 </body>
 </html>
+
 
