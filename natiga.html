@@ -400,6 +400,7 @@ document.getElementById("add-form").onsubmit = function(e) {
   const valid = parseInt(dt.get("valid"));
   const invalid = parseInt(dt.get("invalid"));
   
+  // التحقق من جمع الصحيح والباطل
   if(valid + invalid !== total) return alert("مجموع الصحيحة والباطلة غير مطابق للإجمالي");
   
   let cand = {}, sum=0;
@@ -408,7 +409,12 @@ document.getElementById("add-form").onsubmit = function(e) {
     sum += cand[id];
   });
   
-  if(sum !== valid) return alert("مجموع أصوات المرشحين لا يساوي الصحيحة");
+  // -----------------------------------------------------------
+  // ⭐ التعديل هنا: السماح بأن يكون المجموع ضعف الأصوات الصحيحة
+  // -----------------------------------------------------------
+  if(sum !== (valid * 2)) {
+      return alert("تنبيه: بما أن كل ناخب يختار 2 مرشح، يجب أن يكون مجموع أصوات المرشحين (" + sum + ") مساوياً لضعف الأصوات الصحيحة (" + (valid * 2) + ")");
+  }
   
   db.ref("committees/" + num).set({
     number: num, totalVotes: total, validVotes: valid, invalidVotes: invalid, day: dt.get("add_day"), candidates: cand
