@@ -38,42 +38,17 @@ header { text-align: center; margin-bottom: 25px; border-bottom: 1px solid #3341
 .login-input { width: 100%; padding: 12px; background: var(--bg-input); border: none; color: white; border-radius: 8px; margin-bottom: 15px; text-align: center; font-size: 1.1rem; }
 .login-btn { width: 100%; padding: 12px; background: var(--success); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
-/* =========================================
-   🌟 البطاقات مع الأنيمشن (Hover Effects)
-   ========================================= */
+/* البطاقات مع الانيميشن */
 .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 25px; }
-
 .card { 
-    background: var(--bg-card); 
-    padding: 20px; 
-    border-radius: var(--radius); 
-    text-align: center; 
-    border-top: 4px solid transparent; 
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* حركة مرنة */
-    position: relative;
-    overflow: hidden;
+    background: var(--bg-card); padding: 20px; border-radius: var(--radius); text-align: center; border-top: 4px solid transparent; 
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden;
 }
-
-/* تأثير عند المرور */
-.card:hover {
-    transform: translateY(-10px) scale(1.02);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
-}
-
-/* ألوان خاصة لكل بطاقة مع توهج */
-.card.blue { border-color: var(--primary); }
-.card.blue:hover { box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3); }
-
-.card.green { border-color: var(--success); }
-.card.green:hover { box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3); }
-
-.card.red { border-color: var(--danger); }
-.card.red:hover { box-shadow: 0 10px 25px rgba(239, 68, 68, 0.3); }
-
-.card.purple { border-color: #8b5cf6; }
-.card.purple:hover { box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3); }
-
+.card:hover { transform: translateY(-10px) scale(1.02); box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4); }
+.card.blue { border-color: var(--primary); } .card.blue:hover { box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3); }
+.card.green { border-color: var(--success); } .card.green:hover { box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3); }
+.card.red { border-color: var(--danger); } .card.red:hover { box-shadow: 0 10px 25px rgba(239, 68, 68, 0.3); }
+.card.purple { border-color: #8b5cf6; } .card.purple:hover { box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3); }
 .card-num { font-size: 1.8rem; font-weight: 900; margin-top: 5px; }
 
 /* التحليل */
@@ -743,7 +718,22 @@ function renderAll() {
   showCommStats();
 }
 
-function resetData() { if(confirm("⚠️ حذف كل البيانات؟")) db.ref("committees").remove(); }
+// 🌟 Secure Reset Logic 🌟
+function resetData() {
+    const password = prompt("⛔ منطقة خطر!\n\nأدخل كود المسؤول لإتمام عملية التصفير:");
+    if (password === "521988") {
+        if(confirm("⚠️ تحذير نهائي وأخير:\n\nسيتم حذف كل البيانات المسجلة فوراً.\nهل أنت متأكد تماماً؟")) {
+            db.ref("committees").remove()
+            .then(() => {
+                alert("✅ تم تصفير قاعدة البيانات بنجاح.");
+                location.reload();
+            })
+            .catch(err => alert("حدث خطأ: " + err.message));
+        }
+    } else if (password !== null) {
+        alert("❌ كود غير صحيح. تم إلغاء العملية.");
+    }
+}
 
 </script>
 </body>
