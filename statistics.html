@@ -1447,15 +1447,45 @@ document.querySelectorAll("th[data-sort]").forEach(th => {
 });
 
 document.getElementById("search").addEventListener("input", renderTable);
-
 window.showDetails = function(id){
   const v = allVotes.find(x => x.id === id);
   if(!v) return;
+
   const body = document.getElementById("details-body");
-  const time = v.timestamp ? new Date(v.timestamp).toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "—";
+  const time = v.timestamp 
+    ? new Date(v.timestamp).toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit", second: "2-digit" }) 
+    : "—";
+
   const chosen = v.candidates.join(" و ") || "—";
-  body.innerHTML = "<table style='width:100%;'><tr><td><b>الاسم</b></td><td>" + v.name + "</td></tr><tr><td><b>اللجنة</b></td><td>" + (v.committee || "—") + "</td></tr><tr><td><b>الوقت</b></td><td>" + time + "</td></tr><tr><td><b>المرشحين</b></td><td>" + chosen + "</td></tr><tr><td><b>الحالة</b></td><td style='color:" + (v.validity === "صحيح" ? "#11998e" : "#eb3349") + "'>" + v.validity + "</td></tr></table>" + (isOur ? "<div style='display:inline-block;margin-top:12px;padding:8px 14px;border-radius:50px;background:#d4fc79;color:#2d5016;font-weight:700;'>تبعنا</div>" : "<div style='display:inline-block;margin-top:12px;padding:8px 14px;border-radius:50px;background:#ffb347;color:#5c2e0f;font-weight:700;'>مش تبعنا</div>");
   const isOur = v.candidates.includes("أحمد الحديدى");
+
+  body.innerHTML = `
+    <table style='width:100%;'>
+      <tr><td><b>الاسم</b></td><td>${v.name}</td></tr>
+      <tr><td><b>اللجنة</b></td><td>${v.committee || "—"}</td></tr>
+      <tr><td><b>الوقت</b></td><td>${time}</td></tr>
+      <tr><td><b>المرشحين</b></td><td>${chosen}</td></tr>
+      <tr>
+        <td><b>الحالة</b></td>
+        <td style='color:${v.validity === "صحيح" ? "#11998e" : "#eb3349"}'>
+          ${v.validity}
+        </td>
+      </tr>
+    </table>
+
+    <div style="
+      display:inline-block;
+      margin-top:12px;
+      padding:8px 14px;
+      border-radius:50px;
+      background:${isOur ? "#d4fc79" : "#ffb347"};
+      color:${isOur ? "#2d5016" : "#5c2e0f"};
+      font-weight:700;">
+      ${isOur ? "تبعنا" : "مش تبعنا"}
+    </div>
+  `;
+};
+
 
 window.openEdit = function(id){
   if(adminLevel !== 1){ alert("ليس لديك الصلاحية"); return; }
@@ -1612,4 +1642,5 @@ window.sendNotification = async function(){
 </script>
 </body>
 </html>
+
 
