@@ -9,9 +9,6 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-
 
 <style>
 :root {
@@ -25,18 +22,6 @@
   --danger: #ef4444;
   --warning: #f59e0b;
   --radius: 12px;
-}
-.heart-pulse {
-  display: inline-block;
-  animation: heartBeat 1.2s infinite ease-in-out;
-}
-
-@keyframes heartBeat {
-  0%   { transform: scale(1);   }
-  25%  { transform: scale(1.25);}
-  40%  { transform: scale(1);   }
-  60%  { transform: scale(1.2); }
-  100% { transform: scale(1);   }
 }
 
 * { box-sizing: border-box; outline: none; }
@@ -271,10 +256,7 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
           تم برمجة الأداة بكل حب من 
           <a href="https://www.facebook.com/en.mohamed.nasr" target="_blank" class="dev-link">المهندس محمد نصر</a>
       </div>
-<span class="dedication">
- <span class="heart-pulse">❤️</span>
-إهداء للحاج أحمد الحديدي
-<span class="heart-pulse">❤️</span>
+      <span class="dedication">❤️ إهداء للحاج أحمد الحديدي ❤️</span>
   </footer>
 
 </div>
@@ -599,6 +581,93 @@ function exportComparison() {
     XLSX.writeFile(wb, "Comparison.xlsx");
 }
 
+function exportBestComm() {
+    const candId = document.getElementById("best-cand-select").value;
+    if(!candId) { alert("اختر نائباً"); return; }
+    const t = getTotals();
+    const candName = candidates.find(c=>c[0]==candId)[1];
+    let stats = t.list.map(comm => {
+        const votes = comm.candidates[candId] || 0;
+        const info = commMap[comm.number] || {name: "غير معروف", address: ""};
+        return { num: comm.number, name: info.name, address: info.address, votes: votes };
+    }).filter(item => item.votes > 0).sort((a, b) => b.votes - a.votes);
+    
+    if (stats.length === 0) { alert("لا توجد بيانات"); return; }
+
+    const wb = XLSX.utils.book_new();
+    let wsData = [[`تقرير تفصيلي للنائب: ${candName}`], [], ["الترتيب", "رقم اللجنة", "اسم المدرسة", "العنوان", "عدد الأصوات"]];
+    stats.forEach((item, index) => wsData.push([index + 1, item.num, item.name, item.address, item.votes]));
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    XLSX.utils.book_append_sheet(wb, ws, "التفاصيل");
+    XLSX.writeFile(wb, `Details_${candName}.xlsx`);
+}
+
+function exportSpecificComm() {
+    const commId = parseInt(document.getElementById("specific-comm-select").value);
+    if(!commId) { alert("اختر لجنة"); return; }
+    const commData = allCommittees.find(c => c.number === commId);
+    if(!commData) { alert("لا توجد بيانات"); return; }
+    const commInfo = commMap[commId];
+    const wb = XLSX.utils.book_new();
+    let wsData = [
+        ["تقرير لجنة رقم", commId], ["اسم اللجنة", commInfo.name], ["العنوان", commInfo.address], [],
+        ["إحصائيات عامة"], ["إجمالي الحضور", commData.totalVotes], ["الصحيحة", commData.validVotes], ["الباطلة", commData.invalidVotes], [],
+        ["تفاصيل الأصوات"], ["الترتيب", "المرشح", "الأصوات", "النسبة %"]
+    ];
+    let arr = candidates.map(([id, name]) => ({
+        name: name, votes: commData.candidates[id] || 0, percent: commData.validVotes ? ((commData.candidates[id] / commData.validVotes) * 100).toFixed(1) : 0
+    })).sort((a,b) => b.votes - a.votes);
+    arr.forEach((c, i) => wsData.push([i+1, c.name, c.votes, c.percent + "%"]));
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    XLSX.utils.book_append_sheet(wb, ws, "اللجنة");
+    XLSX.writeFile(wb, `Committee_${commId}.xlsx`);
+}
+
+function exportRanking() {
+    const t = getTotals();
+    const wb = XLSX.utils.book_new();
+    let arr = candidates.map(([id,n]) => ({
+        name: n, v: t.cands[id], p: t.valid ? ((t.cands[id]/t.valid)*100).toFixed(1) : 0
+    })).sort((a,b) => b.v - a.v);
+    let wsData = [["الترتيب العام"], [`تاريخ التقرير: ${new Date().toLocaleString("ar-EG")}`], [], ["الترتيب", "المرشح", "الأصوات", "النسبة"]];
+    arr.forEach((c, i) => wsData.push([i+1, c.name, c.v, c.p + "%"]));
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    XLSX.utils.book_append_sheet(wb, ws, "الترتيب");
+    XLSX.writeFile(wb, "Ranking.xlsx");
+}
+
+function exportLog() {
+    const t = getTotals();
+    const wb = XLSX.utils.book_new();
+    let wsData = [["سجل الفرز"], [`عدد اللجان: ${t.list.length}`], [], ["رقم اللجنة", "المدرسة", "العنوان", "الإجمالي", "صحيحة", "باطلة"]];
+    t.list.forEach(c => {
+        const info = commMap[c.number] || {name: "", address: ""};
+        wsData.push([c.number, info.name, info.address, c.totalVotes, c.validVotes, c.invalidVotes]);
+    });
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    XLSX.utils.book_append_sheet(wb, ws, "السجل");
+    XLSX.writeFile(wb, "Committees_Log.xlsx");
+}
+
+function exportToExcel() {
+    const t = getTotals();
+    const wb = XLSX.utils.book_new();
+    // Sheet 1
+    let rankData = [["المرشح", "الأصوات"]];
+    candidates.forEach(([id,n]) => rankData.push([n, t.cands[id]]));
+    const ws1 = XLSX.utils.aoa_to_sheet(rankData);
+    XLSX.utils.book_append_sheet(wb, ws1, "النتائج");
+    // Sheet 2
+    let commData = [["رقم اللجنة", "اسم اللجنة", "الإجمالي", "صحيح", "باطل"]];
+    t.list.forEach(c => {
+        const info = commMap[c.number] || {name:""};
+        commData.push([c.number, info.name, c.totalVotes, c.validVotes, c.invalidVotes]);
+    });
+    const ws2 = XLSX.utils.aoa_to_sheet(commData);
+    XLSX.utils.book_append_sheet(wb, ws2, "اللجان");
+    XLSX.writeFile(wb, "Full_Database.xlsx");
+}
+
 function printSection(divId) {
     const target = document.getElementById(divId);
     target.classList.add("section-to-print");
@@ -683,362 +752,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 });
-// استخدم ExcelJS بدلاً من XLSX في التصدير الاحترافي
-function exportRanking() {
-    const t = getTotals();
-    const wb = new ExcelJS.Workbook();
-    const ws = wb.addWorksheet("الترتيب العام");
 
-    // رأس التقرير
-    ws.addRow(["الترتيب العام للمرشحين"]);
-    ws.addRow([`تاريخ التقرير: ${new Date().toLocaleString("ar-EG")}`]);
-    ws.addRow([]);
-    ws.addRow(["الترتيب", "المرشح", "الأصوات", "النسبة"]);
-
-    // ترتيب المرشحين بالألوان
-    let arr = candidates.map(([id, n]) => ({
-        name: n, v: t.cands[id], p: t.valid ? ((t.cands[id] / t.valid ) * 100).toFixed(1) : 0
-    })).sort((a, b) => b.v - a.v);
-
-    arr.forEach((c, i) => {
-        const row = ws.addRow([i + 1, c.name, c.v, c.p + "%"]);
-        // تلوين الصفوف: الأول ذهبي، الثاني فضي، الثالث برونزي، الباقي أبيض
-        let fillColor = i === 0 ? 'FFF7C0' : i === 1 ? 'E0E0E0' : i === 2 ? 'FFD7BF' : 'FFFFFF';
-        row.eachCell(cell => cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fillColor } });
-        row.getCell(3).font = { bold: true, color: { argb: '004080' } }; // الأصوات بارزة
-    });
-
-    // تنسيق العناوين
-    for(let i=1;i<=4;i++) ws.getRow(4).getCell(i).font = { bold: true, color: { argb: '3b82f6' }, size: 13 };
-
-    // حدود وتوسيط
-    ws.eachRow((row, rowNumber) => {
-        row.alignment = { horizontal: 'center', vertical: 'middle' };
-        row.eachCell(cell => {
-            cell.border = {
-                top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'}
-            };
-        });
-    });
-
-    wb.xlsx.writeBuffer().then(buffer => saveAs(new Blob([buffer]), "Ranking.xlsx"));
-}
-
-function exportBestComm() {
-    const candId = document.getElementById("best-cand-select").value;
-    if (!candId) { alert("اختر نائباً"); return; }
-    const t = getTotals();
-    const candName = candidates.find(c => c[0] == candId)[1];
-    let stats = t.list.map(comm => {
-        const votes = comm.candidates[candId] || 0;
-        const info = commMap[comm.number] || { name: "غير معروف", address: "" };
-        return { num: comm.number, name: info.name, address: info.address, votes: votes };
-    }).filter(item => item.votes > 0).sort((a, b) => b.votes - a.votes);
-
-    if (stats.length == 0) { alert("لا توجد بيانات"); return; }
-
-    const wb = new ExcelJS.Workbook();
-    const ws = wb.addWorksheet("تفاصيل النائب");
-
-    ws.addRow([`تقرير تفصيلي للنائب: ${candName}`]);
-    ws.addRow([]);
-    ws.addRow(["الترتيب", "رقم اللجنة", "اسم المدرسة", "العنوان", "عدد الأصوات"]);
-
-    stats.forEach((item, index) => {
-        const row = ws.addRow([index + 1, item.num, item.name, item.address, item.votes]);
-        if (index === 0) row.eachCell(cell => cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF7C0' } });
-        row.getCell(5).font = { bold: true, color: { argb: '10b981' } };
-    });
-
-    ws.eachRow((row, rowNumber) => {
-        row.alignment = { horizontal: 'center', vertical: 'middle' };
-        row.eachCell(cell => cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} });
-    });
-
-    wb.xlsx.writeBuffer().then(buffer => saveAs(new Blob([buffer]), `Details_${candName}.xlsx`));
-}
-
-function exportSpecificComm() {
-    const commId = parseInt(document.getElementById("specific-comm-select").value);
-    if (!commId) { alert("اختر لجنة"); return; }
-    const commData = allCommittees.find(c => c.number === commId);
-    if (!commData) { alert("لا توجد بيانات"); return; }
-    const commInfo = commMap[commId];
-
-    const wb = new ExcelJS.Workbook();
-    const ws = wb.addWorksheet("اللجنة المحددة");
-
-    ws.addRow([`تقرير لجنة رقم`, commId]);
-    ws.addRow(["اسم اللجنة", commInfo.name]);
-    ws.addRow(["العنوان", commInfo.address]);
-    ws.addRow([]);
-    ws.addRow(["إحصائيات عامة"]);
-    ws.addRow(["إجمالي الحضور", commData.totalVotes]);
-    ws.addRow(["الصحيحة", commData.validVotes]);
-    ws.addRow(["الباطلة", commData.invalidVotes]);
-    ws.addRow([]);
-    ws.addRow(["تفاصيل الأصوات"]);
-    ws.addRow(["الترتيب", "المرشح", "الأصوات", "النسبة %"]);
-
-    let arr = candidates.map(([id, name]) => ({
-        name: name, votes: commData.candidates[id] || 0, percent: commData.validVotes ? ((commData.candidates[id] / commData.validVotes) * 100).toFixed(1) : 0
-    })).sort((a, b) => b.votes - a.votes);
-    arr.forEach((c, i) => {
-        const row = ws.addRow([i + 1, c.name, c.votes, c.percent + "%"]);
-        if (i === 0) row.eachCell(cell => cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF7C0' } });
-        row.getCell(3).font = { bold: true, color: { argb: 'F59E0B' } };
-    });
-
-    ws.eachRow((row) => {
-        row.alignment = { horizontal: 'center', vertical: 'middle' };
-        row.eachCell(cell => cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} });
-    });
-
-    wb.xlsx.writeBuffer().then(buffer => saveAs(new Blob([buffer]), `Committee_${commId}.xlsx`));
-}
-
-function exportLog() {
-    const t = getTotals();
-    const wb = new ExcelJS.Workbook();
-    const ws = wb.addWorksheet("سجل اللجان");
-    ws.addRow(["سجل الفرز"]);
-    ws.addRow([`عدد اللجان: ${t.list.length}`]);
-    ws.addRow([]);
-    ws.addRow(["رقم اللجنة", "المدرسة", "العنوان", "الإجمالي", "صحيحة", "باطلة"]);
-
-    t.list.forEach(c => {
-        const info = commMap[c.number] || { name: "", address: "" };
-        ws.addRow([c.number, info.name, info.address, c.totalVotes, c.validVotes, c.invalidVotes])
-    });
-
-    ws.eachRow((row) => {
-        row.alignment = { horizontal: 'center' };
-        row.eachCell(cell => cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} });
-        if (row.number > 4) row.getCell(4).font = { bold: true, color: { argb: '3b82f6' } };
-    });
-
-    wb.xlsx.writeBuffer().then(buffer => saveAs(new Blob([buffer]), "Committees_Log.xlsx"));
-}
-
-// دالة التصدير الشاملة المحسّنة
-function exportToExcel() {
-    const t = getTotals();
-    const wb = new ExcelJS.Workbook();
-    wb.properties.rightToLeft = true; // RTL للعربية
-    
-    // ===== الجدول الأول: إجمالي الأصوات =====
-    const ws1 = wb.addWorksheet("إحصائيات عامة", { rightToLeft: true });
-    ws1.columns = [
-        { header: "البيان", key: "desc", width: 20 },
-        { header: "العدد", key: "value", width: 15 }
-    ];
-    
-    // تنسيق رأس الجدول الأول
-    ws1.getRow(1).eachCell(cell => {
-        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD3D3D3' } };
-        cell.font = { bold: true, size: 12, color: { argb: 'FF000000' } };
-        cell.alignment = { horizontal: 'center', vertical: 'middle' };
-        cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
-    });
-    
-    ws1.addRow({ desc: "إجمالي الأصوات", value: t.total });
-    ws1.addRow({ desc: "الصحيحة ✅", value: t.valid });
-    ws1.addRow({ desc: "الباطلة ❌", value: t.invalid });
-    ws1.addRow({ desc: "تم فرز", value: `${t.list.length} / 60` });
-    
-    ws1.eachRow((row, rowNum) => {
-        if (rowNum > 1) {
-            row.eachCell(cell => {
-                cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
-                cell.alignment = { horizontal: 'center', vertical: 'middle' };
-            });
-            row.getCell(2).font = { bold: true, size: 11, color: { argb: 'FF3b82f6' } };
-        }
-    });
-    
-    ws1.addRow({}); // فاصل
-    
-    // ===== الجدول الثاني: مقارنة بين نائبين =====
-    ws1.addRow({ desc: "مقارنة بين نائبين (مثال)" });
-    ws1.getRow(ws1.lastRow.number).font = { bold: true, size: 11, italic: true };
-    ws1.addRow({ desc: "النائب الأول", value: "الأصوات" });
-    ws1.addRow({ desc: "النائب الثاني", value: "الأصوات" });
-    
-    // ===== الجدول الثالث: سجل النائب في اللجان =====
-    const ws2 = wb.addWorksheet("سجل النائب في اللجان", { rightToLeft: true });
-    ws2.columns = [
-        { header: "الترتيب", key: "rank", width: 10 },
-        { header: "رقم اللجنة", key: "commNum", width: 12 },
-        { header: "اسم اللجنة", key: "commName", width: 25 },
-        { header: "الأصوات", key: "votes", width: 12 }
-    ];
-    
-    // تنسيق رأس الجدول
-    ws2.getRow(1).eachCell(cell => {
-        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD3D3D3' } };
-        cell.font = { bold: true, size: 12, color: { argb: 'FF000000' } };
-        cell.alignment = { horizontal: 'center', vertical: 'middle' };
-        cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
-    });
-    
-    ws2.addRow({ rank: "يختار نائب من النظام", commNum: "", commName: "البيانات تظهر هنا", votes: "" });
-    
-    ws2.eachRow((row, rowNum) => {
-        if (rowNum > 1) {
-            row.eachCell(cell => {
-                cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
-                cell.alignment = { horizontal: 'right', vertical: 'middle' };
-            });
-        }
-    });
-    
-    // ===== الجدول الرابع: تحليل لجنة محددة =====
-    const ws3 = wb.addWorksheet("تحليل لجنة محددة", { rightToLeft: true });
-    ws3.columns = [
-        { header: "الترتيب", key: "rank", width: 10 },
-        { header: "المرشح", key: "candidate", width: 20 },
-        { header: "الأصوات", key: "votes", width: 12 },
-        { header: "النسبة %", key: "percent", width: 12 }
-    ];
-    
-    ws3.getRow(1).eachCell(cell => {
-        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD3D3D3' } };
-        cell.font = { bold: true, size: 12, color: { argb: 'FF000000' } };
-        cell.alignment = { horizontal: 'center', vertical: 'middle' };
-        cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
-    });
-    
-    ws3.addRow({ rank: "اختر لجنة من النظام", candidate: "البيانات تظهر هنا", votes: "", percent: "" });
-    
-    ws3.eachRow((row, rowNum) => {
-        if (rowNum > 1) {
-            row.eachCell(cell => {
-                cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
-                cell.alignment = { horizontal: 'right', vertical: 'middle' };
-            });
-        }
-    });
-    
-    // ===== الجدول الخامس: شارت الترتيب والمرشحين =====
-    const ws4 = wb.addWorksheet("ترتيب المرشحين", { rightToLeft: true });
-    ws4.columns = [
-        { header: "#", key: "rank", width: 8 },
-        { header: "المرشح", key: "candidate", width: 20 },
-        { header: "الأصوات", key: "votes", width: 12 },
-        { header: "النسبة %", key: "percent", width: 12 }
-    ];
-    
-    ws4.getRow(1).eachCell(cell => {
-        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD3D3D3' } };
-        cell.font = { bold: true, size: 12, color: { argb: 'FF000000' } };
-        cell.alignment = { horizontal: 'center', vertical: 'middle' };
-        cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
-    });
-    
-    let arr = candidates.map(([id, n]) => ({
-        name: n,
-        v: t.cands[id],
-        p: t.valid ? ((t.cands[id] / t.valid) * 100).toFixed(1) : 0
-    })).sort((a, b) => b.v - a.v);
-    
-    arr.forEach((c, i) => {
-        const row = ws4.addRow({
-            rank: i + 1,
-            candidate: c.name,
-            votes: c.v,
-            percent: c.p
-        });
-        
-        // تلوين الصفوف بناءً على الترتيب
-        let fillColor = i === 0 ? 'FFFFF7C0' : i === 1 ? 'FFE0E0E0' : i === 2 ? 'FFFFD7BF' : 'FFFFFFFF';
-        row.eachCell(cell => {
-            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fillColor } };
-            cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
-            cell.alignment = { horizontal: 'center', vertical: 'middle' };
-        });
-        
-        row.getCell(3).font = { bold: true, color: { argb: 'FF3b82f6' }, size: 11 };
-    });
-    
-    // ===== الجدول السادس: الترتيب العام للمرشحين (تفصيلي) =====
-    const ws5 = wb.addWorksheet("الترتيب العام", { rightToLeft: true });
-    ws5.columns = [
-        { header: "#", key: "rank", width: 8 },
-        { header: "اسم المرشح", key: "name", width: 20 },
-        { header: "إجمالي الأصوات", key: "votes", width: 15 },
-        { header: "النسبة المئوية", key: "percent", width: 15 }
-    ];
-    
-    ws5.getRow(1).eachCell(cell => {
-        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD3D3D3' } };
-        cell.font = { bold: true, size: 12, color: { argb: 'FF000000' } };
-        cell.alignment = { horizontal: 'center', vertical: 'middle' };
-        cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
-    });
-    
-    arr.forEach((c, i) => {
-        const row = ws5.addRow({
-            rank: i + 1,
-            name: c.name,
-            votes: c.v,
-            percent: c.p + "%"
-        });
-        
-        let fillColor = i === 0 ? 'FFFFF7C0' : i === 1 ? 'FFE0E0E0' : i === 2 ? 'FFFFD7BF' : 'FFFFFFFF';
-        row.eachCell(cell => {
-            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fillColor } };
-            cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
-            cell.alignment = { horizontal: 'center', vertical: 'middle' };
-        });
-        
-        row.getCell(3).font = { bold: true, color: { argb: 'FF10b981' } };
-    });
-    
-    // ===== الجدول السابع: سجل اللجان =====
-    const ws6 = wb.addWorksheet("سجل اللجان", { rightToLeft: true });
-    ws6.columns = [
-        { header: "رقم اللجنة", key: "commNum", width: 12 },
-        { header: "اسم المدرسة", key: "school", width: 25 },
-        { header: "العنوان", key: "address", width: 30 },
-        { header: "إجمالي الحضور", key: "total", width: 15 },
-        { header: "الأصوات الصحيحة", key: "valid", width: 15 },
-        { header: "الأصوات الباطلة", key: "invalid", width: 15 }
-    ];
-    
-    ws6.getRow(1).eachCell(cell => {
-        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD3D3D3' } };
-        cell.font = { bold: true, size: 11, color: { argb: 'FF000000' } };
-        cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
-        cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
-    });
-    
-    t.list.forEach((c, idx) => {
-        const info = commMap[c.number] || { name: "لجنة " + c.number, address: "" };
-        const row = ws6.addRow({
-            commNum: c.number,
-            school: info.name,
-            address: info.address,
-            total: c.totalVotes,
-            valid: c.validVotes,
-            invalid: c.invalidVotes
-        });
-        
-        row.eachCell(cell => {
-            cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
-            cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
-        });
-        
-        row.getCell(4).font = { bold: true, color: { argb: 'FF3b82f6' } };
-        row.getCell(5).font = { bold: true, color: { argb: 'FF10b981' } };
-        row.getCell(6).font = { bold: true, color: { argb: 'FFef4444' } };
-    });
-    
-    // حفظ الملف
-    wb.xlsx.writeBuffer().then(buffer => {
-        saveAs(new Blob([buffer], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}), 
-               `قاعدة_البيانات_كاملة_${new Date().toLocaleString('ar-EG').replace(/\\//g, '-')}.xlsx`);
-    }).catch(err => alert("خطأ في التصدير: " + err.message));
-}
 </script>
 </body>
 </html>
