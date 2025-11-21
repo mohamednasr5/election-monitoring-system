@@ -819,35 +819,225 @@ function exportLog() {
     wb.xlsx.writeBuffer().then(buffer => saveAs(new Blob([buffer]), "Committees_Log.xlsx"));
 }
 
+// دالة التصدير الشاملة المحسّنة
 function exportToExcel() {
     const t = getTotals();
     const wb = new ExcelJS.Workbook();
-
-    // Sheet 1 (نتائج المرشحين)
-    const ws1 = wb.addWorksheet("النتائج");
-    ws1.addRow(["المرشح", "الأصوات"]);
-    candidates.forEach(([id, n]) => {
-        const row = ws1.addRow([n, t.cands[id]]);
-        if (row.number == 2) row.eachCell(cell => cell.font = { bold: true, color: { argb: '3b82f6' } });
-        row.getCell(2).font = { color: { argb: '10b981' } };
-        row.eachCell(cell => cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} });
+    wb.properties.rightToLeft = true; // RTL للعربية
+    
+    // ===== الجدول الأول: إجمالي الأصوات =====
+    const ws1 = wb.addWorksheet("إحصائيات عامة", { rightToLeft: true });
+    ws1.columns = [
+        { header: "البيان", key: "desc", width: 20 },
+        { header: "العدد", key: "value", width: 15 }
+    ];
+    
+    // تنسيق رأس الجدول الأول
+    ws1.getRow(1).eachCell(cell => {
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD3D3D3' } };
+        cell.font = { bold: true, size: 12, color: { argb: 'FF000000' } };
+        cell.alignment = { horizontal: 'center', vertical: 'middle' };
+        cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
     });
-
-    // Sheet 2 (اللجان)
-    const ws2 = wb.addWorksheet("اللجان");
-    ws2.addRow(["رقم اللجنة", "اسم اللجنة", "الإجمالي", "صحيح", "باطل"]);
-    t.list.forEach(c => {
-        const info = commMap[c.number] || { name: "" };
-        const row = ws2.addRow([c.number, info.name, c.totalVotes, c.validVotes, c.invalidVotes]);
-        row.getCell(3).font = { color: { argb: 'f59e0b' } };
-        row.getCell(4).font = { color: { argb: '10b981' } };
-        row.getCell(5).font = { color: { argb: 'ef4444' } };
-        row.eachCell(cell => cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} });
+    
+    ws1.addRow({ desc: "إجمالي الأصوات", value: t.total });
+    ws1.addRow({ desc: "الصحيحة ✅", value: t.valid });
+    ws1.addRow({ desc: "الباطلة ❌", value: t.invalid });
+    ws1.addRow({ desc: "تم فرز", value: `${t.list.length} / 60` });
+    
+    ws1.eachRow((row, rowNum) => {
+        if (rowNum > 1) {
+            row.eachCell(cell => {
+                cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+                cell.alignment = { horizontal: 'center', vertical: 'middle' };
+            });
+            row.getCell(2).font = { bold: true, size: 11, color: { argb: 'FF3b82f6' } };
+        }
     });
-
-    wb.xlsx.writeBuffer().then(buffer => saveAs(new Blob([buffer]), "Full_Database.xlsx"));
+    
+    ws1.addRow({}); // فاصل
+    
+    // ===== الجدول الثاني: مقارنة بين نائبين =====
+    ws1.addRow({ desc: "مقارنة بين نائبين (مثال)" });
+    ws1.getRow(ws1.lastRow.number).font = { bold: true, size: 11, italic: true };
+    ws1.addRow({ desc: "النائب الأول", value: "الأصوات" });
+    ws1.addRow({ desc: "النائب الثاني", value: "الأصوات" });
+    
+    // ===== الجدول الثالث: سجل النائب في اللجان =====
+    const ws2 = wb.addWorksheet("سجل النائب في اللجان", { rightToLeft: true });
+    ws2.columns = [
+        { header: "الترتيب", key: "rank", width: 10 },
+        { header: "رقم اللجنة", key: "commNum", width: 12 },
+        { header: "اسم اللجنة", key: "commName", width: 25 },
+        { header: "الأصوات", key: "votes", width: 12 }
+    ];
+    
+    // تنسيق رأس الجدول
+    ws2.getRow(1).eachCell(cell => {
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD3D3D3' } };
+        cell.font = { bold: true, size: 12, color: { argb: 'FF000000' } };
+        cell.alignment = { horizontal: 'center', vertical: 'middle' };
+        cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+    });
+    
+    ws2.addRow({ rank: "يختار نائب من النظام", commNum: "", commName: "البيانات تظهر هنا", votes: "" });
+    
+    ws2.eachRow((row, rowNum) => {
+        if (rowNum > 1) {
+            row.eachCell(cell => {
+                cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+                cell.alignment = { horizontal: 'right', vertical: 'middle' };
+            });
+        }
+    });
+    
+    // ===== الجدول الرابع: تحليل لجنة محددة =====
+    const ws3 = wb.addWorksheet("تحليل لجنة محددة", { rightToLeft: true });
+    ws3.columns = [
+        { header: "الترتيب", key: "rank", width: 10 },
+        { header: "المرشح", key: "candidate", width: 20 },
+        { header: "الأصوات", key: "votes", width: 12 },
+        { header: "النسبة %", key: "percent", width: 12 }
+    ];
+    
+    ws3.getRow(1).eachCell(cell => {
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD3D3D3' } };
+        cell.font = { bold: true, size: 12, color: { argb: 'FF000000' } };
+        cell.alignment = { horizontal: 'center', vertical: 'middle' };
+        cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+    });
+    
+    ws3.addRow({ rank: "اختر لجنة من النظام", candidate: "البيانات تظهر هنا", votes: "", percent: "" });
+    
+    ws3.eachRow((row, rowNum) => {
+        if (rowNum > 1) {
+            row.eachCell(cell => {
+                cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+                cell.alignment = { horizontal: 'right', vertical: 'middle' };
+            });
+        }
+    });
+    
+    // ===== الجدول الخامس: شارت الترتيب والمرشحين =====
+    const ws4 = wb.addWorksheet("ترتيب المرشحين", { rightToLeft: true });
+    ws4.columns = [
+        { header: "#", key: "rank", width: 8 },
+        { header: "المرشح", key: "candidate", width: 20 },
+        { header: "الأصوات", key: "votes", width: 12 },
+        { header: "النسبة %", key: "percent", width: 12 }
+    ];
+    
+    ws4.getRow(1).eachCell(cell => {
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD3D3D3' } };
+        cell.font = { bold: true, size: 12, color: { argb: 'FF000000' } };
+        cell.alignment = { horizontal: 'center', vertical: 'middle' };
+        cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+    });
+    
+    let arr = candidates.map(([id, n]) => ({
+        name: n,
+        v: t.cands[id],
+        p: t.valid ? ((t.cands[id] / t.valid) * 100).toFixed(1) : 0
+    })).sort((a, b) => b.v - a.v);
+    
+    arr.forEach((c, i) => {
+        const row = ws4.addRow({
+            rank: i + 1,
+            candidate: c.name,
+            votes: c.v,
+            percent: c.p
+        });
+        
+        // تلوين الصفوف بناءً على الترتيب
+        let fillColor = i === 0 ? 'FFFFF7C0' : i === 1 ? 'FFE0E0E0' : i === 2 ? 'FFFFD7BF' : 'FFFFFFFF';
+        row.eachCell(cell => {
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fillColor } };
+            cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+            cell.alignment = { horizontal: 'center', vertical: 'middle' };
+        });
+        
+        row.getCell(3).font = { bold: true, color: { argb: 'FF3b82f6' }, size: 11 };
+    });
+    
+    // ===== الجدول السادس: الترتيب العام للمرشحين (تفصيلي) =====
+    const ws5 = wb.addWorksheet("الترتيب العام", { rightToLeft: true });
+    ws5.columns = [
+        { header: "#", key: "rank", width: 8 },
+        { header: "اسم المرشح", key: "name", width: 20 },
+        { header: "إجمالي الأصوات", key: "votes", width: 15 },
+        { header: "النسبة المئوية", key: "percent", width: 15 }
+    ];
+    
+    ws5.getRow(1).eachCell(cell => {
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD3D3D3' } };
+        cell.font = { bold: true, size: 12, color: { argb: 'FF000000' } };
+        cell.alignment = { horizontal: 'center', vertical: 'middle' };
+        cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+    });
+    
+    arr.forEach((c, i) => {
+        const row = ws5.addRow({
+            rank: i + 1,
+            name: c.name,
+            votes: c.v,
+            percent: c.p + "%"
+        });
+        
+        let fillColor = i === 0 ? 'FFFFF7C0' : i === 1 ? 'FFE0E0E0' : i === 2 ? 'FFFFD7BF' : 'FFFFFFFF';
+        row.eachCell(cell => {
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fillColor } };
+            cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+            cell.alignment = { horizontal: 'center', vertical: 'middle' };
+        });
+        
+        row.getCell(3).font = { bold: true, color: { argb: 'FF10b981' } };
+    });
+    
+    // ===== الجدول السابع: سجل اللجان =====
+    const ws6 = wb.addWorksheet("سجل اللجان", { rightToLeft: true });
+    ws6.columns = [
+        { header: "رقم اللجنة", key: "commNum", width: 12 },
+        { header: "اسم المدرسة", key: "school", width: 25 },
+        { header: "العنوان", key: "address", width: 30 },
+        { header: "إجمالي الحضور", key: "total", width: 15 },
+        { header: "الأصوات الصحيحة", key: "valid", width: 15 },
+        { header: "الأصوات الباطلة", key: "invalid", width: 15 }
+    ];
+    
+    ws6.getRow(1).eachCell(cell => {
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD3D3D3' } };
+        cell.font = { bold: true, size: 11, color: { argb: 'FF000000' } };
+        cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+        cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+    });
+    
+    t.list.forEach((c, idx) => {
+        const info = commMap[c.number] || { name: "لجنة " + c.number, address: "" };
+        const row = ws6.addRow({
+            commNum: c.number,
+            school: info.name,
+            address: info.address,
+            total: c.totalVotes,
+            valid: c.validVotes,
+            invalid: c.invalidVotes
+        });
+        
+        row.eachCell(cell => {
+            cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+            cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+        });
+        
+        row.getCell(4).font = { bold: true, color: { argb: 'FF3b82f6' } };
+        row.getCell(5).font = { bold: true, color: { argb: 'FF10b981' } };
+        row.getCell(6).font = { bold: true, color: { argb: 'FFef4444' } };
+    });
+    
+    // حفظ الملف
+    wb.xlsx.writeBuffer().then(buffer => {
+        saveAs(new Blob([buffer], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}), 
+               `قاعدة_البيانات_كاملة_${new Date().toLocaleString('ar-EG').replace(/\\//g, '-')}.xlsx`);
+    }).catch(err => alert("خطأ في التصدير: " + err.message));
 }
-
 </script>
 </body>
 </html>
