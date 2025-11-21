@@ -25,6 +25,18 @@
   --warning: #f59e0b;
   --radius: 12px;
 }
+.heart-pulse {
+  display: inline-block;
+  animation: heartBeat 1.2s infinite ease-in-out;
+}
+
+@keyframes heartBeat {
+  0%   { transform: scale(1);   }
+  25%  { transform: scale(1.25);}
+  40%  { transform: scale(1);   }
+  60%  { transform: scale(1.2); }
+  100% { transform: scale(1);   }
+}
 
 * { box-sizing: border-box; outline: none; }
 body { font-family: 'Cairo', sans-serif; background-color: var(--bg-body); color: var(--text-main); margin: 0; padding-bottom: 20px; }
@@ -258,7 +270,10 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
           تم برمجة الأداة بكل حب من 
           <a href="https://www.facebook.com/en.mohamed.nasr" target="_blank" class="dev-link">المهندس محمد نصر</a>
       </div>
-      <span class="dedication">❤️ إهداء للحاج أحمد الحديدي ❤️</span>
+<span class="dedication">
+  <span class="heart-pulse">❤️</span>
+  إهداء للحاج أحمد الحديدي
+  <span class="heart-pulse">❤️</
   </footer>
 
 </div>
