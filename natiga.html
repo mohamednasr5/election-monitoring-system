@@ -583,93 +583,6 @@ function exportComparison() {
     XLSX.writeFile(wb, "Comparison.xlsx");
 }
 
-function exportBestComm() {
-    const candId = document.getElementById("best-cand-select").value;
-    if(!candId) { alert("اختر نائباً"); return; }
-    const t = getTotals();
-    const candName = candidates.find(c=>c[0]==candId)[1];
-    let stats = t.list.map(comm => {
-        const votes = comm.candidates[candId] || 0;
-        const info = commMap[comm.number] || {name: "غير معروف", address: ""};
-        return { num: comm.number, name: info.name, address: info.address, votes: votes };
-    }).filter(item => item.votes > 0).sort((a, b) => b.votes - a.votes);
-    
-    if (stats.length === 0) { alert("لا توجد بيانات"); return; }
-
-    const wb = XLSX.utils.book_new();
-    let wsData = [[`تقرير تفصيلي للنائب: ${candName}`], [], ["الترتيب", "رقم اللجنة", "اسم المدرسة", "العنوان", "عدد الأصوات"]];
-    stats.forEach((item, index) => wsData.push([index + 1, item.num, item.name, item.address, item.votes]));
-    const ws = XLSX.utils.aoa_to_sheet(wsData);
-    XLSX.utils.book_append_sheet(wb, ws, "التفاصيل");
-    XLSX.writeFile(wb, `Details_${candName}.xlsx`);
-}
-
-function exportSpecificComm() {
-    const commId = parseInt(document.getElementById("specific-comm-select").value);
-    if(!commId) { alert("اختر لجنة"); return; }
-    const commData = allCommittees.find(c => c.number === commId);
-    if(!commData) { alert("لا توجد بيانات"); return; }
-    const commInfo = commMap[commId];
-    const wb = XLSX.utils.book_new();
-    let wsData = [
-        ["تقرير لجنة رقم", commId], ["اسم اللجنة", commInfo.name], ["العنوان", commInfo.address], [],
-        ["إحصائيات عامة"], ["إجمالي الحضور", commData.totalVotes], ["الصحيحة", commData.validVotes], ["الباطلة", commData.invalidVotes], [],
-        ["تفاصيل الأصوات"], ["الترتيب", "المرشح", "الأصوات", "النسبة %"]
-    ];
-    let arr = candidates.map(([id, name]) => ({
-        name: name, votes: commData.candidates[id] || 0, percent: commData.validVotes ? ((commData.candidates[id] / commData.validVotes) * 100).toFixed(1) : 0
-    })).sort((a,b) => b.votes - a.votes);
-    arr.forEach((c, i) => wsData.push([i+1, c.name, c.votes, c.percent + "%"]));
-    const ws = XLSX.utils.aoa_to_sheet(wsData);
-    XLSX.utils.book_append_sheet(wb, ws, "اللجنة");
-    XLSX.writeFile(wb, `Committee_${commId}.xlsx`);
-}
-
-function exportRanking() {
-    const t = getTotals();
-    const wb = XLSX.utils.book_new();
-    let arr = candidates.map(([id,n]) => ({
-        name: n, v: t.cands[id], p: t.valid ? ((t.cands[id]/t.valid)*100).toFixed(1) : 0
-    })).sort((a,b) => b.v - a.v);
-    let wsData = [["الترتيب العام"], [`تاريخ التقرير: ${new Date().toLocaleString("ar-EG")}`], [], ["الترتيب", "المرشح", "الأصوات", "النسبة"]];
-    arr.forEach((c, i) => wsData.push([i+1, c.name, c.v, c.p + "%"]));
-    const ws = XLSX.utils.aoa_to_sheet(wsData);
-    XLSX.utils.book_append_sheet(wb, ws, "الترتيب");
-    XLSX.writeFile(wb, "Ranking.xlsx");
-}
-
-function exportLog() {
-    const t = getTotals();
-    const wb = XLSX.utils.book_new();
-    let wsData = [["سجل الفرز"], [`عدد اللجان: ${t.list.length}`], [], ["رقم اللجنة", "المدرسة", "العنوان", "الإجمالي", "صحيحة", "باطلة"]];
-    t.list.forEach(c => {
-        const info = commMap[c.number] || {name: "", address: ""};
-        wsData.push([c.number, info.name, info.address, c.totalVotes, c.validVotes, c.invalidVotes]);
-    });
-    const ws = XLSX.utils.aoa_to_sheet(wsData);
-    XLSX.utils.book_append_sheet(wb, ws, "السجل");
-    XLSX.writeFile(wb, "Committees_Log.xlsx");
-}
-
-function exportToExcel() {
-    const t = getTotals();
-    const wb = XLSX.utils.book_new();
-    // Sheet 1
-    let rankData = [["المرشح", "الأصوات"]];
-    candidates.forEach(([id,n]) => rankData.push([n, t.cands[id]]));
-    const ws1 = XLSX.utils.aoa_to_sheet(rankData);
-    XLSX.utils.book_append_sheet(wb, ws1, "النتائج");
-    // Sheet 2
-    let commData = [["رقم اللجنة", "اسم اللجنة", "الإجمالي", "صحيح", "باطل"]];
-    t.list.forEach(c => {
-        const info = commMap[c.number] || {name:""};
-        commData.push([c.number, info.name, c.totalVotes, c.validVotes, c.invalidVotes]);
-    });
-    const ws2 = XLSX.utils.aoa_to_sheet(commData);
-    XLSX.utils.book_append_sheet(wb, ws2, "اللجان");
-    XLSX.writeFile(wb, "Full_Database.xlsx");
-}
-
 function printSection(divId) {
     const target = document.getElementById(divId);
     target.classList.add("section-to-print");
@@ -754,6 +667,171 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 });
+// استخدم ExcelJS بدلاً من XLSX في التصدير الاحترافي
+function exportRanking() {
+    const t = getTotals();
+    const wb = new ExcelJS.Workbook();
+    const ws = wb.addWorksheet("الترتيب العام");
+
+    // رأس التقرير
+    ws.addRow(["الترتيب العام للمرشحين"]);
+    ws.addRow([`تاريخ التقرير: ${new Date().toLocaleString("ar-EG")}`]);
+    ws.addRow([]);
+    ws.addRow(["الترتيب", "المرشح", "الأصوات", "النسبة"]);
+
+    // ترتيب المرشحين بالألوان
+    let arr = candidates.map(([id, n]) => ({
+        name: n, v: t.cands[id], p: t.valid ? ((t.cands[id] / t.valid ) * 100).toFixed(1) : 0
+    })).sort((a, b) => b.v - a.v);
+
+    arr.forEach((c, i) => {
+        const row = ws.addRow([i + 1, c.name, c.v, c.p + "%"]);
+        // تلوين الصفوف: الأول ذهبي، الثاني فضي، الثالث برونزي، الباقي أبيض
+        let fillColor = i === 0 ? 'FFF7C0' : i === 1 ? 'E0E0E0' : i === 2 ? 'FFD7BF' : 'FFFFFF';
+        row.eachCell(cell => cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fillColor } });
+        row.getCell(3).font = { bold: true, color: { argb: '004080' } }; // الأصوات بارزة
+    });
+
+    // تنسيق العناوين
+    for(let i=1;i<=4;i++) ws.getRow(4).getCell(i).font = { bold: true, color: { argb: '3b82f6' }, size: 13 };
+
+    // حدود وتوسيط
+    ws.eachRow((row, rowNumber) => {
+        row.alignment = { horizontal: 'center', vertical: 'middle' };
+        row.eachCell(cell => {
+            cell.border = {
+                top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'}
+            };
+        });
+    });
+
+    wb.xlsx.writeBuffer().then(buffer => saveAs(new Blob([buffer]), "Ranking.xlsx"));
+}
+
+function exportBestComm() {
+    const candId = document.getElementById("best-cand-select").value;
+    if (!candId) { alert("اختر نائباً"); return; }
+    const t = getTotals();
+    const candName = candidates.find(c => c[0] == candId)[1];
+    let stats = t.list.map(comm => {
+        const votes = comm.candidates[candId] || 0;
+        const info = commMap[comm.number] || { name: "غير معروف", address: "" };
+        return { num: comm.number, name: info.name, address: info.address, votes: votes };
+    }).filter(item => item.votes > 0).sort((a, b) => b.votes - a.votes);
+
+    if (stats.length == 0) { alert("لا توجد بيانات"); return; }
+
+    const wb = new ExcelJS.Workbook();
+    const ws = wb.addWorksheet("تفاصيل النائب");
+
+    ws.addRow([`تقرير تفصيلي للنائب: ${candName}`]);
+    ws.addRow([]);
+    ws.addRow(["الترتيب", "رقم اللجنة", "اسم المدرسة", "العنوان", "عدد الأصوات"]);
+
+    stats.forEach((item, index) => {
+        const row = ws.addRow([index + 1, item.num, item.name, item.address, item.votes]);
+        if (index === 0) row.eachCell(cell => cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF7C0' } });
+        row.getCell(5).font = { bold: true, color: { argb: '10b981' } };
+    });
+
+    ws.eachRow((row, rowNumber) => {
+        row.alignment = { horizontal: 'center', vertical: 'middle' };
+        row.eachCell(cell => cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} });
+    });
+
+    wb.xlsx.writeBuffer().then(buffer => saveAs(new Blob([buffer]), `Details_${candName}.xlsx`));
+}
+
+function exportSpecificComm() {
+    const commId = parseInt(document.getElementById("specific-comm-select").value);
+    if (!commId) { alert("اختر لجنة"); return; }
+    const commData = allCommittees.find(c => c.number === commId);
+    if (!commData) { alert("لا توجد بيانات"); return; }
+    const commInfo = commMap[commId];
+
+    const wb = new ExcelJS.Workbook();
+    const ws = wb.addWorksheet("اللجنة المحددة");
+
+    ws.addRow([`تقرير لجنة رقم`, commId]);
+    ws.addRow(["اسم اللجنة", commInfo.name]);
+    ws.addRow(["العنوان", commInfo.address]);
+    ws.addRow([]);
+    ws.addRow(["إحصائيات عامة"]);
+    ws.addRow(["إجمالي الحضور", commData.totalVotes]);
+    ws.addRow(["الصحيحة", commData.validVotes]);
+    ws.addRow(["الباطلة", commData.invalidVotes]);
+    ws.addRow([]);
+    ws.addRow(["تفاصيل الأصوات"]);
+    ws.addRow(["الترتيب", "المرشح", "الأصوات", "النسبة %"]);
+
+    let arr = candidates.map(([id, name]) => ({
+        name: name, votes: commData.candidates[id] || 0, percent: commData.validVotes ? ((commData.candidates[id] / commData.validVotes) * 100).toFixed(1) : 0
+    })).sort((a, b) => b.votes - a.votes);
+    arr.forEach((c, i) => {
+        const row = ws.addRow([i + 1, c.name, c.votes, c.percent + "%"]);
+        if (i === 0) row.eachCell(cell => cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF7C0' } });
+        row.getCell(3).font = { bold: true, color: { argb: 'F59E0B' } };
+    });
+
+    ws.eachRow((row) => {
+        row.alignment = { horizontal: 'center', vertical: 'middle' };
+        row.eachCell(cell => cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} });
+    });
+
+    wb.xlsx.writeBuffer().then(buffer => saveAs(new Blob([buffer]), `Committee_${commId}.xlsx`));
+}
+
+function exportLog() {
+    const t = getTotals();
+    const wb = new ExcelJS.Workbook();
+    const ws = wb.addWorksheet("سجل اللجان");
+    ws.addRow(["سجل الفرز"]);
+    ws.addRow([`عدد اللجان: ${t.list.length}`]);
+    ws.addRow([]);
+    ws.addRow(["رقم اللجنة", "المدرسة", "العنوان", "الإجمالي", "صحيحة", "باطلة"]);
+
+    t.list.forEach(c => {
+        const info = commMap[c.number] || { name: "", address: "" };
+        ws.addRow([c.number, info.name, info.address, c.totalVotes, c.validVotes, c.invalidVotes])
+    });
+
+    ws.eachRow((row) => {
+        row.alignment = { horizontal: 'center' };
+        row.eachCell(cell => cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} });
+        if (row.number > 4) row.getCell(4).font = { bold: true, color: { argb: '3b82f6' } };
+    });
+
+    wb.xlsx.writeBuffer().then(buffer => saveAs(new Blob([buffer]), "Committees_Log.xlsx"));
+}
+
+function exportToExcel() {
+    const t = getTotals();
+    const wb = new ExcelJS.Workbook();
+
+    // Sheet 1 (نتائج المرشحين)
+    const ws1 = wb.addWorksheet("النتائج");
+    ws1.addRow(["المرشح", "الأصوات"]);
+    candidates.forEach(([id, n]) => {
+        const row = ws1.addRow([n, t.cands[id]]);
+        if (row.number == 2) row.eachCell(cell => cell.font = { bold: true, color: { argb: '3b82f6' } });
+        row.getCell(2).font = { color: { argb: '10b981' } };
+        row.eachCell(cell => cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} });
+    });
+
+    // Sheet 2 (اللجان)
+    const ws2 = wb.addWorksheet("اللجان");
+    ws2.addRow(["رقم اللجنة", "اسم اللجنة", "الإجمالي", "صحيح", "باطل"]);
+    t.list.forEach(c => {
+        const info = commMap[c.number] || { name: "" };
+        const row = ws2.addRow([c.number, info.name, c.totalVotes, c.validVotes, c.invalidVotes]);
+        row.getCell(3).font = { color: { argb: 'f59e0b' } };
+        row.getCell(4).font = { color: { argb: '10b981' } };
+        row.getCell(5).font = { color: { argb: 'ef4444' } };
+        row.eachCell(cell => cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} });
+    });
+
+    wb.xlsx.writeBuffer().then(buffer => saveAs(new Blob([buffer]), "Full_Database.xlsx"));
+}
 
 </script>
 </body>
