@@ -528,17 +528,25 @@ function showCommStats() {
         return;
     }
 
+    // تجهيز ترتيب كل المرشحين بالكامل
     let arr = candidates.map(([id, name, emj]) => ({
         name: `${emj} ${name}`,
         votes: commData.candidates[id] || 0,
         percent: commData.validVotes ? ((commData.candidates[id] / commData.validVotes) * 100).toFixed(1) : 0
-    })).sort((a,b) => b.votes - a.votes).slice(0, 3);
+    })).sort((a,b) => b.votes - a.votes); // ترتيب كامل
 
-    let html = `<div style="text-align:right; width:100%">`;
+    let html = `<div class="scroll-list" style="width:100%;">`;
+
     arr.forEach((c, i) => {
-        let color = i===0 ? '#fbbf24' : (i===1 ? '#94a3b8' : '#b45309');
+        let color =
+            i === 0 ? '#fbbf24' : 
+            i === 1 ? '#94a3b8' : 
+            i === 2 ? '#b45309' : 
+            'white';
+
         html += `
-        <div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid #334155; align-items:center;">
+        <div style="display:flex; justify-content:space-between; padding:8px; 
+                    border-bottom:1px solid #334155; align-items:center;">
             <span style="color:${color}; font-weight:bold;">#${i+1} ${c.name}</span>
             <div style="text-align:left;">
                 <span style="font-weight:bold; color:white;">${c.votes} صوت</span>
@@ -546,6 +554,7 @@ function showCommStats() {
             </div>
         </div>`;
     });
+
     html += `</div>`;
     resBox.innerHTML = html;
 }
