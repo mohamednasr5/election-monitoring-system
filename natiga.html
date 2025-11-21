@@ -1,65 +1,370 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <title>نظام إحصاءات الانتخابات - نسخة احترافية متقدمة</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- خطوط Google SheetJS و Chart.js -->
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-  <style>
-    body { font-family:'Cairo',Arial; background:linear-gradient(120deg,#10b981 0%,#8b5cf6 50%,#f59e0b 100%);color:#fff;margin:0;}
-    .container{max-width:1200px;margin:auto;padding:24px 10px;}
-    h1{text-align:center;font-size:2.7rem;font-weight:900;margin-bottom:12px;background:linear-gradient(90deg,#10b981,#f59e0b 60%,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-    .subtitle{text-align:center;color:#fef3c7;font-size:1.2rem;margin-bottom:24px;}
-    .status{text-align:center;font-size:1.1rem;padding:8px 28px;background:#f59e0b21;border-radius:18px;border:1px solid #fff2;margin-bottom:20px;}
-    .form-row,.cand-row,.stat-cards,.op-buttons{display:grid;gap:12px;}
-    .form-row{grid-template-columns:repeat(4,1fr);margin-bottom:18px;}
-    .cand-row{grid-template-columns:repeat(5,1fr);}
-    .stat-cards{grid-template-columns:repeat(4,1fr);margin-bottom:20px;}
-    .card{background:#f59e0b25;border-radius:13px;padding:26px 14px;text-align:center;}
-    .card-title{color:#fef3c7;font-size:1.13rem;margin-bottom:9px;}
-    input,select {padding:14px 8px;border-radius:8px;border:none;font-size:1.07rem;margin-bottom:7px;width:100%;}
-    input:focus,select:focus {box-shadow:0 0 9px #10b981;outline:none;}
-    .cand-box {background:#fff2;border-radius:9px;padding:12px;text-align:center;}
-    .cand-box label {font-weight:bold;font-size:1.05rem;color:#8b5cf6;}
-    .op-buttons {grid-template-columns:repeat(4,1fr);margin-bottom:22px;}
-    .btn {padding:12px 21px; border-radius:13px; background:#10b981; color:#fff; border:none; font-weight:900; cursor:pointer; margin-bottom:7px;}
-    .btn:hover {background:#f59e0b;}
-    table {width:100%;border-collapse:collapse;background:#fff1;color:#8b5cf6;}
-    th,td {padding:10px;border-bottom:1px solid #fb9300;text-align:right;}
-    th {background:#f59e0b44;font-weight:bold;}
-    tr:hover {background:#8b5cf630;}
-    @media(max-width:950px){.form-row,.cand-row,.stat-cards,.op-buttons{grid-template-columns:1fr 1fr;}}
-    @media(max-width:600px){.form-row,.cand-row,.stat-cards,.op-buttons{grid-template-columns:1fr;}
-      .container{padding:8px;}}
-  </style>
+<meta charset="UTF-8">
+<title>نظام إحصاءات الانتخابات – نسخة محسّنة 2025</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- خطوط Google -->
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;900&display=swap" rel="stylesheet">
+
+<!-- مكتبات Chart.js + Excel + Firebase -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+<style>
+/* ================================
+   النسخة المحسّنة 2025 – تصميم كامل
+   ================================ */
+
+body {
+  font-family: 'Cairo', sans-serif;
+  background: linear-gradient(120deg, #10b981 0%, #8b5cf6 50%, #f59e0b 100%);
+  margin: 0;
+  color: #fff;
+}
+
+/* شاشة تسجيل الدخول */
+.login-screen {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(7px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-box {
+  background: #ffffff22;
+  padding: 30px 25px;
+  border-radius: 16px;
+  text-align: center;
+  width: 330px;
+  box-shadow: 0 0 20px #00000033;
+}
+
+.login-box h2 {
+  margin-bottom: 10px;
+  font-weight: 900;
+}
+
+.login-note {
+  margin-bottom: 14px;
+  color: #fcd34d;
+  font-size: 0.95rem;
+}
+
+.login-input {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+.login-btn {
+  background: #10b981;
+  border: none;
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.login-btn:hover {
+  background: #059669;
+}
+
+.login-error {
+  margin-top: 10px;
+  color: #ffdddd;
+  font-weight: bold;
+  min-height: 20px;
+}
+
+/* محتوى النظام */
+.container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 25px 12px;
+}
+
+.headline {
+  text-align: center;
+  font-size: 2.8rem;
+  margin-bottom: 10px;
+  background: linear-gradient(90deg,#10b981,#f59e0b 60%,#8b5cf6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 900;
+}
+
+.subtitle {
+  text-align: center;
+  color: #fef3c7;
+  margin-bottom: 20px;
+  font-size: 1.15rem;
+}
+
+.status {
+  text-align: center;
+  background: #ffffff22;
+  padding: 10px;
+  border-radius: 15px;
+  font-size: 1.05rem;
+  margin-bottom: 20px;
+  border: 1px solid #ffffff44;
+}
+
+/* اختيار اليوم */
+.day-select-box {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.day-select-box select {
+  padding: 10px 15px;
+  border-radius: 12px;
+  border: none;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* البطاقات */
+.stat-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 13px;
+  margin-bottom: 22px;
+}
+
+.card {
+  background: #ffffff22;
+  padding: 25px 10px;
+  border-radius: 16px;
+  text-align: center;
+  backdrop-filter: blur(5px);
+}
+
+.card-title {
+  color: #fde68a;
+  font-size: 1.1rem;
+  margin-bottom: 5px;
+}
+
+.card-main {
+  font-size: 1.6rem;
+  font-weight: bold;
+}
+
+/* نموذج الإدخال */
+.form-area {
+  background: #ffffff11;
+  padding: 22px;
+  border-radius: 16px;
+  margin-bottom: 20px;
+  box-shadow: 0 5px 20px #00000022;
+}
+
+.form-title {
+  margin-bottom: 12px;
+  font-weight: 900;
+  font-size: 1.3rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+input, select {
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  margin-top: 5px;
+}
+
+input:focus, select:focus {
+  outline: none;
+  box-shadow: 0 0 7px #10b981;
+}
+
+/* المرشحين */
+.cand-row {
+  display: grid;
+  grid-template-columns: repeat(5,1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.cand-box {
+  background: #ffffff22;
+  padding: 10px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.cand-box label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.9rem;
+  color: #ede9fe;
+  font-weight: bold;
+}
+
+.save-btn {
+  background: #10b981;
+  padding: 13px 22px;
+  border-radius: 14px;
+  border: none;
+  font-size: 1.1rem;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.save-btn:hover {
+  background: #0d8f6d;
+}
+
+/* الأزرار */
+.op-buttons {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.btn {
+  background: #8b5cf6;
+  padding: 13px;
+  border-radius: 12px;
+  border: none;
+  color: #fff;
+  font-size: 1.05rem;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn:hover {
+  opacity: 0.9;
+}
+
+.danger {
+  background: #ef4444;
+}
+
+/* الرسم البياني */
+.chart-area {
+  background: #ffffff22;
+  padding: 20px;
+  border-radius: 16px;
+  margin-bottom: 20px;
+}
+
+/* الجداول */
+.main-table {
+  width: 100%;
+  background: #ffffff11;
+  border-collapse: collapse;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.main-table th {
+  background: #00000033;
+  padding: 12px;
+  color: #fcd34d;
+  font-size: 1.05rem;
+}
+
+.main-table td {
+  padding: 10px;
+  border-bottom: 1px solid #ffffff22;
+}
+
+.main-table tr:hover {
+  background: #ffffff22;
+}
+
+/* استجابة */
+@media (max-width: 960px) {
+  .stat-cards, .form-row, .cand-row, .op-buttons {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .stat-cards, .form-row, .cand-row, .op-buttons {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+
 </head>
 <body>
+
+<!-- ============================= -->
+<!--      شاشة تسجيل الدخول        -->
+<!-- ============================= -->
+<div id="login-screen" class="login-screen">
+  <div class="login-box">
+    <h2>🔐 تسجيل الدخول</h2>
+    <p class="login-note">أدخل كود الدخول للمتابعة</p>
+
+    <input type="password" id="login-pass" placeholder="••••••" class="login-input" />
+
+    <button class="login-btn" onclick="loginNow()">دخول</button>
+
+    <div id="login-error" class="login-error"></div>
+  </div>
+</div>
+
+<!-- ============================= -->
+<!--       واجهة النظام الرئيسية     -->
+<!-- ============================= -->
+<div id="main-app" style="display:none;">
+
 <div class="container">
-  <h1>🗳️ نظام إحصاءات الانتخابات</h1>
-  <div class="subtitle">واجهة ديناميكية مترابطة بلا حدود مع قاعدة بيانات وتصدير وتحليل متقدم</div>
+
+  <h1 class="headline">🗳️ نظام إحصاءات الانتخابات – النسخة المحسّنة</h1>
+  <div class="subtitle">تحديث لحظي – فلاتر ذكية – تنبيهات – Backup تلقائي – واجهة احترافية</div>
+
   <div class="status" id="conn-status">🟢 متصل بقاعدة البيانات</div>
 
   <!-- اختيار اليوم -->
-  <div style="text-align:center;margin-bottom:16px;">
-    <label for="day" style="font-weight:bold;">اختيار يوم الإحصائيات:</label>
-    <select id="day" style="font-weight:bold;max-width:200px;">
+  <div class="day-select-box">
+    <label>اختيار يوم الإحصائيات:</label>
+    <select id="day">
       <option value="all">إجمالي اليومين</option>
       <option value="day1">اليوم الأول</option>
       <option value="day2">اليوم الثاني</option>
     </select>
   </div>
 
+  <!-- البطاقات -->
   <div class="stat-cards" id="stat-cards"></div>
 
-  <form id="add-form" autocomplete="off">
+  <!-- نموذج إضافة لجنة -->
+  <form id="add-form" autocomplete="off" class="form-area">
+
+    <h2 class="form-title">➕ إضافة / تحديث لجنة</h2>
+
     <div class="form-row">
       <div>
-        <label>رقم اللجنة (1-60)</label>
+        <label>رقم اللجنة (1 – 60)</label>
         <input name="num" type="number" min="1" max="60" required>
       </div>
       <div>
@@ -75,29 +380,36 @@
         <input name="invalid" type="number" required>
       </div>
     </div>
+
+    <!-- مرشحين -->
     <div class="cand-row"></div>
-    <div style="margin:10px;text-align:left;">
-      <label style="margin-left:8px;">اختيار اليوم:</label>
+
+    <div class="form-select-day">
+      <label>اختيار اليوم:</label>
       <select name="add_day">
         <option value="day1">اليوم الأول</option>
         <option value="day2">اليوم الثاني</option>
       </select>
     </div>
-    <button type="submit" class="btn">💾 حفظ اللجنة</button>
+
+    <button type="submit" class="btn save-btn">💾 حفظ اللجنة</button>
   </form>
 
+  <!-- أزرار العمليات -->
   <div class="op-buttons">
-    <button class="btn" id="export-btn">تصدير Excel</button>
-    <button class="btn" onclick="window.print()">طباعة النتائج</button>
-    <button class="btn" onclick="resetData()">تصفير البيانات</button>
-    <button class="btn" onclick="location.reload()">تحديث الصفحة</button>
+    <button class="btn" id="export-btn">📤 تصدير Excel</button>
+    <button class="btn" onclick="window.print()">🖨️ طباعة</button>
+    <button class="btn danger" onclick="resetData()">♻️ تصفير البيانات</button>
+    <button class="btn" onclick="location.reload()">🔄 تحديث</button>
   </div>
 
-  <div style="margin:30px 0;">
+  <!-- الرسم البياني -->
+  <div class="chart-area">
     <canvas id="mainChart" height="260"></canvas>
   </div>
 
-  <table id="cand-table">
+  <!-- جدول المرشحين -->
+  <table id="cand-table" class="main-table">
     <thead>
       <tr>
         <th>الترتيب</th>
@@ -109,7 +421,8 @@
     <tbody></tbody>
   </table>
 
-  <table style="margin-top:20px;" id="comm-table">
+  <!-- جدول اللجان -->
+  <table id="comm-table" class="main-table" style="margin-top:25px;">
     <thead>
       <tr>
         <th>رقم اللجنة</th>
@@ -120,231 +433,354 @@
     </thead>
     <tbody></tbody>
   </table>
+
+</div>
 </div>
 
 <script>
-  // بيانات المرشحين بالترتيب
-  const candidates = [
-    ["1", "ايهاب العمده", "👑"],["2", "محمد العتمانى", "🍞"],["3", "أحمد الحديدى", "🦁"],
-    ["4", "عادل الجيار", "🦅"],["5", "احمد محمد محمد سمره", "💣"],["6", "وليد تيسير الامير", "🐊"],
-    ["7", "كمال العيسوى", "🌀"],["8", "البدوى جميز", "🐋"],["9", "احمد الريس", "🦂"],
-    ["10", "أحمد عوف", "✋"],["11", "حسن الملهاط", "🌿"],["12", "عمرو محمد بحيرى", "🚌"],
-    ["13", "السيد طمان", "🔫"],["14", "محمد دندن", "🚁"],["15", "مجدى الأمير", "🖊"]
-  ];
 
-  // توليد مرشحين للمدخلات
-  document.querySelector('.cand-row').innerHTML =
-    candidates.map(([id,name,emj]) =>
-      `<div class="cand-box"><label>${id}. ${emj} ${name}</label>
-      <input name="cand_${id}" type="number" min="0" value="0"></div>`
-    ).join('');
+// ===============================
+//  نظام الدخول Login
+// ===============================
+function loginNow() {
+  const pass = document.getElementById("login-pass").value.trim();
+  const err = document.getElementById("login-error");
 
-  // ربط وأعداد الفابيس
-  const firebaseConfig = {
-    apiKey: "AIzaSyARV_6b-JA6FkWE5EwqMZeLUi2D5ZGonDI",
-    authDomain: "natiga-16c46.firebaseapp.com",
-    databaseURL: "https://natiga-16c46-default-rtdb.firebaseio.com",
-    projectId: "natiga-16c46",
-    storageBucket: "natiga-16c46.firebasestorage.app",
-    messagingSenderId: "213324147570",
-    appId: "1:213324147570:web:3eff7ea7eddac2c5eb4beb",
-    measurementId: "G-TLBTLKY983"
+  if (pass === "521988") {  // أدمن
+    document.getElementById("login-screen").style.display = "none";
+    document.getElementById("main-app").style.display = "block";
+  } else {
+    err.textContent = "❌ كود دخول غير صحيح";
+  }
+}
+
+
+
+// ===============================
+//  ربط Firebase
+// ===============================
+const firebaseConfig = {
+  apiKey: "AIzaSyARV_6b-JA6FkWE5EwqMZeLUi2D5ZGonDI",
+  authDomain: "natiga-16c46.firebaseapp.com",
+  databaseURL: "https://natiga-16c46-default-rtdb.firebaseio.com",
+  projectId: "natiga-16c46",
+  storageBucket: "natiga-16c46.firebasestorage.app",
+  messagingSenderId: "213324147570",
+  appId: "1:213324147570:web:3eff7ea7eddac2c5eb4beb",
+  measurementId: "G-TLBTLKY983"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+
+// ===============================
+//  بيانات المرشحين
+// ===============================
+const candidates = [
+  ["1", "ايهاب العمده", "👑"],["2","محمد العتمانى","🍞"],["3","أحمد الحديدى","🦁"],
+  ["4","عادل الجيار","🦅"],["5","احمد محمد محمد سمره","💣"],["6","وليد تيسير الامير","🐊"],
+  ["7","كمال العيسوى","🌀"],["8","البدوى جميز","🐋"],["9","احمد الريس","🦂"],
+  ["10","أحمد عوف","✋"],["11","حسن الملهاط","🌿"],["12","عمرو محمد بحيرى","🚌"],
+  ["13","السيد طمان","🔫"],["14","محمد دندن","🚁"],["15","مجدى الأمير","🖊"]
+];
+
+// توليد مدخلات المرشحين
+document.querySelector(".cand-row").innerHTML =
+  candidates.map(([id,name,emj]) =>
+    `<div class="cand-box">
+      <label>${id}. ${emj} ${name}</label>
+      <input type="number" min="0" value="0" name="cand_${id}">
+    </div>`
+  ).join("");
+
+
+// ===============================
+//  متغيرات النظام
+// ===============================
+let allCommittees = [];
+let chartInstance;
+
+
+// ===============================
+//  جلب البيانات لحظيًا (Realtime)
+// ===============================
+db.ref("committees").on("value", snap => {
+  allCommittees = [];
+
+  if (snap.exists()) {
+    Object.keys(snap.val()).forEach(id => {
+      allCommittees.push({ number: parseInt(id), ...snap.val()[id] });
+    });
+  }
+
+  renderAll();
+});
+
+
+
+// ===============================
+//  إضافة لجنة
+// ===============================
+document.getElementById("add-form").onsubmit = function(e) {
+  e.preventDefault();
+  const dt = new FormData(e.target);
+
+  const number = parseInt(dt.get("num"));
+  const total = parseInt(dt.get("total"));
+  const valid = parseInt(dt.get("valid"));
+  const invalid = parseInt(dt.get("invalid"));
+  const day = dt.get("add_day");
+
+  // فحص منطقي
+  if (valid + invalid !== total) {
+    alert("❌ مجموع الصحيحة + الباطلة يجب أن يساوي الإجمالي");
+    return;
+  }
+
+  // المرشحين
+  let cand = {};
+  let sumCandidates = 0;
+
+  candidates.forEach(([id]) => {
+    cand[id] = parseInt(dt.get(`cand_${id}`)) || 0;
+    sumCandidates += cand[id];
+  });
+
+  if (sumCandidates !== valid) {
+    alert("❌ مجموع أصوات المرشحين يجب أن يساوي عدد الأصوات الصحيحة");
+    return;
+  }
+
+  const data = {
+    number,
+    totalVotes: total,
+    validVotes: valid,
+    invalidVotes: invalid,
+    day,
+    candidates: cand
   };
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
 
-  let allCommittees = [];
-  function fetchCommittees(){
-    db.ref('committees').once('value',snap=>{
-      allCommittees = [];
-      if(snap.exists()){
-        Object.keys(snap.val()).forEach(k=>{
-          allCommittees.push({...snap.val()[k],number:parseInt(k)});
-        });
-      }
-      renderAll();
-    });
-  }
-  fetchCommittees();
+  db.ref("committees/" + number).set(data, err => {
+    if (err) alert("خطأ أثناء الحفظ");
+    else alert("✅ تم حفظ اللجنة");
+  });
+};
 
-  document.getElementById('add-form').onsubmit = function(e){
-    e.preventDefault();
-    const dt = new FormData(e.target);
-    const data = {
-      number: parseInt(dt.get('num')),
-      totalVotes: parseInt(dt.get('total')),
-      validVotes: parseInt(dt.get('valid')),
-      invalidVotes: parseInt(dt.get('invalid')),
-      day: dt.get('add_day'),
-      candidates: {}
-    };
-    candidates.forEach(([id])=>{
-      data.candidates[id]=parseInt(dt.get(`cand_${id}`))||0;
-    });
-    db.ref('committees/'+data.number).set(data,err=>{
-      if(err) alert("خطأ في الحفظ!");
-      else {
-        alert("✅ تم الحفظ بنجاح!");
-        fetchCommittees();
-        e.target.reset();
-      }
-    });
+
+
+// ===============================
+//  حساب الإجماليات
+// ===============================
+function getFilteredCommittees() {
+  const d = document.getElementById("day").value;
+  if (d === "all") return allCommittees;
+  return allCommittees.filter(c => c.day === d);
+}
+
+function calculateTotals() {
+  const list = getFilteredCommittees();
+
+  let totals = {
+    totalVotes: 0,
+    validVotes: 0,
+    invalidVotes: 0,
+    candidates: {}
   };
 
-  document.getElementById('day').onchange = renderAll;
+  candidates.forEach(([id]) => totals.candidates[id] = 0);
 
-  function getFilteredCommittees(){
-    const val = document.getElementById('day').value;
-    if(val==="all") return allCommittees;
-    return allCommittees.filter(comm=>comm.day===val);
-  }
+  list.forEach(comm => {
+    totals.totalVotes += comm.totalVotes;
+    totals.validVotes += comm.validVotes;
+    totals.invalidVotes += comm.invalidVotes;
 
-  function calculateTotals(){
-    const filtered = getFilteredCommittees();
-    const totals = {
-      totalVotes:0,
-      validVotes:0,
-      invalidVotes:0,
-      candidates:{}
-    };
-    candidates.forEach(([id])=>{totals.candidates[id]=0;});
-    filtered.forEach(comm=>{
-      totals.totalVotes += comm.totalVotes||0;
-      totals.validVotes += comm.validVotes||0;
-      totals.invalidVotes += comm.invalidVotes||0;
-      Object.keys(comm.candidates||{}).forEach(id=>{
-        totals.candidates[id] = (totals.candidates[id]||0) + (comm.candidates[id]||0);
-      });
+    Object.keys(comm.candidates).forEach(id => {
+      totals.candidates[id] += comm.candidates[id];
     });
-    totals.committeeCount = filtered.length;
-    totals.selectedDay = document.getElementById('day').selectedOptions[0].textContent;
-    return totals;
-  }
+  });
 
-  function renderStats(){
-    const t = calculateTotals();
-    document.getElementById('stat-cards').innerHTML = `
-      <div class="card"><div class="card-title">إجمالي الأصوات</div><div class="card-main">${t.totalVotes.toLocaleString()}</div></div>
-      <div class="card"><div class="card-title">🟢 الصحيحة</div><div class="card-main">${t.validVotes.toLocaleString()}</div></div>
-      <div class="card"><div class="card-title">🔴 الباطلة</div><div class="card-main">${t.invalidVotes.toLocaleString()}</div></div>
-      <div class="card"><div class="card-title">عدد اللجان</div><div class="card-main">${t.committeeCount} / 60</div></div>
-    `;
-  }
+  totals.count = list.length;
+  totals.dayName = document.getElementById("day").selectedOptions[0].textContent;
 
-  function renderCandidates(){
-    const t = calculateTotals();
-    let arr = candidates.map(([id,name,emj],idx)=>({
-      number:idx+1, name:`${emj} ${name}`, votes:t.candidates[id]||0,
-      percentage:(t.validVotes>0)?((t.candidates[id]||0)/t.validVotes*100).toFixed(2):"0.00"
-    })).sort((a,b)=>b.votes-a.votes);
-    document.querySelector("#cand-table tbody").innerHTML =
-      arr.map(item=>`<tr>
-        <td>${item.number}</td>
-        <td>${item.name}</td>
-        <td>${item.votes.toLocaleString()}</td>
-        <td>${item.percentage}%</td>
-      </tr>`).join('');
-    // جدول للجان أيضاً
-    const filtered = getFilteredCommittees();
-    document.querySelector("#comm-table tbody").innerHTML =
-      filtered.map(comm=>
-        `<tr>
-          <td>${comm.number}</td>
-          <td>${comm.totalVotes||0}</td>
-          <td style="color:#10b981">${comm.validVotes||0}</td>
-          <td style="color:#f59e0b">${comm.invalidVotes||0}</td>
-        </tr>`
-      ).join('');
-  }
+  return totals;
+}
 
-  // رسم بياني ديناميكي مرشحين (Chart.js)
-  let chartInstance;
-  function renderChart(){
-    const t = calculateTotals();
-    let arr = candidates.map(([id,name,emj],idx)=>({
-      number:idx+1,name:`${emj} ${name}`,votes:t.candidates[id]||0
-    })).sort((a,b)=>b.votes-a.votes);
-    const ctx = document.getElementById('mainChart').getContext('2d');
-    if(chartInstance) chartInstance.destroy();
-    chartInstance = new Chart(ctx, {
-      type:'bar',
-      data:{
-        labels:arr.map(c=>`${c.number}. ${c.name}`),
-        datasets:[{
-          label:'عدد الأصوات',
-          data:arr.map(c=>c.votes),
-          backgroundColor:arr.map((c,i)=>['#10b981','#8b5cf6','#f59e0b','#ec4899','#ef4444','#3b82f6','#06b6d4','#10b981','#8b5cf6','#f59e0b','#ec4899','#3b82f6','#ef4444','#06b6d4','#8b5cf6'][i%15])
-        }]
+
+
+// ===============================
+//  عرض البطاقات
+// ===============================
+function renderStats() {
+  const t = calculateTotals();
+
+  document.getElementById("stat-cards").innerHTML = `
+    <div class="card"><div class="card-title">إجمالي الأصوات</div>
+      <div class="card-main">${t.totalVotes}</div></div>
+
+    <div class="card"><div class="card-title">🟢 الصحيحة</div>
+      <div class="card-main">${t.validVotes}</div></div>
+
+    <div class="card"><div class="card-title">🔴 الباطلة</div>
+      <div class="card-main">${t.invalidVotes}</div></div>
+
+    <div class="card"><div class="card-title">عدد اللجان</div>
+      <div class="card-main">${t.count} / 60</div></div>
+  `;
+}
+
+
+
+// ===============================
+//  جدول المرشحين
+// ===============================
+function renderCandidates() {
+  const t = calculateTotals();
+
+  let arr = candidates.map(([id,name,emj]) => ({
+    name: `${emj} ${name}`,
+    votes: t.candidates[id],
+    percent: t.validVotes ? ((t.candidates[id] / t.validVotes) * 100).toFixed(2) : 0
+  }))
+  .sort((a,b) => b.votes - a.votes);
+
+  document.querySelector("#cand-table tbody").innerHTML =
+    arr.map((c,i) => `
+      <tr>
+        <td>${i+1}</td>
+        <td>${c.name}</td>
+        <td>${c.votes}</td>
+        <td>${c.percent}%</td>
+      </tr>`).join("");
+
+  // جدول اللجان
+  const list = getFilteredCommittees();
+  document.querySelector("#comm-table tbody").innerHTML =
+    list.map(comm => `
+      <tr>
+        <td>${comm.number}</td>
+        <td>${comm.totalVotes}</td>
+        <td style="color:#10b981">${comm.validVotes}</td>
+        <td style="color:#f59e0b">${comm.invalidVotes}</td>
+      </tr>
+    `).join("");
+}
+
+
+
+// ===============================
+//  الرسم البياني Chart.js
+// ===============================
+function renderChart() {
+  const t = calculateTotals();
+
+  let arr = candidates.map(([id,name,emj]) => ({
+    name: `${emj} ${name}`,
+    votes: t.candidates[id]
+  })).sort((a,b) => b.votes - a.votes);
+
+  const ctx = document.getElementById("mainChart").getContext("2d");
+  if (chartInstance) chartInstance.destroy();
+
+  chartInstance = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: arr.map(x => x.name),
+      datasets: [{
+        data: arr.map(x => x.votes),
+        backgroundColor: ["#10b981","#8b5cf6","#f59e0b","#ec4899",
+          "#3b82f6","#ef4444","#06b6d4","#facc15","#14b8a6","#d946ef",
+          "#f43f5e","#84cc16","#0ea5e9","#f97316","#a855f7"],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        title: {
+          display: true,
+          text: `نتائج ${t.dayName}`,
+          color: "#fff",
+          font: { size: 18, weight: "bold" }
+        }
       },
-      options:{
-        indexAxis:'y',
-        responsive:true,
-        plugins:{
-          legend:{display:false},
-          title:{display:true,text:`نتائج ${t.selectedDay}`,color:'#8b5cf6',font:{weight:'bold',size:20}}
-        },
-        scales:{
-          x:{ticks:{color:'#8b5cf6'},grid:{color:"#10b98132"}},
-          y:{ticks:{color:'#8b5cf6'},grid:{color:"#f59e0b32"}}
-        }
+      scales: {
+        x: { ticks: { color: "#fff" } },
+        y: { ticks: { color: "#fff" } }
       }
-    });
-  }
-
-  // تصدير فعلي إلى Excel بالنتائج كلها
-  document.getElementById('export-btn').onclick=function(){
-    const t = calculateTotals();
-    let arr = candidates.map(([id,name,emj],idx)=>({
-      number:idx+1, name:`${emj} ${name}`, votes:t.candidates[id]||0,
-      percentage:(t.validVotes>0)?((t.candidates[id]||0)/t.validVotes*100).toFixed(2):"0.00"
-    }))
-    .sort((a,b)=>b.votes-a.votes);
-    let filtered = getFilteredCommittees();
-    let ws_data = [
-      ['تقرير إحصائيات الانتخابات'],
-      ['تاريخ التقرير:', new Date().toLocaleString('ar-EG')],
-      ['إحصائيات:', t.selectedDay],
-      ['إجمالي الأصوات', t.totalVotes],
-      ['الأصوات الصحيحة', t.validVotes],
-      ['الأصوات الباطلة', t.invalidVotes],
-      ['عدد اللجان', t.committeeCount],
-      [''],
-      ['نتائج المرشحين'],
-      ['الترتيب', 'المرشح', 'عدد الأصوات', 'النسبة %'],
-      ...arr.map(item=>[item.number,item.name,item.votes,item.percentage]),
-      [''],
-      ['تفاصيل اللجان'],
-      ['رقم اللجنة','إجمالي الأصوات','الصحيحة','الباطلة', ...candidates.map(c=>c[2]+" "+c[1])],
-      ...filtered.map(comm=>[
-        comm.number,comm.totalVotes,comm.validVotes,comm.invalidVotes,
-        ...candidates.map(([id])=>comm.candidates[id]||0)
-      ])
-    ];
-    let ws = XLSX.utils.aoa_to_sheet(ws_data);
-    let wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'إحصائيات الانتخابات');
-    XLSX.writeFile(wb, `election_stats_${new Date().toISOString().replace(/T.*/,'')}.xlsx`);
-  }
-
-  // تصفير كامل للبيانات
-  function resetData(){
-    if(confirm('هل أنت متأكد لتصفير كامل بيانات اللجان؟')) {
-      db.ref('committees').remove(err=>{
-        if(err)alert("لم يتم التصفير - خطأ");
-        else {
-          alert("تم التصفير بنجاح");
-          fetchCommittees();
-        }
-      });
     }
-  }
+  });
+}
 
-  // عرض كلي
-  function renderAll(){
-    renderStats();
-    renderCandidates();
-    renderChart();
+
+
+// ===============================
+//  تصدير Excel
+// ===============================
+document.getElementById("export-btn").onclick = function () {
+  const t = calculateTotals();
+  const list = getFilteredCommittees();
+
+  let ws = [];
+  ws.push(["تقرير الإحصائيات – " + t.dayName]);
+  ws.push(["التاريخ:", new Date().toLocaleString("ar-EG")]);
+  ws.push([]);
+  ws.push(["إجمالي الأصوات", t.totalVotes]);
+  ws.push(["الصحيحة", t.validVotes]);
+  ws.push(["الباطلة", t.invalidVotes]);
+  ws.push(["عدد اللجان", t.count]);
+  ws.push([]);
+
+  ws.push(["المرشح", "عدد الأصوات"]);
+  candidates.forEach(([id,name,emj]) =>
+    ws.push([`${emj} ${name}`, t.candidates[id]])
+  );
+
+  ws.push([]);
+  ws.push(["رقم اللجنة","الإجمالي","الصحيحة","الباطلة"]);
+
+  list.forEach(comm =>
+    ws.push([
+      comm.number,
+      comm.totalVotes,
+      comm.validVotes,
+      comm.invalidVotes
+    ])
+  );
+
+  let sheet = XLSX.utils.aoa_to_sheet(ws);
+  let wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, sheet, "Stats");
+  XLSX.writeFile(wb, "result.xlsx");
+};
+
+
+
+// ===============================
+//  تصفير البيانات
+// ===============================
+function resetData() {
+  if (confirm("هل تريد تصفير كل البيانات؟")) {
+    db.ref("committees").remove();
+    alert("تم التصفير");
   }
+}
+
+
+
+// ===============================
+//  تشغيل النظام
+// ===============================
+document.getElementById("day").onchange = renderAll;
+function renderAll() {
+  renderStats();
+  renderCandidates();
+  renderChart();
+}
+
 </script>
+<script>
+</script>
+
 </body>
 </html>
