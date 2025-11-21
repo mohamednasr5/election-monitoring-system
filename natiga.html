@@ -11,17 +11,18 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
 <style>
+/* --- الثيم الفاتح الكلاسيكي (تم التعديل) --- */
 :root {
-  --bg-body: #0f172a;
-  --bg-card: #1e293b;
-  --bg-input: #334155;
-  --text-main: #f1f5f9;
-  --text-muted: #94a3b8;
-  --primary: #3b82f6;
-  --success: #10b981;
-  --danger: #ef4444;
-  --warning: #f59e0b;
-  --radius: 12px;
+  --bg-body: #f7f7f7; /* خلفية فاتحة جداً */
+  --bg-card: #ffffff; /* لون بطاقة أبيض */
+  --bg-input: #e9ecef; /* لون حقول إدخال فاتح */
+  --text-main: #343a40; /* نص داكن */
+  --text-muted: #6c757d; /* نص رمادي متوسط */
+  --primary: #007bff; /* أزرق كلاسيكي */
+  --success: #28a745; /* أخضر */
+  --danger: #dc3545; /* أحمر */
+  --warning: #ffc107; /* أصفر/برتقالي */
+  --radius: 8px; 
 }
 
 * { box-sizing: border-box; outline: none; }
@@ -29,13 +30,13 @@ body { font-family: 'Cairo', sans-serif; background-color: var(--bg-body); color
 
 /* الهيكل العام */
 .container { max-width: 1300px; margin: 0 auto; padding: 20px; }
-header { text-align: center; margin-bottom: 25px; border-bottom: 1px solid #334155; padding-bottom: 20px; }
-.headline { font-size: 2rem; margin: 0; background: linear-gradient(90deg, var(--primary), #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; }
+header { text-align: center; margin-bottom: 25px; border-bottom: 1px solid #dee2e6; padding-bottom: 20px; }
+.headline { font-size: 2rem; margin: 0; background: linear-gradient(90deg, var(--primary), #6f42c1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; }
 
 /* شاشة الدخول */
-.login-screen { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.95); z-index: 999; display: flex; align-items: center; justify-content: center; }
-.login-box { background: var(--bg-card); padding: 40px; border-radius: 16px; width: 100%; max-width: 400px; text-align: center; border: 1px solid #334155; }
-.login-input { width: 100%; padding: 12px; background: var(--bg-input); border: none; color: white; border-radius: 8px; margin-bottom: 15px; text-align: center; font-size: 1.1rem; }
+.login-screen { position: fixed; inset: 0; background: rgba(255, 255, 255, 0.95); z-index: 999; display: flex; align-items: center; justify-content: center; }
+.login-box { background: var(--bg-card); padding: 40px; border-radius: 16px; width: 100%; max-width: 400px; text-align: center; border: 1px solid #ced4da; box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); }
+.login-input { width: 100%; padding: 12px; background: var(--bg-input); border: 1px solid #ced4da; color: var(--text-main); border-radius: 8px; margin-bottom: 15px; text-align: center; font-size: 1.1rem; }
 .login-btn { width: 100%; padding: 12px; background: var(--success); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
 /* البطاقات مع الانيميشن */
@@ -44,38 +45,38 @@ header { text-align: center; margin-bottom: 25px; border-bottom: 1px solid #3341
     background: var(--bg-card); padding: 20px; border-radius: var(--radius); text-align: center; border-top: 4px solid transparent; 
     box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden;
 }
-.card:hover { transform: translateY(-10px) scale(1.02); box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4); }
-.card.blue { border-color: var(--primary); } .card.blue:hover { box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3); }
-.card.green { border-color: var(--success); } .card.green:hover { box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3); }
-.card.red { border-color: var(--danger); } .card.red:hover { box-shadow: 0 10px 25px rgba(239, 68, 68, 0.3); }
-.card.purple { border-color: #8b5cf6; } .card.purple:hover { box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3); }
+.card:hover { transform: translateY(-5px) scale(1.01); box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15); }
+.card.blue { border-color: var(--primary); } .card.blue:hover { box-shadow: 0 10px 25px rgba(0, 123, 255, 0.2); }
+.card.green { border-color: var(--success); } .card.green:hover { box-shadow: 0 10px 25px rgba(40, 167, 69, 0.2); }
+.card.red { border-color: var(--danger); } .card.red:hover { box-shadow: 0 10px 25px rgba(220, 53, 69, 0.2); }
+.card.purple { border-color: #6f42c1; } .card.purple:hover { box-shadow: 0 10px 25px rgba(111, 66, 193, 0.2); }
 .card-num { font-size: 1.8rem; font-weight: 900; margin-top: 5px; }
 
 /* التحليل */
 .analysis-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 30px; }
-.analysis-box { background: var(--bg-card); padding: 20px; border-radius: 16px; border: 1px solid #334155; display: flex; flex-direction: column; position: relative; }
-.box-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #334155; padding-bottom: 10px; }
-.box-title { font-weight: bold; color: var(--warning); margin: 0; font-size: 1.1rem; }
+.analysis-box { background: var(--bg-card); padding: 20px; border-radius: 16px; border: 1px solid #ced4da; display: flex; flex-direction: column; position: relative; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); }
+.box-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #dee2e6; padding-bottom: 10px; }
+.box-title { font-weight: bold; color: var(--primary); margin: 0; font-size: 1.1rem; }
 
 .mini-export-btn { background: var(--success); color: white; border: none; border-radius: 6px; padding: 5px 12px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 5px; transition:0.2s; }
-.mini-export-btn:hover { background: #059669; }
-.mini-print-btn { background: #64748b; margin-right: 5px; }
-.mini-print-btn:hover { background: #475569; }
+.mini-export-btn:hover { background: #1e7e34; }
+.mini-print-btn { background: #6c757d; margin-right: 5px; }
+.mini-print-btn:hover { background: #5a6268; }
 
 .vs-container { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
-.vs-select { flex: 1; padding: 10px; background: var(--bg-input); border: 1px solid #475569; color: white; border-radius: 8px; cursor: pointer; }
+.vs-select { flex: 1; padding: 10px; background: var(--bg-input); border: 1px solid #ced4da; color: var(--text-main); border-radius: 8px; cursor: pointer; }
 .vs-badge { background: var(--danger); color: white; padding: 5px 10px; border-radius: 20px; font-weight: bold; font-size: 0.8rem; }
-.result-box { background: #0f172a; padding: 15px; border-radius: 8px; text-align: center; min-height: 100px; display: flex; flex-direction: column; justify-content: center; flex: 1; }
+.result-box { background: #f0f2f5; padding: 15px; border-radius: 8px; text-align: center; min-height: 100px; display: flex; flex-direction: column; justify-content: center; flex: 1; border: 1px dashed #ced4da; }
 
 .scroll-list { max-height: 250px; overflow-y: auto; width: 100%; padding-right: 5px; }
 .scroll-list::-webkit-scrollbar { width: 6px; }
-.scroll-list::-webkit-scrollbar-track { background: #1e293b; }
-.scroll-list::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+.scroll-list::-webkit-scrollbar-track { background: #ffffff; }
+.scroll-list::-webkit-scrollbar-thumb { background: #ced4da; border-radius: 3px; }
 
 /* الجداول */
 table { width: 100%; border-collapse: collapse; background: var(--bg-card); }
-th { background: #111827; padding: 12px; color: var(--text-muted); text-align: right; font-size: 0.9rem; }
-td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
+th { background: #e9ecef; padding: 12px; color: var(--text-main); text-align: right; font-size: 0.9rem; border-bottom: 2px solid #ced4da; }
+td { padding: 10px 12px; border-bottom: 1px solid #e9ecef; font-size: 0.95rem; }
 .comm-name { font-weight: bold; color: var(--primary); display: block; }
 .comm-addr { font-size: 0.8rem; color: var(--text-muted); }
 
@@ -86,18 +87,18 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
 .btn-danger { background: var(--danger); }
 
 /* نموذج الإدخال */
-.form-section { background: var(--bg-card); padding: 25px; border-radius: 16px; margin-bottom: 30px; border: 1px solid #334155; }
+.form-section { background: var(--bg-card); padding: 25px; border-radius: 16px; margin-bottom: 30px; border: 1px solid #ced4da; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); }
 .input-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 15px; }
-.input-row input, select { width: 100%; padding: 10px; background: var(--bg-input); border: 1px solid #475569; border-radius: 8px; color: white; }
-.cand-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; background: #111827; padding: 15px; border-radius: 12px; }
+.input-row input, select { width: 100%; padding: 10px; background: var(--bg-input); border: 1px solid #ced4da; border-radius: 8px; color: var(--text-main); }
+.cand-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; background: #e9ecef; padding: 15px; border-radius: 12px; }
 .cand-item { background: var(--bg-input); padding: 8px; border-radius: 6px; text-align: center; }
-.cand-item input { text-align: center; color: var(--warning); font-weight: bold; }
+.cand-item input { text-align: center; color: var(--primary); font-weight: bold; }
 
 /* الفوتر */
-.main-footer { margin-top: 40px; padding: 30px 0; border-top: 1px solid #334155; text-align: center; color: var(--text-muted); }
+.main-footer { margin-top: 40px; padding: 30px 0; border-top: 1px solid #dee2e6; text-align: center; color: var(--text-muted); }
 .dev-link { color: var(--primary); text-decoration: none; font-weight: bold; transition: 0.3s; }
 .dev-link:hover { color: var(--accent); text-decoration: underline; }
-.dedication { color: var(--warning); font-weight: bold; display: block; margin-top: 10px; font-size: 1.1rem; }
+.dedication { color: var(--danger); font-weight: bold; display: block; margin-top: 10px; font-size: 1.1rem; }
 
 /* الطباعة */
 @media print {
@@ -106,7 +107,7 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
   .section-to-print { position: absolute; left: 0; top: 0; width: 100%; background: white !important; color: black !important; border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; }
   .section-to-print button, .box-header { display: none !important; }
   table, th, td { color: black !important; background-color: white !important; border: 1px solid #999 !important; }
-  th { background-color: #eee !important; }
+  th { background-color: #f0f0f0 !important; }
   .table-scroll-wrapper { max-height: none !important; overflow: visible !important; }
   #print-date-footer { display: block !important; text-align: center; margin-top: 20px; }
 }
@@ -213,20 +214,20 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
   <div style="display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap;">
     <button class="btn btn-export" onclick="exportToExcel()">📤 تصدير قاعدة البيانات كاملة</button>
     <button class="btn btn-danger" onclick="resetData()">🗑️ تصفير</button>
-    <button class="btn" style="background:#8b5cf6" onclick="location.reload()">🔄 تحديث</button>
+    <button class="btn" style="background:#6f42c1" onclick="location.reload()">🔄 تحديث</button>
   </div>
 
-  <div style="background:var(--bg-card); padding:15px; border-radius:16px; margin-bottom:20px; height:350px;">
+  <div style="background:var(--bg-card); padding:15px; border-radius:16px; margin-bottom:20px; height:350px; border: 1px solid #ced4da;">
     <canvas id="mainChart"></canvas>
   </div>
     
-      <div id="participationChartContainer" style="background:var(--bg-card); padding:15px; border-radius:16px; margin-bottom:20px; height:350px;">
+      <div id="participationChartContainer" style="background:var(--bg-card); padding:15px; border-radius:16px; margin-bottom:20px; height:350px; border: 1px solid #ced4da;">
     <canvas id="participationChart"></canvas>
   </div>
       <div class="analysis-row" style="display:block;">
     
-    <div id="ranking-section" style="background:var(--bg-card); border-radius:16px; overflow:hidden; margin-bottom:20px;">
-        <div style="padding:15px; font-weight:bold; background:#111827; border-bottom:1px solid #333; display:flex; justify-content:space-between; align-items:center;">
+    <div id="ranking-section" class="section-to-print" style="background:var(--bg-card); border-radius:16px; overflow:hidden; margin-bottom:20px; border: 1px solid #ced4da;">
+        <div style="padding:15px; font-weight:bold; background:#e9ecef; border-bottom:1px solid #ced4da; display:flex; justify-content:space-between; align-items:center;">
             <span>🏆 الترتيب العام للمرشحين</span>
             <div style="display:flex;">
                 <button class="mini-export-btn mini-print-btn" onclick="printSection('ranking-section')">🖨️ طباعة</button>
@@ -236,8 +237,8 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
         <table id="cand-table"><thead><tr><th>#</th><th>المرشح</th><th>الأصوات</th><th>%</th></tr></thead><tbody></tbody></table>
     </div>
 
-    <div id="log-section" style="background:var(--bg-card); border-radius:16px; overflow:hidden;">
-        <div style="padding:15px; font-weight:bold; background:#111827; display:flex; justify-content:space-between; align-items:center;">
+    <div id="log-section" class="section-to-print" style="background:var(--bg-card); border-radius:16px; overflow:hidden; border: 1px solid #ced4da;">
+        <div style="padding:15px; font-weight:bold; background:#e9ecef; display:flex; justify-content:space-between; align-items:center;">
             <span>📋 سجل اللجان</span>
             <div style="display:flex;">
                 <button class="mini-export-btn mini-print-btn" onclick="printSection('log-section')">🖨️ طباعة</button>
@@ -465,15 +466,15 @@ function updateCompare() {
     document.getElementById("comp-result").innerHTML = `
         <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
             <div style="text-align:center; width:45%;">
-                <div style="font-size:1.5rem; font-weight:bold; color:#3b82f6">${v1}</div>
+                <div style="font-size:1.5rem; font-weight:bold; color:var(--primary)">${v1}</div>
                 <div style="font-size:0.8rem;">${name1}</div>
             </div>
             <div style="text-align:center; width:45%;">
-                <div style="font-size:1.5rem; font-weight:bold; color:#ef4444">${v2}</div>
+                <div style="font-size:1.5rem; font-weight:bold; color:var(--danger)">${v2}</div>
                 <div style="font-size:0.8rem;">${name2}</div>
             </div>
         </div>
-        <div style="border-top:1px solid #334155; padding-top:10px;">
+        <div style="border-top:1px solid #dee2e6; padding-top:10px; color:var(--text-main);">
             الفرق: <span style="color:var(--warning); font-weight:bold; font-size:1.1rem;">${diff}</span> صوت
             <br> المتفوق: <span style="color:var(--success)">${leader}</span>
         </div>
@@ -505,14 +506,14 @@ function updateBestComm() {
 
     let html = `<div class="scroll-list">`;
     stats.forEach((item, index) => {
-        let rankColor = index === 0 ? '#fbbf24' : 'white';
+        let rankColor = index === 0 ? '#ffc107' : 'var(--text-main)';
         html += `
-        <div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid #334155; align-items:center;">
+        <div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid #dee2e6; align-items:center;">
             <div style="text-align:right;">
                 <span style="color:${rankColor}; font-weight:bold;">#${index + 1} ${item.name}</span>
-                <div style="font-size:0.75rem; color:#94a3b8;">لجنة ${item.num}</div>
+                <div style="font-size:0.75rem; color:var(--text-muted);">لجنة ${item.num}</div>
             </div>
-            <div style="background:var(--primary); padding:2px 8px; border-radius:4px; font-weight:bold; font-size:0.9rem;">
+            <div style="background:var(--primary); color:white; padding:2px 8px; border-radius:4px; font-weight:bold; font-size:0.9rem;">
                 ${item.votes}
             </div>
         </div>`;
@@ -547,12 +548,12 @@ function showCommStats() {
 
     let html = `<div class="scroll-list" style="max-height: 250px;">`; // استخدام scroll-list للتمرير
     arr.forEach((c, i) => {
-        let color = i===0 ? '#fbbf24' : (i===1 ? '#94a3b8' : 'white');
+        let color = i===0 ? '#ffc107' : (i===1 ? '#ced4da' : 'var(--text-main)');
         html += `
-        <div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid #334155; align-items:center;">
+        <div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid #dee2e6; align-items:center;">
             <span style="color:${color}; font-weight:bold;">#${i+1} ${c.name}</span>
             <div style="text-align:left;">
-                <span style="font-weight:bold; color:white;">${c.votes} صوت</span>
+                <span style="font-weight:bold; color:var(--text-main);">${c.votes} صوت</span>
                 <span style="font-size:0.8rem; color:${color}; display:block;">(${c.percent}%)</span>
             </div>
         </div>`;
@@ -568,12 +569,10 @@ function createParticipationChart(committeesList) {
     const chartContainer = document.getElementById("participationChartContainer");
     if (!chartContainer) return; 
 
-    // حساب نسبة المشاركة (totalVotes / 60) لكل لجنة
-    // ملاحظة: تم افتراض أن 60 هو العدد الكلي للناخبين في اللجنة، إذا كان العدد الكلي يختلف يجب تعديل الثابت 60
-    const maxVotersPerComm = 2500; // افتراض الحد الأقصى للناخبين في اللجنة الواحدة، يجب تغييره للقيمة الفعلية
+    // ملاحظة: تم افتراض أن 2500 هو العدد الكلي للناخبين في اللجنة الواحدة
+    const maxVotersPerComm = 2500; 
     
     let stats = committeesList.map(comm => {
-        // حساب النسبة: (إجمالي الحضور / العدد الكلي للناخبين) * 100
         const participationRate = comm.totalVotes && maxVotersPerComm > 0 ? ((comm.totalVotes / maxVotersPerComm) * 100).toFixed(1) : 0;
         const info = commMap[comm.number] || {name: "غير معروف"};
         return {
@@ -582,7 +581,7 @@ function createParticipationChart(committeesList) {
             total: comm.totalVotes,
             rate: parseFloat(participationRate)
         };
-    }).sort((a, b) => b.rate - a.rate); // ترتيب تنازلي حسب النسبة
+    }).sort((a, b) => b.rate - a.rate); 
 
     // نأخذ أعلى 60% من اللجان
     const topPercentageCount = Math.ceil(stats.length * 0.6); 
@@ -602,7 +601,7 @@ function createParticipationChart(committeesList) {
             datasets: [{
                 label: "إجمالي الحضور",
                 data: data,
-                backgroundColor: "#f59e0b", // لون تحذيري
+                backgroundColor: "#ffc107", // لون تحذيري
                 borderRadius: 4
             }]
         },
@@ -611,12 +610,12 @@ function createParticipationChart(committeesList) {
             maintainAspectRatio: false,
             animation: { duration: 800, easing: 'easeOutQuart' },
             scales: {
-                x: { ticks: { color: "#94a3b8", autoSkip: true, maxRotation: 45, minRotation: 45 } },
-                y: { ticks: { color: "#94a3b8" }, grid: { color: "#334155" }, title: { display: true, text: "عدد المشاركين", color: "#f1f5f9" } }
+                x: { ticks: { color: "var(--text-muted)", autoSkip: true, maxRotation: 45, minRotation: 45 } },
+                y: { ticks: { color: "var(--text-muted)" }, grid: { color: "#dee2e6" }, title: { display: true, text: "عدد المشاركين", color: "var(--text-main)" } }
             },
             plugins: {
                 legend: { display: false },
-                title: { display: true, text: `أعلى ${topStats.length} لجنة نسبة مشاركة (${topStats.length} لجنة)`, color: "#f1f5f9", font: { size: 14 } }
+                title: { display: true, text: `أعلى ${topStats.length} لجنة نسبة مشاركة (${topStats.length} لجنة)`, color: "var(--text-main)", font: { size: 14 } }
             }
         }
     });
@@ -774,12 +773,12 @@ function renderAll() {
   if(chartInstance) chartInstance.destroy();
   chartInstance = new Chart(ctx, {
     type: "bar",
-    data: { labels: arr.map(x => x.name.split(" ")[1]), datasets: [{ label:"أصوات", data: arr.map(x=>x.v), backgroundColor:"#3b82f6", borderRadius:4 }] },
+    data: { labels: arr.map(x => x.name.split(" ")[1]), datasets: [{ label:"أصوات", data: arr.map(x=>x.v), backgroundColor:"var(--primary)", borderRadius:4 }] },
     options: { 
         responsive:true, 
         maintainAspectRatio:false, 
         animation: { duration: 1000, easing: 'easeOutQuart' }, 
-        scales: { x: {ticks:{color:"#94a3b8"}}, y: {ticks:{color:"#94a3b8"}, grid:{color:"#334155"}} }, 
+        scales: { x: {ticks:{color:"var(--text-muted)"}}, y: {ticks:{color:"var(--text-muted)"}, grid:{color:"#dee2e6"}} }, 
         plugins: { legend:{display:false} } 
     }
   });
