@@ -403,6 +403,11 @@ body {
   font-weight: 900;
 }
 
+.chart-container {
+  position: relative;
+  height: 320px;
+}
+
 .ranking-card {
   background: rgba(255, 255, 255, 0.95);
   padding: 25px;
@@ -742,16 +747,6 @@ tr:hover td {
   .table-header { flex-direction: column; align-items: flex-start; }
   .search-input { min-width: 100%; }
 }
-
-@keyframes glowGreen {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(17, 153, 142, 0.7); }
-  50% { box-shadow: 0 0 0 10px rgba(17, 153, 142, 0); }
-}
-
-@keyframes glowRed {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(235, 51, 73, 0.7); }
-  50% { box-shadow: 0 0 0 10px rgba(235, 51, 73, 0); }
-}
 </style>
 </head>
 <body>
@@ -772,7 +767,7 @@ tr:hover td {
 <div id="dashboard" class="dashboard hidden">
   <div class="dash-header">
     <div>
-      <div class="dash-title"> النتائج الإنتخابية | دائرة المنزلة والدقهلية</div>
+      <div class="dash-title">النتائج الإنتخابية | دائرة المنزلة والدقهلية</div>
       <div class="dash-subtitle">متابعة مباشرة وتحليل شامل | النظام الأول من نوعه فى مصر</div>
     </div>
     <div style="display:flex;gap:10px;align-items:center;">
@@ -789,7 +784,7 @@ tr:hover td {
   <div class="cards">
     <div class="card">
       <div class="card-title">إجمالي الناخبين في الدائرة</div>
-      <div id="total-original-voters" class="card-value">0</div>
+      <div id="total-original-voters" class="card-value">350757</div>
       <div class="card-note">القاعدة الثابتة</div>
     </div>
     <div class="card">
@@ -799,7 +794,7 @@ tr:hover td {
     </div>
     <div class="card">
       <div class="card-title">عدد الناخبين المتبقي</div>
-      <div id="remaining-voters" class="card-value">0</div>
+      <div id="remaining-voters" class="card-value">350757</div>
       <div class="card-note">الإجمالي - المسجل</div>
     </div>
     <div class="card">
@@ -851,17 +846,23 @@ tr:hover td {
   <div class="charts-grid">
     <div class="chart-card">
       <h3>الأصوات لكل مرشح</h3>
-      <canvas id="chartCandidates"></canvas>
+      <div class="chart-container">
+        <canvas id="chartCandidates"></canvas>
+      </div>
     </div>
     <div class="chart-card">
       <h3>نسبة الصحيح والباطل</h3>
-      <canvas id="chartValidity"></canvas>
+      <div class="chart-container">
+        <canvas id="chartValidity"></canvas>
+      </div>
     </div>
   </div>
 
   <div class="chart-card">
     <h3>الأصوات لكل دقيقة</h3>
-    <canvas id="chartVPM"></canvas>
+    <div class="chart-container">
+      <canvas id="chartVPM"></canvas>
+    </div>
   </div>
 
   <div class="ranking-card">
@@ -1036,7 +1037,6 @@ const originalVotersCount = {
   55: 8436, 56: 9689, 57: 10055, 58: 6975, 59: 5580, 60: 10989
 };
 
-// إجمالي أصوات الدائرة العامة المثبت
 const totalOriginalVoters = 350757;
 
 const candidatesNames = [
@@ -1062,7 +1062,7 @@ window.unlockDashboard = function(){
     document.getElementById("dashboard").classList.remove("hidden");
     document.getElementById("admin-level-badge").textContent = "🔑 مهندس محمد حماد";
     showNotification("مرحبا بك يا مهندس محمد حماد - صلاحيات كاملة!");
-    setupVotesListener();  // ✔ هنا فقط
+    setupVotesListener();
   } 
   else if(value === "451125"){
     adminLevel = 2;
@@ -1075,7 +1075,7 @@ window.unlockDashboard = function(){
     document.querySelectorAll(".btn-mini-edit").forEach(btn => btn.classList.add("btn-hidden"));
     document.getElementById("edit-col").classList.add("hidden");
 
-    setupVotesListener(); // ✔ هنا فقط
+    setupVotesListener();
   } 
   else {
     err.textContent = "كلمة سر غير صحيحة";
@@ -1099,26 +1099,22 @@ function showNotification(msg){
 let votesListener = null;
 
 function setupVotesListener() {
-  if (votesListener) votesListener();  // إلغاء أي مستمع قديم
+  if (votesListener) votesListener();
 
-  const votesRef = ref(db, "/"); // قراءة قاعدة البيانات بالكامل
+  const votesRef = ref(db, "/");
 
   votesListener = onValue(votesRef, snapshot => {
-
     const root = snapshot.val() || {};
     let combined = {};
 
-    // الأصوات داخل votes/
     if (root.votes) {
       Object.entries(root.votes).forEach(([id, v]) => { combined[id] = v; });
     }
 
-    // الأصوات داخل aziza/
     if (root.aziza) {
       Object.entries(root.aziza).forEach(([id, v]) => { combined[id] = v; });
     }
 
-    // تحويل البيانات لبنية النظام
     allVotes = Object.entries(combined).map(([id, v], i) => ({
       id,
       index: i + 1,
@@ -1133,8 +1129,6 @@ function setupVotesListener() {
   });
 }
 
-// ❌ مهم جداً: لا يوجد setupVotesListener() هنا خارج تسجيل الدخول
-
 function renderAll(){
   renderStats();
   renderCommitteeStats();
@@ -1143,7 +1137,6 @@ function renderAll(){
   renderTable();
 }
 
-// الدالة المعدلة لعرض إجمالي الدائرة والمتبقي
 function renderStats(){
   const total = allVotes.length;
   const valid = allVotes.filter(v => v.validity === "صحيح").length;
@@ -1154,7 +1147,7 @@ function renderStats(){
   document.getElementById("total-votes").textContent = total;
   document.getElementById("valid-votes").textContent = valid;
   document.getElementById("invalid-votes").textContent = invalid;
-  document.getElementById("remaining-voters").textContent = remaining < 0 ? 0 : remaining; // لا يمكن أن يكون أقل من صفر
+  document.getElementById("remaining-voters").textContent = remaining < 0 ? 0 : remaining;
 
   const liveTxt = document.getElementById("live-status");
   const now = Date.now();
@@ -1200,7 +1193,6 @@ function renderStats(){
   }
 }
 
-// الدالة المعدلة لإظهار إحصائيات اللجنة بما في ذلك الإجمالي والمتبقي
 function renderCommitteeStats(){
   const grid = document.getElementById("committee-grid");
   const commData = {};
@@ -1253,7 +1245,6 @@ function renderCommitteeStats(){
   }
 }
 
-// الدالة المعدلة لعرض تفاصيل اللجنة بما في ذلك الإجمالي والمتبقي
 window.showCommitteeDetails = function(num, data){
   const popup = document.getElementById("committee-popup");
   const title = document.getElementById("committee-popup-title");
@@ -1290,39 +1281,23 @@ window.showCommitteeDetails = function(num, data){
   let html = "<div style='background:#f5f7ff;padding:15px;border-radius:12px;margin-bottom:15px;border-left:4px solid #667eea;'>";
   html += "<div style='margin-bottom:8px;font-size:0.9em;color:#667eea;font-weight:700;'>" + info.address + "</div>";
   html += "<div style='display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;'>";
-  
   html += "<div><small style='color:#999;font-weight:600;'>إجمالي الناخبين</small><div style='font-size:1.5em;font-weight:900;color:#667eea;'>" + originalCount + "</div></div>";
   html += "<div><small style='color:#999;font-weight:600;'>الأصوات المسجلة</small><div style='font-size:1.5em;font-weight:900;color:#11998e;'>" + data.total + "</div></div>";
   html += "<div><small style='color:#999;font-weight:600;'>المتبقي</small><div style='font-size:1.5em;font-weight:900;color:#eb3349;'>" + (remaining < 0 ? 0 : remaining) + "</div></div>";
-  
-  html += "</div>";
-  html += "<div style='margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:10px;'>";
+  html += "</div><div style='margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:10px;'>";
   html += "<div><small style='color:#11998e;font-weight:600;'>أصوات صحيحة</small><div style='font-size:1.3em;font-weight:900;color:#11998e;'>" + data.valid + "</div></div>";
-  html += "<div><small style='color:#eb3349;font-weight:600;'>أصوات باطلة</small><div style='font-size:1.3em;font-weight:900;color:#eb3349;'>" + data.invalid + "</div></div>";
-  html += "</div></div>";
-  
+  html += "<div><small style='color:#eb3349;font-weight:600;'>أصوات باطلة</small><div style='font-size:1.3em;font-weight:900;color:#eb3349;'>" + data.invalid + "</div></div></div></div>";
   html += "<div style='background:#e8f5e9;padding:12px;border-radius:10px;margin-bottom:15px;border-left:4px solid #11998e;'>";
-  html += "<small style='color:#11998e;font-weight:600;'>متوسط الأصوات/دقيقة (من البداية)</small>";
-  html += "<div style='font-size:1.5em;font-weight:900;color:#11998e;'>" + vpm.toFixed(2) + "</div>";
-  html += "</div>";
-  
+  html += "<small style='color:#11998e;font-weight:600;'>متوسط الأصوات/دقيقة</small><div style='font-size:1.5em;font-weight:900;color:#11998e;'>" + vpm.toFixed(2) + "</div></div>";
   html += "<div style='background:#fff3e0;padding:12px;border-radius:10px;margin-bottom:15px;border-left:4px solid #ff9800;'>";
-  html += "<small style='color:#e65100;font-weight:600;'>متوسط الأصوات/دقيقة (آخر 10 دقائق)</small>";
-  html += "<div style='font-size:1.5em;font-weight:900;color:#e65100;'>" + vpm10.toFixed(2) + "</div>";
-  html += "</div>";
-  
+  html += "<small style='color:#e65100;font-weight:600;'>آخر 10 دقائق</small><div style='font-size:1.5em;font-weight:900;color:#e65100;'>" + vpm10.toFixed(2) + "</div></div>";
   html += "<div style='background:#d4fc79;padding:12px;border-radius:10px;margin-bottom:15px;text-align:center;border-left:4px solid #2d5016;'>";
-  html += "<small style='color:#2d5016;font-weight:600;'>أصواتنا</small>";
-  html += "<div style='font-size:1.8em;font-weight:900;color:#2d5016;'>" + ourVotes + " (" + percentage + "%)</div>";
-  html += "</div>";
-  
+  html += "<small style='color:#2d5016;font-weight:600;'>أصواتنا</small><div style='font-size:1.8em;font-weight:900;color:#2d5016;'>" + ourVotes + " (" + percentage + "%)</div></div>";
   html += "<div style='background:#ffb347;padding:12px;border-radius:10px;margin-bottom:15px;text-align:center;border-left:4px solid #5c2e0f;'>";
-  html += "<small style='color:#5c2e0f;font-weight:600;'>أصوات أخرى</small>";
-  html += "<div style='font-size:1.8em;font-weight:900;color:#5c2e0f;'>" + theirVotes + "</div>";
-  html += "</div>";
+  html += "<small style='color:#5c2e0f;font-weight:600;'>أصوات أخرى</small><div style='font-size:1.8em;font-weight:900;color:#5c2e0f;'>" + theirVotes + "</div></div>";
   
   if(data.votes.length > 0){
-    html += "<h4 style='color:#667eea;margin:15px 0 10px 0;font-weight:900;border-bottom:2px solid #e0e7ff;padding-bottom:8px;'>الناخبين (" + data.votes.length + ")</h4>";
+    html += "<h4 style='color:#667eea;margin:15px 0 10px 0;font-weight:900;'>الناخبين (" + data.votes.length + ")</h4>";
     html += "<div style='max-height:300px;overflow-y:auto;'>";
     data.votes.forEach((v, i) => {
       const isOur = v.candidates.includes("أحمد الحديدى") && v.candidates.includes("البدوى جميز");
@@ -1335,8 +1310,7 @@ window.showCommitteeDetails = function(num, data){
       html += "<div style='font-size:0.85em;color:#666;margin-bottom:4px;'>المرشحين: " + (v.candidates.join(" و ") || "—") + "</div>";
       html += "<div style='display:flex;gap:8px;font-size:0.85em;'>";
       html += "<span style='padding:3px 8px;background:" + (v.validity === "صحيح" ? "#c8e6c9" : "#ffccbc") + ";border-radius:6px;color:#333;font-weight:700;'>" + validityIcon + " " + v.validity + "</span>";
-      html += "<span style='padding:3px 8px;background:#e8f5e9;border-radius:6px;color:#333;'>" + statusLabel + "</span>";
-      html += "</div></div>";
+      html += "<span style='padding:3px 8px;background:#e8f5e9;border-radius:6px;color:#333;'>" + statusLabel + "</span></div></div>";
     });
     html += "</div>";
   } else {
@@ -1352,9 +1326,11 @@ window.closeCommitteePopup = function(){
 };
 
 function renderCharts(){
-  const ctx1 = document.getElementById("chartCandidates").getContext("2d");
-  const ctx2 = document.getElementById("chartValidity").getContext("2d");
-  const ctx3 = document.getElementById("chartVPM").getContext("2d");
+  const ctx1 = document.getElementById("chartCandidates");
+  const ctx2 = document.getElementById("chartValidity");
+  const ctx3 = document.getElementById("chartVPM");
+
+  if(!ctx1 || !ctx2 || !ctx3) return;
 
   const counts = {};
   allVotes.forEach(v => v.candidates.forEach(c => counts[c] = (counts[c] || 0) + 1));
@@ -1362,44 +1338,29 @@ function renderCharts(){
   const data = Object.keys(counts).length > 0 ? Object.values(counts) : [0];
 
   if(chartCandidates){
-    chartCandidates.data.labels = labels;
-    chartCandidates.data.datasets[0].data = data;
-    chartCandidates.update();
-  } else {
-    chartCandidates = new Chart(ctx1, {
-      type: "bar",
-      data: { labels: labels, datasets: [{ label: "الأصوات", data: data, backgroundColor: "#667eea" }] },
-      options: { 
-        responsive: true, 
-        parsing: false, // تم الإضافة لحل مشكلة CSP
-        plugins: { legend: { display: false } }, 
-        scales: { y: { beginAtZero: true } } 
-      }
-    });
+    chartCandidates.destroy();
   }
+  chartCandidates = new Chart(ctx1.getContext("2d"), {
+    type: "bar",
+    data: { labels: labels, datasets: [{ label: "الأصوات", data: data, backgroundColor: "#667eea", borderRadius: 8 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+  });
 
   const valid = allVotes.filter(v => v.validity === "صحيح").length;
   const invalid = allVotes.filter(v => v.validity === "باطل").length;
   const total = valid + invalid;
 
   if(chartValidity){
-    chartValidity.data.datasets[0].data = total > 0 ? [valid, invalid] : [0, 0];
-    chartValidity.data.labels = ["صحيح (" + valid + ")", "باطل (" + invalid + ")"];
-    chartValidity.update();
-  } else {
-    chartValidity = new Chart(ctx2, {
-      type: "doughnut",
-      data: { 
-        labels: ["صحيح (" + valid + ")", "باطل (" + invalid + ")"], 
-        datasets: [{ data: total > 0 ? [valid, invalid] : [0, 0], backgroundColor: ["#11998e", "#eb3349"] }] 
-      },
-      options: { 
-        cutout: "55%", 
-        parsing: false, // تم الإضافة لحل مشكلة CSP
-        plugins: { legend: { position: "bottom" } } 
-      }
-    });
+    chartValidity.destroy();
   }
+  chartValidity = new Chart(ctx2.getContext("2d"), {
+    type: "doughnut",
+    data: { 
+      labels: ["صحيح (" + valid + ")", "باطل (" + invalid + ")"], 
+      datasets: [{ data: total > 0 ? [valid, invalid] : [0, 0], backgroundColor: ["#11998e", "#eb3349"] }] 
+    },
+    options: { responsive: true, maintainAspectRatio: false, cutout: "55%", plugins: { legend: { position: "bottom" } } }
+  });
 
   const minutes = {};
   allVotes.forEach(v => {
@@ -1413,21 +1374,13 @@ function renderCharts(){
   const minuteData = minuteKeys.length > 0 ? minuteKeys.map(k => minutes[k]) : [0];
 
   if(chartVPM){
-    chartVPM.data.labels = minuteLabels;
-    chartVPM.data.datasets[0].data = minuteData;
-    chartVPM.update();
-  } else {
-    chartVPM = new Chart(ctx3, {
-      type: "line",
-      data: { labels: minuteLabels, datasets: [{ label: "أصوات/دقيقة", data: minuteData, borderColor: "#667eea", backgroundColor: "rgba(102,126,234,0.1)", tension: 0.3 }] },
-      options: { 
-        responsive: true, 
-        parsing: false, // تم الإضافة لحل مشكلة CSP
-        plugins: { legend: { display: false } }, 
-        scales: { y: { beginAtZero: true } } 
-      }
-    });
+    chartVPM.destroy();
   }
+  chartVPM = new Chart(ctx3.getContext("2d"), {
+    type: "line",
+    data: { labels: minuteLabels, datasets: [{ label: "أصوات/دقيقة", data: minuteData, borderColor: "#667eea", backgroundColor: "rgba(102,126,234,0.1)", tension: 0.3, fill: true, pointRadius: 5 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true } }, scales: { y: { beginAtZero: true } } }
+  });
 }
 
 function renderRanking(){
@@ -1511,10 +1464,7 @@ window.closeDetails = function(){
 };
 
 window.openEdit = function(id){
-  if(adminLevel !== 1){
-    alert("ليس لديك الصلاحية");
-    return;
-  }
+  if(adminLevel !== 1){ alert("ليس لديك الصلاحية"); return; }
   const pw = prompt("ادخل كلمة السر:");
   if(pw !== "742018") return alert("كلمة سر خاطئة");
   const v = allVotes.find(x => x.id === id);
@@ -1573,10 +1523,7 @@ window.exportCSV = function(){
 };
 
 window.resetAll = function(){
-  if(adminLevel !== 1){
-    alert("ليس لديك الصلاحية");
-    return;
-  }
+  if(adminLevel !== 1){ alert("ليس لديك الصلاحية"); return; }
   const pw = prompt("ادخل كلمة السر:");
   if(pw !== "742018") return alert("خطأ");
   if(!confirm("تأكيد الحذف؟")) return;
@@ -1617,7 +1564,6 @@ window.sendNotification = async function(){
   try {
     const timestamp = Date.now();
     const messageRef = ref(db, "notifications/" + topic + "/" + timestamp);
-    
     await set(messageRef, {
       message: txt,
       topic: topic,
@@ -1625,13 +1571,10 @@ window.sendNotification = async function(){
       sentAt: new Date().toISOString(),
       type: "dashboard_notification"
     });
-    
     result.style.color = "#11998e";
     result.textContent = "تم الإرسال لـ " + (mode === "all" ? "جميع اللجان ✓" : ("اللجنة " + document.getElementById("notify-committee").value + " ✓"));
     document.getElementById("notify-message").value = "";
-    
     setTimeout(() => result.style.display = "none", 3500);
-    
   } catch(err){
     result.style.color = "#eb3349";
     result.textContent = "خطأ: " + err.message;
@@ -1643,5 +1586,3 @@ window.sendNotification = async function(){
 </script>
 </body>
 </html>
-
-
