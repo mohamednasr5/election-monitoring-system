@@ -743,6 +743,15 @@ function resetData() {
         alert("❌ كود غير صحيح. تم إلغاء العملية.");
     }
 }
+// الضغط على Enter لتسجيل الدخول
+document.addEventListener("DOMContentLoaded", () => {
+    const inp = document.getElementById("login-pass");
+    inp.addEventListener("keyup", function(e) {
+        if (e.key === "Enter") {
+            loginNow();
+        }
+    });
+});
 
 </script>
 </body>
