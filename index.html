@@ -948,13 +948,16 @@ window.checkPass = async function() {
     document.getElementById("password-modal").classList.add("hidden");
     document.getElementById("main-container").classList.remove("hidden");
     document.getElementById("logout-btn").classList.remove("hidden");
-    document.getElementById("welcome-title").textContent = "مرحباً بـ Super Admin";
-    document.getElementById("committee-name-display").textContent = "وصول غير مقيد";
+    document.getElementById("welcome-title").textContent = "⚡ Super Admin - لوحة التحكم الرئيسية";
+    document.getElementById("committee-name-display").textContent = "وصول كامل لجميع اللجان";
     document.getElementById("committee-address-display").textContent = "صلاحيات مشرف عام";
     committeeNumber = 0;
     document.getElementById("remote-logout-btn").classList.add("hidden");
     document.getElementById("vote-form").style.display = 'none';
+    document.getElementById("openUpload").style.display = 'none';
+    document.getElementById("super-admin-panel").classList.remove("hidden");
     setupNotificationListeners(0);
+    initSuperAdminFeatures();
     return;
   }
 
@@ -1171,6 +1174,253 @@ document.getElementById("vote-form").addEventListener("submit", function(e) {
 document.getElementById("password-input").addEventListener("keypress", function(e) {
   if (e.key === "Enter") checkPass();
 });
+
+// ==================== Super Admin Functions ====================
+
+function initSuperAdminFeatures() {
+  refreshStats();
+  loadActiveCommittees();
+  
+  // تحديث تلقائي كل 30 ثانية
+  setInterval(() => {
+    refreshStats();
+    loadActiveCommittees();
+  }, 30000);
+}
+
+async function refreshStats() {
+  try {
+    const votesRef = ref(db, "votes");
+    const snapshot = await get(votesRef);
+    
+    if (snapshot.exists()) {
+      const votes = snapshot.val();
+      const votesArray = Object.values(votes);
+      
+      const totalVotes = votesArray.length;
+      const validVotes = votesArray.filter(v => v.vote_validity === "صحيح").length;
+      const invalidVotes = votesArray.filter(v => v.vote_validity === "باطل").length;
+      
+      document.getElementById("total-votes").textContent = totalVotes;
+      document.getElementById("valid-votes").textContent = validVotes;
+      document.getElementById("invalid-votes").textContent = invalidVotes;
+    } else {
+      document.getElementById("total-votes").textContent = "0";
+      document.getElementById("valid-votes").textContent = "0";
+      document.getElementById("invalid-votes").textContent = "0";
+    }
+  } catch (error) {
+    console.error("Error loading stats:", error);
+  }
+}
+
+async function loadActiveCommittees() {
+  try {
+    const presenceRef = ref(db, "presence");
+    const snapshot = await get(presenceRef);
+    
+    const listDiv = document.getElementById("active-committees-list");
+    const countDiv = document.getElementById("active-committees");
+    
+    if (snapshot.exists()) {
+      const presence = snapshot.val();
+      const activeList = Object.entries(presence).filter(([key, data]) => data.online);
+      
+      countDiv.textContent = activeList.length;
+      
+      if (activeList.length > 0) {
+        listDiv.innerHTML = activeList.map(([key, data]) => {
+          const committeeNum = key.replace("committee_", "");
+          const committeeInfo = committeeData[parseInt(committeeNum)];
+          return `
+            <div style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <strong>لجنة ${committeeNum}</strong>
+                ${committeeInfo ? '<div style="font-size: 0.85em; opacity: 0.8;">' + committeeInfo.name + '</div>' : ''}
+              </div>
+              <button onclick="forceLogout(${committeeNum})" style="background: #ff6b6b; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.9em;">إخراج</button>
+            </div>
+          `;
+        }).join("");
+      } else {
+        listDiv.innerHTML = '<div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.7);">لا توجد لجان متصلة حالياً</div>';
+      }
+    } else {
+      countDiv.textContent = "0";
+      listDiv.innerHTML = '<div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.7);">لا توجد لجان متصلة حالياً</div>';
+    }
+  } catch (error) {
+    console.error("Error loading active committees:", error);
+  }
+}
+
+window.sendNotificationToAll = async function() {
+  const message = document.getElementById("notification-all").value.trim();
+  if (!message) {
+    alert("الرجاء كتابة الإشعار أولاً");
+    return;
+  }
+  
+  try {
+    const notifRef = ref(db, "notifications/all/" + Date.now());
+    await set(notifRef, {
+      message: message,
+      timestamp: Date.now()
+    });
+    
+    document.getElementById("notification-all").value = "";
+    showConfirm("تم إرسال الإشعار لجميع اللجان ✅");
+  } catch (error) {
+    alert("خطأ في إرسال الإشعار: " + error.message);
+  }
+};
+
+window.sendNotificationToCommittee = async function() {
+  const committeeNum = parseInt(document.getElementById("notification-committee-num").value);
+  const message = document.getElementById("notification-specific").value.trim();
+  
+  if (!committeeNum || committeeNum < 1 || committeeNum > 60) {
+    alert("الرجاء إدخال رقم لجنة صحيح (1-60)");
+    return;
+  }
+  
+  if (!message) {
+    alert("الرجاء كتابة الإشعار أولاً");
+    return;
+  }
+  
+  try {
+    const notifRef = ref(db, "notifications/committee_" + committeeNum + "/" + Date.now());
+    await set(notifRef, {
+      message: message,
+      timestamp: Date.now()
+    });
+    
+    document.getElementById("notification-committee-num").value = "";
+    document.getElementById("notification-specific").value = "";
+    showConfirm("تم إرسال الإشعار للجنة " + committeeNum + " ✅");
+  } catch (error) {
+    alert("خطأ في إرسال الإشعار: " + error.message);
+  }
+};
+
+window.forceLogout = async function(committeeNum) {
+  if (!confirm(`هل أنت متأكد من إخراج اللجنة ${committeeNum}؟`)) return;
+  
+  try {
+    const presenceRef = ref(db, `presence/committee_${committeeNum}`);
+    await remove(presenceRef);
+    showConfirm(`تم إخراج اللجنة ${committeeNum} بنجاح`);
+    loadActiveCommittees();
+  } catch (error) {
+    alert("فشل في إخراج اللجنة: " + error.message);
+  }
+};
+
+window.logoutAllCommittees = async function() {
+  if (!confirm("⚠️ هل أنت متأكد من إخراج جميع اللجان المتصلة؟ هذا الإجراء لا يمكن التراجع عنه!")) return;
+  
+  try {
+    const presenceRef = ref(db, "presence");
+    await remove(presenceRef);
+    showConfirm("تم إخراج جميع اللجان بنجاح ✅");
+    loadActiveCommittees();
+  } catch (error) {
+    alert("فشل في إخراج اللجان: " + error.message);
+  }
+};
+
+window.showTopCandidates = async function() {
+  try {
+    const votesRef = ref(db, "votes");
+    const snapshot = await get(votesRef);
+    
+    if (!snapshot.exists()) {
+      alert("لا توجد أصوات مسجلة بعد");
+      return;
+    }
+    
+    const votes = snapshot.val();
+    const votesArray = Object.values(votes).filter(v => v.vote_validity === "صحيح");
+    
+    // حساب أصوات كل مرشح
+    const candidateVotes = {};
+    votesArray.forEach(vote => {
+      if (vote.selected && Array.isArray(vote.selected)) {
+        vote.selected.forEach(candidate => {
+          candidateVotes[candidate] = (candidateVotes[candidate] || 0) + 1;
+        });
+      }
+    });
+    
+    // ترتيب المرشحين
+    const sorted = Object.entries(candidateVotes)
+      .sort((a, b) => b[1] - a[1])
+      .map(([name, votes], index) => {
+        const candidateInfo = candidates.find(c => c[1] === name);
+        const emoji = candidateInfo ? candidateInfo[2] : "👤";
+        const medal = index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : "🏅";
+        return `
+          <div style="background: rgba(255,255,255,0.2); padding: 12px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 1.5em;">${medal}</span>
+              <span style="font-size: 1.3em;">${emoji}</span>
+              <div>
+                <strong>${name}</strong>
+                <div style="font-size: 0.85em; opacity: 0.8;">المركز ${index + 1}</div>
+              </div>
+            </div>
+            <div style="background: rgba(255,255,255,0.3); padding: 8px 15px; border-radius: 8px; font-weight: bold;">
+              ${votes} صوت
+            </div>
+          </div>
+        `;
+      }).join("");
+    
+    document.getElementById("candidates-ranking").innerHTML = sorted;
+    document.getElementById("candidates-results").style.display = "block";
+    
+  } catch (error) {
+    alert("خطأ في عرض النتائج: " + error.message);
+  }
+};
+
+window.exportVotesData = async function() {
+  try {
+    const votesRef = ref(db, "votes");
+    const snapshot = await get(votesRef);
+    
+    if (!snapshot.exists()) {
+      alert("لا توجد بيانات لتصديرها");
+      return;
+    }
+    
+    const votes = snapshot.val();
+    const votesArray = Object.values(votes);
+    
+    // تحويل البيانات لـ CSV
+    let csv = "رقم الصوت,اسم الناخب,المرشحين,حالة الصوت,رقم اللجنة,التاريخ\n";
+    
+    votesArray.forEach((vote, index) => {
+      const date = new Date(vote.timestamp).toLocaleString('ar-EG');
+      const candidates = Array.isArray(vote.selected) ? vote.selected.join(" - ") : vote.selected;
+      csv += `${index + 1},"${vote.name || 'بدون اسم'}","${candidates}","${vote.vote_validity}",${vote.committee},"${date}"\n`;
+    });
+    
+    // تنزيل الملف
+    const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `votes_export_${Date.now()}.csv`;
+    link.click();
+    
+    showConfirm("تم تصدير البيانات بنجاح ✅");
+    
+  } catch (error) {
+    alert("خطأ في تصدير البيانات: " + error.message);
+  }
+};
+
 </script>
 </body>
 </html>
