@@ -1255,7 +1255,7 @@ window.showCommitteeDetails = function(num, data){
   
   title.textContent = info.name + " " + num;
   
-  const ourVotes = data.votes.filter(v => v.candidates.includes("أحمد الحديدى") && v.candidates.includes("البدوى جميز")).length;
+  const ourVotes = data.votes.filter(v => v.candidates.includes("أحمد الحديدى")).length;
   const theirVotes = data.total - ourVotes;
   const percentage = data.total > 0 ? ((ourVotes / data.total) * 100).toFixed(1) : 0;
   const now = Date.now();
@@ -1300,11 +1300,11 @@ window.showCommitteeDetails = function(num, data){
     html += "<h4 style='color:#667eea;margin:15px 0 10px 0;font-weight:900;'>الناخبين (" + data.votes.length + ")</h4>";
     html += "<div style='max-height:300px;overflow-y:auto;'>";
     data.votes.forEach((v, i) => {
-      const isOur = v.candidates.includes("أحمد الحديدى") && v.candidates.includes("البدوى جميز");
-      const statusLabel = isOur ? "تبعنا" : "مش تبعنا";
+      const ourVote = v.candidates.includes("أحمد الحديدى");
+      const statusLabel = ourVote ? "تبعنا" : "مش تبعنا";
       const validityIcon = v.validity === "صحيح" ? "✓" : "✗";
-      const bgColor = isOur ? "rgba(212,252,121,0.2)" : "rgba(255,179,71,0.2)";
-      const borderColor = isOur ? "#96f97b" : "#ffb347";
+      const bgColor = ourVote ? "rgba(212,252,121,0.2)" : "rgba(255,179,71,0.2)";
+      const borderColor = ourVote ? "#96f97b" : "#ffb347";
       html += "<div style='padding:10px;margin-bottom:8px;background:" + bgColor + ";border-radius:10px;border-right:4px solid " + borderColor + ";'>";
       html += "<div style='font-weight:700;color:#333;margin-bottom:4px;'>" + (i + 1) + ". " + v.name + "</div>";
       html += "<div style='font-size:0.85em;color:#666;margin-bottom:4px;'>المرشحين: " + (v.candidates.join(" و ") || "—") + "</div>";
@@ -1427,8 +1427,8 @@ function renderTable(){
   body.innerHTML = "";
   filtered.forEach((v, i) => {
     const tr = document.createElement("tr");
-    const isOur = v.candidates.includes("أحمد الحديدى") && v.candidates.includes("البدوى جميز");
-    const statusLabel = isOur ? '<span class="vote-status-friend">تبعنا</span>' : '<span class="vote-status-enemy">مش تبعنا</span>';
+    const ourVote = v.candidates.includes("أحمد الحديدى");
+    const statusLabel = ourVote ? '<span class="vote-status-friend">تبعنا</span>' : '<span class="vote-status-enemy">مش تبعنا</span>';
     const editBtn = adminLevel === 1 ? '<button class="btn-mini-edit" onclick="openEdit(\'' + v.id + '\')">تعديل</button>' : '';
     tr.innerHTML = "<td>" + (i + 1) + "</td><td class='clickable-name' onclick=\"showDetails('" + v.id + "')\">" + v.name + "</td><td>" + (v.candidates.join(" و ") || "—") + "</td><td class='" + (v.validity === "صحيح" ? "status-valid" : "status-invalid") + "'>" + v.validity + "</td><td>" + statusLabel + "</td><td>" + (v.timestamp ? new Date(v.timestamp).toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "—") + "</td><td>" + editBtn + "</td>";
     body.appendChild(tr);
@@ -1456,12 +1456,7 @@ window.showDetails = function(id){
   const chosen = v.candidates.join(" و ") || "—";
   const isOur = v.candidates.includes("أحمد الحديدى") && v.candidates.includes("البدوى جميز");
   body.innerHTML = "<table style='width:100%;'><tr><td><b>الاسم</b></td><td>" + v.name + "</td></tr><tr><td><b>اللجنة</b></td><td>" + (v.committee || "—") + "</td></tr><tr><td><b>الوقت</b></td><td>" + time + "</td></tr><tr><td><b>المرشحين</b></td><td>" + chosen + "</td></tr><tr><td><b>الحالة</b></td><td style='color:" + (v.validity === "صحيح" ? "#11998e" : "#eb3349") + "'>" + v.validity + "</td></tr></table>" + (isOur ? "<div style='display:inline-block;margin-top:12px;padding:8px 14px;border-radius:50px;background:#d4fc79;color:#2d5016;font-weight:700;'>تبعنا</div>" : "<div style='display:inline-block;margin-top:12px;padding:8px 14px;border-radius:50px;background:#ffb347;color:#5c2e0f;font-weight:700;'>مش تبعنا</div>");
-  document.getElementById("details-popup").classList.remove("hidden");
-};
-
-window.closeDetails = function(){
-  document.getElementById("details-popup").classList.add("hidden");
-};
+  const isOur = v.candidates.includes("أحمد الحديدى");
 
 window.openEdit = function(id){
   if(adminLevel !== 1){ alert("ليس لديك الصلاحية"); return; }
@@ -1506,20 +1501,52 @@ window.saveEdit = function(){
 
 window.exportCSV = function(){
   if(allVotes.length === 0) return alert("لا توجد بيانات");
-  const header = "Index,Name,Committee,Candidates,Validity,Vote_Status,Timestamp\n";
-  const rows = allVotes.map((v, i) => {
-    const isOur = v.candidates.includes("أحمد الحديدى") && v.candidates.includes("البدوى جميز");
-    const status = isOur ? "Friend" : "Enemy";
-    return [i + 1, '"' + v.name.replace(/"/g, '""') + '"', v.committee || "N/A", '"' + v.candidates.join(" | ").replace(/"/g, '""') + '"', v.validity, status, v.timestamp].join(",");
+  
+  // إنشاء ورقة عمل Excel بصيغة HTML
+  let html = '<table border="1" style="border-collapse: collapse; font-family: Arial; direction: rtl;">';
+  html += '<thead style="background-color: #667eea; color: white; font-weight: bold;">';
+  html += '<tr>';
+  html += '<th style="padding: 10px; text-align: center;">الترتيب</th>';
+  html += '<th style="padding: 10px; text-align: center;">الاسم</th>';
+  html += '<th style="padding: 10px; text-align: center;">اللجنة</th>';
+  html += '<th style="padding: 10px; text-align: center;">المرشحين</th>';
+  html += '<th style="padding: 10px; text-align: center;">صحة الصوت</th>';
+  html += '<th style="padding: 10px; text-align: center;">حالة الصوت</th>';
+  html += '<th style="padding: 10px; text-align: center;">التوقيت</th>';
+  html += '</tr>';
+  html += '</thead>';
+  html += '<tbody>';
+  
+  allVotes.forEach((v, i) => {
+    const ourVote = v.candidates.includes("أحمد الحديدى");
+    const status = ourVote ? "تبعنا ✓" : "مش تبعنا ✗";
+    const time = v.timestamp ? new Date(v.timestamp).toLocaleString("ar-EG") : "—";
+    const validity = v.validity === "صحيح" ? "✓ صحيح" : "✗ باطل";
+    const bgColor = i % 2 === 0 ? "#f9f9f9" : "#ffffff";
+    
+    html += '<tr style="background-color: ' + bgColor + ';">';
+    html += '<td style="padding: 8px; text-align: center;">' + (i + 1) + '</td>';
+    html += '<td style="padding: 8px; text-align: right;">' + v.name + '</td>';
+    html += '<td style="padding: 8px; text-align: center;">' + (v.committee || "—") + '</td>';
+    html += '<td style="padding: 8px; text-align: right;">' + (v.candidates.join(" و ") || "—") + '</td>';
+    html += '<td style="padding: 8px; text-align: center; color: ' + (v.validity === "صحيح" ? "#11998e" : "#eb3349") + '; font-weight: bold;">' + validity + '</td>';
+    html += '<td style="padding: 8px; text-align: center; background-color: ' + (ourVote ? "#d4fc79" : "#ffb347") + '; color: ' + (ourVote ? "#2d5016" : "#5c2e0f") + '; font-weight: bold;">' + status + '</td>';
+    html += '<td style="padding: 8px; text-align: center;">' + time + '</td>';
+    html += '</tr>';
   });
-  const csv = header + rows.join("\n");
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  
+  html += '</tbody>';
+  html += '</table>';
+  
+  // إنشاء ملف Excel
+  const blob = new Blob([html], { type: "application/vnd.ms-excel;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = "votes_" + Date.now() + ".csv";
+  a.download = "الأصوات_" + new Date().toLocaleDateString("ar-EG") + ".xls";
   a.click();
   URL.revokeObjectURL(url);
+  showNotification("تم تصدير البيانات بنجاح ✓");
 };
 
 window.resetAll = function(){
