@@ -846,10 +846,10 @@ const committeeData = {
   7: {name: "عرب زيدان", address: "مدرسة عرب زيدان الابتدائية"},
   8: {name: "الستايتة", address: "مدرسة الشهيد محمد زغلول الابتدائية"},
   9: {name: "كفر حجاج", address: "مدرسة كفر حجاج الابتدائية"},
-  10: {name: "ميت خضير", address: "مدرسة محمد إسماعيل الإعدادية"},
+  10: {name: "ميت خض", address: "مدرسة محمد إسماعيل الإعدادية"},
   11: {name: "المواجدة", address: "مدرسة حسني الشناوى"},
-  12: {name: "البصراط", address: "مدرسة الشهيد محمد المحلاوى الإعدادية"},
-  13: {name: "البصراط", address: "مدرسة الشهيد محمد المحلاوى الإعدادية"},
+  12: {name: "البضاط", address: "مدرسة الشهيد محمد المحلاوى الإعدادية"},
+  13: {name: "البضاط", address: "مدرسة الشهيد محمد المحلاوى الإعدادية"},
   14: {name: "الطوابرة", address: "مدرسة النصر الإعدادية"},
   15: {name: "العمارنة", address: "مدرسة العمارنة الابتدائية"},
   16: {name: "أولاد بانا", address: "مدرسة أولاد بانا الابتدائية"},
@@ -929,23 +929,34 @@ async function tryCommitteeLogin(committee, info) {
     if (!isAdmin) {
       committeeNumber = committee;
       myPresenceRef = presenceRef;
+      
+      // تسجيل الحضور أولاً
+      await set(presenceRef, {
+        online: true,
+        loginTime: serverTimestamp(),
+        committee: committee
+      });
+      
+      // إعداد الحذف التلقائي عند قطع الاتصال
       const connectedRef = ref(db, '.info/connected');
       onValue(connectedRef, async (snap) => {
         if (snap.val() === true) {
           await onDisconnect(presenceRef).remove();
-          await set(presenceRef, {
-            online: true,
-            loginTime: serverTimestamp(),
-            committee: committee
-          });
         }
       });
       
-      // إضافة مراقبة مستمرة لحالة تسجيل الدخول
+      // مراقبة مستمرة لحالة تسجيل الدخول (فقط بعد التسجيل الناجح)
+      let isInitialLoad = true;
       onValue(presenceRef, (snapshot) => {
+        if (isInitialLoad) {
+          isInitialLoad = false;
+          return; // تجاهل أول قراءة
+        }
+        
         if (!snapshot.exists() && myPresenceRef) {
           // تم حذف البيانات من قبل الأدمن
           alert("⚠️ تم إخراجك من قبل المشرف العام");
+          myPresenceRef = null; // منع إعادة التحميل المتكرر
           location.reload();
         }
       });
