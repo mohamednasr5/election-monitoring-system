@@ -720,7 +720,7 @@ button {
     <label>اسم الناخب:</label>
     <input type="text" id="voter-name" placeholder="اكتب اسم الناخب (اختياري)">
     
-    <label>اختر المرشح (حتى 2):</label>
+    <label>اختر مرشحين اثنين (إجباري):</label>
     <div class="candidate-list" id="candidate-list"></div>
     
     <div class="sec-box">
@@ -930,14 +930,12 @@ async function tryCommitteeLogin(committee, info) {
       committeeNumber = committee;
       myPresenceRef = presenceRef;
       
-      // تسجيل الحضور أولاً
       await set(presenceRef, {
         online: true,
         loginTime: serverTimestamp(),
         committee: committee
       });
       
-      // إعداد الحذف التلقائي عند قطع الاتصال
       const connectedRef = ref(db, '.info/connected');
       onValue(connectedRef, async (snap) => {
         if (snap.val() === true) {
@@ -945,18 +943,16 @@ async function tryCommitteeLogin(committee, info) {
         }
       });
       
-      // مراقبة مستمرة لحالة تسجيل الدخول (فقط بعد التسجيل الناجح)
       let isInitialLoad = true;
       onValue(presenceRef, (snapshot) => {
         if (isInitialLoad) {
           isInitialLoad = false;
-          return; // تجاهل أول قراءة
+          return;
         }
         
         if (!snapshot.exists() && myPresenceRef) {
-          // تم حذف البيانات من قبل الأدمن
           alert("⚠️ تم إخراجك من قبل المشرف العام");
-          myPresenceRef = null; // منع إعادة التحميل المتكرر
+          myPresenceRef = null;
           location.reload();
         }
       });
@@ -972,7 +968,6 @@ async function tryCommitteeLogin(committee, info) {
     document.getElementById("committee-name-display").textContent = info.name;
     document.getElementById("committee-address-display").textContent = info.address;
     
-    // إظهار أو إخفاء النموذج حسب نوع المستخدم
     if (isAdmin) {
       document.getElementById("vote-form").style.display = 'none';
       document.getElementById("openUpload").style.display = 'none';
@@ -1246,7 +1241,7 @@ function checkLimit() {
   const sel = document.querySelectorAll('.candidate-checkbox:checked');
   if (sel.length > 2) {
     sel[sel.length - 1].checked = false;
-    showWarn("يمكن اختيار مرشحين فقط");
+    showWarn("يجب اختيار مرشحين اثنين فقط");
     updateStyle();
   }
 }
@@ -1284,7 +1279,7 @@ document.getElementById("vote-form").addEventListener("submit", function(e) {
   const sel = Array.from(document.querySelectorAll('.candidate-checkbox:checked')).map(v => v.value);
   const val = document.querySelector('input[name="vvalid"]:checked');
   
-  if (sel.length < 1) return showWarn("اختر مرشح واحد على الأقل");
+  if (sel.length !== 2) return showWarn("يجب اختيار مرشحين اثنين بالضبط");
   if (!val) return showWarn("اختر حالة الصوت");
   
   const voteKey = Date.now();
