@@ -2,14 +2,15 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<title>غرفة العمليات المركزية - مراقبة الانتخابات</title>
+<title>غرفة العمليات المركزية - الإصدار المطور</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
 
 <style>
   :root {
     --primary: #2563eb;
-    --bg-body: #f1f5f9;
+    --bg-body: #f8fafc;
     --bg-card: #ffffff;
     --text-main: #1e293b;
     --flash-blue: rgba(59, 130, 246, 0.5);
@@ -44,84 +45,62 @@
   .login-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(37, 99, 235, 0.4); }
   .error-msg { color: #ef4444; margin-top: 15px; font-size: 0.9em; display: none; font-weight: bold; }
 
-  /* --- Main Dashboard --- */
+  /* --- Dashboard --- */
   #dashboard-content { display: none; animation: fadeIn 1s ease; }
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-  /* Header Stats Grid */
   .header-stats {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 25px;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px;
   }
   .stat-card {
     background: var(--bg-card); padding: 20px; border-radius: 16px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05); position: relative; overflow: hidden;
-    border-bottom: 4px solid transparent; transition: transform 0.3s;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-bottom: 4px solid #ddd;
+    text-align: center;
   }
-  .stat-card:hover { transform: translateY(-5px); }
-  .stat-icon { position: absolute; top: 15px; left: 15px; font-size: 2em; opacity: 0.1; }
-  
-  .stat-value { font-size: 2.4em; font-weight: 900; line-height: 1; margin-bottom: 5px; }
-  .stat-label { color: #64748b; font-size: 0.85em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+  .stat-value { font-size: 2.2em; font-weight: 900; color: #0f172a; line-height: 1.1; }
+  .stat-label { color: #64748b; font-size: 0.85em; font-weight: 700; margin-top: 5px; }
 
-  /* Specific Colors for Header Cards */
-  .card-blue { border-color: #3b82f6; } .card-blue .stat-value { color: #1e3a8a; }
-  .card-green { border-color: #10b981; } .card-green .stat-value { color: #064e3b; }
-  .card-red { border-color: #ef4444; } .card-red .stat-value { color: #7f1d1d; }
-  .card-purple { border-color: #8b5cf6; } .card-purple .stat-value { color: #4c1d95; }
-  /* New Live Stats Colors */
-  .card-orange { border-color: #f59e0b; background: #fffbeb; } .card-orange .stat-value { color: #92400e; }
-  .card-cyan { border-color: #06b6d4; background: #ecfeff; } .card-cyan .stat-value { color: #155e75; }
-
-  /* Committees Grid */
   .controls-bar {
     display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 20px; flex-wrap: wrap; gap: 10px;
+    margin-bottom: 20px; flex-wrap: wrap; gap: 15px; background: #fff; padding: 15px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
   }
-  .section-title { font-size: 1.5em; font-weight: 900; color: #0f172a; }
-  .search-box {
-    padding: 12px 20px; border: 2px solid #e2e8f0; border-radius: 12px;
-    width: 250px; font-weight: 700; transition: 0.3s;
+  .actions-group { display: flex; gap: 10px; }
+  
+  .btn-action {
+    padding: 10px 20px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: #fff; display: flex; align-items: center; gap: 8px; font-size: 0.9em; transition: 0.2s;
   }
-  .search-box:focus { border-color: #3b82f6; box-shadow: 0 0 0 4px rgba(59,130,246,0.1); }
+  .btn-excel { background: #10b981; }
+  .btn-excel:hover { background: #059669; }
+  .btn-reset { background: #ef4444; }
+  .btn-reset:hover { background: #dc2626; }
 
+  .search-box {
+    padding: 10px 15px; border: 2px solid #e2e8f0; border-radius: 8px; width: 200px;
+  }
+
+  /* Grid */
   .comm-grid {
     display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 15px;
   }
   .comm-card {
     background: #fff; border-radius: 14px; padding: 15px;
-    cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    border: 1px solid #e2e8f0; position: relative; overflow: hidden;
+    cursor: pointer; transition: all 0.3s;
+    border: 1px solid #e2e8f0; height: 140px;
     display: flex; flex-direction: column; justify-content: space-between;
-    height: 140px;
   }
-  .comm-card:hover {
-    transform: translateY(-5px) scale(1.02);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    border-color: #3b82f6;
-  }
+  .comm-card:hover { transform: translateY(-5px); border-color: #3b82f6; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
 
-  /* Flash Animations */
-  @keyframes flashBlue {
-    0% { background-color: var(--flash-blue); box-shadow: 0 0 20px var(--flash-blue); }
-    100% { background-color: #fff; }
-  }
-  @keyframes flashGreen {
-    0% { background-color: var(--flash-green); box-shadow: 0 0 20px var(--flash-green); }
-    100% { background-color: #fff; }
-  }
+  /* Animations */
+  @keyframes flashBlue { 0% { background: var(--flash-blue); } 100% { background: #fff; } }
+  @keyframes flashGreen { 0% { background: var(--flash-green); } 100% { background: #fff; } }
   .flash-effect-blue { animation: flashBlue 1.2s ease-out; }
   .flash-effect-green { animation: flashGreen 1.2s ease-out; }
 
-  .comm-top { display: flex; justify-content: space-between; align-items: center; }
-  .badge-id { background: #f1f5f9; padding: 4px 8px; border-radius: 6px; font-size: 0.8em; font-weight: 800; color: #64748b; }
-  .comm-name { font-size: 1em; font-weight: 800; color: #1e293b; margin-top: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  
-  .comm-stats-row { display: flex; align-items: flex-end; justify-content: space-between; margin-top: auto; }
-  .comm-current { font-size: 1.8em; font-weight: 900; color: #2563eb; line-height: 1; }
-  .comm-target { font-size: 0.75em; color: #94a3b8; font-weight: 600; }
-  
-  .progress-bg { height: 6px; background: #f1f5f9; border-radius: 3px; margin-top: 10px; overflow: hidden; }
-  .progress-fill { height: 100%; background: linear-gradient(90deg, #3b82f6, #2563eb); width: 0%; transition: width 0.6s ease; }
+  .comm-top { display: flex; justify-content: space-between; font-size: 0.8em; color: #64748b; font-weight: 700; }
+  .comm-name { font-weight: 800; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .comm-val { font-size: 1.8em; font-weight: 900; color: #2563eb; }
+  .progress { height: 6px; background: #f1f5f9; border-radius: 3px; overflow: hidden; margin-top: auto; }
+  .bar { height: 100%; background: linear-gradient(90deg, #3b82f6, #2563eb); width: 0%; transition: width 0.5s; }
 
   /* Modal */
   .overlay {
@@ -130,23 +109,25 @@
     backdrop-filter: blur(5px);
   }
   .modal {
-    background: #fff; width: 95%; max-width: 550px; border-radius: 20px; padding: 30px;
+    background: #fff; width: 95%; max-width: 600px; border-radius: 20px; padding: 25px;
     box-shadow: 0 25px 50px rgba(0,0,0,0.25); animation: slideUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    max-height: 90vh; display: flex; flex-direction: column;
+    display: flex; flex-direction: column; max-height: 90vh;
   }
   @keyframes slideUp { from {transform: translateY(50px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
-  
-  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; }
-  .modal-title { font-size: 1.4em; font-weight: 900; color: #0f172a; }
-  .close-btn { background: #f1f5f9; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 1.2em; cursor: pointer; color: #64748b; transition: 0.2s; }
-  .close-btn:hover { background: #e2e8f0; color: #ef4444; }
 
-  .log-container { flex: 1; overflow-y: auto; padding: 10px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; }
-  .log-entry { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #e2e8f0; background: #fff; margin-bottom: 8px; border-radius: 8px; align-items: center; }
-  .log-entry:last-child { margin-bottom: 0; }
-  .log-badge { padding: 4px 10px; border-radius: 6px; font-weight: 800; font-size: 0.85em; }
-  .badge-single { background: #dbeafe; color: #1e40af; }
-  .badge-bulk { background: #dcfce7; color: #166534; }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; }
+  .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 0.85em; font-weight: 800; }
+  .status-high { background: #dcfce7; color: #166534; } /* نشاط عالي */
+  .status-low { background: #fef9c3; color: #854d0e; } /* نشاط ضعيف */
+  .status-inactive { background: #fee2e2; color: #991b1b; } /* غير نشطة */
+  
+  .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+  .d-item { background: #f8fafc; padding: 12px; border-radius: 10px; text-align: center; border: 1px solid #e2e8f0; }
+  .d-val { font-size: 1.4em; font-weight: 900; color: #0f172a; }
+  .d-label { font-size: 0.8em; color: #64748b; font-weight: 700; }
+
+  .log-container { flex: 1; overflow-y: auto; background: #f8fafc; border-radius: 10px; padding: 10px; border: 1px solid #e2e8f0; }
+  .log-row { display: flex; justify-content: space-between; padding: 8px 12px; border-bottom: 1px solid #eee; background: #fff; margin-bottom: 5px; border-radius: 6px; font-size: 0.9em; }
 
 </style>
 </head>
@@ -154,84 +135,88 @@
 
 <div id="login-screen">
   <div class="login-box">
-    <h2>بوابة الدخول الآمنة</h2>
-    <p style="color:#94a3b8; margin-bottom:20px; font-size:0.9em;">نظام مراقبة سير العملية الانتخابية</p>
-    <input type="password" id="password" class="pass-input" placeholder="أدخل الرقم السري" onkeyup="checkEnter(event)">
-    <button class="login-btn" onclick="attemptLogin()">تسجيل الدخول</button>
-    <div class="error-msg" id="error-msg">الرقم السري غير صحيح!</div>
+    <h2>بوابة الدخول</h2>
+    <input type="password" id="password" class="pass-input" placeholder="الرقم السري" onkeyup="checkEnter(event)">
+    <button class="login-btn" onclick="attemptLogin()">دخول</button>
+    <div class="error-msg" id="error-msg">الرقم خطأ!</div>
   </div>
 </div>
 
 <div id="dashboard-content">
-  
   <div class="header-stats">
-    <div class="stat-card card-blue">
+    <div class="stat-card" style="border-color: #3b82f6;">
       <div class="stat-value" id="total-all">0</div>
       <div class="stat-label">إجمالي الحضور</div>
     </div>
-    
-    <div class="stat-card card-green">
+    <div class="stat-card" style="border-color: #10b981;">
       <div class="stat-value" id="percent-all">0%</div>
-      <div class="stat-label">نسبة التصويت</div>
+      <div class="stat-label">النسبة العامة</div>
     </div>
-
-    <div class="stat-card card-orange">
+    <div class="stat-card" style="border-color: #f59e0b;">
       <div class="stat-value" id="speed-min">0</div>
-      <div class="stat-label">متوسط (ناخب/دقيقة)</div>
+      <div class="stat-label">المتوسط / دقيقة</div>
     </div>
-
-    <div class="stat-card card-cyan">
-      <div class="stat-value" id="speed-hour">0</div>
-      <div class="stat-label">متوسط (ناخب/ساعة)</div>
-    </div>
-
-    <div class="stat-card card-red">
+    <div class="stat-card" style="border-color: #ef4444;">
       <div class="stat-value" id="total-remaining">0</div>
-      <div class="stat-label">المتبقي للتصويت</div>
+      <div class="stat-label">المتبقي</div>
     </div>
   </div>
 
   <div class="controls-bar">
-    <div class="section-title">موقف اللجان الفرعية (60 لجنة)</div>
-    <input type="text" id="search" class="search-box" placeholder="ابحث برقم اللجنة..." onkeyup="filterCommittees()">
+    <div style="font-weight:900; font-size:1.2em; color:#1e293b;">مراقبة اللجان (60 لجنة)</div>
+    
+    <div class="actions-group">
+      <input type="text" id="search" class="search-box" placeholder="بحث برقم اللجنة..." onkeyup="filterCommittees()">
+      <button class="btn-action btn-excel" onclick="exportToExcel()">تصدير Excel 📥</button>
+      <button class="btn-action btn-reset" onclick="confirmReset()">تصفير النظام ⚠️</button>
+    </div>
   </div>
 
-  <div class="comm-grid" id="grid-container">
-    </div>
+  <div class="comm-grid" id="grid-container"></div>
 </div>
 
 <div class="overlay" id="modal-overlay">
   <div class="modal">
     <div class="modal-header">
       <div>
-        <div class="modal-title" id="m-title">لجنة 1</div>
-        <div style="color:#64748b; font-weight:600; font-size:0.9em;" id="m-subtitle">المدرسة...</div>
+        <div style="font-size:1.4em; font-weight:900;" id="m-title">لجنة 1</div>
+        <div style="font-size:0.9em; color:#64748b;" id="m-subtitle">المدرسة...</div>
       </div>
-      <button class="close-btn" onclick="closeModal()">✕</button>
+      <button onclick="closeModal()" style="background:#f1f5f9; border:none; width:35px; height:35px; border-radius:50%; font-weight:bold; cursor:pointer;">✕</button>
     </div>
 
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:20px; text-align:center;">
-      <div style="background:#f1f5f9; padding:15px; border-radius:12px;">
-        <div style="font-size:2em; font-weight:900; color:#2563eb;" id="m-present">0</div>
-        <div style="font-size:0.8em; font-weight:700; color:#64748b;">عدد الحضور</div>
+    <div style="text-align:center; margin-bottom:15px;">
+      <span id="m-status-badge" class="status-badge">جاري التحليل...</span>
+    </div>
+
+    <div class="details-grid">
+      <div class="d-item">
+        <div class="d-val" id="m-original" style="color:#64748b;">0</div>
+        <div class="d-label">إجمالي المقيدين</div>
       </div>
-      <div style="background:#f1f5f9; padding:15px; border-radius:12px;">
-        <div style="font-size:2em; font-weight:900; color:#0f172a;" id="m-original">0</div>
-        <div style="font-size:0.8em; font-weight:700; color:#64748b;">المقيدين</div>
+      <div class="d-item">
+        <div class="d-val" id="m-present" style="color:#2563eb;">0</div>
+        <div class="d-label">إجمالي المصوتين</div>
+      </div>
+      <div class="d-item">
+        <div class="d-val" id="m-rate-min">0</div>
+        <div class="d-label">التصويت / دقيقة (الآن)</div>
+      </div>
+      <div class="d-item">
+        <div class="d-val" id="m-rate-hour">0</div>
+        <div class="d-label">التصويت / ساعة (المعدل)</div>
       </div>
     </div>
 
-    <div style="font-size:0.9em; font-weight:800; margin-bottom:10px; color:#334155;">سجل الحركات (الأحدث أولاً):</div>
-    <div class="log-container" id="m-logs">
-    </div>
+    <div style="font-weight:bold; margin-bottom:10px;">أحدث الحركات:</div>
+    <div class="log-container" id="m-logs"></div>
   </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-// --- إعدادات فايربيس ---
 const firebaseConfig = {
   apiKey: "AIzaSyCxxXV_6CEo1fTp3rRbfwfYbe7WH0Cyg38",
   authDomain: "elahmadiya.firebaseapp.com",
@@ -245,13 +230,13 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// --- بيانات اللجان ---
+// قاعدة البيانات الثابتة
 const committeesDB = {
   1: {name: "الفروسات", original: 5929}, 2: {name: "الفروسات", original: 5554}, 3: {name: "أبو الأخضر", original: 4617},
   4: {name: "جديدة المنزلة", original: 9197}, 5: {name: "العامرة", original: 3519}, 6: {name: "جديدة المنزلة", original: 3781},
   7: {name: "عرب زيدان", original: 1848}, 8: {name: "الستايتة", original: 2239}, 9: {name: "كفر حجاج", original: 2689},
-  10: {name: "ميت خضير", original: 2204}, 11: {name: "المواجدة", original: 4891}, 12: {name: "البصراط", original: 9075},
-  13: {name: "البصراط", original: 8966}, 14: {name: "الطوابرة", original: 4194}, 15: {name: "العمارنة", original: 9886},
+  10: {name: "ميت خض", original: 2204}, 11: {name: "المواجدة", original: 4891}, 12: {name: "البضاط", original: 9075},
+  13: {name: "البضاط", original: 8966}, 14: {name: "الطوابرة", original: 4194}, 15: {name: "العمارنة", original: 9886},
   16: {name: "أولاد بانا", original: 1892}, 17: {name: "أولاد حانا", original: 4334}, 18: {name: "القزاقزة", original: 2239},
   19: {name: "الحوته", original: 4400}, 20: {name: "أولاد نور", original: 2290}, 21: {name: "الخلايفة", original: 1904},
   22: {name: "القطشة", original: 2052}, 23: {name: "الجماملة", original: 1868}, 24: {name: "العزيزة", original: 10131},
@@ -269,251 +254,240 @@ const committeesDB = {
   58: {name: "شارع الزهراء", original: 6975}, 59: {name: "شارع الزهراء", original: 5580}, 60: {name: "سوق الجمعة", original: 10989}
 };
 
-// متغيرات النظام
 let allLogs = [];
 let commStats = {};
-let previousCommStats = {}; // لمقارنة القيم وتفعيل الأنيميشن
-let isFirstLoad = true; // لمنع الأنيميشن عند فتح الصفحة لأول مرة
-let lightToggle = false; // للتبديل بين الأزرق والأخضر
+let previousCommStats = {};
+let lightToggle = false;
+let isFirstLoad = true;
 
-// --- كود الدخول (Login) ---
-window.checkEnter = function(e) {
-  if(e.key === "Enter") attemptLogin();
-}
-
-window.attemptLogin = function() {
-  const pass = document.getElementById('password').value;
-  if(pass === "521988") {
+// 1. تسجيل الدخول
+window.checkEnter = (e) => { if(e.key === "Enter") attemptLogin(); }
+window.attemptLogin = () => {
+  const p = document.getElementById('password').value;
+  if(p === "521988") {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('dashboard-content').style.display = 'block';
-    initDashboard(); // بدء الاتصال بفايربيس بعد الدخول
+    initDashboard();
   } else {
     document.getElementById('error-msg').style.display = 'block';
-    document.getElementById('password').value = "";
-    document.getElementById('password').focus();
   }
 }
 
-// --- بدء النظام ---
 function initDashboard() {
-  // تهيئة الـ DOM الفارغ للجان لضمان الترتيب
   const container = document.getElementById("grid-container");
   container.innerHTML = "";
   for(let i=1; i<=60; i++) {
-    createCommitteeCard(i, committeesDB[i]);
+    const info = committeesDB[i];
+    const d = document.createElement("div");
+    d.className = "comm-card";
+    d.id = `comm-${i}`;
+    d.onclick = () => openModal(i);
+    d.innerHTML = `
+      <div class="comm-top"><span>${i}</span> <span>${info.original}</span></div>
+      <div class="comm-name">${info.name}</div>
+      <div class="comm-val" id="val-${i}">0</div>
+      <div class="progress"><div class="bar" id="bar-${i}"></div></div>
+    `;
+    container.appendChild(d);
   }
 
   const rootRef = ref(db, "/");
-  onValue(rootRef, (snapshot) => {
-    processData(snapshot.val());
+  onValue(rootRef, (snap) => {
+    processData(snap.val());
   });
-}
-
-// إنشاء بطاقة HTML (مرة واحدة فقط)
-function createCommitteeCard(id, info) {
-  const div = document.createElement("div");
-  div.className = "comm-card";
-  div.id = `comm-card-${id}`; // معرف فريد للوصول السريع
-  div.onclick = () => openModal(id);
-  
-  div.innerHTML = `
-    <div class="comm-top">
-      <span class="badge-id">لجنة ${id}</span>
-      <span class="comm-target">الهدف: ${info.original.toLocaleString()}</span>
-    </div>
-    <div class="comm-name">${info.name}</div>
-    
-    <div class="comm-stats-row">
-      <div class="comm-current" id="val-${id}">0</div>
-      <div style="font-size:0.8em; font-weight:bold; color:#64748b;" id="perc-${id}">0%</div>
-    </div>
-    
-    <div class="progress-bg">
-      <div class="progress-fill" id="bar-${id}"></div>
-    </div>
-  `;
-  document.getElementById("grid-container").appendChild(div);
 }
 
 function processData(data) {
   data = data || {};
   allLogs = [];
-  
-  // تصفير العدادات الحالية مع الاحتفاظ بالسجلات السابقة للمقارنة
   let tempStats = {};
+  
   for(let i=1; i<=60; i++) {
-    tempStats[i] = { 
-      current: 0, 
-      original: committeesDB[i] ? committeesDB[i].original : 0,
-      logs: [] 
-    };
+    tempStats[i] = { current:0, original: committeesDB[i].original, logs:[] };
   }
 
-  // معالجة الأصوات الفردية
   if(data.votes) {
     Object.values(data.votes).forEach(v => {
-      const c = v.committee;
-      if(tempStats[c]) {
-        tempStats[c].current += (v.count || 1);
-        tempStats[c].logs.push({type: 'single', val: 1, time: v.timestamp});
-        allLogs.push({type: 'single', val: 1, time: v.timestamp});
+      if(tempStats[v.committee]) {
+        tempStats[v.committee].current += (v.count || 1);
+        tempStats[v.committee].logs.push({val:1, time:v.timestamp});
+        allLogs.push({val:1, time:v.timestamp});
       }
     });
   }
 
-  // معالجة الأصوات المجمعة
   if(data.bulk_counts) {
     Object.values(data.bulk_counts).forEach(v => {
       const c = v.committee;
-      const num = parseInt(v.count);
+      const n = parseInt(v.count);
       if(tempStats[c]) {
-        tempStats[c].current += num;
-        tempStats[c].logs.push({type: 'bulk', val: num, time: v.timestamp});
-        allLogs.push({type: 'bulk', val: num, time: v.timestamp});
+        tempStats[c].current += n;
+        tempStats[c].logs.push({val:n, time:v.timestamp});
+        allLogs.push({val:n, time:v.timestamp});
       }
     });
   }
-
+  
   commStats = tempStats;
-  
   updateUI();
-  calculateAdvancedStats();
-  
-  // بعد أول تحميل، نغير الحالة لتفعيل الأنيميشن مستقبلاً
-  if(isFirstLoad) isFirstLoad = false;
-  
-  // حفظ الحالة الحالية للمقارنة في المرة القادمة
+  isFirstLoad = false;
   previousCommStats = JSON.parse(JSON.stringify(commStats));
 }
 
-// --- تحديث الواجهة الذكي (Smart Update) ---
 function updateUI() {
-  let totalCurrent = 0;
-  const totalOriginal = 350757;
-
-  // تحديث كل بطاقة
+  let totalC = 0;
   for(let i=1; i<=60; i++) {
-    const stats = commStats[i];
+    const s = commStats[i];
     const prev = previousCommStats[i] ? previousCommStats[i].current : 0;
-    totalCurrent += stats.current;
+    totalC += s.current;
 
-    // تحديث النصوص والبروجرس
-    const percent = stats.original > 0 ? (stats.current / stats.original) * 100 : 0;
-    
-    const valEl = document.getElementById(`val-${i}`);
-    const percEl = document.getElementById(`perc-${i}`);
-    const barEl = document.getElementById(`bar-${i}`);
-    const cardEl = document.getElementById(`comm-card-${i}`);
+    const el = document.getElementById(`comm-${i}`);
+    document.getElementById(`val-${i}`).innerText = s.current;
+    const per = s.original > 0 ? (s.current/s.original)*100 : 0;
+    document.getElementById(`bar-${i}`).style.width = per + "%";
 
-    if(valEl) valEl.innerText = stats.current.toLocaleString();
-    if(percEl) percEl.innerText = percent.toFixed(1) + "%";
-    if(barEl) barEl.style.width = percent + "%";
-
-    // --- منطق الإضاءة (Flash Logic) ---
-    // إذا لم يكن أول تحميل، وكانت القيمة الجديدة أكبر من القديمة
-    if(!isFirstLoad && stats.current > prev) {
-      // إزالة الكلاسات القديمة لإعادة تفعيل الأنيميشن
-      cardEl.classList.remove('flash-effect-blue', 'flash-effect-green');
-      void cardEl.offsetWidth; // Trick to restart css animation
-
-      // التبديل بين الأزرق والأخضر
-      if(lightToggle) {
-        cardEl.classList.add('flash-effect-blue');
-      } else {
-        cardEl.classList.add('flash-effect-green');
-      }
-      lightToggle = !lightToggle; // عكس الحالة للمرة القادمة
+    if(!isFirstLoad && s.current > prev) {
+      el.classList.remove('flash-effect-blue', 'flash-effect-green');
+      void el.offsetWidth;
+      el.classList.add(lightToggle ? 'flash-effect-blue' : 'flash-effect-green');
+      lightToggle = !lightToggle;
     }
   }
 
-  // تحديث الهيدر
-  document.getElementById("total-all").innerText = totalCurrent.toLocaleString();
-  document.getElementById("total-remaining").innerText = (totalOriginal - totalCurrent).toLocaleString();
-  const totalPercent = ((totalCurrent / totalOriginal) * 100).toFixed(1);
-  document.getElementById("percent-all").innerText = totalPercent + "%";
-}
+  const totalO = 350757;
+  document.getElementById("total-all").innerText = totalC.toLocaleString();
+  document.getElementById("percent-all").innerText = ((totalC/totalO)*100).toFixed(1) + "%";
+  document.getElementById("total-remaining").innerText = (totalO - totalC).toLocaleString();
 
-// --- حساب الإحصائيات المتقدمة ---
-function calculateAdvancedStats() {
+  // حساب السرعة العامة
   const now = Date.now();
-  const oneMinute = 60 * 1000;
-  const oneHour = 60 * 60 * 1000;
-
-  // فلترة السجلات
-  const votesLastMinute = allLogs.filter(l => (now - l.time) < oneMinute);
-  const votesLastHour = allLogs.filter(l => (now - l.time) < oneHour);
-
-  // جمع القيم (لأن بعض السجلات قد تكون +5 أو +10)
-  const countMin = votesLastMinute.reduce((acc, curr) => acc + parseInt(curr.val), 0);
-  const countHour = votesLastHour.reduce((acc, curr) => acc + parseInt(curr.val), 0);
-
-  // عرض النتائج
-  // إذا كانت الدقيقة 0 (لا يوجد نشاط)، نعرض 0
-  document.getElementById("speed-min").innerText = countMin;
-  
-  // المعدل بالساعة (يمكن تحسينه ليكون توقعاً، لكن سنعرض الفعلي في آخر ساعة)
-  document.getElementById("speed-hour").innerText = countHour;
+  const lastMin = allLogs.filter(l => (now - l.time) < 60000).reduce((a,b)=>a+b.val,0);
+  document.getElementById("speed-min").innerText = lastMin;
 }
 
-// --- الفلترة ---
-window.filterCommittees = function() {
-  const term = document.getElementById("search").value.trim();
-  for(let i=1; i<=60; i++) {
-    const card = document.getElementById(`comm-card-${i}`);
-    if(term === "" || i == term) {
-      card.style.display = "flex";
-    } else {
-      card.style.display = "none";
+// 2. تصفير النظام
+window.confirmReset = () => {
+  const pass = prompt("العملية خطيرة! أدخل الرقم السري للتأكيد:");
+  if(pass === "521988") {
+    if(confirm("هل أنت متأكد تماماً؟ سيتم مسح جميع الأصوات!")) {
+      set(ref(db, 'votes'), null);
+      set(ref(db, 'bulk_counts'), null);
+      alert("تم تصفير النظام بنجاح.");
     }
+  } else if(pass) {
+    alert("رقم سري خاطئ!");
   }
 }
 
-// --- المودال ---
-window.openModal = function(id) {
-  const stats = commStats[id];
-  const info = committeesDB[id];
-  
-  document.getElementById("m-title").innerText = `لجنة فرعية رقم ${id}`;
-  document.getElementById("m-subtitle").innerText = info.name;
-  document.getElementById("m-present").innerText = stats.current.toLocaleString();
-  document.getElementById("m-original").innerText = stats.original.toLocaleString();
+// 3. تصدير إكسيل
+window.exportToExcel = () => {
+  const data = [];
+  // Header
+  data.push(["رقم اللجنة", "اسم اللجنة", "إجمالي المقيدين", "عدد الحضور", "النسبة المئوية", "حالة النشاط"]);
 
-  const logsContainer = document.getElementById("m-logs");
-  logsContainer.innerHTML = "";
+  const now = Date.now();
+  const oneHour = 3600000;
 
-  const sortedLogs = stats.logs.sort((a,b) => b.time - a.time);
+  for(let i=1; i<=60; i++) {
+    const s = commStats[i];
+    const info = committeesDB[i];
+    const per = s.original > 0 ? ((s.current/s.original)*100).toFixed(2) + "%" : "0%";
+    
+    // حساب الحالة للإكسيل
+    const lastHourLogs = s.logs.filter(l => (now - l.time) < oneHour);
+    const hourlyCount = lastHourLogs.reduce((a,b)=>a+b.val,0);
+    const lastLog = s.logs.length > 0 ? Math.max(...s.logs.map(l=>l.time)) : 0;
+    
+    let status = "عادي";
+    if(lastLog > 0 && (now - lastLog) > oneHour) status = "غير نشطة";
+    else if(hourlyCount > 300) status = "نشاط عالي";
+    else if(hourlyCount < 30 && lastLog > 0) status = "نشاط ضعيف";
 
-  if(sortedLogs.length === 0) {
-    logsContainer.innerHTML = "<div style='text-align:center; padding:20px; color:#94a3b8;'>لا توجد بيانات حتى الآن</div>";
-  } else {
-    sortedLogs.forEach(log => {
-      const dateObj = new Date(log.time);
-      const timeStr = dateObj.toLocaleTimeString("ar-EG", {hour: '2-digit', minute:'2-digit', second:'2-digit'});
-      
-      const div = document.createElement("div");
-      div.className = "log-entry";
-      
-      const typeText = log.type === 'single' ? "ناخب فردي" : "دفعة مجمعة";
-      const badgeClass = log.type === 'single' ? "badge-single" : "badge-bulk";
-      
-      div.innerHTML = `
-        <div style="text-align:right;">
-          <div style="font-weight:800; color:#1e293b; font-size:0.9em;">${timeStr}</div>
-          <div style="font-size:0.8em; color:#64748b;">${typeText}</div>
-        </div>
-        <div class="log-badge ${badgeClass}">+${log.val}</div>
-      `;
-      logsContainer.appendChild(div);
-    });
+    data.push([i, info.name, info.original, s.current, per, status]);
   }
+
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(data);
+
+  // تنسيق بسيط (عرض الأعمدة)
+  ws['!cols'] = [{wch:10}, {wch:25}, {wch:15}, {wch:15}, {wch:15}, {wch:20}];
+
+  XLSX.utils.book_append_sheet(wb, ws, "تقرير اللجان");
+  XLSX.writeFile(wb, "تقرير_الانتخابات.xlsx");
+}
+
+// 4. المودال والتفاصيل الذكية
+window.openModal = (id) => {
+  const s = commStats[id];
+  const info = committeesDB[id];
+  const now = Date.now();
+  const oneHour = 3600000;
+
+  document.getElementById("m-title").innerText = "لجنة " + id;
+  document.getElementById("m-subtitle").innerText = info.name;
+  document.getElementById("m-original").innerText = info.original;
+  document.getElementById("m-present").innerText = s.current;
+
+  // الحسابات
+  const lastMinLogs = s.logs.filter(l => (now - l.time) < 60000);
+  const minCount = lastMinLogs.reduce((a,b)=>a+b.val, 0);
+
+  const lastHourLogs = s.logs.filter(l => (now - l.time) < oneHour);
+  const hourCount = lastHourLogs.reduce((a,b)=>a+b.val, 0);
+
+  document.getElementById("m-rate-min").innerText = minCount;
+  document.getElementById("m-rate-hour").innerText = hourCount;
+
+  // منطق حالة النشاط
+  const badge = document.getElementById("m-status-badge");
+  const lastLogTime = s.logs.length > 0 ? Math.max(...s.logs.map(l=>l.time)) : 0;
+  
+  badge.className = "status-badge"; // reset
+
+  if(s.current === 0) {
+    badge.innerText = "لا يوجد بيانات";
+    badge.style.background = "#eee"; badge.style.color = "#555";
+  } else if ( (now - lastLogTime) > oneHour ) {
+    badge.innerText = "غير نشطة (متوقفة منذ ساعة)";
+    badge.classList.add("status-inactive");
+  } else if (hourCount > 300) {
+    badge.innerText = "🔥 نشاط عالي (ضغط تصويتي)";
+    badge.classList.add("status-high");
+  } else if (hourCount < 30) {
+    badge.innerText = "⚠️ نشاط ضعيف";
+    badge.classList.add("status-low");
+  } else {
+    badge.innerText = "نشاط منتظم";
+    badge.style.background = "#e0f2fe"; badge.style.color = "#0369a1";
+  }
+
+  // السجل
+  const container = document.getElementById("m-logs");
+  container.innerHTML = "";
+  const sortedLogs = [...s.logs].sort((a,b)=>b.time - a.time).slice(0, 50); // آخر 50 حركة فقط
+  
+  sortedLogs.forEach(l => {
+    const d = new Date(l.time);
+    const timeStr = d.toLocaleTimeString("ar-EG");
+    const div = document.createElement("div");
+    div.className = "log-row";
+    div.innerHTML = `<span>${timeStr}</span> <span style="font-weight:bold; color:#2563eb;">+${l.val}</span>`;
+    container.appendChild(div);
+  });
 
   document.getElementById("modal-overlay").style.display = "flex";
-};
+}
 
-window.closeModal = function() {
+window.closeModal = () => {
   document.getElementById("modal-overlay").style.display = "none";
-};
-
+}
+window.filterCommittees = () => {
+  const v = document.getElementById("search").value;
+  for(let i=1; i<=60; i++) {
+    const el = document.getElementById(`comm-${i}`);
+    el.style.display = (v=="" || i==v) ? "flex" : "none";
+  }
+}
 </script>
 
 </body>
