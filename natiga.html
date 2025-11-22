@@ -6,8 +6,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
 <style>
@@ -658,20 +658,84 @@ function exportLog() {
 function exportToExcel() {
     const t = getTotals();
     const wb = XLSX.utils.book_new();
-    // Sheet 1
-    let rankData = [["المرشح", "الأصوات"]];
-    candidates.forEach(([id,n]) => rankData.push([n, t.cands[id]]));
-    const ws1 = XLSX.utils.aoa_to_sheet(rankData);
-    XLSX.utils.book_append_sheet(wb, ws1, "النتائج");
-    // Sheet 2
-    let commData = [["رقم اللجنة", "اسم اللجنة", "الإجمالي", "صحيح", "باطل"]];
-    t.list.forEach(c => {
-        const info = commMap[c.number] || {name:""};
-        commData.push([c.number, info.name, c.totalVotes, c.validVotes, c.invalidVotes]);
+    
+    // أنماط التنسيق (Styles)
+    const headerStyle = {
+        font: { bold: true, color: { rgb: "FFFFFF" }, sz: 12, name: "Cairo" },
+        fill: { fgColor: { rgb: "1e293b" } }, // نفس لون خلفية الكروت في تصميمك
+        alignment: { horizontal: "center", vertical: "center" },
+        border: {
+            top: { style: "thin", color: { auto: 1 } },
+            bottom: { style: "thin", color: { auto: 1 } },
+            left: { style: "thin", color: { auto: 1 } },
+            right: { style: "thin", color: { auto: 1 } }
+        }
+    };
+
+    const cellStyle = {
+        font: { name: "Arial", sz: 11 },
+        alignment: { horizontal: "center", vertical: "center" },
+        border: {
+            top: { style: "thin", color: { rgb: "CCCCCC" } },
+            bottom: { style: "thin", color: { rgb: "CCCCCC" } },
+            left: { style: "thin", color: { rgb: "CCCCCC" } },
+            right: { style: "thin", color: { rgb: "CCCCCC" } }
+        }
+    };
+
+    // --- تجهيز شيت النتائج ---
+    let rankData = [
+        [{ v: "المرشح", s: headerStyle }, { v: "الأصوات", s: headerStyle }]
+    ];
+    
+    candidates.forEach(([id, n]) => {
+        rankData.push([
+            { v: n, s: cellStyle }, 
+            { v: t.cands[id], s: cellStyle }
+        ]);
     });
+
+    const ws1 = XLSX.utils.aoa_to_sheet(rankData);
+    
+    // تفعيل اتجاه اليمين لليسار وتحديد عرض الأعمدة
+    ws1['!cols'] = [{ wch: 30 }, { wch: 15 }]; // عرض الأعمدة
+    if(!wb.Workbook) wb.Workbook = {};
+    if(!wb.Workbook.Views) wb.Workbook.Views = [];
+    wb.Workbook.Views[0] = { RTL: true }; // جعل الشيت يبدأ من اليمين
+
+    XLSX.utils.book_append_sheet(wb, ws1, "النتائج");
+
+    // --- تجهيز شيت اللجان ---
+    let commData = [
+        [
+            { v: "رقم اللجنة", s: headerStyle },
+            { v: "اسم اللجنة", s: headerStyle },
+            { v: "الإجمالي", s: headerStyle },
+            { v: "صحيح", s: headerStyle },
+            { v: "باطل", s: headerStyle }
+        ]
+    ];
+
+    t.list.forEach(c => {
+        const info = commMap[c.number] || { name: "" };
+        commData.push([
+            { v: c.number, s: cellStyle },
+            { v: info.name, s: cellStyle },
+            { v: c.totalVotes, s: cellStyle },
+            { v: c.validVotes, s: cellStyle },
+            { v: c.invalidVotes, s: cellStyle }
+        ]);
+    });
+
     const ws2 = XLSX.utils.aoa_to_sheet(commData);
+    
+    // تنسيق شيت اللجان
+    ws2['!cols'] = [{ wch: 10 }, { wch: 30 }, { wch: 10 }, { wch: 10 }, { wch: 10 }];
+    
     XLSX.utils.book_append_sheet(wb, ws2, "اللجان");
-    XLSX.writeFile(wb, "Full_Database.xlsx");
+
+    // حفظ الملف
+    XLSX.writeFile(wb, "Full_Database_Pro.xlsx");
 }
 
 function printSection(divId) {
