@@ -19,12 +19,14 @@
 
   .hidden { display: none !important; }
 
-  /* --- 1. Login Modal --- */
-  #login-modal {
+  /* --- 1. Login & Message Modal --- */
+  #login-modal, #msg-modal-overlay {
     position: fixed; inset: 0; background: rgba(15, 23, 42, 0.95);
     display: flex; justify-content: center; align-items: center; z-index: 9999;
   }
-  .login-box {
+  #msg-modal-overlay { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(5px); z-index: 6000; display: none; }
+
+  .login-box, .msg-box {
     background: #fff; padding: 40px; border-radius: 20px;
     width: 90%; max-width: 400px; text-align: center;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
@@ -35,13 +37,26 @@
     text-align: center; font-size: 1.2em; font-weight: bold; outline: none; transition: 0.3s;
   }
   .login-input:focus { border-color: #3b82f6; }
-   
+  
+  .msg-textarea {
+    width: 100%; padding: 15px; margin: 20px 0;
+    border: 2px solid #e2e8f0; border-radius: 10px;
+    font-size: 1.1em; font-weight: 600; outline: none; transition: 0.3s;
+    min-height: 120px; resize: none;
+  }
+  .msg-textarea:focus { border-color: #f59e0b; }
+
   .btn-login {
     width: 100%; padding: 12px; background: #3b82f6;
     color: #fff; border: none; border-radius: 10px;
     font-size: 1.1em; cursor: pointer; font-weight: bold; transition: 0.2s;
   }
   .btn-login:hover { background: #2563eb; transform: translateY(-2px); }
+
+  .btn-send-msg { background: #f59e0b; color: #fff; width: 100%; padding: 12px; border: none; border-radius: 10px; font-size: 1.1em; font-weight: bold; cursor: pointer; margin-bottom: 10px; }
+  .btn-send-msg:hover { background: #d97706; }
+  
+  .btn-cancel { background: #94a3b8; color: #fff; width: 100%; padding: 10px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
 
   /* Alert Box */
   .alert-box {
@@ -67,9 +82,12 @@
   .controls-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
   .action-btns { display: flex; gap: 10px; }
   .search-box { padding: 10px; border: 2px solid #cbd5e1; border-radius: 8px; font-weight: bold; width: 250px; }
+  
   .btn { padding: 10px 20px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: #fff; display: flex; align-items: center; gap: 5px; }
   .btn-excel { background: #10b981; } .btn-excel:hover { background: #059669; }
   .btn-reset { background: #ef4444; } .btn-reset:hover { background: #dc2626; }
+  .btn-broadcast { background: #6366f1; } .btn-broadcast:hover { background: #4f46e5; }
+  .btn-direct-msg { background: #f59e0b; padding: 5px 15px; border-radius: 6px; border:none; color: white; font-weight: bold; cursor: pointer; margin-right: 10px; font-size: 0.9em; }
 
   /* --- Grid System --- */
   .comm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
@@ -80,21 +98,19 @@
   }
   .comm-card:hover { transform: translateY(-5px); border-color: #3b82f6; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
 
-  /* Status Badges (على الكارت) */
   .status-badge {
     position: absolute; top: 10px; left: 10px;
     padding: 4px 10px; border-radius: 20px; font-size: 0.75em; font-weight: 800;
   }
-  .st-high { background: #dcfce7; color: #166534; } /* عالي */
-  .st-mid { background: #e0f2fe; color: #075985; }  /* منخفض (بين 60 و 300) */
-  .st-weak { background: #fef9c3; color: #854d0e; } /* ضعيف */
-  .st-idle { background: #fee2e2; color: #991b1b; } /* خاملة */
+  .st-high { background: #dcfce7; color: #166534; }
+  .st-mid { background: #e0f2fe; color: #075985; }
+  .st-weak { background: #fef9c3; color: #854d0e; }
+  .st-idle { background: #fee2e2; color: #991b1b; }
 
   .comm-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
   .badge-id { background: #f1f5f9; color: #475569; padding: 2px 8px; border-radius: 6px; font-size: 0.8em; font-weight: 800; }
   .comm-name { font-size: 1.1em; font-weight: 800; color: #1e293b; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-   
-  /* تنسيق الأرقام (الحضور / المقيدين) */
+  
   .stats-display {
     display: flex; align-items: baseline; gap: 5px; direction: ltr; justify-content: flex-end;
   }
@@ -122,13 +138,12 @@
   .g-card { background: #f8fafc; padding: 15px; border-radius: 12px; text-align: center; border: 1px solid #e2e8f0; }
   .g-val { font-size: 1.6em; font-weight: 900; color: #1e293b; }
   .g-lbl { font-size: 0.8em; color: #64748b; font-weight: 700; }
-   
+  
   .log-feed { border: 1px solid #e2e8f0; border-radius: 12px; max-height: 250px; overflow-y: auto; background: #fafafa; }
   .log-item { padding: 10px 15px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; background: #fff; }
   .log-time { font-size: 0.85em; color: #64748b; font-weight: 600; }
   .log-v { font-weight: 800; color: #3b82f6; background: #dbeafe; padding: 2px 8px; border-radius: 4px; }
 
-  /* Animation Flash */
   @keyframes pulseGlow { 0% { border-color: #3b82f6; box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); } 100% { border-color: #e2e8f0; box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); } }
   .update-anim { animation: pulseGlow 1s ease-out; }
 
@@ -143,13 +158,19 @@
     <div style="font-size:3em; color:#3b82f6; margin-bottom:10px;"><i class="fa-solid fa-shield-halved"></i></div>
     <h2 style="margin-bottom:10px; color:#1e293b;">غرفة العمليات المركزية</h2>
     <p style="color:#64748b; font-size:0.9em;">لوحة القيادة والمتابعة</p>
-    
     <input type="password" id="pass-input" class="login-input" placeholder="الرقم السري للأدمن" autofocus>
     <button class="btn-login" onclick="handleLogin()">دخول الأدمن</button>
-    
-    <div id="login-err" class="alert-box">
-      <i class="fa-solid fa-triangle-exclamation"></i> <span id="err-text">الكود غير صحيح</span>
-    </div>
+    <div id="login-err" class="alert-box"><i class="fa-solid fa-triangle-exclamation"></i> <span id="err-text">الكود غير صحيح</span></div>
+  </div>
+</div>
+
+<div id="msg-modal-overlay">
+  <div class="msg-box">
+    <h3 style="color:#1e293b; margin-bottom:5px;">إرسال تنبيه</h3>
+    <p id="msg-target-label" style="color:#64748b; font-size:0.9em; margin-bottom:15px;">إلى: الجميع</p>
+    <textarea id="msg-text" class="msg-textarea" placeholder="اكتب نص الرسالة هنا..."></textarea>
+    <button class="btn-send-msg" onclick="sendMsg()"><i class="fa-solid fa-paper-plane"></i> إرسال الآن</button>
+    <button class="btn-cancel" onclick="closeMsgModal()">إلغاء</button>
   </div>
 </div>
 
@@ -184,8 +205,9 @@
     <div class="controls-row">
       <input type="text" id="search" class="search-box" placeholder="🔍 بحث عن لجنة..." onkeyup="filterCommittees()">
       <div class="action-btns">
-        <button class="btn btn-excel" onclick="exportToExcel()"><i class="fa-solid fa-file-excel"></i> تصدير Excel احترافي</button>
-        <button class="btn btn-reset" onclick="confirmReset()"><i class="fa-solid fa-trash-can"></i> تصفير النظام</button>
+        <button class="btn btn-broadcast" onclick="openMsgModal('all')"><i class="fa-solid fa-bullhorn"></i> رسالة عامة 📢</button>
+        <button class="btn btn-excel" onclick="exportToExcel()"><i class="fa-solid fa-file-excel"></i> تصدير Excel</button>
+        <button class="btn btn-reset" onclick="confirmReset()"><i class="fa-solid fa-trash-can"></i> تصفير</button>
       </div>
     </div>
   </div>
@@ -196,9 +218,12 @@
 <div class="overlay" id="modal-overlay">
   <div class="modal">
     <div class="modal-head">
-      <div>
-        <div class="m-title" id="m-title">لجنة 1</div>
-        <div style="font-size:0.9em; color:#64748b;" id="m-subtitle">المدرسة</div>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div>
+          <div class="m-title" id="m-title">لجنة 1</div>
+          <div style="font-size:0.9em; color:#64748b;" id="m-subtitle">المدرسة</div>
+        </div>
+        <button class="btn-direct-msg" onclick="openDirectMsg()"><i class="fa-regular fa-envelope"></i> رسالة</button>
       </div>
       <button class="close-btn" onclick="closeModal()">✕</button>
     </div>
@@ -217,7 +242,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { getDatabase, ref, onValue, set, push } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCxxXV_6CEo1fTp3rRbfwfYbe7WH0Cyg38",
@@ -299,33 +324,67 @@ let commStats = {};
 let previousCommStats = {};
 let currentOpenCommitteeId = null;
 let isFirstLoad = true;
+let msgTarget = null; // 'all' or Committee ID
 
-// --- Login Logic (FIXED) ---
+// --- Login Logic ---
 window.handleLogin = () => {
   const passInput = document.getElementById('pass-input');
-  const p = passInput.value;
-  const modal = document.getElementById('login-modal');
-  const dashboard = document.getElementById('dashboard-content');
-  const err = document.getElementById('login-err');
-
-  if(p === "521988") {
-    modal.classList.add('hidden');
-    dashboard.style.display = 'block';
+  if(passInput.value === "521988") {
+    document.getElementById('login-modal').classList.add('hidden');
+    document.getElementById('dashboard-content').style.display = 'block';
     initDashboard();
   } else {
-    err.style.display = 'block';
-    passInput.value = ""; // تفريغ الحقل
-    passInput.focus(); // إعادة التركيز للكتابة مرة أخرى
+    document.getElementById('login-err').style.display = 'block';
+    passInput.value = ""; passInput.focus();
   }
 }
+document.getElementById("pass-input").addEventListener("keypress", (e) => { if (e.key === "Enter") handleLogin(); });
 
-// Event Listener for ENTER Key
-document.getElementById("pass-input").addEventListener("keypress", function(event) {
-  if (event.key === "Enter") {
-    event.preventDefault();
-    handleLogin();
+// --- Message System Logic ---
+window.openMsgModal = (target) => {
+  msgTarget = target;
+  const label = document.getElementById('msg-target-label');
+  const textArea = document.getElementById('msg-text');
+  
+  if(target === 'all') {
+    label.innerText = "إلى: جميع اللجان 📢";
+  } else {
+    label.innerText = `إلى: لجنة رقم ${target} (${committeesDB[target].name})`;
   }
-});
+  
+  textArea.value = "";
+  document.getElementById('msg-modal-overlay').style.display = 'flex';
+  textArea.focus();
+}
+
+window.openDirectMsg = () => {
+  if(currentOpenCommitteeId) openMsgModal(currentOpenCommitteeId);
+}
+
+window.closeMsgModal = () => {
+  document.getElementById('msg-modal-overlay').style.display = 'none';
+}
+
+window.sendMsg = () => {
+  const text = document.getElementById('msg-text').value.trim();
+  if(!text) return alert("الرجاء كتابة رسالة!");
+  
+  const msgData = {
+    target: msgTarget,
+    body: text,
+    timestamp: Date.now(),
+    sender: "Admin"
+  };
+
+  push(ref(db, 'notifications'), msgData)
+    .then(() => {
+      closeMsgModal();
+      const flash = document.getElementById("flash-msg");
+      flash.style.display = "block";
+      setTimeout(() => flash.style.display = "none", 2000);
+    })
+    .catch((err) => alert("خطأ في الإرسال: " + err.message));
+}
 
 function initDashboard() {
   const container = document.getElementById("grid-container");
@@ -336,12 +395,10 @@ function initDashboard() {
     d.className = "comm-card";
     d.id = `comm-${i}`;
     d.onclick = () => openModal(i);
-    // حالة افتراضية
     d.innerHTML = `
       <div class="status-badge st-idle" id="badge-${i}">خاملة</div>
       <div class="comm-header"><span class="badge-id">#${i}</span></div>
       <div><div class="comm-name">${info.name}</div></div>
-      
       <div class="stats-display">
         <div class="val-current" id="val-${i}">0</div>
         <div class="val-divider">/</div>
@@ -357,7 +414,6 @@ function initDashboard() {
 function processData(data) {
   data = data || {};
   let tempStats = {};
-  
   for(let i=1; i<=60; i++) {
     tempStats[i] = { current:0, original: committeesDB[i].original, logs:[] };
   }
@@ -373,10 +429,7 @@ function processData(data) {
 }
 
 function updateUI() {
-  let totalC = 0; 
-  const totalO = 350757;
-  const now = Date.now();
-  const oneHour = 3600000;
+  let totalC = 0; const totalO = 350757; const now = Date.now();
   let totalHourVotes = 0;
 
   for(let i=1; i<=60; i++) {
@@ -384,39 +437,28 @@ function updateUI() {
     const prev = previousCommStats[i] ? previousCommStats[i].current : 0;
     totalC += s.current;
 
-    // تحديث الأرقام في الكارت
     document.getElementById(`val-${i}`).innerText = s.current.toLocaleString();
     const per = s.original > 0 ? (s.current/s.original)*100 : 0;
     document.getElementById(`bar-${i}`).style.width = per + "%";
 
-    // --- منطق الحالة (عالي - منخفض - ضعيف - خاملة) ---
     const logsSorted = s.logs.sort((a,b) => b.time - a.time);
     const lastLogTime = logsSorted.length > 0 ? logsSorted[0].time : 0;
-    
-    // حساب الإدخال في آخر ساعة لهذه اللجنة
-    const hourlyCount = s.logs.filter(l => (now - l.time) < oneHour).reduce((a,b)=>a+b.val, 0);
+    const hourlyCount = s.logs.filter(l => (now - l.time) < 3600000).reduce((a,b)=>a+b.val, 0);
     totalHourVotes += hourlyCount;
 
     const badge = document.getElementById(`badge-${i}`);
-    badge.className = "status-badge"; // reset classes
+    badge.className = "status-badge"; 
     
-    // إذا لم يتم ادخال أي شيء منذ ساعة
-    if (logsSorted.length > 0 && (now - lastLogTime) > oneHour) {
-        badge.innerText = "خاملة";
-        badge.classList.add("st-idle");
+    if (logsSorted.length > 0 && (now - lastLogTime) > 3600000) {
+        badge.innerText = "خاملة"; badge.classList.add("st-idle");
     } else if (hourlyCount > 300) {
-        badge.innerText = "عالي 🔥";
-        badge.classList.add("st-high");
+        badge.innerText = "عالي 🔥"; badge.classList.add("st-high");
     } else if (hourlyCount < 60) {
-        badge.innerText = "ضعيف";
-        badge.classList.add("st-weak");
+        badge.innerText = "ضعيف"; badge.classList.add("st-weak");
     } else {
-        // بين 60 و 300
-        badge.innerText = "منخفض";
-        badge.classList.add("st-mid");
+        badge.innerText = "منخفض"; badge.classList.add("st-mid");
     }
 
-    // Animation
     const card = document.getElementById(`comm-${i}`);
     if(!isFirstLoad && s.current > prev) {
       card.classList.remove('update-anim'); void card.offsetWidth; card.classList.add('update-anim');
@@ -426,10 +468,7 @@ function updateUI() {
   document.getElementById("total-all").innerText = totalC.toLocaleString();
   document.getElementById("percent-all").innerText = ((totalC/totalO)*100).toFixed(1) + "%";
   document.getElementById("total-remaining").innerText = (totalO - totalC).toLocaleString();
-  
-  // الأداء / دقيقة = (إجمالي آخر ساعة) / 60
-  const perfMin = (totalHourVotes / 60).toFixed(0);
-  document.getElementById("speed-min").innerText = perfMin;
+  document.getElementById("speed-min").innerText = (totalHourVotes / 60).toFixed(0);
 }
 
 // --- Modal ---
@@ -442,14 +481,8 @@ function renderModalContent(id) {
   document.getElementById("m-subtitle").innerText = info.name;
   document.getElementById("m-original").innerText = info.original.toLocaleString();
   document.getElementById("m-present").innerText = s.current.toLocaleString();
-  
-  // حساب المتبقي
-  const rem = info.original - s.current;
-  document.getElementById("m-remaining").innerText = rem.toLocaleString();
-
-  const hourlyCount = s.logs.filter(l => (now - l.time) < 3600000).reduce((a,b)=>a+b.val, 0);
-  document.getElementById("m-rate-hour").innerText = hourlyCount;
-
+  document.getElementById("m-remaining").innerText = (info.original - s.current).toLocaleString();
+  document.getElementById("m-rate-hour").innerText = s.logs.filter(l => (now - l.time) < 3600000).reduce((a,b)=>a+b.val, 0);
   const logs = [...s.logs].sort((a,b)=>b.time - a.time).slice(0,50);
   document.getElementById("m-logs").innerHTML = logs.length ? logs.map(l => `<div class="log-item"><span class="log-time">${new Date(l.time).toLocaleTimeString("ar-EG")}</span><span class="log-v">+${l.val}</span></div>`).join('') : "<div style='text-align:center;padding:10px;color:#999'>لا يوجد نشاط</div>";
 }
@@ -467,6 +500,7 @@ window.confirmReset = () => {
     if(confirm("تحذير: سيتم حذف كافة البيانات!")) {
       set(ref(db, 'votes'), null);
       set(ref(db, 'bulk_counts'), null);
+      set(ref(db, 'notifications'), null); // Clear messages too if wanted
       alert("تم تصفير النظام");
     }
   }
@@ -476,10 +510,6 @@ window.confirmReset = () => {
 window.exportToExcel = () => {
   const wb = XLSX.utils.book_new();
   const now = Date.now();
-  const oneHour = 3600000;
-  
-  // إعداد البيانات
-  // Header Row
   const headers = ["رقم اللجنة", "اسم المنطقة", "المقيدين", "الحضور الفعلي", "النسبة %", "المعدل (ساعة)", "حالة النشاط"];
   const dataRows = [];
 
@@ -487,77 +517,34 @@ window.exportToExcel = () => {
     const s = commStats[i];
     const info = committeesDB[i];
     const per = s.original > 0 ? ((s.current/s.original)*100).toFixed(1) + "%" : "0%";
-    
-    // حساب الحالة للتصدير
     const lastLog = s.logs.length > 0 ? Math.max(...s.logs.map(l=>l.time)) : 0;
-    const hourlyCount = s.logs.filter(l => (now - l.time) < oneHour).reduce((a,b)=>a+b.val, 0);
-    
+    const hourlyCount = s.logs.filter(l => (now - l.time) < 3600000).reduce((a,b)=>a+b.val, 0);
     let status = "منخفض";
-    if (s.logs.length > 0 && (now - lastLog) > oneHour) status = "خاملة";
+    if (s.logs.length > 0 && (now - lastLog) > 3600000) status = "خاملة";
     else if (hourlyCount > 300) status = "عالي";
     else if (hourlyCount < 60) status = "ضعيف";
 
-    dataRows.push([
-      i, 
-      info.name, 
-      info.original, 
-      s.current, 
-      per, 
-      hourlyCount, 
-      status
-    ]);
+    dataRows.push([i, info.name, info.original, s.current, per, hourlyCount, status]);
   }
 
-  // Create Sheet
-  const wsData = [headers, ...dataRows];
-  const ws = XLSX.utils.aoa_to_sheet(wsData);
-
-  // --- Styling Logic ---
+  const ws = XLSX.utils.aoa_to_sheet([headers, ...dataRows]);
   const range = XLSX.utils.decode_range(ws['!ref']);
-  
-  // حدود سوداء ومحاذاة
-  const borderStyle = {
-    top: { style: "thin", color: { rgb: "000000" } },
-    bottom: { style: "thin", color: { rgb: "000000" } },
-    left: { style: "thin", color: { rgb: "000000" } },
-    right: { style: "thin", color: { rgb: "000000" } }
-  };
+  const borderStyle = { top: { style: "thin", color: { rgb: "000000" } }, bottom: { style: "thin", color: { rgb: "000000" } }, left: { style: "thin", color: { rgb: "000000" } }, right: { style: "thin", color: { rgb: "000000" } } };
 
   for (let R = range.s.r; R <= range.e.r; ++R) {
     for (let C = range.s.c; C <= range.e.c; ++C) {
       const cell_ref = XLSX.utils.encode_cell({c: C, r: R});
-      if (!ws[cell_ref]) ws[cell_ref] = { v: "", t: "s" }; // Ensure cell exists
-      
+      if (!ws[cell_ref]) ws[cell_ref] = { v: "", t: "s" };
       if (!ws[cell_ref].s) ws[cell_ref].s = {};
-
-      // Apply Border
       ws[cell_ref].s.border = borderStyle;
       ws[cell_ref].s.alignment = { horizontal: "center", vertical: "center" };
       ws[cell_ref].s.font = { name: "Cairo", sz: 11 };
-
-      // Header Style
-      if (R === 0) {
-        ws[cell_ref].s.fill = { fgColor: { rgb: "CCCCCC" } }; // Grey header
-        ws[cell_ref].s.font = { name: "Cairo", sz: 12, bold: true, color: { rgb: "000000" } };
-      } 
-      // Rows Coloring (Alternate)
-      else {
-        if (R % 2 === 0) {
-           ws[cell_ref].s.fill = { fgColor: { rgb: "EFEFEF" } }; // Light Grey
-        } else {
-           ws[cell_ref].s.fill = { fgColor: { rgb: "FFFFFF" } }; // White
-        }
-      }
+      if (R === 0) { ws[cell_ref].s.fill = { fgColor: { rgb: "CCCCCC" } }; ws[cell_ref].s.font = { name: "Cairo", sz: 12, bold: true, color: { rgb: "000000" } }; } 
+      else { ws[cell_ref].s.fill = { fgColor: { rgb: (R % 2 === 0) ? "EFEFEF" : "FFFFFF" } }; }
     }
   }
-
-  // Column Widths
   ws['!cols'] = [{wch:10}, {wch:20}, {wch:12}, {wch:15}, {wch:10}, {wch:15}, {wch:15}];
-
-  // Set RTL
-  if(!ws['!views']) ws['!views'] = [];
-  ws['!views'].push({ rightToLeft: true });
-
+  if(!ws['!views']) ws['!views'] = []; ws['!views'].push({ rightToLeft: true });
   XLSX.utils.book_append_sheet(wb, ws, "تقرير اللجان");
   XLSX.writeFile(wb, "Election_Report_Pro.xlsx");
 }
