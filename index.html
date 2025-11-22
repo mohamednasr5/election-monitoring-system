@@ -125,16 +125,24 @@
   .footer-link { display: block; margin-top: 25px; font-size: 0.85em; color: #94a3b8; text-decoration: none; font-weight: 600; text-align: center; }
   .footer-link:hover { color: #3b82f6; }
 
-  /* Messages CSS */
+  /* --- Messages Styling (الرسائل) --- */
   #msg-container { position: fixed; bottom: 20px; right: 20px; width: 320px; z-index: 11000; display: flex; flex-direction: column; gap: 15px; pointer-events: none; }
-  .msg-box { background: #fff; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: slideIn 0.4s; pointer-events: auto; border-right: 6px solid #ccc; }
+  .msg-box { background: #fff; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); animation: slideIn 0.4s; pointer-events: auto; overflow: hidden; border-right: 5px solid #94a3b8; }
   @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-  .msg-private { border-right-color: #3b82f6; } .msg-public { border-right-color: #ef4444; }
-  .msg-header { padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 0.9em; }
-  .msg-private .msg-header { background: #eff6ff; color: #1e40af; } .msg-public .msg-header { background: #fef2f2; color: #991b1b; }
-  .msg-body { padding: 15px; color: #334155; font-weight: 700; }
-  .msg-footer { padding: 8px 15px; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; }
-  .btn-close-msg { background: #fee2e2; color: #ef4444; border: none; padding: 5px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+  
+  /* تمييز الرسائل */
+  .msg-private { border-right-color: #3b82f6; } /* أزرق للخاصة */
+  .msg-public { border-right-color: #ef4444; } /* أحمر للعامة */
+
+  .msg-header { padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; font-weight: 900; font-size: 1em; }
+  .msg-private .msg-header { background: #eff6ff; color: #1e40af; } 
+  .msg-public .msg-header { background: #fef2f2; color: #991b1b; }
+
+  .msg-body { padding: 15px; color: #334155; font-weight: 700; line-height: 1.5; font-size: 1.05em; }
+  .msg-footer { padding: 10px 15px; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; background: #fafafa; }
+  .msg-time { font-size: 0.8em; color: #94a3b8; font-weight: 600; }
+  .btn-close-msg { background: #e2e8f0; color: #475569; border: none; padding: 5px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8em; transition: 0.2s; }
+  .btn-close-msg:hover { background: #cbd5e1; }
 
 </style>
 </head>
@@ -168,12 +176,13 @@
   </div>
 
   <button class="btn-counter" onclick="addOne()" id="main-btn">
+    
     <i class="fa-solid fa-user-plus"></i> 1+ ناخب
     <span class="btn-subtext">اضغط عند دخول ناخب جديد</span>
   </button>
 
   <div class="bulk-section">
-    <input type="number" id="bulk-val" class="bulk-input" placeholder="عدد (جملة)">
+    <input type="number" id="bulk-val" class="bulk-input" placeholder="عدد (مجمع)">
     <button class="btn-bulk" onclick="addBulk()"><i class="fa-solid fa-users"></i> إضافة</button>
   </div>
 
@@ -182,8 +191,8 @@
   </button>
   <input type="file" id="file-up" style="display:none" accept="image/*" onchange="uploadFile()">
 
-  <a href="https://www.facebook.com/en.mohamed.nasr" target="_blank" class="footer-link">
-    Programmed with ❤️ by Eng. Mohamed Nasr
+  <a href="#" class="footer-link">
+    Unified Election System
   </a>
 </div>
 
@@ -196,8 +205,7 @@
   </div>
   
   <div style="margin-bottom:15px; color:#94a3b8;">اللجان النشطة حالياً (المتصلين):</div>
-  <div id="active-list" class="active-grid">
-    </div>
+  <div id="active-list" class="active-grid"></div>
 </div>
 
 
@@ -337,6 +345,8 @@ window.handleLogin = async function() {
 
     document.getElementById("login-modal").classList.add("hidden");
     document.getElementById("committee-panel").classList.remove("hidden");
+    
+    // --- بدء الاستماع للرسائل الجديدة ---
     startMessageListener();
 
   } else {
@@ -349,7 +359,6 @@ window.logout = function() {
   if(myCommittee !== 0) {
     remove(ref(db, `active_sessions/${myCommittee}`)).then(() => location.reload());
   } else {
-    // Admin Logout
     location.reload();
   }
 };
@@ -396,13 +405,55 @@ window.uploadFile = function() {
   });
 };
 
+// ----------------------------------------------------
+// ** NEW MESSAGING LOGIC **
+// ----------------------------------------------------
 function startMessageListener() {
-  onChildAdded(ref(db, 'messages'), (snapshot) => {
+  // الاستماع إلى عقدة "notifications" المتوافقة مع صفحة الأدمن
+  onChildAdded(ref(db, 'notifications'), (snapshot) => {
     const msg = snapshot.val();
+    // تجاهل الرسائل القديمة قبل الدخول
     if(!msg || msg.timestamp < loginTime) return;
-    if(msg.target === 'all') showInboxMessage(msg.text, 'public', msg.timestamp);
-    else if(msg.target == myCommittee) showInboxMessage(msg.text, 'private', msg.timestamp);
+
+    // 1. رسالة عامة للجميع
+    if(msg.target === 'all') {
+      showInboxMessage(msg.body, 'public', msg.timestamp);
+    } 
+    // 2. رسالة خاصة لهذه اللجنة فقط
+    else if(msg.target == myCommittee) {
+      showInboxMessage(msg.body, 'private', msg.timestamp);
+    }
   });
+}
+
+function showInboxMessage(text, type, time) {
+  // تشغيل الصوت
+  const audio = document.getElementById("notif-sound");
+  audio.play().catch(e => console.log("Audio blocked"));
+
+  const container = document.getElementById("msg-container");
+  const isPrivate = type === 'private';
+  
+  // إعداد النصوص والأيقونات حسب النوع
+  const headerText = isPrivate ? '📩 رسالة خاصة لك' : '📢 رسالة للجميع';
+  const headerClass = isPrivate ? 'msg-private' : 'msg-public';
+  const icon = isPrivate ? '<i class="fa-solid fa-envelope-open-text"></i>' : '<i class="fa-solid fa-bullhorn"></i>';
+  
+  const msgDiv = document.createElement("div");
+  msgDiv.className = `msg-box ${headerClass}`;
+  
+  const timeStr = new Date(time).toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'});
+  
+  msgDiv.innerHTML = `
+    <div class="msg-header"><span>${icon} ${headerText}</span></div>
+    <div class="msg-body">${text}</div>
+    <div class="msg-footer">
+        <span class="msg-time">${timeStr}</span>
+        <button class="btn-close-msg" onclick="this.parentElement.parentElement.remove()">إغلاق <i class="fa-solid fa-xmark"></i></button>
+    </div>
+  `;
+  
+  container.appendChild(msgDiv);
 }
 
 // ----------------------------------------------------
@@ -444,28 +495,6 @@ window.kickUser = function(id) {
       .catch((e) => alert("خطأ: " + e));
   }
 };
-
-// ----------------------------------------------------
-// 4. SHARED UTILS
-// ----------------------------------------------------
-function showInboxMessage(text, type, time) {
-  const audio = document.getElementById("notif-sound");
-  audio.play().catch(e => console.log("Audio blocked"));
-  const container = document.getElementById("msg-container");
-  const isPrivate = type === 'private';
-  const headerText = isPrivate ? '📩 رسالة خاصة' : '📢 رسالة جماعية';
-  const headerClass = isPrivate ? 'msg-private' : 'msg-public';
-  const icon = isPrivate ? '<i class="fa-solid fa-envelope"></i>' : '<i class="fa-solid fa-bullhorn"></i>';
-  const msgDiv = document.createElement("div");
-  msgDiv.className = `msg-box ${headerClass}`;
-  const timeStr = new Date(time).toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'});
-  msgDiv.innerHTML = `
-    <div class="msg-header"><span>${icon} ${headerText}</span></div>
-    <div class="msg-body">${text}</div>
-    <div class="msg-footer"><span class="msg-time">${timeStr}</span><button class="btn-close-msg" onclick="this.parentElement.parentElement.remove()">إغلاق <i class="fa-solid fa-xmark"></i></button></div>
-  `;
-  container.appendChild(msgDiv);
-}
 
 function showFlashMsg(txt) {
   const msg = document.getElementById("flash-msg");
