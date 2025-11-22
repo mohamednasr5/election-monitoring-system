@@ -567,31 +567,92 @@ function showCommStats() {
 
 // --- 5. Export Functions ---
 
+// ==========================================
+// 🎨 1. تعريف الستايلات والأدوات المساعدة (مرحلة التجهيز)
+// ==========================================
+
+// تعريف حدود سوداء واضحة
+const borderStyle = { style: "thin", color: { rgb: "000000" } };
+const mainBorders = { top: borderStyle, bottom: borderStyle, left: borderStyle, right: borderStyle };
+
+// ستايل العناوين (رأس الجدول)
+const headerStyle = {
+    font: { bold: true, color: { rgb: "FFFFFF" }, sz: 12, name: "Cairo" },
+    fill: { fgColor: { rgb: "1e293b" } }, // كحلي
+    alignment: { horizontal: "center", vertical: "center" },
+    border: mainBorders
+};
+
+// ستايل الخلايا العادية
+const cellStyle = {
+    font: { name: "Arial", sz: 11, color: { rgb: "000000" } },
+    alignment: { horizontal: "center", vertical: "center" },
+    border: mainBorders
+};
+
+// ستايل لتمييز النتائج (مثل الفائز أو الأرقام المهمة) - اختياري
+const highlightStyle = {
+    font: { bold: true, name: "Arial", sz: 11, color: { rgb: "000000" } },
+    fill: { fgColor: { rgb: "fbbf24" } }, // أصفر
+    alignment: { horizontal: "center", vertical: "center" },
+    border: mainBorders
+};
+
+// دالة مساعدة لتحويل صف عادي إلى صف منسق
+function formatRow(rowArray, isHeader = false, customStyle = null) {
+    return rowArray.map(val => {
+        return { 
+            v: val, 
+            s: customStyle ? customStyle : (isHeader ? headerStyle : cellStyle) 
+        };
+    });
+}
+
+// دالة لحفظ الملف مع تفعيل خاصية اليمين لليسار (RTL)
+function saveStyledWorkbook(wb, filename) {
+    if(!wb.Workbook) wb.Workbook = {};
+    if(!wb.Workbook.Views) wb.Workbook.Views = [];
+    wb.Workbook.Views[0] = { RTL: true }; // إجبار الملف بالكامل ليكون يمين-يسار
+    XLSX.writeFile(wb, filename);
+}
+
+// ==========================================
+// 🚀 2. دوال التصدير المعدلة (تستخدم الستايلات أعلاه)
+// ==========================================
+
 function exportComparison() {
     const id1 = document.getElementById("comp1").value;
     const id2 = document.getElementById("comp2").value;
     if(!id1 || !id2) { alert("اختر نائبين"); return; }
+    
     const name1 = candidates.find(c=>c[0]==id1)[1];
     const name2 = candidates.find(c=>c[0]==id2)[1];
     const t = getTotals();
     const wb = XLSX.utils.book_new();
-    const wsData = [
-        ["تقرير مقارنة أصوات"], [],
-        ["البيان", "المرشح", "الأصوات"],
-        ["المرشح الأول", name1, t.cands[id1]],
-        ["المرشح الثاني", name2, t.cands[id2]], [],
-        ["فرق الأصوات", "", Math.abs(t.cands[id1] - t.cands[id2])]
-    ];
+
+    // بناء البيانات بالتنسيق
+    let wsData = [];
+    wsData.push(formatRow(["تقرير مقارنة أصوات"], true)); // عنوان
+    wsData.push(formatRow([" "], false)); // سطر فارغ (للمنظر فقط)
+    wsData.push(formatRow(["البيان", "المرشح", "الأصوات"], true));
+    wsData.push(formatRow(["المرشح الأول", name1, t.cands[id1]], false));
+    wsData.push(formatRow(["المرشح الثاني", name2, t.cands[id2]], false));
+    wsData.push(formatRow(["الفرق", "---", Math.abs(t.cands[id1] - t.cands[id2])], false, highlightStyle));
+
     const ws = XLSX.utils.aoa_to_sheet(wsData);
+    ws['!cols'] = [{wch:20}, {wch:30}, {wch:15}]; // عرض الأعمدة
+    
     XLSX.utils.book_append_sheet(wb, ws, "المقارنة");
-    XLSX.writeFile(wb, "Comparison.xlsx");
+    saveStyledWorkbook(wb, "Comparison.xlsx");
 }
 
 function exportBestComm() {
     const candId = document.getElementById("best-cand-select").value;
     if(!candId) { alert("اختر نائباً"); return; }
+    
     const t = getTotals();
     const candName = candidates.find(c=>c[0]==candId)[1];
+    
     let stats = t.list.map(comm => {
         const votes = comm.candidates[candId] || 0;
         const info = commMap[comm.number] || {name: "غير معروف", address: ""};
@@ -601,149 +662,139 @@ function exportBestComm() {
     if (stats.length === 0) { alert("لا توجد بيانات"); return; }
 
     const wb = XLSX.utils.book_new();
-    let wsData = [[`تقرير تفصيلي للنائب: ${candName}`], [], ["الترتيب", "رقم اللجنة", "اسم المدرسة", "العنوان", "عدد الأصوات"]];
-    stats.forEach((item, index) => wsData.push([index + 1, item.num, item.name, item.address, item.votes]));
+    let wsData = [];
+    
+    wsData.push(formatRow([`تقرير تفصيلي للنائب: ${candName}`], true));
+    wsData.push(formatRow(["الترتيب", "رقم اللجنة", "اسم المدرسة", "العنوان", "عدد الأصوات"], true));
+    
+    stats.forEach((item, index) => {
+        wsData.push(formatRow([index + 1, item.num, item.name, item.address, item.votes], false));
+    });
+
     const ws = XLSX.utils.aoa_to_sheet(wsData);
+    ws['!cols'] = [{wch:8}, {wch:10}, {wch:30}, {wch:30}, {wch:15}];
+    
     XLSX.utils.book_append_sheet(wb, ws, "التفاصيل");
-    XLSX.writeFile(wb, `Details_${candName}.xlsx`);
+    saveStyledWorkbook(wb, `Details_${candName}.xlsx`);
 }
 
 function exportSpecificComm() {
     const commId = parseInt(document.getElementById("specific-comm-select").value);
     if(!commId) { alert("اختر لجنة"); return; }
+    
     const commData = allCommittees.find(c => c.number === commId);
     if(!commData) { alert("لا توجد بيانات"); return; }
+    
     const commInfo = commMap[commId];
     const wb = XLSX.utils.book_new();
-    let wsData = [
-        ["تقرير لجنة رقم", commId], ["اسم اللجنة", commInfo.name], ["العنوان", commInfo.address], [],
-        ["إحصائيات عامة"], ["إجمالي الحضور", commData.totalVotes], ["الصحيحة", commData.validVotes], ["الباطلة", commData.invalidVotes], [],
-        ["تفاصيل الأصوات"], ["الترتيب", "المرشح", "الأصوات", "النسبة %"]
-    ];
+    let wsData = [];
+
+    // معلومات اللجنة
+    wsData.push(formatRow(["تقرير لجنة رقم", commId], true));
+    wsData.push(formatRow(["اسم اللجنة", commInfo.name], false));
+    wsData.push(formatRow(["العنوان", commInfo.address], false));
+    wsData.push(formatRow([""], false)); // فاصل
+
+    // إحصائيات
+    wsData.push(formatRow(["إجمالي الحضور", "الصحيحة", "الباطلة"], true));
+    wsData.push(formatRow([commData.totalVotes, commData.validVotes, commData.invalidVotes], false));
+    wsData.push(formatRow([""], false)); // فاصل
+
+    // الجدول التفصيلي
+    wsData.push(formatRow(["الترتيب", "المرشح", "الأصوات", "النسبة %"], true));
+
     let arr = candidates.map(([id, name]) => ({
-        name: name, votes: commData.candidates[id] || 0, percent: commData.validVotes ? ((commData.candidates[id] / commData.validVotes) * 100).toFixed(1) : 0
+        name: name, 
+        votes: commData.candidates[id] || 0, 
+        percent: commData.validVotes ? ((commData.candidates[id] / commData.validVotes) * 100).toFixed(1) : 0
     })).sort((a,b) => b.votes - a.votes);
-    arr.forEach((c, i) => wsData.push([i+1, c.name, c.votes, c.percent + "%"]));
+
+    arr.forEach((c, i) => {
+        wsData.push(formatRow([i+1, c.name, c.votes, c.percent + "%"], false));
+    });
+
     const ws = XLSX.utils.aoa_to_sheet(wsData);
+    ws['!cols'] = [{wch:10}, {wch:30}, {wch:15}, {wch:15}];
+
     XLSX.utils.book_append_sheet(wb, ws, "اللجنة");
-    XLSX.writeFile(wb, `Committee_${commId}.xlsx`);
+    saveStyledWorkbook(wb, `Committee_${commId}.xlsx`);
 }
 
 function exportRanking() {
     const t = getTotals();
     const wb = XLSX.utils.book_new();
+    let wsData = [];
+
+    wsData.push(formatRow(["الترتيب العام للمرشحين"], true));
+    wsData.push(formatRow([`تاريخ التقرير: ${new Date().toLocaleString("ar-EG")}`], false));
+    wsData.push(formatRow(["الترتيب", "المرشح", "الأصوات", "النسبة"], true));
+
     let arr = candidates.map(([id,n]) => ({
         name: n, v: t.cands[id], p: t.valid ? ((t.cands[id]/t.valid)*100).toFixed(1) : 0
     })).sort((a,b) => b.v - a.v);
-    let wsData = [["الترتيب العام"], [`تاريخ التقرير: ${new Date().toLocaleString("ar-EG")}`], [], ["الترتيب", "المرشح", "الأصوات", "النسبة"]];
-    arr.forEach((c, i) => wsData.push([i+1, c.name, c.v, c.p + "%"]));
+
+    arr.forEach((c, i) => {
+        // تمييز الثلاثة الأوائل بلون مختلف (اختياري)
+        let style = i < 3 ? highlightStyle : cellStyle;
+        wsData.push(formatRow([i+1, c.name, c.v, c.p + "%"], false, i < 3 ? null : null)); 
+    });
+
     const ws = XLSX.utils.aoa_to_sheet(wsData);
+    ws['!cols'] = [{wch:10}, {wch:30}, {wch:15}, {wch:15}];
+
     XLSX.utils.book_append_sheet(wb, ws, "الترتيب");
-    XLSX.writeFile(wb, "Ranking.xlsx");
+    saveStyledWorkbook(wb, "Ranking.xlsx");
 }
 
 function exportLog() {
     const t = getTotals();
     const wb = XLSX.utils.book_new();
-    let wsData = [["سجل الفرز"], [`عدد اللجان: ${t.list.length}`], [], ["رقم اللجنة", "المدرسة", "العنوان", "الإجمالي", "صحيحة", "باطلة"]];
+    let wsData = [];
+
+    wsData.push(formatRow(["سجل الفرز الكامل"], true));
+    wsData.push(formatRow([`عدد اللجان: ${t.list.length}`], false));
+    wsData.push(formatRow(["رقم اللجنة", "المدرسة", "العنوان", "الإجمالي", "صحيحة", "باطلة"], true));
+
     t.list.forEach(c => {
         const info = commMap[c.number] || {name: "", address: ""};
-        wsData.push([c.number, info.name, info.address, c.totalVotes, c.validVotes, c.invalidVotes]);
+        wsData.push(formatRow([c.number, info.name, info.address, c.totalVotes, c.validVotes, c.invalidVotes], false));
     });
+
     const ws = XLSX.utils.aoa_to_sheet(wsData);
+    ws['!cols'] = [{wch:10}, {wch:30}, {wch:30}, {wch:12}, {wch:12}, {wch:12}];
+
     XLSX.utils.book_append_sheet(wb, ws, "السجل");
-    XLSX.writeFile(wb, "Committees_Log.xlsx");
+    saveStyledWorkbook(wb, "Committees_Log.xlsx");
 }
 
 function exportToExcel() {
+    // هذه الدالة لتصدير قاعدة البيانات كاملة
     const t = getTotals();
     const wb = XLSX.utils.book_new();
     
-    // أنماط التنسيق (Styles)
-    const headerStyle = {
-        font: { bold: true, color: { rgb: "FFFFFF" }, sz: 12, name: "Cairo" },
-        fill: { fgColor: { rgb: "1e293b" } }, // نفس لون خلفية الكروت في تصميمك
-        alignment: { horizontal: "center", vertical: "center" },
-        border: {
-            top: { style: "thin", color: { auto: 1 } },
-            bottom: { style: "thin", color: { auto: 1 } },
-            left: { style: "thin", color: { auto: 1 } },
-            right: { style: "thin", color: { auto: 1 } }
-        }
-    };
-
-    const cellStyle = {
-        font: { name: "Arial", sz: 11 },
-        alignment: { horizontal: "center", vertical: "center" },
-        border: {
-            top: { style: "thin", color: { rgb: "CCCCCC" } },
-            bottom: { style: "thin", color: { rgb: "CCCCCC" } },
-            left: { style: "thin", color: { rgb: "CCCCCC" } },
-            right: { style: "thin", color: { rgb: "CCCCCC" } }
-        }
-    };
-
-    // --- تجهيز شيت النتائج ---
-    let rankData = [
-        [{ v: "المرشح", s: headerStyle }, { v: "الأصوات", s: headerStyle }]
-    ];
-    
+    // --- الشيت الأول: النتائج ---
+    let rankData = [];
+    rankData.push(formatRow(["المرشح", "الأصوات"], true));
     candidates.forEach(([id, n]) => {
-        rankData.push([
-            { v: n, s: cellStyle }, 
-            { v: t.cands[id], s: cellStyle }
-        ]);
+        rankData.push(formatRow([n, t.cands[id]], false));
     });
-
     const ws1 = XLSX.utils.aoa_to_sheet(rankData);
-    
-    // تفعيل اتجاه اليمين لليسار وتحديد عرض الأعمدة
-    ws1['!cols'] = [{ wch: 30 }, { wch: 15 }]; // عرض الأعمدة
-    if(!wb.Workbook) wb.Workbook = {};
-    if(!wb.Workbook.Views) wb.Workbook.Views = [];
-    wb.Workbook.Views[0] = { RTL: true }; // جعل الشيت يبدأ من اليمين
-
+    ws1['!cols'] = [{ wch: 30 }, { wch: 15 }];
     XLSX.utils.book_append_sheet(wb, ws1, "النتائج");
 
-    // --- تجهيز شيت اللجان ---
-    let commData = [
-        [
-            { v: "رقم اللجنة", s: headerStyle },
-            { v: "اسم اللجنة", s: headerStyle },
-            { v: "الإجمالي", s: headerStyle },
-            { v: "صحيح", s: headerStyle },
-            { v: "باطل", s: headerStyle }
-        ]
-    ];
-
+    // --- الشيت الثاني: اللجان ---
+    let commData = [];
+    commData.push(formatRow(["رقم اللجنة", "اسم اللجنة", "الإجمالي", "صحيح", "باطل"], true));
     t.list.forEach(c => {
         const info = commMap[c.number] || { name: "" };
-        commData.push([
-            { v: c.number, s: cellStyle },
-            { v: info.name, s: cellStyle },
-            { v: c.totalVotes, s: cellStyle },
-            { v: c.validVotes, s: cellStyle },
-            { v: c.invalidVotes, s: cellStyle }
-        ]);
+        commData.push(formatRow([c.number, info.name, c.totalVotes, c.validVotes, c.invalidVotes], false));
     });
-
     const ws2 = XLSX.utils.aoa_to_sheet(commData);
-    
-    // تنسيق شيت اللجان
     ws2['!cols'] = [{ wch: 10 }, { wch: 30 }, { wch: 10 }, { wch: 10 }, { wch: 10 }];
     
     XLSX.utils.book_append_sheet(wb, ws2, "اللجان");
 
-    // حفظ الملف
-    XLSX.writeFile(wb, "Full_Database_Pro.xlsx");
-}
-
-function printSection(divId) {
-    const target = document.getElementById(divId);
-    target.classList.add("section-to-print");
-    document.getElementById("p-date-val").textContent = new Date().toLocaleString("ar-EG");
-    window.print();
-    target.classList.remove("section-to-print");
+    saveStyledWorkbook(wb, "Full_Database_Pro.xlsx");
 }
 
 function renderAll() {
