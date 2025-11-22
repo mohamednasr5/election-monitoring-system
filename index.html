@@ -99,6 +99,15 @@
   .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid #334155; padding-bottom: 20px; }
   .admin-title { font-size: 1.5em; font-weight: 900; color: #3b82f6; display: flex; align-items: center; gap: 10px; }
   
+  /* Buttons in Admin Header */
+  .admin-actions { display: flex; gap: 10px; }
+  .reset-btn {
+    background: #ef4444; color: #fff; border: none; padding: 10px 15px; border-radius: 8px;
+    cursor: pointer; font-weight: bold; font-size: 0.9em; transition: 0.2s;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .reset-btn:hover { background: #dc2626; }
+  
   .active-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; }
   
   .user-card {
@@ -107,7 +116,12 @@
   }
   .u-header { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 1.1em; }
   .status-dot { width: 10px; height: 10px; background: #10b981; border-radius: 50%; box-shadow: 0 0 8px #10b981; }
-  .u-time { font-size: 0.85em; color: #94a3b8; }
+  .u-info { font-size: 0.85em; color: #94a3b8; }
+  .u-stats { 
+      background: #334155; padding: 8px; border-radius: 8px; 
+      text-align: center; font-weight: bold; color: #fff; font-size: 1em;
+  }
+  .u-stats span { color: #3b82f6; }
   
   .kick-btn {
     background: #fee2e2; color: #ef4444; border: none; padding: 8px; border-radius: 6px;
@@ -131,8 +145,8 @@
   @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
   
   /* تمييز الرسائل */
-  .msg-private { border-right-color: #3b82f6; } /* أزرق للخاصة */
-  .msg-public { border-right-color: #ef4444; } /* أحمر للعامة */
+  .msg-private { border-right-color: #3b82f6; } 
+  .msg-public { border-right-color: #ef4444; }
 
   .msg-header { padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; font-weight: 900; font-size: 1em; }
   .msg-private .msg-header { background: #eff6ff; color: #1e40af; } 
@@ -199,9 +213,14 @@
 <div id="admin-panel" class="admin-container hidden">
   <div class="admin-header">
     <div class="admin-title"><i class="fa-solid fa-shield-halved"></i> لوحة تحكم الأدمن</div>
-    <button class="logout-btn" onclick="logout()" style="position:static; background:#1e293b; border:1px solid #334155;">
-      <i class="fa-solid fa-right-from-bracket"></i>
-    </button>
+    <div class="admin-actions">
+      <button class="reset-btn" onclick="resetSystem()">
+        <i class="fa-solid fa-trash-can"></i> تصفير العدادات
+      </button>
+      <button class="logout-btn" onclick="logout()" style="position:static; background:#1e293b; border:1px solid #334155;">
+        <i class="fa-solid fa-right-from-bracket"></i>
+      </button>
+    </div>
   </div>
   
   <div style="margin-bottom:15px; color:#94a3b8;">اللجان النشطة حالياً (المتصلين):</div>
@@ -292,7 +311,6 @@ const committeesDB = {
 let myCommittee = 0;
 let sessionID = Date.now().toString();
 let loginTime = Date.now();
-// متغيرات التحكم في العدد
 let maxVotes = 0;        
 let currentTotalVotes = 0; 
 const imgbbKey = "4580317b11de33e7c7630672bfc20bf9";
@@ -328,11 +346,8 @@ window.handleLogin = async function() {
     myCommittee = num;
     loginTime = Date.now();
     const info = committeesDB[num];
-    
-    // تخزين الحد الأقصى
     maxVotes = info.original; 
 
-    // تحديث واجهة المستخدم
     document.getElementById("c-name").innerText = `لجنة ${num} - ${info.name}`;
     document.getElementById("c-addr").innerHTML = `
         <i class="fa-solid fa-location-dot"></i> ${info.address}<br>
@@ -341,7 +356,6 @@ window.handleLogin = async function() {
         </span>
     `;
     
-    // Register Session
     set(sessionRef, { status: 'online', timestamp: Date.now(), id: sessionID });
     onDisconnect(sessionRef).remove();
 
@@ -355,7 +369,6 @@ window.handleLogin = async function() {
     document.getElementById("login-modal").classList.add("hidden");
     document.getElementById("committee-panel").classList.remove("hidden");
     
-    // بدء الخدمات
     startMessageListener();
     startVoteListener(num);
 
@@ -374,13 +387,12 @@ window.logout = function() {
 };
 
 // ----------------------------------------------------
-// ** VOTE TRACKING & LIMITS **
+// ** VOTE TRACKING **
 // ----------------------------------------------------
 function startVoteListener(commId) {
     let singleCount = 0;
     let bulkCount = 0;
 
-    // استماع للأصوات الفردية
     const singleQ = query(ref(db, "votes"), orderByChild("committee"), equalTo(commId));
     onValue(singleQ, (snapshot) => {
         singleCount = 0;
@@ -390,7 +402,6 @@ function startVoteListener(commId) {
         updateTotalAndUI(singleCount, bulkCount);
     });
 
-    // استماع لأصوات الجملة
     const bulkQ = query(ref(db, "bulk_counts"), orderByChild("committee"), equalTo(commId));
     onValue(bulkQ, (snapshot) => {
         bulkCount = 0;
@@ -419,13 +430,10 @@ function updateTotalAndUI(s, b) {
 // ----------------------------------------------------
 window.addOne = function() {
   if(myCommittee === 0) return;
-  
-  // فحص الحد الأقصى
   if(currentTotalVotes + 1 > maxVotes) {
-      alert(`❌ خطأ: لا يمكن الإضافة!\nالعدد سيصبح (${currentTotalVotes + 1}) وهو أكبر من عدد المقيدين باللجنة (${maxVotes}).`);
+      alert(`❌ خطأ: العدد سيصبح (${currentTotalVotes + 1}) وهو أكبر من المقيدين (${maxVotes}).`);
       return;
   }
-
   const btn = document.getElementById("main-btn");
   btn.classList.add("btn-clicked-effect");
   setTimeout(() => btn.classList.remove("btn-clicked-effect"), 200);
@@ -439,13 +447,10 @@ window.addOne = function() {
 window.addBulk = function() {
   const val = parseInt(document.getElementById("bulk-val").value);
   if(!val || val <= 0) return;
-
-  // فحص الحد الأقصى
   if(currentTotalVotes + val > maxVotes) {
-      alert(`❌ خطأ: العدد كبير جداً!\nإجمالي الأصوات سيصبح (${currentTotalVotes + val})، بينما عدد المقيدين هو (${maxVotes}) فقط.`);
+      alert(`❌ خطأ: العدد كبير جداً!\nالمسموح (${maxVotes - currentTotalVotes}) فقط.`);
       return;
   }
-
   if(confirm(`تأكيد إضافة ${val} ناخب؟`)) {
     const key = Date.now();
     set(ref(db, "bulk_counts/" + key), {
@@ -490,19 +495,14 @@ function startMessageListener() {
 function showInboxMessage(text, type, time) {
   const audio = document.getElementById("notif-sound");
   audio.play().catch(e => console.log("Audio blocked"));
-
   const container = document.getElementById("msg-container");
   const isPrivate = type === 'private';
-  
   const headerText = isPrivate ? '📩 رسالة خاصة لك' : '📢 رسالة للجميع';
   const headerClass = isPrivate ? 'msg-private' : 'msg-public';
   const icon = isPrivate ? '<i class="fa-solid fa-envelope-open-text"></i>' : '<i class="fa-solid fa-bullhorn"></i>';
-  
   const msgDiv = document.createElement("div");
   msgDiv.className = `msg-box ${headerClass}`;
-  
   const timeStr = new Date(time).toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'});
-  
   msgDiv.innerHTML = `
     <div class="msg-header"><span>${icon} ${headerText}</span></div>
     <div class="msg-body">${text}</div>
@@ -511,39 +511,81 @@ function showInboxMessage(text, type, time) {
         <button class="btn-close-msg" onclick="this.parentElement.parentElement.remove()">إغلاق <i class="fa-solid fa-xmark"></i></button>
     </div>
   `;
-  
   container.appendChild(msgDiv);
 }
 
 // ----------------------------------------------------
-// 3. ADMIN FUNCTIONS
+// 3. ADMIN FUNCTIONS (UPDATED)
 // ----------------------------------------------------
-function initAdminMonitor() {
-  const list = document.getElementById("active-list");
-  onValue(ref(db, "active_sessions"), (snapshot) => {
-    list.innerHTML = "";
-    if(!snapshot.exists()) {
-      list.innerHTML = "<div style='color:#64748b; text-align:center; grid-column:1/-1;'>لا يوجد لجان نشطة حالياً</div>";
-      return;
-    }
-    snapshot.forEach((child) => {
-      const id = child.key;
-      const data = child.val();
-      const name = committeesDB[id] ? committeesDB[id].name : "غير معروف";
-      const timeStr = new Date(data.timestamp).toLocaleTimeString("ar-EG");
+let activeSessionsData = {};
+let allVotesData = {};
+let allBulkData = {};
 
-      const div = document.createElement("div");
-      div.className = "user-card";
-      div.innerHTML = `
-        <div class="u-header"><span class="status-dot"></span> لجنة ${id}</div>
-        <div style="font-size:0.9em; color:#94a3b8;">${name}</div>
-        <div class="u-time">دخل منذ: ${timeStr}</div>
-        <button class="kick-btn" onclick="kickUser('${id}')">
-          <i class="fa-solid fa-ban"></i> طرد المشرف
-        </button>
-      `;
-      list.appendChild(div);
+function initAdminMonitor() {
+  // 1. استماع للجان النشطة
+  onValue(ref(db, "active_sessions"), (snapshot) => {
+    activeSessionsData = snapshot.val() || {};
+    renderActiveList();
+  });
+
+  // 2. استماع لكل الأصوات لحساب المجموع لكل لجنة
+  onValue(ref(db, "votes"), (snapshot) => {
+    allVotesData = snapshot.val() || {};
+    renderActiveList();
+  });
+
+  // 3. استماع لكل أصوات الجملة
+  onValue(ref(db, "bulk_counts"), (snapshot) => {
+    allBulkData = snapshot.val() || {};
+    renderActiveList();
+  });
+}
+
+function renderActiveList() {
+  const list = document.getElementById("active-list");
+  list.innerHTML = "";
+  
+  if(Object.keys(activeSessionsData).length === 0) {
+    list.innerHTML = "<div style='color:#64748b; text-align:center; grid-column:1/-1;'>لا يوجد لجان نشطة حالياً</div>";
+    return;
+  }
+
+  // حساب المجموع لكل لجنة موجودة في السيستم
+  // لكن سنعرض فقط اللجان النشطة (activeSessionsData)
+  Object.keys(activeSessionsData).forEach((key) => {
+    const id = parseInt(key);
+    const data = activeSessionsData[key];
+    const name = committeesDB[id] ? committeesDB[id].name : "غير معروف";
+    const original = committeesDB[id] ? committeesDB[id].original : 0;
+    const timeStr = new Date(data.timestamp).toLocaleTimeString("ar-EG");
+
+    // حساب الأصوات لهذه اللجنة من البيانات المحملة
+    let currentCount = 0;
+    // تجميع الأصوات الفردية
+    Object.values(allVotesData).forEach(v => {
+      if(v.committee == id) currentCount += (v.count || 0);
     });
+    // تجميع أصوات الجملة
+    Object.values(allBulkData).forEach(b => {
+      if(b.committee == id) currentCount += (b.count || 0);
+    });
+
+    const div = document.createElement("div");
+    div.className = "user-card";
+    div.innerHTML = `
+      <div class="u-header"><span class="status-dot"></span> لجنة ${id}</div>
+      <div class="u-info">${name}</div>
+      
+      <div class="u-stats">
+        تصويت: <span>${currentCount}</span> / ${original}
+      </div>
+
+      <div class="u-info">دخل منذ: ${timeStr}</div>
+      <button class="kick-btn" onclick="kickUser('${id}')">
+        <i class="fa-solid fa-ban"></i> طرد المشرف
+      </button>
+    `;
+    list.appendChild(div);
   });
 }
 
@@ -555,13 +597,26 @@ window.kickUser = function(id) {
   }
 };
 
-function showFlashMsg(txt) {
-  const msg = document.getElementById("flash-msg");
-  msg.innerText = txt; msg.style.display = "block";
-  setTimeout(() => msg.style.display = "none", 2000);
-}
+// ** دالة تصفير العدادات **
+window.resetSystem = function() {
+    const code = prompt("للتأكيد، أدخل كود الأمان (0000) لمسح كل الأصوات:");
+    if(code === "0000") {
+        if(confirm("⚠️ تحذير نهائي: سيتم حذف جميع الأصوات المسجلة لكل اللجان! هل أنت متأكد؟")) {
+            // حذف الأصوات الفردية والجملة
+            remove(ref(db, "votes"));
+            remove(ref(db, "bulk_counts"));
+            // اختياري: حذف الإشعارات القديمة
+            remove(ref(db, "notifications"));
+            showFlashMsg("🗑️ تم تصفير النظام بنجاح");
+        }
+    } else if(code !== null) {
+        alert("كود الأمان غير صحيح");
+    }
+};
 
+// Expose functions
 window.kickUser = window.kickUser; 
+window.resetSystem = window.resetSystem;
 </script>
 </body>
 </html>
