@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8" />
-<title>تسجيل التصويت</title>
+<title>تسجيل الحضور</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <style>
 * {
@@ -275,7 +275,7 @@ h2 {
 .committee-info {
   text-align: center;
   margin-top: 12px;
-  margin-bottom: 25px;
+  margin-bottom: 15px;
   background: linear-gradient(135deg, #f5f7ff 0%, #eff2ff 100%);
   padding: 12px;
   border-radius: 12px;
@@ -303,7 +303,7 @@ label {
   display: block;
 }
 
-input[type="text"] {
+input[type="text"], input[type="number"] {
   width: 100%;
   padding: 13px 12px;
   border-radius: 12px;
@@ -314,98 +314,13 @@ input[type="text"] {
   margin-top: 8px;
 }
 
-input[type="text"]:focus {
+input[type="text"]:focus, input[type="number"]:focus {
   outline: none;
   border-color: #667eea;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
-/* Candidate List */
-.candidate-list {
-  margin-top: 10px;
-  background: #f8f9ff;
-  border: 2px solid #e0e7ff;
-  border-radius: 14px;
-  max-height: 320px;
-  overflow-y: auto;
-  padding: 8px;
-}
-
-.candidate-item {
-  background: #fff;
-  border: 1px solid #e8ecff;
-  padding: 10px;
-  border-radius: 12px;
-  margin-bottom: 9px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  transition: all 0.3s;
-  cursor: pointer;
-  border-left: 4px solid #667eea;
-  min-height: 47px;
-}
-
-.candidate-item:hover {
-  background: linear-gradient(135deg, #f5f7ff 0%, #eff2ff 100%);
-  border-color: #667eea;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.17);
-}
-
-.candidate-item.selected {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #fff;
-  border-left-color: #fff;
-}
-
-.c-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex: 1;
-}
-
-.num-circle {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: #667eea;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.97em;
-  font-weight: 900;
-}
-
-.candidate-item.selected .num-circle {
-  background: #fff;
-  color: #667eea;
-}
-
-.c-name {
-  font-weight: 700;
-  word-break: break-word;
-}
-
-.c-right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.c-icon {
-  font-size: 1.5em;
-}
-
-input[type="checkbox"] {
-  width: 22px;
-  height: 22px;
-  cursor: pointer;
-  accent-color: #667eea;
-}
-
-/* Radio Section */
+/* Section Box */
 .sec-box {
   margin-top: 13px;
   background: linear-gradient(135deg, #f5f7ff 0%, #eff2ff 100%);
@@ -420,42 +335,6 @@ input[type="checkbox"] {
   display: block;
   margin-bottom: 12px;
   font-size: 1em;
-}
-
-.radio-group {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-.radio-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  padding: 8px;
-  background: #fff;
-  border-radius: 10px;
-  border: 2px solid #e0e7ff;
-  transition: all 0.3s;
-}
-
-.radio-item:hover {
-  border-color: #667eea;
-  background: #f8f9ff;
-}
-
-.radio-item input[type="radio"] {
-  width: 18px;
-  height: 18px;
-  cursor: pointer;
-  accent-color: #667eea;
-}
-
-.radio-item.selected {
-  background: #667eea;
-  color: #fff;
-  border-color: #667eea;
 }
 
 /* Buttons */
@@ -494,6 +373,27 @@ button {
 
 .btn-reset:hover {
   background: #d3ddff;
+}
+
+/* Toggle Button */
+.toggle-btn {
+  width: 100%;
+  margin-top: 20px;
+  padding: 14px;
+  background: linear-gradient(135deg, #f0932b 0%, #e67e22 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1em;
+  font-weight: 900;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 15px rgba(230, 126, 34, 0.3);
+}
+
+.toggle-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(230, 126, 34, 0.5);
 }
 
 /* Upload Button */
@@ -646,14 +546,6 @@ button {
     font-size: 1.5em;
   }
 
-  .radio-group {
-    grid-template-columns: 1fr;
-  }
-
-  .candidate-list {
-    max-height: 340px;
-  }
-
   .logout-btn {
     top: 7px;
     left: 6px;
@@ -690,7 +582,7 @@ button {
   <div class="pass-box">
     <div class="pass-title">تسجيل الدخول</div>
     <div class="pass-row">
-      <input type="password" id="password-input" class="pass-input" placeholder="ادخل كلمة السر" autocomplete="off">
+      <input type="password" id="password-input" class="pass-input" placeholder="ادخل كلمة السر (رقم اللجنة)" autocomplete="off">
       <span class="pass-toggle" onclick="togglePass()">👁</span>
     </div>
     <button class="pass-btn" onclick="checkPass()">دخول</button>
@@ -699,7 +591,7 @@ button {
 </div>
 
 <div class="container hidden" id="main-container">
-  <h2 id="welcome-title">تسجيل التصويت</h2>
+  <h2 id="welcome-title">تسجيل الحضور</h2>
   <div class="committee-info">
     <div class="committee-name" id="committee-name-display"></div>
     <div class="committee-address" id="committee-address-display"></div>
@@ -707,7 +599,6 @@ button {
   
   <button class="remote-logout-btn hidden" id="remote-logout-btn" onclick="remoteLogout()">إخراج المشرف الحالي</button>
   
-  <!-- Active Committees Panel for Super Admin -->
   <div id="active-committees-panel" class="hidden" style="margin-top: 20px;">
     <div class="sec-box">
       <span class="sec-title">اللجان النشطة المسجلة حالياً 🟢</span>
@@ -715,39 +606,34 @@ button {
     </div>
   </div>
   
-  <!-- Admin Panel -->
-  <form id="vote-form">
-    <label>اسم الناخب:</label>
-    <input type="text" id="voter-name" placeholder="اكتب اسم الناخب (اختياري)">
-    
-    <label>اختر مرشحين اثنين (إجباري):</label>
-    <div class="candidate-list" id="candidate-list"></div>
-    
-    <div class="sec-box">
-      <span class="sec-title">حالة الصوت:</span>
-      <div class="radio-group">
-        <label class="radio-item">
-          <input type="radio" name="vvalid" value="صحيح">
-          <span>✓ صحيح</span>
-        </label>
-        <label class="radio-item">
-          <input type="radio" name="vvalid" value="باطل">
-          <span>✗ باطل</span>
-        </label>
-      </div>
+  <div id="bulk-vote-section" class="hidden">
+    <div class="sec-box" style="border: 2px solid #667eea;">
+      <span class="sec-title">تسجيل العدد (جملة) 🔢</span>
+      <input type="number" id="bulk-count-input" placeholder="اكتب العدد هنا">
+      <button onclick="sendBulkCount()" class="btn-primary" style="margin-top: 10px; width: 100%;">ارسال العدد</button>
     </div>
+    
+    <button id="show-individual-btn" class="toggle-btn" onclick="toggleIndividualForm()">➕ اضافة ناخب واحد (فردي)</button>
+  </div>
+  
+  <form id="vote-form" class="hidden" style="margin-top: 20px; border-top: 2px dashed #ddd; padding-top: 20px;">
+    <h3 style="text-align: center; color: #667eea; margin-bottom: 15px;">تسجيل حضور ناخب</h3>
+    <label>اسم الناخب:</label>
+    <input type="text" id="voter-name" placeholder="اكتب اسم الناخب">
     
     <div class="btn-row">
-      <button type="submit" class="btn-primary">تسجيل التصويت</button>
-      <button type="reset" class="btn-reset">إعادة ضبط</button>
+      <button type="submit" class="btn-primary">تسجيل الحضور</button>
+      <button type="button" onclick="toggleIndividualForm()" class="btn-reset" style="background: #ffcdd2; color: #c62828;">إلغاء</button>
     </div>
-    
-    <div id="msg-warn" class="msg-warn"></div>
-    <div id="msg-confirm" class="msg-confirm"></div>
   </form>
 
-  <button id="openUpload" class="action-btn">رفع محضر اللجنة 📄</button>
-  <input type="file" id="uploadFile" accept="image/*" style="display:none">
+  <div id="msg-warn" class="msg-warn"></div>
+  <div id="msg-confirm" class="msg-confirm"></div>
+
+  <div id="upload-section" class="hidden">
+    <button id="openUpload" class="action-btn">رفع محضر اللجنة 📄</button>
+    <input type="file" id="uploadFile" accept="image/*" style="display:none">
+  </div>
 
   <div class="sig">
     تم البرمجة بواسطة
@@ -969,12 +855,14 @@ async function tryCommitteeLogin(committee, info) {
     document.getElementById("committee-address-display").textContent = info.address;
     
     if (isAdmin) {
-      document.getElementById("vote-form").style.display = 'none';
-      document.getElementById("openUpload").style.display = 'none';
+      document.getElementById("vote-form").classList.add('hidden');
+      document.getElementById("bulk-vote-section").classList.add("hidden");
+      document.getElementById("upload-section").classList.add('hidden');
       document.getElementById("active-committees-panel").classList.add("hidden");
     } else {
-      document.getElementById("vote-form").style.display = 'block';
-      document.getElementById("openUpload").style.display = 'block';
+      document.getElementById("bulk-vote-section").classList.remove("hidden");
+      document.getElementById("vote-form").classList.add('hidden');
+      document.getElementById("upload-section").classList.remove('hidden');
     }
     
     setupNotificationListeners(committee);
@@ -1083,8 +971,9 @@ window.checkPass = async function() {
     document.getElementById("committee-address-display").textContent = "صلاحيات مشرف عام";
     committeeNumber = 0;
     document.getElementById("remote-logout-btn").classList.add("hidden");
-    document.getElementById("vote-form").style.display = 'none';
-    document.getElementById("openUpload").style.display = 'none';
+    document.getElementById("bulk-vote-section").classList.add("hidden");
+    document.getElementById("vote-form").classList.add('hidden');
+    document.getElementById("upload-section").classList.add('hidden');
     document.getElementById("active-committees-panel").classList.remove("hidden");
     setupNotificationListeners(0);
     loadActiveCommittees();
@@ -1183,67 +1072,51 @@ window.closeBubble = function() {
   bubble.classList.remove("active");
 };
 
-const candidates = [
-  ["1", "ايهاب العمده", "👑"],
-  ["2", "محمد العتمانى", "🍞"],
-  ["3", "أحمد الحديدى", "🦁"],
-  ["4", "عادل الجيار", "🦅"],
-  ["5", "احمد محمد محمد سمره", "💣"],
-  ["6", "وليد تيسير الامير", "🐊"],
-  ["7", "كمال العيسوى", "🌀"],
-  ["8", "البدوى جميز", "🐋"],
-  ["9", "احمد الريس", "🦂"],
-  ["10", "أحمد عوف", "✋"],
-  ["11", "حسن الملهاط", "🌿"],
-  ["12", "عمرو محمد بحيرى", "🚌"],
-  ["13", "السيد طمان", "🔫"],
-  ["14", "محمد دندن", "🚁"],
-  ["15", "مجدى الأمير", "🖊"]
-];
-
-const listBox = document.getElementById("candidate-list");
-candidates.forEach((c) => {
-  const item = document.createElement("div");
-  item.className = "candidate-item";
+// Toggle Individual Form
+window.toggleIndividualForm = function() {
+  const form = document.getElementById("vote-form");
+  const btn = document.getElementById("show-individual-btn");
   
-  const checkbox = document.createElement("input");
-  checkbox.type = "checkbox";
-  checkbox.value = c[1];
-  checkbox.className = "candidate-checkbox";
-  
-  item.innerHTML = '<div class="c-left"><div class="num-circle">' + c[0] + '</div><div class="c-name">' + c[1] + '</div></div><div class="c-right"><span class="c-icon">' + c[2] + '</span></div>';
-  item.appendChild(checkbox);
-  
-  item.addEventListener("click", (e) => {
-    if (e.target !== checkbox) checkbox.checked = !checkbox.checked;
-    checkLimit();
-    updateStyle();
-  });
-  
-  checkbox.addEventListener("change", () => {
-    checkLimit();
-    updateStyle();
-  });
-  
-  listBox.appendChild(item);
-});
-
-function updateStyle() {
-  document.querySelectorAll(".candidate-item").forEach((item) => {
-    if (item.querySelector("input[type='checkbox']").checked)
-      item.classList.add("selected");
-    else
-      item.classList.remove("selected");
-  });
+  if (form.classList.contains("hidden")) {
+    form.classList.remove("hidden");
+    btn.style.display = "none";
+    form.scrollIntoView({behavior: "smooth"});
+  } else {
+    form.classList.add("hidden");
+    btn.style.display = "block";
+    document.getElementById("vote-form").reset();
+  }
 }
 
-function checkLimit() {
-  const sel = document.querySelectorAll('.candidate-checkbox:checked');
-  if (sel.length > 2) {
-    sel[sel.length - 1].checked = false;
-    showWarn("يجب اختيار مرشحين اثنين فقط");
-    updateStyle();
+// Bulk Vote Sender
+window.sendBulkCount = function() {
+  const countInput = document.getElementById("bulk-count-input");
+  const countVal = parseInt(countInput.value);
+  
+  if (!countVal || countVal <= 0) {
+    showWarn("من فضلك ادخل رقم صحيح");
+    return;
   }
+  
+  if (committeeNumber === 0) return showWarn("لا يمكن التسجيل بصلاحية المشرف العام");
+  
+  const confirmSend = confirm(`هل أنت متأكد من إرسال العدد: ${countVal} ؟`);
+  if (!confirmSend) return;
+  
+  const timestamp = Date.now();
+  const bulkRef = ref(db, "bulk_counts/" + timestamp);
+  
+  set(bulkRef, {
+    count: countVal,
+    committee: committeeNumber,
+    timestamp: timestamp,
+    type: "bulk_update"
+  }).then(() => {
+    showConfirm("✅ تم إرسال العدد بنجاح!");
+    countInput.value = "";
+  }).catch((err) => {
+    showWarn("خطأ في الإرسال: " + err.message);
+  });
 }
 
 function showWarn(msg) {
@@ -1260,42 +1133,29 @@ function showConfirm(msg) {
   setTimeout(() => el.style.display = "none", 3000);
 }
 
-document.querySelectorAll("input[type='radio']").forEach(radio => {
-  radio.addEventListener("change", function() {
-    document.querySelectorAll(".radio-item").forEach(item => item.classList.remove("selected"));
-    this.closest(".radio-item").classList.add("selected");
-  });
-});
-
+// Simplified Form Submission (Attendance Only)
 document.getElementById("vote-form").addEventListener("submit", function(e) {
   e.preventDefault();
   
-  if (committeeNumber === 0) return showWarn("لا يمكن تسجيل الأصوات بصلاحية المشرف العام.");
+  if (committeeNumber === 0) return showWarn("لا يمكن التسجيل بصلاحية المشرف العام.");
   if (committeeNumber < 1 || committeeNumber > 60) return showWarn("يرجى تسجيل الدخول للجنة أولاً.");
   
   let name = document.getElementById("voter-name").value.trim();
   if (!name) name = "بدون اسم";
   
-  const sel = Array.from(document.querySelectorAll('.candidate-checkbox:checked')).map(v => v.value);
-  const val = document.querySelector('input[name="vvalid"]:checked');
-  
-  if (sel.length !== 2) return showWarn("يجب اختيار مرشحين اثنين بالضبط");
-  if (!val) return showWarn("اختر حالة الصوت");
-  
   const voteKey = Date.now();
   const voteRef = ref(db, "votes/" + voteKey);
   
+  // Saving attendance (name only)
   set(voteRef, {
     name: name,
-    selected: sel,
-    vote_validity: val.value,
     committee: committeeNumber,
-    timestamp: voteKey
+    timestamp: voteKey,
+    type: "individual_attendance"
   }).then(() => {
-    showConfirm("تم التسجيل بنجاح!");
+    showConfirm("تم تسجيل الناخب بنجاح!");
     document.getElementById("vote-form").reset();
-    updateStyle();
-    document.querySelectorAll(".radio-item").forEach(item => item.classList.remove("selected"));
+    toggleIndividualForm();
   }).catch(err => {
     showWarn("خطأ: " + err.message);
   });
