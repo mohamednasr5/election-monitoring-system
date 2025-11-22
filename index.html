@@ -2,163 +2,188 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8" />
-<title>عداد اللجنة</title>
+<title>عداد اللجنة - المراقب</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 <style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Cairo", sans-serif;
-}
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Cairo", sans-serif; }
 
-body {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
-  color: #333;
-}
+  body {
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+    min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; color: #333;
+  }
 
-.hidden { display: none !important; }
+  .hidden { display: none !important; }
 
-/* Login Modal */
-#login-modal {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.8);
-  display: flex; justify-content: center; align-items: center; z-index: 9999;
-}
-.login-box {
-  background: #fff; padding: 30px; border-radius: 15px;
-  width: 90%; max-width: 400px; text-align: center;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-}
-.login-input {
-  width: 100%; padding: 15px; margin: 15px 0;
-  border: 2px solid #eee; border-radius: 10px;
-  text-align: center; font-size: 1.2em;
-}
-.btn-login {
-  width: 100%; padding: 12px; background: #667eea;
-  color: #fff; border: none; border-radius: 10px;
-  font-size: 1.1em; cursor: pointer; font-weight: bold;
-}
+  /* Login Modal */
+  #login-modal {
+    position: fixed; inset: 0; background: rgba(17, 24, 39, 0.95);
+    display: flex; justify-content: center; align-items: center; z-index: 9999;
+  }
+  .login-box {
+    background: #fff; padding: 30px; border-radius: 20px;
+    width: 90%; max-width: 400px; text-align: center;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  }
+  .login-input {
+    width: 100%; padding: 15px; margin: 15px 0;
+    border: 2px solid #e5e7eb; border-radius: 10px;
+    text-align: center; font-size: 1.2em; font-weight: bold; outline: none;
+  }
+  .login-input:focus { border-color: #3b82f6; }
+  
+  .btn-login {
+    width: 100%; padding: 12px; background: #3b82f6;
+    color: #fff; border: none; border-radius: 10px;
+    font-size: 1.1em; cursor: pointer; font-weight: bold; transition: 0.2s;
+  }
+  .btn-login:hover { background: #2563eb; }
 
-/* Main Container */
-.container {
-  width: 100%; max-width: 500px;
-  background: #fff; border-radius: 20px;
-  padding: 25px; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-  text-align: center; animation: slideUp 0.4s ease;
-}
-@keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
+  /* Main Container */
+  .container {
+    width: 100%; max-width: 500px;
+    background: #fff; border-radius: 24px;
+    padding: 25px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    text-align: center; animation: slideUp 0.5s ease;
+  }
+  @keyframes slideUp { from{transform:translateY(30px);opacity:0} to{transform:translateY(0);opacity:1} }
 
-.header-info {
-  background: #f3f4f6; padding: 15px; border-radius: 12px;
-  margin-bottom: 25px; border: 1px solid #e5e7eb;
-}
-.comm-title { font-weight: 900; font-size: 1.2em; color: #4b5563; }
-.comm-address { font-size: 0.9em; color: #6b7280; }
+  .header-info {
+    background: #f8fafc; padding: 15px; border-radius: 16px;
+    margin-bottom: 25px; border: 1px solid #e2e8f0;
+  }
+  .comm-title { font-weight: 900; font-size: 1.3em; color: #1e293b; }
+  .comm-address { font-size: 0.9em; color: #64748b; margin-top: 5px; }
 
-/* THE BIG BUTTON (+1) */
-.btn-counter {
-  width: 100%;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: #fff;
-  border: none;
-  border-radius: 20px;
-  padding: 40px 20px;
-  font-size: 2.5em;
-  font-weight: 900;
-  cursor: pointer;
-  box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
-  transition: all 0.1s;
-  user-select: none;
-  -webkit-tap-highlight-color: transparent;
-  margin-bottom: 30px;
-  position: relative;
-  overflow: hidden;
-}
-.btn-counter:active {
-  transform: scale(0.96);
-  box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
-}
-.btn-subtext {
-  display: block; font-size: 0.35em; font-weight: normal;
-  opacity: 0.9; margin-top: 5px;
-}
+  /* --- الزر الكبير (+1) --- */
+  .btn-counter {
+    width: 100%;
+    /* اللون الأخضر الأصلي */
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: #fff; border: none; border-radius: 24px;
+    padding: 35px 20px; font-size: 2.2em; font-weight: 900;
+    cursor: pointer; 
+    box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.5);
+    transition: all 0.2s ease; /* نعومة الحركة */
+    user-select: none; -webkit-tap-highlight-color: transparent;
+    margin-bottom: 30px; position: relative; overflow: hidden;
+  }
+  
+  .btn-subtext { display: block; font-size: 0.4em; font-weight: 600; opacity: 0.9; margin-top: 5px; }
 
-/* Bulk Section */
-.bulk-section {
-  border-top: 2px dashed #e5e7eb;
-  padding-top: 20px; display: flex; gap: 10px;
-  align-items: center; justify-content: center;
-}
-.bulk-input {
-  width: 60%; padding: 12px; border: 2px solid #e5e7eb;
-  border-radius: 10px; text-align: center; font-size: 1.1em;
-}
-.btn-bulk {
-  width: 35%; padding: 12px; background: #f59e0b;
-  color: #fff; border: none; border-radius: 10px;
-  font-weight: bold; cursor: pointer;
-}
+  /* --- كلاس التأثير الأزرق عند الضغط --- */
+  .btn-clicked-effect {
+    /* تحويل اللون للأزرق بقوة */
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
+    box-shadow: 0 0 25px rgba(59, 130, 246, 0.6) !important;
+    transform: scale(0.95) !important; /* انكماش بسيط */
+  }
 
-/* Upload & Extra */
-.upload-btn {
-  margin-top: 20px; background: #6366f1; color: #fff;
-  padding: 10px; width: 100%; border: none; border-radius: 10px;
-  cursor: pointer; font-weight: bold;
-}
+  /* Bulk Section */
+  .bulk-section {
+    border-top: 2px dashed #e2e8f0; margin-top: 20px;
+    padding-top: 20px; display: flex; gap: 10px;
+    align-items: center; justify-content: center;
+  }
+  .bulk-input {
+    width: 60%; padding: 12px; border: 2px solid #e2e8f0;
+    border-radius: 12px; text-align: center; font-size: 1.1em; font-weight: bold; outline: none;
+  }
+  .btn-bulk {
+    width: 35%; padding: 12px; background: #f59e0b;
+    color: #fff; border: none; border-radius: 12px;
+    font-weight: bold; cursor: pointer;
+  }
 
-/* Feedback Message */
-.flash-msg {
-  position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-  background: #1f2937; color: #fff; padding: 10px 20px;
-  border-radius: 50px; z-index: 10000; display: none;
-  font-weight: bold; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-}
+  /* Upload & Extra */
+  .upload-btn {
+    margin-top: 20px; background: #6366f1; color: #fff;
+    padding: 12px; width: 100%; border: none; border-radius: 12px;
+    cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+
+  /* Flash Message */
+  .flash-msg {
+    position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+    background: #1f2937; color: #fff; padding: 10px 25px;
+    border-radius: 50px; z-index: 10000; display: none;
+    font-weight: bold; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+  }
+
+  /* --- نظام الرسائل --- */
+  #msg-container {
+    position: fixed; bottom: 20px; right: 20px; width: 320px;
+    z-index: 11000; display: flex; flex-direction: column; gap: 15px;
+    pointer-events: none; 
+  }
+  .msg-box {
+    background: #fff; border-radius: 12px; padding: 0;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    animation: slideInRight 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    pointer-events: auto; overflow: hidden;
+    border-right: 6px solid #ccc; position: relative;
+  }
+  @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  .msg-private { border-right-color: #3b82f6; } 
+  .msg-public { border-right-color: #ef4444; }
+  .msg-header { padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 0.9em; }
+  .msg-private .msg-header { background: #eff6ff; color: #1e40af; }
+  .msg-public .msg-header { background: #fef2f2; color: #991b1b; }
+  .msg-body { padding: 15px; color: #334155; font-weight: 700; line-height: 1.5; font-size: 0.95em; }
+  .msg-footer { padding: 8px 15px; border-top: 1px solid #f1f5f9; background: #fff; display: flex; justify-content: space-between; align-items: center; }
+  .btn-close-msg { background: #fee2e2; color: #ef4444; border: none; padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8em; font-weight: bold; transition: 0.2s; }
+  .msg-time { font-size: 0.75em; color: #94a3b8; }
+
 </style>
 </head>
 <body>
 
+<div id="msg-container"></div>
 <div id="flash-msg" class="flash-msg">✅ تم الاحتساب</div>
+<audio id="notif-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
 
 <div id="login-modal">
   <div class="login-box">
-    <h2 style="margin-bottom:10px; color:#4b5563;">تسجيل دخول اللجنة</h2>
-    <input type="number" id="pass-input" class="login-input" placeholder="اكتب رقم اللجنة">
-    <button class="btn-login" onclick="login()">دخول</button>
-    <div id="login-err" style="color:red; margin-top:10px; display:none;">رقم اللجنة غير صحيح</div>
+    <div style="font-size:3em; color:#3b82f6; margin-bottom:10px;"><i class="fa-solid fa-clipboard-check"></i></div>
+    <h2 style="margin-bottom:10px; color:#1e293b;">تسجيل دخول اللجنة</h2>
+    <p style="color:#64748b; font-size:0.9em; margin-bottom:20px;">أدخل كود اللجنة لبدء العمل</p>
+    <input type="number" id="pass-input" class="login-input" placeholder="رقم اللجنة">
+    <button class="btn-login" onclick="login()">دخول النظام</button>
+    <div id="login-err" style="color:#ef4444; margin-top:15px; font-weight:bold; display:none;">
+      <i class="fa-solid fa-triangle-exclamation"></i> رقم اللجنة غير صحيح
+    </div>
   </div>
 </div>
 
 <div id="app-container" class="container hidden">
   <div class="header-info">
-    <div id="c-name" class="comm-title">لجنة رقم ...</div>
-    <div id="c-addr" class="comm-address">العنوان...</div>
+    <div id="c-name" class="comm-title">...</div>
+    <div id="c-addr" class="comm-address"><i class="fa-solid fa-location-dot"></i> ...</div>
   </div>
 
   <button class="btn-counter" onclick="addOne()" id="main-btn">
-    +1 ناخب
-    <span class="btn-subtext">اضغط مرة واحدة عند دخول الناخب</span>
+    <i class="fa-solid fa-user-plus"></i> 1+ ناخب
+    <span class="btn-subtext">اضغط عند دخول ناخب جديد</span>
   </button>
 
   <div class="bulk-section">
     <input type="number" id="bulk-val" class="bulk-input" placeholder="عدد (جملة)">
-    <button class="btn-bulk" onclick="addBulk()">إضافة رقم</button>
+    <button class="btn-bulk" onclick="addBulk()"><i class="fa-solid fa-users"></i> إضافة</button>
   </div>
 
-  <button class="upload-btn" onclick="document.getElementById('file-up').click()">📤 رفع صورة المحضر</button>
+  <button class="upload-btn" onclick="document.getElementById('file-up').click()">
+    <i class="fa-solid fa-camera"></i> رفع صورة المحضر / الكشف
+  </button>
   <input type="file" id="file-up" style="display:none" accept="image/*" onchange="uploadFile()">
   
-  <div style="margin-top:20px; font-size:0.8em; color:#999;">برمجة م. محمد حماد</div>
+  <div style="margin-top:25px; font-size:0.75em; color:#cbd5e1;">نظام إدارة الانتخابات - الإصدار 3.1</div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { getDatabase, ref, set, onChildAdded } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCxxXV_6CEo1fTp3rRbfwfYbe7WH0Cyg38",
@@ -173,7 +198,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// بيانات اللجان للعرض فقط
 const committeesDB = {
   1: {name: "الفروسات", address: "مدرسة احمد القصبى الابتدائية"},
   2: {name: "الفروسات", address: "مدرسة احمد القصبى الابتدائية"},
@@ -238,98 +262,100 @@ const committeesDB = {
 };
 
 let myCommittee = 0;
+let loginTime = Date.now();
 const imgbbKey = "4580317b11de33e7c7630672bfc20bf9";
 
 window.login = function() {
   const val = document.getElementById("pass-input").value;
-  const num = parseInt(val) - 100100; // كلمة السر: 100101 للجنة 1 وهكذا
-
+  const num = parseInt(val) - 100100;
   if(num >= 1 && num <= 60) {
     myCommittee = num;
+    loginTime = Date.now();
     const info = committeesDB[num] || {name: "لجنة", address: ""};
-    
     document.getElementById("c-name").innerText = `لجنة رقم ${num} - ${info.name}`;
-    document.getElementById("c-addr").innerText = info.address;
-    
+    document.getElementById("c-addr").innerHTML = `<i class="fa-solid fa-location-dot"></i> ${info.address}`;
     document.getElementById("login-modal").classList.add("hidden");
     document.getElementById("app-container").classList.remove("hidden");
+    startMessageListener();
   } else {
     document.getElementById("login-err").style.display = "block";
   }
 };
 
-// ---------------------------------------------------------
-// دالة الزر +1 (عداد فردي)
-// ---------------------------------------------------------
+function startMessageListener() {
+  onChildAdded(ref(db, 'messages'), (snapshot) => {
+    const msg = snapshot.val();
+    if(!msg || msg.timestamp < loginTime) return;
+    if(msg.target === 'all') showInboxMessage(msg.text, 'public', msg.timestamp);
+    else if(msg.target == myCommittee) showInboxMessage(msg.text, 'private', msg.timestamp);
+  });
+}
+
+function showInboxMessage(text, type, time) {
+  const audio = document.getElementById("notif-sound");
+  audio.play().catch(e => console.log("Audio blocked"));
+  const container = document.getElementById("msg-container");
+  const isPrivate = type === 'private';
+  const headerText = isPrivate ? '📩 رسالة خاصة' : '📢 رسالة جماعية';
+  const headerClass = isPrivate ? 'msg-private' : 'msg-public';
+  const icon = isPrivate ? '<i class="fa-solid fa-envelope"></i>' : '<i class="fa-solid fa-bullhorn"></i>';
+  const msgDiv = document.createElement("div");
+  msgDiv.className = `msg-box ${headerClass}`;
+  const timeStr = new Date(time).toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'});
+  msgDiv.innerHTML = `
+    <div class="msg-header"><span>${icon} ${headerText}</span></div>
+    <div class="msg-body">${text}</div>
+    <div class="msg-footer"><span class="msg-time">${timeStr}</span><button class="btn-close-msg" onclick="this.parentElement.parentElement.remove()">إغلاق <i class="fa-solid fa-xmark"></i></button></div>
+  `;
+  container.appendChild(msgDiv);
+}
+
 window.addOne = function() {
   if(myCommittee === 0) return;
-
-  // 1. تأثير بصري للزر
+  
+  // تأثير الزر (يتحول للأزرق)
   const btn = document.getElementById("main-btn");
-  btn.style.transform = "scale(0.95)";
-  setTimeout(() => btn.style.transform = "scale(1)", 100);
+  btn.classList.add("btn-clicked-effect");
+  setTimeout(() => btn.classList.remove("btn-clicked-effect"), 200);
 
   const key = Date.now();
-  
-  // 2. الإرسال لقاعدة البيانات (يرسل رقم 1)
   set(ref(db, "votes/" + key), {
-    committee: myCommittee,
-    count: 1,            // القيمة 1
-    type: "single",      // نوع العملية
-    timestamp: key
-  }).then(() => {
-    showFlashMsg("✅ تم احتساب الناخب");
-  }).catch(err => alert("خطأ في الاتصال"));
+    committee: myCommittee, count: 1, type: "single", timestamp: key
+  }).then(() => showFlashMsg("✅ تم احتساب الناخب"));
 };
 
-// ---------------------------------------------------------
-// دالة إضافة جملة (رقم كبير)
-// ---------------------------------------------------------
 window.addBulk = function() {
   const val = parseInt(document.getElementById("bulk-val").value);
   if(!val || val <= 0) return;
-
-  if(confirm(`هل أنت متأكد من إضافة ${val} ناخب مرة واحدة؟`)) {
+  if(confirm(`تأكيد إضافة ${val} ناخب؟`)) {
     const key = Date.now();
     set(ref(db, "bulk_counts/" + key), {
-      committee: myCommittee,
-      count: val,
-      type: "bulk",
-      timestamp: key
+      committee: myCommittee, count: val, type: "bulk", timestamp: key
     }).then(() => {
-      showFlashMsg(`✅ تم إضافة ${val} ناخب`);
+      showFlashMsg(`✅ تم إضافة ${val}`);
       document.getElementById("bulk-val").value = "";
     });
   }
 };
 
-// ---------------------------------------------------------
-// دالة رفع الصورة (نفس القديمة)
-// ---------------------------------------------------------
 window.uploadFile = function() {
   const file = document.getElementById("file-up").files[0];
   if(!file) return;
-  
-  const formData = new FormData();
-  formData.append("image", file);
-  
-  showFlashMsg("⏳ جاري رفع الصورة...");
-  
+  const formData = new FormData(); formData.append("image", file);
+  showFlashMsg("⏳ جاري الرفع...");
   fetch(`https://api.imgbb.com/1/upload?key=${imgbbKey}`, {method: "POST", body: formData})
   .then(res => res.json())
   .then(data => {
-    if(data.success) showFlashMsg("✅ تم رفع الصورة بنجاح");
+    if(data.success) showFlashMsg("✅ تم الرفع بنجاح");
     else showFlashMsg("❌ فشل الرفع");
   });
 };
 
 function showFlashMsg(txt) {
   const msg = document.getElementById("flash-msg");
-  msg.innerText = txt;
-  msg.style.display = "block";
+  msg.innerText = txt; msg.style.display = "block";
   setTimeout(() => msg.style.display = "none", 2000);
 }
-
 </script>
 </body>
 </html>
