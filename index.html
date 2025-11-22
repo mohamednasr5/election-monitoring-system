@@ -67,7 +67,7 @@
 
   .header-info { background: #f8fafc; padding: 15px; border-radius: 16px; margin-bottom: 25px; border: 1px solid #e2e8f0; }
   .comm-title { font-weight: 900; font-size: 1.3em; color: #1e293b; }
-  .comm-address { font-size: 0.9em; color: #64748b; margin-top: 5px; }
+  .comm-address { font-size: 0.9em; color: #64748b; margin-top: 5px; line-height: 1.6; }
 
   .btn-counter {
     width: 100%; background: linear-gradient(135deg, #10b981 0%, #059669 100%);
@@ -211,7 +211,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getDatabase, ref, set, get, remove, onDisconnect, onValue, onChildAdded } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { getDatabase, ref, set, get, remove, onDisconnect, onValue, onChildAdded, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCxxXV_6CEo1fTp3rRbfwfYbe7WH0Cyg38",
@@ -227,71 +227,74 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 const committeesDB = {
-  1: {name: "الفروسات", address: "مدرسة احمد القصبى الابتدائية"},
-  2: {name: "الفروسات", address: "مدرسة احمد القصبى الابتدائية"},
-  3: {name: "أبو الأخضر", address: "مدرسة أبو الأخضر الابتدائية"},
-  4: {name: "جديدة المنزلة", address: "مدرسة الشهيد محمد فوزى"},
-  5: {name: "العامرة", address: "مدرسة العامرة الابتدائية"},
-  6: {name: "جديدة المنزلة", address: "مدرسة عبده بطي الإعدادية"},
-  7: {name: "عرب زيدان", address: "مدرسة عرب زيدان الابتدائية"},
-  8: {name: "الستايتة", address: "مدرسة الشهيد محمد زغلول الابتدائية"},
-  9: {name: "كفر حجاج", address: "مدرسة كفر حجاج الابتدائية"},
-  10: {name: "ميت خضير", address: "مدرسة محمد إسماعيل الإعدادية"},
-  11: {name: "المواجدة", address: "مدرسة حسني الشناوى"},
-  12: {name: "البصراط", address: "مدرسة الشهيد محمد المحلاوى الإعدادية"},
-  13: {name: "البصراط", address: "مدرسة الشهيد محمد المحلاوى الإعدادية"},
-  14: {name: "الطوابرة", address: "مدرسة النصر الإعدادية"},
-  15: {name: "العمارنة", address: "مدرسة العمارنة الابتدائية"},
-  16: {name: "أولاد بانا", address: "مدرسة أولاد بانا الابتدائية"},
-  17: {name: "أولاد حانا", address: "مدرسة أولاد حانا الابتدائية"},
-  18: {name: "القزاقزة", address: "مدرسة القزاقزة الابتدائية"},
-  19: {name: "الحوته", address: "مدرسة الشهيد اسلام محمد"},
-  20: {name: "أولاد نور", address: "مدرسة أولاد نور الابتدائية"},
-  21: {name: "الخلايفة", address: "مدرسة الشهيد محمود فهيم الابتدائية"},
-  22: {name: "القطشة", address: "مدرسة القطشة الإعدادية"},
-  23: {name: "الجماملة", address: "مدرسة الجماملة الابتدائية"},
-  24: {name: "العزيزة", address: "مدرسة مجمع العزيزة الابتدائية"},
-  25: {name: "العزيزة", address: "مدرسة مجمع العزيزة الابتدائية"},
-  26: {name: "الأحمدية", address: "مدرسة الاحمدية الابتدائية"},
-  27: {name: "العربان", address: "مدرسة طاهر فرح"},
-  28: {name: "أولاد علم", address: "مدرسة الشني سليم الابتدائية"},
-  29: {name: "أولاد ناصر", address: "مدرسة الدكتور محمد النحاس"},
-  30: {name: "ببر هلال", address: "مدرسة ببر هلال الابتدائية"},
-  31: {name: "الشبول", address: "معهد بني الشبول الأزهرى"},
-  32: {name: "الشبول", address: "معهد بني الشبول الأزهرى"},
-  33: {name: "الرودة", address: "مدرسة الرودة الإعدادية"},
-  34: {name: "ميت شريف", address: "مدرسة أم المؤمنين الابتدائية"},
-  35: {name: "بحر حادوث", address: "مدرسة السيد قطب الإعدادية"},
-  36: {name: "النسايمة", address: "مدرسة النسايمة الابتدائية"},
-  37: {name: "النسايمة", address: "مدرسة النسايمة الابتدائية"},
-  38: {name: "شارع الثورة", address: "مدرسة الشهيد محمود النجدي الثانوية بنات"},
-  39: {name: "شارع الثورة", address: "مدرسة الشهيد محمود النجدي الثانوية بنات"},
-  40: {name: "شارع محمد فريد", address: "معهد فتيات المطرية ع ث"},
-  41: {name: "شارع المينا القبلي", address: "مدرسة أبو بكر الصديق"},
-  42: {name: "شارع الدقهلية", address: "مدرسة أحمد ماهر الثانوية بنين"},
-  43: {name: "شارع الدقهلية", address: "مدرسة أحمد ماهر الثانوية بنين"},
-  44: {name: "شارع المينا البحري", address: "مدرسة العاشر من رمضان الابتدائية"},
-  45: {name: "شارع المينا البحري", address: "مدرسة طارق ابن زياد الأعدادية"},
-  46: {name: "قرية العصافرة", address: "مدرسة السيدة نفسية الاعدادية بنات"},
-  47: {name: "قرية العصافرة", address: "مدرسة السيدة نفسية الاعدادية بنات"},
-  48: {name: "قرية الضهير", address: "مدرسة الضهير الإبتدائية"},
-  49: {name: "شارع صلاح الدين", address: "معهد عثمان بن عفان الابتدائي"},
-  50: {name: "شارع الدقهلية", address: "مدرسة خالد بن الوليد"},
-  51: {name: "شارع الدقهلية", address: "مدرسة خالد بن الوليد"},
-  52: {name: "شارع المينا البحري", address: "مدرسة المطرية الابتدائية"},
-  53: {name: "شارع الثانوية", address: "مدرسة الثانوية بنين"},
-  54: {name: "شارع مصنع البصل", address: "مدرسة عثمان بن عفان الإعدادية"},
-  55: {name: "شارع مصنع البصل", address: "مدرسة عثمان بن عفان الإعدادية"},
-  56: {name: "شارع بورسعيد", address: "مدرسة الأنصاري الابتدائية"},
-  57: {name: "هاشم شلباية", address: "مدرسة هاشم شلباية خلف المستشفى"},
-  58: {name: "شارع الزهراء", address: "مدرسة الزهراء الابتدائية"},
-  59: {name: "شارع الزهراء", address: "مدرسة الزهراء الابتدائية"},
-  60: {name: "سوق الجمعة", address: "مدرسة الامام علي الابتدائية"}
+  1: {name: "الفروسات", address: "مدرسة احمد القصبى الابتدائية", original: 5929},
+  2: {name: "الفروسات", address: "مدرسة احمد القصبى الابتدائية", original: 5554},
+  3: {name: "أبو الأخضر", address: "مدرسة أبو الأخضر الابتدائية", original: 4617},
+  4: {name: "جديدة المنزلة", address: "مدرسة الشهيد محمد فوزى", original: 9197},
+  5: {name: "العامرة", address: "مدرسة العامرة الابتدائية", original: 3519},
+  6: {name: "جديدة المنزلة", address: "مدرسة عبده بطي الإعدادية", original: 3781},
+  7: {name: "عرب زيدان", address: "مدرسة عرب زيدان الابتدائية", original: 1848},
+  8: {name: "الستايتة", address: "مدرسة الشهيد محمد زغلول الابتدائية", original: 2239},
+  9: {name: "كفر حجاج", address: "مدرسة كفر حجاج الابتدائية", original: 2689},
+  10: {name: "ميت خضير", address: "مدرسة محمد إسماعيل الإعدادية", original: 2204},
+  11: {name: "المواجدة", address: "مدرسة حسني الشناوى", original: 4891},
+  12: {name: "البصراط", address: "مدرسة الشهيد محمد المحلاوى الإعدادية", original: 9075},
+  13: {name: "البصراط", address: "مدرسة الشهيد محمد المحلاوى الإعدادية", original: 8966},
+  14: {name: "الطوابرة", address: "مدرسة النصر الإعدادية", original: 4194},
+  15: {name: "العمارنة", address: "مدرسة العمارنة الابتدائية", original: 9886},
+  16: {name: "أولاد بانا", address: "مدرسة أولاد بانا الابتدائية", original: 1892},
+  17: {name: "أولاد حانا", address: "مدرسة أولاد حانا الابتدائية", original: 4334},
+  18: {name: "القزاقزة", address: "مدرسة القزاقزة الابتدائية", original: 2239},
+  19: {name: "الحوته", address: "مدرسة الشهيد اسلام محمد", original: 4400},
+  20: {name: "أولاد نور", address: "مدرسة أولاد نور الابتدائية", original: 2290},
+  21: {name: "الخلايفة", address: "مدرسة الشهيد محمود فهيم الابتدائية", original: 1904},
+  22: {name: "القطشة", address: "مدرسة القطشة الإعدادية", original: 2052},
+  23: {name: "الجماملة", address: "مدرسة الجماملة الابتدائية", original: 1868},
+  24: {name: "العزيزة", address: "مدرسة مجمع العزيزة الابتدائية", original: 10131},
+  25: {name: "العزيزة", address: "مدرسة مجمع العزيزة الابتدائية", original: 10191},
+  26: {name: "الأحمدية", address: "مدرسة الاحمدية الابتدائية", original: 4683},
+  27: {name: "العربان", address: "مدرسة طاهر فرح", original: 560},
+  28: {name: "أولاد علم", address: "مدرسة الشني سليم الابتدائية", original: 1342},
+  29: {name: "أولاد ناصر", address: "مدرسة الدكتور محمد النحاس", original: 1642},
+  30: {name: "ببر هلال", address: "مدرسة ببر هلال الابتدائية", original: 3328},
+  31: {name: "الشبول", address: "معهد بني الشبول الأزهرى", original: 6250},
+  32: {name: "الشبول", address: "معهد بني الشبول الأزهرى", original: 5863},
+  33: {name: "الرودة", address: "مدرسة الرودة الإعدادية", original: 5498},
+  34: {name: "ميت شريف", address: "مدرسة أم المؤمنين الابتدائية", original: 5498},
+  35: {name: "بحر حادوث", address: "مدرسة السيد قطب الإعدادية", original: 9792},
+  36: {name: "النسايمة", address: "مدرسة النسايمة الابتدائية", original: 7021},
+  37: {name: "النسايمة", address: "مدرسة النسايمة الابتدائية", original: 6121},
+  38: {name: "شارع الثورة", address: "مدرسة الشهيد محمود النجدي الثانوية بنات", original: 7446},
+  39: {name: "شارع الثورة", address: "مدرسة الشهيد محمود النجدي الثانوية بنات", original: 7447},
+  40: {name: "شارع محمد فريد", address: "معهد فتيات المطرية ع ث", original: 8538},
+  41: {name: "شارع المينا القبلي", address: "مدرسة أبو بكر الصديق", original: 7310},
+  42: {name: "شارع الدقهلية", address: "مدرسة أحمد ماهر الثانوية بنين", original: 8793},
+  43: {name: "شارع الدقهلية", address: "مدرسة أحمد ماهر الثانوية بنين", original: 8793},
+  44: {name: "شارع المينا البحري", address: "مدرسة العاشر من رمضان الابتدائية", original: 7721},
+  45: {name: "شارع المينا البحري", address: "مدرسة طارق ابن زياد الأعدادية", original: 7421},
+  46: {name: "قرية العصافرة", address: "مدرسة السيدة نفسية الاعدادية بنات", original: 9704},
+  47: {name: "قرية العصافرة", address: "مدرسة السيدة نفسية الاعدادية بنات", original: 9704},
+  48: {name: "قرية الضهير", address: "مدرسة الضهير الإبتدائية", original: 3119},
+  49: {name: "شارع صلاح الدين", address: "معهد عثمان بن عفان الابتدائي", original: 8214},
+  50: {name: "شارع الدقهلية", address: "مدرسة خالد بن الوليد", original: 6247},
+  51: {name: "شارع الدقهلية", address: "مدرسة خالد بن الوليد", original: 6247},
+  52: {name: "شارع المينا البحري", address: "مدرسة المطرية الابتدائية", original: 6600},
+  53: {name: "شارع الثانوية", address: "مدرسة الثانوية بنين", original: 10721},
+  54: {name: "شارع مصنع البصل", address: "مدرسة عثمان بن عفان الإعدادية", original: 7871},
+  55: {name: "شارع مصنع البصل", address: "مدرسة عثمان بن عفان الإعدادية", original: 8436},
+  56: {name: "شارع بورسعيد", address: "مدرسة الأنصاري الابتدائية", original: 9689},
+  57: {name: "هاشم شلباية", address: "مدرسة هاشم شلباية خلف المستشفى", original: 10055},
+  58: {name: "شارع الزهراء", address: "مدرسة الزهراء الابتدائية", original: 6975},
+  59: {name: "شارع الزهراء", address: "مدرسة الزهراء الابتدائية", original: 5580},
+  60: {name: "سوق الجمعة", address: "مدرسة الامام علي الابتدائية", original: 10989}
 };
 
 let myCommittee = 0;
 let sessionID = Date.now().toString();
 let loginTime = Date.now();
+// متغيرات التحكم في العدد
+let maxVotes = 0;        
+let currentTotalVotes = 0; 
 const imgbbKey = "4580317b11de33e7c7630672bfc20bf9";
 
 // ----------------------------------------------------
@@ -313,7 +316,6 @@ window.handleLogin = async function() {
   // === COMMITTEE LOGIN ===
   const num = parseInt(val) - 100100;
   if(num >= 1 && num <= 60) {
-    // Check for duplicate session
     const sessionRef = ref(db, `active_sessions/${num}`);
     const snapshot = await get(sessionRef);
     
@@ -323,19 +325,26 @@ window.handleLogin = async function() {
       return;
     }
 
-    // Proceed to login
     myCommittee = num;
     loginTime = Date.now();
     const info = committeesDB[num];
     
+    // تخزين الحد الأقصى
+    maxVotes = info.original; 
+
+    // تحديث واجهة المستخدم
     document.getElementById("c-name").innerText = `لجنة ${num} - ${info.name}`;
-    document.getElementById("c-addr").innerHTML = `<i class="fa-solid fa-location-dot"></i> ${info.address}`;
+    document.getElementById("c-addr").innerHTML = `
+        <i class="fa-solid fa-location-dot"></i> ${info.address}<br>
+        <span style="color:#3b82f6; font-weight:bold; font-size:1.1em; margin-top:5px; display:inline-block;">
+           المسجل: <span id="live-counter">0</span> / ${maxVotes}
+        </span>
+    `;
     
     // Register Session
     set(sessionRef, { status: 'online', timestamp: Date.now(), id: sessionID });
     onDisconnect(sessionRef).remove();
 
-    // Listen if Admin Kicks me
     onValue(sessionRef, (snap) => {
       if(!snap.exists() && myCommittee !== 0) {
         alert("تم تسجيل خروجك بواسطة الأدمن!");
@@ -346,8 +355,9 @@ window.handleLogin = async function() {
     document.getElementById("login-modal").classList.add("hidden");
     document.getElementById("committee-panel").classList.remove("hidden");
     
-    // --- بدء الاستماع للرسائل الجديدة ---
+    // بدء الخدمات
     startMessageListener();
+    startVoteListener(num);
 
   } else {
     errText.innerText = "الكود غير صحيح";
@@ -364,10 +374,58 @@ window.logout = function() {
 };
 
 // ----------------------------------------------------
+// ** VOTE TRACKING & LIMITS **
+// ----------------------------------------------------
+function startVoteListener(commId) {
+    let singleCount = 0;
+    let bulkCount = 0;
+
+    // استماع للأصوات الفردية
+    const singleQ = query(ref(db, "votes"), orderByChild("committee"), equalTo(commId));
+    onValue(singleQ, (snapshot) => {
+        singleCount = 0;
+        snapshot.forEach((child) => {
+            singleCount += (child.val().count || 0);
+        });
+        updateTotalAndUI(singleCount, bulkCount);
+    });
+
+    // استماع لأصوات الجملة
+    const bulkQ = query(ref(db, "bulk_counts"), orderByChild("committee"), equalTo(commId));
+    onValue(bulkQ, (snapshot) => {
+        bulkCount = 0;
+        snapshot.forEach((child) => {
+            bulkCount += (child.val().count || 0);
+        });
+        updateTotalAndUI(singleCount, bulkCount);
+    });
+}
+
+function updateTotalAndUI(s, b) {
+    currentTotalVotes = s + b;
+    const display = document.getElementById("live-counter");
+    if(display) {
+        display.innerText = currentTotalVotes;
+        if(currentTotalVotes >= maxVotes) {
+            display.style.color = "#ef4444"; 
+        } else {
+            display.style.color = "#3b82f6";
+        }
+    }
+}
+
+// ----------------------------------------------------
 // 2. COMMITTEE FUNCTIONS
 // ----------------------------------------------------
 window.addOne = function() {
   if(myCommittee === 0) return;
+  
+  // فحص الحد الأقصى
+  if(currentTotalVotes + 1 > maxVotes) {
+      alert(`❌ خطأ: لا يمكن الإضافة!\nالعدد سيصبح (${currentTotalVotes + 1}) وهو أكبر من عدد المقيدين باللجنة (${maxVotes}).`);
+      return;
+  }
+
   const btn = document.getElementById("main-btn");
   btn.classList.add("btn-clicked-effect");
   setTimeout(() => btn.classList.remove("btn-clicked-effect"), 200);
@@ -381,6 +439,13 @@ window.addOne = function() {
 window.addBulk = function() {
   const val = parseInt(document.getElementById("bulk-val").value);
   if(!val || val <= 0) return;
+
+  // فحص الحد الأقصى
+  if(currentTotalVotes + val > maxVotes) {
+      alert(`❌ خطأ: العدد كبير جداً!\nإجمالي الأصوات سيصبح (${currentTotalVotes + val})، بينما عدد المقيدين هو (${maxVotes}) فقط.`);
+      return;
+  }
+
   if(confirm(`تأكيد إضافة ${val} ناخب؟`)) {
     const key = Date.now();
     set(ref(db, "bulk_counts/" + key), {
@@ -406,20 +471,16 @@ window.uploadFile = function() {
 };
 
 // ----------------------------------------------------
-// ** NEW MESSAGING LOGIC **
+// ** MESSAGING **
 // ----------------------------------------------------
 function startMessageListener() {
-  // الاستماع إلى عقدة "notifications" المتوافقة مع صفحة الأدمن
   onChildAdded(ref(db, 'notifications'), (snapshot) => {
     const msg = snapshot.val();
-    // تجاهل الرسائل القديمة قبل الدخول
     if(!msg || msg.timestamp < loginTime) return;
 
-    // 1. رسالة عامة للجميع
     if(msg.target === 'all') {
       showInboxMessage(msg.body, 'public', msg.timestamp);
     } 
-    // 2. رسالة خاصة لهذه اللجنة فقط
     else if(msg.target == myCommittee) {
       showInboxMessage(msg.body, 'private', msg.timestamp);
     }
@@ -427,14 +488,12 @@ function startMessageListener() {
 }
 
 function showInboxMessage(text, type, time) {
-  // تشغيل الصوت
   const audio = document.getElementById("notif-sound");
   audio.play().catch(e => console.log("Audio blocked"));
 
   const container = document.getElementById("msg-container");
   const isPrivate = type === 'private';
   
-  // إعداد النصوص والأيقونات حسب النوع
   const headerText = isPrivate ? '📩 رسالة خاصة لك' : '📢 رسالة للجميع';
   const headerClass = isPrivate ? 'msg-private' : 'msg-public';
   const icon = isPrivate ? '<i class="fa-solid fa-envelope-open-text"></i>' : '<i class="fa-solid fa-bullhorn"></i>';
@@ -502,7 +561,6 @@ function showFlashMsg(txt) {
   setTimeout(() => msg.style.display = "none", 2000);
 }
 
-// Expose kickUser to window for HTML onclick
 window.kickUser = window.kickUser; 
 </script>
 </body>
