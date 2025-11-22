@@ -595,7 +595,16 @@ function renderActiveList() {
     list.appendChild(div);
   });
 }
-
+function showFlashMsg(txt) {
+  const msg = document.getElementById("flash-msg");
+  if(msg) {
+    msg.innerText = txt; 
+    msg.style.display = "block";
+    setTimeout(() => msg.style.display = "none", 2000);
+  } else {
+    alert(txt);
+  }
+}
 window.kickUser = function(id) {
   if(confirm(`طرد مشرف لجنة ${id}؟`)) {
     remove(ref(db, `active_sessions/${id}`))
@@ -661,3 +670,4 @@ window.resetCommittee = window.resetCommittee;
 </script>
 </body>
 </html>
+
