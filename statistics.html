@@ -2,184 +2,233 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<title>غرفة العمليات المركزية - Live Dashboard</title>
+<title>غرفة العمليات المركزية - Live Command</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
 
 <style>
   :root {
-    --primary: #2563eb;
-    --bg-body: #f1f5f9;
-    --bg-card: #ffffff;
-    --text-main: #0f172a;
-    --flash-blue: rgba(59, 130, 246, 0.4);
-    --flash-green: rgba(34, 197, 94, 0.4);
+    --primary: #3b82f6;
+    --bg-body: #f0f4f8;
+    --surface: #ffffff;
+    --text-main: #1e293b;
+    --neon-green: #10b981;
+    --neon-red: #ef4444;
   }
 
   * { box-sizing: border-box; font-family: "Cairo", sans-serif; margin:0; padding:0; outline: none; }
   body { background: var(--bg-body); color: var(--text-main); padding: 20px; min-height: 100vh; }
-  
-  /* --- Login Screen --- */
+
+  /* --- Login --- */
   #login-screen {
     position: fixed; inset: 0; background: #0f172a; z-index: 10000;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
   }
   .login-box {
-    background: #1e293b; padding: 40px; border-radius: 20px;
-    text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); width: 90%; max-width: 400px;
-    border: 1px solid #334155;
+    background: rgba(30, 41, 59, 0.95); padding: 40px; border-radius: 20px;
+    text-align: center; box-shadow: 0 0 50px rgba(59, 130, 246, 0.2); width: 90%; max-width: 400px;
+    border: 1px solid #334155; backdrop-filter: blur(10px);
   }
   .login-box h2 { color: #fff; margin-bottom: 20px; font-weight: 900; }
   .pass-input {
-    width: 100%; padding: 15px; border-radius: 10px; border: 2px solid #334155;
-    background: #0f172a; color: #fff; font-size: 1.2em; text-align: center; letter-spacing: 5px;
+    width: 100%; padding: 15px; border-radius: 10px; border: 2px solid #475569;
+    background: #020617; color: #fff; font-size: 1.2em; text-align: center; letter-spacing: 5px;
     margin-bottom: 20px; transition: 0.3s;
   }
-  .pass-input:focus { border-color: #3b82f6; box-shadow: 0 0 15px rgba(59, 130, 246, 0.3); }
+  .pass-input:focus { border-color: var(--primary); box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); }
   .login-btn {
-    background: linear-gradient(135deg, #3b82f6, #2563eb); color: #fff; border: none;
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: #fff; border: none;
     padding: 12px 30px; border-radius: 10px; font-size: 1.1em; font-weight: bold;
     cursor: pointer; width: 100%; transition: 0.3s;
   }
-  .login-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(37, 99, 235, 0.4); }
-  .error-msg { color: #ef4444; margin-top: 15px; font-size: 0.9em; display: none; font-weight: bold; }
+  .login-btn:hover { transform: translateY(-3px); }
 
   /* --- Dashboard --- */
   #dashboard-content { display: none; animation: fadeIn 0.8s ease; }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
+  /* Stats */
   .header-stats {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px;
   }
   .stat-card {
-    background: var(--bg-card); padding: 15px; border-radius: 16px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-bottom: 4px solid #ddd;
-    text-align: center; display: flex; flex-direction: column; justify-content: center;
+    background: var(--surface); padding: 20px; border-radius: 16px;
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-bottom: 5px solid #ccc;
+    text-align: center; transition: transform 0.3s; position: relative; overflow: hidden;
   }
-  .stat-value { font-size: 1.8em; font-weight: 900; color: #0f172a; line-height: 1.1; }
-  .stat-label { color: #64748b; font-size: 0.8em; font-weight: 700; margin-top: 5px; }
+  .stat-card:hover { transform: translateY(-5px); }
+  .stat-value { font-size: 2.2em; font-weight: 900; color: #0f172a; line-height: 1; }
+  .stat-label { color: #64748b; font-size: 0.85em; font-weight: 700; margin-top: 8px; }
 
-  /* --- Controls --- */
-  .controls-bar {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 20px; flex-wrap: wrap; gap: 15px; background: #fff; padding: 15px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  /* --- Control Panel (Messaging) --- */
+  .control-panel {
+    background: #fff; padding: 20px; border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    margin-bottom: 25px;
   }
-  .actions-group { display: flex; gap: 10px; flex-wrap: wrap; }
+  .panel-header { font-weight: 900; font-size: 1.2em; color: #1e293b; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; }
   
-  .btn-action {
-    padding: 8px 16px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: #fff; display: flex; align-items: center; gap: 6px; font-size: 0.85em; transition: 0.2s;
+  .controls-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+  
+  /* تصميم شريط الرسائل الجديد */
+  .msg-wrapper {
+    display: flex; gap: 0; align-items: center; background: #f1f5f9; 
+    border-radius: 12px; border: 1px solid #cbd5e1; flex: 1; overflow: hidden;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.03);
   }
+  
+  .msg-icon-box {
+    background: #e2e8f0; padding: 0 20px; height: 50px; display: flex; align-items: center; justify-content: center;
+    font-size: 1.4em; color: #64748b; transition: 0.3s; border-left: 1px solid #cbd5e1;
+  }
+  
+  .msg-select { 
+    padding: 0 15px; height: 50px; border: none; background: transparent; font-weight: bold; outline: none; cursor: pointer; width: 220px;
+  }
+  .msg-input { 
+    flex: 1; padding: 0 15px; height: 50px; border: none; background: transparent; outline: none; border-right: 1px solid #cbd5e1;
+  }
+  
+  .btn-send-msg {
+    padding: 0 25px; height: 50px; border: none; background: #3b82f6; color: white; 
+    font-weight: bold; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px;
+  }
+  .btn-send-msg:hover { background: #2563eb; }
+
+  /* باقي الأزرار */
+  .action-btns { display: flex; gap: 10px; }
+  .search-box { padding: 10px; border: 2px solid #cbd5e1; border-radius: 8px; font-weight: bold; width: 200px; }
+  .btn { padding: 10px 20px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: #fff; transition: 0.2s; display: flex; align-items: center; gap: 5px; }
   .btn-excel { background: #10b981; } .btn-excel:hover { background: #059669; }
   .btn-reset { background: #ef4444; } .btn-reset:hover { background: #dc2626; }
 
-  .search-box {
-    padding: 8px 12px; border: 2px solid #e2e8f0; border-radius: 8px; width: 220px; font-size: 0.9em;
-  }
-
   /* --- Grid --- */
-  .comm-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px;
-  }
+  .comm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 15px; }
   .comm-card {
-    background: #fff; border-radius: 12px; padding: 12px;
-    cursor: pointer; transition: all 0.2s;
-    border: 1px solid #e2e8f0; height: 160px; /* زيادة الطول قليلاً لاستيعاب العنوان */
-    display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden;
+    background: #fff; border-radius: 16px; padding: 15px; cursor: pointer; transition: all 0.3s;
+    border: 1px solid #e2e8f0; height: 170px; display: flex; flex-direction: column; justify-content: space-between;
+    position: relative; overflow: hidden;
   }
-  .comm-card:hover { transform: translateY(-3px); border-color: #3b82f6; box-shadow: 0 10px 15px rgba(0,0,0,0.05); }
+  .comm-card:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 15px 30px rgba(0,0,0,0.1); border-color: var(--primary); }
 
   /* Animations */
-  @keyframes flashBlue { 0% { background: var(--flash-blue); } 100% { background: #fff; } }
-  @keyframes flashGreen { 0% { background: var(--flash-green); } 100% { background: #fff; } }
-  .flash-effect-blue { animation: flashBlue 1s ease-out; }
-  .flash-effect-green { animation: flashGreen 1s ease-out; }
+  @keyframes pulseGlow {
+    0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); border-color: #3b82f6; }
+    70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); border-color: #3b82f6; }
+    100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); border-color: #e2e8f0; }
+  }
+  .update-anim { animation: pulseGlow 1s ease-out; }
 
-  .comm-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
-  .badge-num { background: #f1f5f9; color: #64748b; padding: 2px 6px; border-radius: 4px; font-size: 0.75em; font-weight: 800; }
+  .comm-header { display: flex; justify-content: space-between; align-items: flex-start; }
+  .badge-id { background: #f1f5f9; color: #475569; padding: 2px 8px; border-radius: 6px; font-size: 0.75em; font-weight: 800; }
+  .badge-status { width: 10px; height: 10px; border-radius: 50%; background: #cbd5e1; }
+  .status-active { background: #10b981; box-shadow: 0 0 8px #10b981; }
   
-  .comm-name { font-size: 0.95em; font-weight: 800; color: #0f172a; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .comm-address { font-size: 0.7em; color: #64748b; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  
-  .stats-row { display: flex; justify-content: space-between; align-items: flex-end; margin-top: auto; }
-  .comm-current { font-size: 1.6em; font-weight: 900; color: #2563eb; line-height: 1; }
-  .comm-total { font-size: 0.75em; color: #94a3b8; font-weight: 600; }
-  
-  .progress { height: 5px; background: #f1f5f9; border-radius: 3px; overflow: hidden; margin-top: 8px; }
-  .bar { height: 100%; background: linear-gradient(90deg, #3b82f6, #2563eb); width: 0%; transition: width 0.5s; }
+  .comm-name { font-size: 1em; font-weight: 800; color: #1e293b; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .comm-sub { font-size: 0.75em; color: #64748b; margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .stats-row { display: flex; justify-content: space-between; align-items: flex-end; }
+  .val-big { font-size: 1.8em; font-weight: 900; color: var(--primary); line-height: 1; }
+  .val-small { font-size: 0.8em; color: #94a3b8; font-weight: 600; }
+
+  .progress-bg { height: 6px; background: #f1f5f9; border-radius: 3px; overflow: hidden; margin-top: 10px; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #60a5fa, #2563eb); width: 0%; transition: width 0.6s; }
 
   /* --- Modal --- */
   .overlay {
-    position: fixed; inset: 0; background: rgba(15, 23, 42, 0.8);
-    display: none; align-items: center; justify-content: center; z-index: 5000;
-    backdrop-filter: blur(3px);
+    position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); display: none; 
+    align-items: center; justify-content: center; z-index: 5000; backdrop-filter: blur(8px);
   }
   .modal {
-    background: #fff; width: 95%; max-width: 550px; border-radius: 16px; padding: 25px;
-    box-shadow: 0 25px 50px rgba(0,0,0,0.25); animation: slideUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    display: flex; flex-direction: column; max-height: 90vh;
+    background: #fff; width: 95%; max-width: 600px; border-radius: 24px; padding: 0;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); display: flex; flex-direction: column; max-height: 90vh;
+    animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
-  @keyframes slideUp { from {transform: translateY(50px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
+  @keyframes modalPop { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; }
-  .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 0.85em; font-weight: 800; display: inline-block; }
-  .status-high { background: #dcfce7; color: #166534; }
-  .status-low { background: #fef9c3; color: #854d0e; }
-  .status-inactive { background: #fee2e2; color: #991b1b; }
-  
-  .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-  .d-item { background: #f8fafc; padding: 15px; border-radius: 10px; text-align: center; border: 1px solid #e2e8f0; }
-  .d-val { font-size: 1.5em; font-weight: 900; color: #0f172a; }
-  .d-label { font-size: 0.8em; color: #64748b; font-weight: 700; }
+  .modal-head { background: #f8fafc; padding: 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+  .m-title { font-size: 1.4em; font-weight: 900; color: #0f172a; }
+  .m-sub { font-size: 0.9em; color: #64748b; }
+  .close-btn { background: #e2e8f0; width: 36px; height: 36px; border-radius: 50%; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; }
+  .close-btn:hover { background: #ef4444; color: #fff; }
 
-  .log-container { flex: 1; overflow-y: auto; background: #f8fafc; border-radius: 10px; padding: 10px; border: 1px solid #e2e8f0; max-height: 300px; }
-  .log-row { display: flex; justify-content: space-between; padding: 8px 12px; border-bottom: 1px solid #eee; background: #fff; margin-bottom: 5px; border-radius: 6px; font-size: 0.85em; align-items: center; }
+  .modal-body { padding: 20px; overflow-y: auto; }
+  .grid-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+  .g-card { background: #f8fafc; padding: 15px; border-radius: 12px; text-align: center; border: 1px solid #e2e8f0; }
+  .g-val { font-size: 1.6em; font-weight: 900; color: #1e293b; }
+  .g-lbl { font-size: 0.8em; color: #64748b; font-weight: 700; }
+  .log-feed { border: 1px solid #e2e8f0; border-radius: 12px; max-height: 250px; overflow-y: auto; background: #fafafa; }
+  .log-item { padding: 10px 15px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; background: #fff; }
+  .log-item:first-child { background: #eff6ff; }
+  .log-time { font-size: 0.85em; color: #64748b; font-weight: 600; }
+  .log-v { font-weight: 800; color: var(--primary); background: #dbeafe; padding: 2px 8px; border-radius: 4px; }
+
 </style>
 </head>
 <body>
 
 <div id="login-screen">
   <div class="login-box">
-    <h2>بوابة الدخول</h2>
+    <h2><i class="fa-solid fa-shield-halved"></i> غرفة العمليات</h2>
     <input type="password" id="password" class="pass-input" placeholder="الرقم السري" onkeyup="checkEnter(event)">
-    <button class="login-btn" onclick="attemptLogin()">دخول</button>
-    <div class="error-msg" id="error-msg">الرقم السري غير صحيح!</div>
+    <button class="login-btn" onclick="attemptLogin()">تسجيل الدخول</button>
+    <div class="error-msg" id="error-msg">خطأ في كلمة المرور</div>
   </div>
 </div>
 
 <div id="dashboard-content">
   <div class="header-stats">
-    <div class="stat-card" style="border-bottom-color: #0f172a; background: #f8fafc;">
+    <div class="stat-card" style="border-bottom-color: #0f172a;">
       <div class="stat-value" id="total-original-static">350,757</div>
-      <div class="stat-label">القوة التصويتية (المقيدين)</div>
+      <div class="stat-label">القوة التصويتية</div>
     </div>
-    <div class="stat-card" style="border-bottom-color: #3b82f6;">
+    <div class="stat-card" style="border-bottom-color: #2563eb;">
       <div class="stat-value" id="total-all">0</div>
-      <div class="stat-label">إجمالي الحضور الحالي</div>
+      <div class="stat-label">إجمالي الحضور</div>
     </div>
     <div class="stat-card" style="border-bottom-color: #10b981;">
       <div class="stat-value" id="percent-all">0%</div>
-      <div class="stat-label">نسبة التصويت</div>
+      <div class="stat-label">النسبة المئوية</div>
     </div>
     <div class="stat-card" style="border-bottom-color: #f59e0b;">
       <div class="stat-value" id="speed-min">0</div>
-      <div class="stat-label">متوسط الحضور / دقيقة</div>
+      <div class="stat-label">الأداء / دقيقة</div>
     </div>
     <div class="stat-card" style="border-bottom-color: #ef4444;">
       <div class="stat-value" id="total-remaining">0</div>
-      <div class="stat-label">الأصوات المتبقية</div>
+      <div class="stat-label">المتبقي</div>
     </div>
   </div>
 
-  <div class="controls-bar">
-    <div style="font-weight:900; font-size:1.1em; color:#1e293b;">
-      متابعة اللجان (60 لجنة)
+  <div class="control-panel">
+    <div class="panel-header">
+      <i class="fa-solid fa-tower-broadcast"></i> مركز القيادة والرسائل
     </div>
     
-    <div class="actions-group">
-      <input type="text" id="search" class="search-box" placeholder="ابحث برقم اللجنة أو الاسم..." onkeyup="filterCommittees()">
-      <button class="btn-action btn-excel" onclick="exportToExcel()">تصدير Excel 📥</button>
-      <button class="btn-action btn-reset" onclick="confirmReset()">تصفير النظام ⚠️</button>
+    <div class="controls-row">
+      <div class="msg-wrapper">
+        <div class="msg-icon-box" id="msg-icon-visual">
+          <i class="fa-solid fa-bullhorn" style="color:#ef4444;"></i>
+        </div>
+        
+        <select id="msg-target" class="msg-select" onchange="updateMsgIcon()">
+          <option value="all">📢 نداء عام للجميع</option>
+          </select>
+        
+        <input type="text" id="msg-text" class="msg-input" placeholder="اكتب التنبيه هنا...">
+        
+        <button class="btn-send-msg" onclick="sendMessage()">
+          <span id="btn-msg-text">إذاعة للكل</span>
+          <i id="btn-msg-icon" class="fa-solid fa-bullhorn"></i>
+        </button>
+      </div>
+
+      <div class="action-btns">
+        <input type="text" id="search" class="search-box" placeholder="🔍 بحث لجنة..." onkeyup="filterCommittees()">
+        <button class="btn btn-excel" onclick="exportToExcel()"><i class="fa-solid fa-file-excel"></i> Excel</button>
+        <button class="btn btn-reset" onclick="confirmReset()"><i class="fa-solid fa-triangle-exclamation"></i> تصفير</button>
+      </div>
     </div>
   </div>
 
@@ -188,46 +237,29 @@
 
 <div class="overlay" id="modal-overlay">
   <div class="modal">
-    <div class="modal-header">
+    <div class="modal-head">
       <div>
-        <div style="font-size:1.4em; font-weight:900;" id="m-title">لجنة 1</div>
-        <div style="font-size:0.9em; color:#64748b; font-weight:600;" id="m-subtitle">المدرسة...</div>
-        <div style="font-size:0.8em; color:#94a3b8;" id="m-address">العنوان...</div>
+        <div class="m-title" id="m-title">لجنة 1</div>
+        <div class="m-sub" id="m-subtitle">المدرسة</div>
       </div>
-      <button onclick="closeModal()" style="background:#f1f5f9; border:none; width:35px; height:35px; border-radius:50%; font-weight:bold; cursor:pointer; color:#64748b;">✕</button>
+      <button class="close-btn" onclick="closeModal()">✕</button>
     </div>
-
-    <div style="text-align:center; margin-bottom:15px;">
-      <span id="m-status-badge" class="status-badge">جاري التحليل...</span>
+    <div class="modal-body">
+      <div class="grid-stats">
+        <div class="g-card"><div class="g-val" id="m-original">0</div><div class="g-lbl">المقيدين</div></div>
+        <div class="g-card" style="background:#eff6ff; border-color:#bfdbfe;"><div class="g-val" id="m-present" style="color:#2563eb">0</div><div class="g-lbl">الحضور</div></div>
+        <div class="g-card"><div class="g-val" id="m-rate-min">0</div><div class="g-lbl">نشاط (دقيقة)</div></div>
+        <div class="g-card"><div class="g-val" id="m-rate-hour">0</div><div class="g-lbl">نشاط (ساعة)</div></div>
+      </div>
+      <div style="margin-bottom:10px; font-weight:bold; color:#334155;">سجل النشاط المباشر:</div>
+      <div class="log-feed" id="m-logs"></div>
     </div>
-
-    <div class="details-grid">
-      <div class="d-item">
-        <div class="d-val" id="m-original" style="color:#64748b;">0</div>
-        <div class="d-label">إجمالي المقيدين</div>
-      </div>
-      <div class="d-item">
-        <div class="d-val" id="m-present" style="color:#2563eb;">0</div>
-        <div class="d-label">إجمالي المصوتين</div>
-      </div>
-      <div class="d-item">
-        <div class="d-val" id="m-rate-min">0</div>
-        <div class="d-label">التصويت / دقيقة</div>
-      </div>
-      <div class="d-item">
-        <div class="d-val" id="m-rate-hour">0</div>
-        <div class="d-label">التصويت / ساعة</div>
-      </div>
-    </div>
-
-    <div style="font-weight:bold; margin-bottom:10px; font-size:0.9em;">سجل الحركات (الأحدث):</div>
-    <div class="log-container" id="m-logs"></div>
   </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { getDatabase, ref, onValue, set, push } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCxxXV_6CEo1fTp3rRbfwfYbe7WH0Cyg38",
@@ -242,7 +274,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// بيانات اللجان (تم دمج الأسماء والعناوين مع الأعداد الأصلية)
 const committeesDB = {
   1: {name: "الفروسات", address: "مدرسة احمد القصبى الابتدائية", original: 5929},
   2: {name: "الفروسات", address: "مدرسة احمد القصبى الابتدائية", original: 5554},
@@ -309,10 +340,9 @@ const committeesDB = {
 let allLogs = [];
 let commStats = {};
 let previousCommStats = {};
-let lightToggle = false;
+let currentOpenCommitteeId = null;
 let isFirstLoad = true;
 
-// 1. تسجيل الدخول
 window.checkEnter = (e) => { if(e.key === "Enter") attemptLogin(); }
 window.attemptLogin = () => {
   const p = document.getElementById('password').value;
@@ -327,35 +357,30 @@ window.attemptLogin = () => {
 
 function initDashboard() {
   const container = document.getElementById("grid-container");
+  const select = document.getElementById("msg-target");
   container.innerHTML = "";
+  
   for(let i=1; i<=60; i++) {
     const info = committeesDB[i];
     const d = document.createElement("div");
     d.className = "comm-card";
     d.id = `comm-${i}`;
     d.onclick = () => openModal(i);
-    
     d.innerHTML = `
-      <div class="comm-header">
-        <span class="badge-num">لجنة ${i}</span>
-      </div>
-      <div class="comm-name">${info.name}</div>
-      <div class="comm-address">${info.address}</div>
-      
-      <div class="stats-row">
-        <div class="comm-current" id="val-${i}">0</div>
-        <div class="comm-total">/ ${info.original.toLocaleString()}</div>
-      </div>
-      
-      <div class="progress"><div class="bar" id="bar-${i}"></div></div>
+      <div class="comm-header"><span class="badge-id">#${i}</span><div class="badge-status" id="status-${i}"></div></div>
+      <div><div class="comm-name">${info.name}</div><div class="comm-sub">${info.address}</div></div>
+      <div class="stats-row"><div class="val-big" id="val-${i}">0</div><div class="val-small">/ ${info.original.toLocaleString()}</div></div>
+      <div class="progress-bg"><div class="progress-fill" id="bar-${i}"></div></div>
     `;
     container.appendChild(d);
+
+    const opt = document.createElement("option");
+    opt.value = i;
+    opt.innerText = `لجنة ${i} - ${info.name}`;
+    select.appendChild(opt);
   }
 
-  const rootRef = ref(db, "/");
-  onValue(rootRef, (snap) => {
-    processData(snap.val());
-  });
+  onValue(ref(db, "/"), (snap) => processData(snap.val()));
 }
 
 function processData(data) {
@@ -367,193 +392,119 @@ function processData(data) {
     tempStats[i] = { current:0, original: committeesDB[i].original, logs:[] };
   }
 
-  if(data.votes) {
-    Object.values(data.votes).forEach(v => {
-      if(tempStats[v.committee]) {
-        tempStats[v.committee].current += (v.count || 1);
-        tempStats[v.committee].logs.push({val:1, time:v.timestamp});
-        allLogs.push({val:1, time:v.timestamp});
-      }
-    });
-  }
-
-  if(data.bulk_counts) {
-    Object.values(data.bulk_counts).forEach(v => {
-      const c = v.committee;
-      const n = parseInt(v.count);
-      if(tempStats[c]) {
-        tempStats[c].current += n;
-        tempStats[c].logs.push({val:n, time:v.timestamp});
-        allLogs.push({val:n, time:v.timestamp});
-      }
-    });
-  }
+  if(data.votes) Object.values(data.votes).forEach(v => { if(tempStats[v.committee]) { tempStats[v.committee].current += (v.count||1); tempStats[v.committee].logs.push({val:1, time:v.timestamp}); allLogs.push({val:1, time:v.timestamp}); }});
+  if(data.bulk_counts) Object.values(data.bulk_counts).forEach(v => { if(tempStats[v.committee]) { const n=parseInt(v.count); tempStats[v.committee].current += n; tempStats[v.committee].logs.push({val:n, time:v.timestamp}); allLogs.push({val:n, time:v.timestamp}); }});
   
   commStats = tempStats;
   updateUI();
+  if(currentOpenCommitteeId) renderModalContent(currentOpenCommitteeId);
   isFirstLoad = false;
   previousCommStats = JSON.parse(JSON.stringify(commStats));
 }
 
 function updateUI() {
-  let totalC = 0;
-  const totalO = 350757; // العدد الثابت للإجمالي العام
-
+  let totalC = 0; const totalO = 350757;
   for(let i=1; i<=60; i++) {
     const s = commStats[i];
     const prev = previousCommStats[i] ? previousCommStats[i].current : 0;
     totalC += s.current;
-
-    const el = document.getElementById(`comm-${i}`);
     document.getElementById(`val-${i}`).innerText = s.current.toLocaleString();
-    
     const per = s.original > 0 ? (s.current/s.original)*100 : 0;
     document.getElementById(`bar-${i}`).style.width = per + "%";
-
+    const card = document.getElementById(`comm-${i}`);
     if(!isFirstLoad && s.current > prev) {
-      el.classList.remove('flash-effect-blue', 'flash-effect-green');
-      void el.offsetWidth;
-      el.classList.add(lightToggle ? 'flash-effect-blue' : 'flash-effect-green');
-      lightToggle = !lightToggle;
-    }
+      card.classList.remove('update-anim'); void card.offsetWidth; card.classList.add('update-anim');
+      document.getElementById(`status-${i}`).classList.add('status-active');
+    } else if (isFirstLoad && s.current > 0) document.getElementById(`status-${i}`).classList.add('status-active');
   }
-
   document.getElementById("total-all").innerText = totalC.toLocaleString();
   document.getElementById("percent-all").innerText = ((totalC/totalO)*100).toFixed(1) + "%";
   document.getElementById("total-remaining").innerText = (totalO - totalC).toLocaleString();
-
-  // حساب السرعة العامة
   const now = Date.now();
-  const lastMin = allLogs.filter(l => (now - l.time) < 60000).reduce((a,b)=>a+b.val,0);
-  document.getElementById("speed-min").innerText = lastMin;
+  document.getElementById("speed-min").innerText = allLogs.filter(l => (now - l.time) < 60000).reduce((a,b)=>a+b.val,0);
 }
 
-// 2. تصفير النظام
+// --- MESSAGING LOGIC ---
+window.updateMsgIcon = () => {
+  const val = document.getElementById("msg-target").value;
+  const visualBox = document.getElementById("msg-icon-visual");
+  const btnText = document.getElementById("btn-msg-text");
+  const btnIcon = document.getElementById("btn-msg-icon");
+
+  if(val === 'all') {
+    // وضع الميكروفون (إذاعة)
+    visualBox.innerHTML = '<i class="fa-solid fa-bullhorn" style="color:#ef4444;"></i>';
+    btnText.innerText = "إذاعة للكل";
+    btnIcon.className = "fa-solid fa-bullhorn";
+  } else {
+    // وضع الرسالة الفردية
+    visualBox.innerHTML = '<i class="fa-solid fa-envelope" style="color:#3b82f6;"></i>';
+    btnText.innerText = "إرسال خاص";
+    btnIcon.className = "fa-solid fa-paper-plane";
+  }
+}
+
+window.sendMessage = () => {
+  const target = document.getElementById("msg-target").value;
+  const text = document.getElementById("msg-text").value;
+  if(!text.trim()) { alert("الرجاء كتابة رسالة"); return; }
+  
+  const msgType = target === 'all' ? "📢 رسالة عامة" : `📩 رسالة للجنة ${target}`;
+  
+  if(confirm(`تأكيد إرسال ${msgType}؟`)) {
+    push(ref(db, 'messages'), {
+      target: target, text: text, timestamp: Date.now(), sender: 'Admin'
+    }).then(() => {
+      alert("تم الإرسال بنجاح");
+      document.getElementById("msg-text").value = "";
+    }).catch(e => alert("خطأ: " + e));
+  }
+}
+
 window.confirmReset = () => {
-  const pass = prompt("أدخل الرقم السري للتأكيد (521988):");
-  if(pass === "521988") {
-    if(confirm("تحذير: سيتم حذف جميع البيانات المسجلة! هل أنت متأكد؟")) {
+  if(prompt("الرقم السري للتصفير:") === "521988") {
+    if(confirm("تنبيه! سيتم حذف كل البيانات!")) {
       set(ref(db, 'votes'), null);
       set(ref(db, 'bulk_counts'), null);
-      alert("تم تصفير النظام.");
+      set(ref(db, 'messages'), null);
+      alert("تم التصفير.");
     }
-  } else if(pass) {
-    alert("كلمة المرور خاطئة.");
   }
 }
 
-// 3. تصدير إكسيل
 window.exportToExcel = () => {
-  const data = [];
-  // Header
-  data.push(["رقم اللجنة", "اسم المنطقة", "مقر اللجنة", "المقيدين", "الحضور الفعلي", "النسبة %", "حالة النشاط"]);
-
-  const now = Date.now();
-  const oneHour = 3600000;
-
+  const data = [["رقم", "اسم", "عنوان", "مقيدين", "حضور", "نسبة"]];
   for(let i=1; i<=60; i++) {
-    const s = commStats[i];
-    const info = committeesDB[i];
-    const per = s.original > 0 ? ((s.current/s.original)*100).toFixed(2) + "%" : "0%";
-    
-    const lastHourLogs = s.logs.filter(l => (now - l.time) < oneHour);
-    const hourlyCount = lastHourLogs.reduce((a,b)=>a+b.val,0);
-    const lastLog = s.logs.length > 0 ? Math.max(...s.logs.map(l=>l.time)) : 0;
-    
-    let status = "عادي";
-    if(lastLog > 0 && (now - lastLog) > oneHour) status = "غير نشطة";
-    else if(hourlyCount > 300) status = "نشاط عالي";
-    else if(hourlyCount < 30 && lastLog > 0) status = "نشاط ضعيف";
-
-    data.push([i, info.name, info.address, info.original, s.current, per, status]);
+    const s=commStats[i], inf=committeesDB[i], p=s.original>0?((s.current/s.original)*100).toFixed(2)+"%":"0%";
+    data.push([i, inf.name, inf.address, inf.original, s.current, p]);
   }
-
-  const wb = XLSX.utils.book_new();
-  const ws = XLSX.utils.aoa_to_sheet(data);
-
-  ws['!cols'] = [{wch:8}, {wch:15}, {wch:30}, {wch:10}, {wch:10}, {wch:10}, {wch:15}];
-
-  XLSX.utils.book_append_sheet(wb, ws, "تقرير الغرفة المركزية");
+  const wb = XLSX.utils.book_new(), ws = XLSX.utils.aoa_to_sheet(data);
+  XLSX.utils.book_append_sheet(wb, ws, "تقرير");
   XLSX.writeFile(wb, "Election_Report.xlsx");
 }
 
-// 4. المودال
-window.openModal = (id) => {
-  const s = commStats[id];
-  const info = committeesDB[id];
-  const now = Date.now();
-  const oneHour = 3600000;
+window.openModal = (id) => { currentOpenCommitteeId = id; renderModalContent(id); document.getElementById("modal-overlay").style.display = "flex"; }
+window.closeModal = () => { currentOpenCommitteeId = null; document.getElementById("modal-overlay").style.display = "none"; }
 
-  document.getElementById("m-title").innerText = "لجنة رقم " + id;
+function renderModalContent(id) {
+  const s = commStats[id], info = committeesDB[id], now = Date.now();
+  document.getElementById("m-title").innerText = `لجنة ${id}`;
   document.getElementById("m-subtitle").innerText = info.name;
-  document.getElementById("m-address").innerText = info.address;
-  
   document.getElementById("m-original").innerText = info.original.toLocaleString();
   document.getElementById("m-present").innerText = s.current.toLocaleString();
-
-  const lastMinLogs = s.logs.filter(l => (now - l.time) < 60000);
-  const minCount = lastMinLogs.reduce((a,b)=>a+b.val, 0);
-
-  const lastHourLogs = s.logs.filter(l => (now - l.time) < oneHour);
-  const hourCount = lastHourLogs.reduce((a,b)=>a+b.val, 0);
-
-  document.getElementById("m-rate-min").innerText = minCount;
-  document.getElementById("m-rate-hour").innerText = hourCount;
-
-  const badge = document.getElementById("m-status-badge");
-  const lastLogTime = s.logs.length > 0 ? Math.max(...s.logs.map(l=>l.time)) : 0;
   
-  badge.className = "status-badge";
-  if(s.current === 0) {
-    badge.innerText = "لا توجد بيانات";
-    badge.style.background = "#eee"; badge.style.color = "#555";
-  } else if ( (now - lastLogTime) > oneHour ) {
-    badge.innerText = "توقف عن العمل";
-    badge.classList.add("status-inactive");
-  } else if (hourCount > 300) {
-    badge.innerText = "🔥 ضغط تصويتي";
-    badge.classList.add("status-high");
-  } else if (hourCount < 30) {
-    badge.innerText = "⚠️ إقبال ضعيف";
-    badge.classList.add("status-low");
-  } else {
-    badge.innerText = "نشاط طبيعي";
-    badge.style.background = "#e0f2fe"; badge.style.color = "#0369a1";
-  }
+  document.getElementById("m-rate-min").innerText = s.logs.filter(l => (now - l.time) < 60000).reduce((a,b)=>a+b.val, 0);
+  document.getElementById("m-rate-hour").innerText = s.logs.filter(l => (now - l.time) < 3600000).reduce((a,b)=>a+b.val, 0);
 
-  const container = document.getElementById("m-logs");
-  container.innerHTML = "";
-  const sortedLogs = [...s.logs].sort((a,b)=>b.time - a.time).slice(0, 50);
-  
-  if(sortedLogs.length === 0) {
-      container.innerHTML = "<div style='text-align:center; padding:10px; color:#999;'>لا توجد سجلات</div>";
-  } else {
-      sortedLogs.forEach(l => {
-        const d = new Date(l.time);
-        const timeStr = d.toLocaleTimeString("ar-EG");
-        const div = document.createElement("div");
-        div.className = "log-row";
-        div.innerHTML = `<span>${timeStr}</span> <span style="font-weight:bold; color:#2563eb;">+${l.val}</span>`;
-        container.appendChild(div);
-      });
-  }
-
-  document.getElementById("modal-overlay").style.display = "flex";
+  const logs = [...s.logs].sort((a,b)=>b.time - a.time).slice(0,50);
+  document.getElementById("m-logs").innerHTML = logs.length ? logs.map(l => `<div class="log-item"><span class="log-time">${new Date(l.time).toLocaleTimeString("ar-EG")}</span><span class="log-v">+${l.val}</span></div>`).join('') : "<div style='text-align:center;padding:10px;color:#999'>لا يوجد نشاط</div>";
 }
 
-window.closeModal = () => {
-  document.getElementById("modal-overlay").style.display = "none";
-}
 window.filterCommittees = () => {
   const v = document.getElementById("search").value.trim();
   for(let i=1; i<=60; i++) {
     const el = document.getElementById(`comm-${i}`);
-    // البحث بالرقم أو الاسم
-    if(v === "" || i == v || committeesDB[i].name.includes(v)) {
-        el.style.display = "flex";
-    } else {
-        el.style.display = "none";
-    }
+    el.style.display = (v === "" || i == v || committeesDB[i].name.includes(v)) ? "flex" : "none";
   }
 }
 </script>
