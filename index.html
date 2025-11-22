@@ -99,7 +99,6 @@
   .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid #334155; padding-bottom: 20px; }
   .admin-title { font-size: 1.5em; font-weight: 900; color: #3b82f6; display: flex; align-items: center; gap: 10px; }
   
-  /* Buttons in Admin Header */
   .admin-actions { display: flex; gap: 10px; }
   .reset-btn {
     background: #ef4444; color: #fff; border: none; padding: 10px 15px; border-radius: 8px;
@@ -108,11 +107,11 @@
   }
   .reset-btn:hover { background: #dc2626; }
   
-  .active-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; }
+  .active-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 15px; }
   
   .user-card {
     background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155;
-    display: flex; flex-direction: column; justify-content: space-between; gap: 10px;
+    display: flex; flex-direction: column; justify-content: space-between; gap: 8px;
   }
   .u-header { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 1.1em; }
   .status-dot { width: 10px; height: 10px; background: #10b981; border-radius: 50%; box-shadow: 0 0 8px #10b981; }
@@ -123,11 +122,20 @@
   }
   .u-stats span { color: #3b82f6; }
   
+  .card-actions { display: flex; gap: 5px; margin-top: 5px; }
+  
   .kick-btn {
-    background: #fee2e2; color: #ef4444; border: none; padding: 8px; border-radius: 6px;
-    cursor: pointer; font-weight: bold; width: 100%; display: flex; align-items: center; justify-content: center; gap: 5px; transition: 0.2s;
+    flex: 1; background: #fee2e2; color: #ef4444; border: none; padding: 8px; border-radius: 6px;
+    cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 5px; transition: 0.2s; font-size: 0.8em;
   }
   .kick-btn:hover { background: #ef4444; color: #fff; }
+
+  .reset-c-btn {
+    flex: 1; background: #ffedd5; color: #c2410c; border: none; padding: 8px; border-radius: 6px;
+    cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 5px; transition: 0.2s; font-size: 0.8em;
+  }
+  .reset-c-btn:hover { background: #f97316; color: #fff; }
+
 
   /* --- Shared --- */
   .flash-msg {
@@ -215,7 +223,7 @@
     <div class="admin-title"><i class="fa-solid fa-shield-halved"></i> لوحة تحكم الأدمن</div>
     <div class="admin-actions">
       <button class="reset-btn" onclick="resetSystem()">
-        <i class="fa-solid fa-trash-can"></i> تصفير العدادات
+        <i class="fa-solid fa-trash-can"></i> تصفير الكل
       </button>
       <button class="logout-btn" onclick="logout()" style="position:static; background:#1e293b; border:1px solid #334155;">
         <i class="fa-solid fa-right-from-bracket"></i>
@@ -230,7 +238,8 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getDatabase, ref, set, get, remove, onDisconnect, onValue, onChildAdded, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+// أضفنا update للقائمة
+import { getDatabase, ref, set, get, remove, update, onDisconnect, onValue, onChildAdded, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCxxXV_6CEo1fTp3rRbfwfYbe7WH0Cyg38",
@@ -522,19 +531,16 @@ let allVotesData = {};
 let allBulkData = {};
 
 function initAdminMonitor() {
-  // 1. استماع للجان النشطة
   onValue(ref(db, "active_sessions"), (snapshot) => {
     activeSessionsData = snapshot.val() || {};
     renderActiveList();
   });
 
-  // 2. استماع لكل الأصوات لحساب المجموع لكل لجنة
   onValue(ref(db, "votes"), (snapshot) => {
     allVotesData = snapshot.val() || {};
     renderActiveList();
   });
 
-  // 3. استماع لكل أصوات الجملة
   onValue(ref(db, "bulk_counts"), (snapshot) => {
     allBulkData = snapshot.val() || {};
     renderActiveList();
@@ -550,8 +556,6 @@ function renderActiveList() {
     return;
   }
 
-  // حساب المجموع لكل لجنة موجودة في السيستم
-  // لكن سنعرض فقط اللجان النشطة (activeSessionsData)
   Object.keys(activeSessionsData).forEach((key) => {
     const id = parseInt(key);
     const data = activeSessionsData[key];
@@ -559,13 +563,10 @@ function renderActiveList() {
     const original = committeesDB[id] ? committeesDB[id].original : 0;
     const timeStr = new Date(data.timestamp).toLocaleTimeString("ar-EG");
 
-    // حساب الأصوات لهذه اللجنة من البيانات المحملة
     let currentCount = 0;
-    // تجميع الأصوات الفردية
     Object.values(allVotesData).forEach(v => {
       if(v.committee == id) currentCount += (v.count || 0);
     });
-    // تجميع أصوات الجملة
     Object.values(allBulkData).forEach(b => {
       if(b.committee == id) currentCount += (b.count || 0);
     });
@@ -581,9 +582,15 @@ function renderActiveList() {
       </div>
 
       <div class="u-info">دخل منذ: ${timeStr}</div>
-      <button class="kick-btn" onclick="kickUser('${id}')">
-        <i class="fa-solid fa-ban"></i> طرد المشرف
-      </button>
+      
+      <div class="card-actions">
+        <button class="kick-btn" onclick="kickUser('${id}')">
+           طرد <i class="fa-solid fa-ban"></i>
+        </button>
+        <button class="reset-c-btn" onclick="resetCommittee('${id}')">
+           تصفير <i class="fa-solid fa-rotate-right"></i>
+        </button>
+      </div>
     `;
     list.appendChild(div);
   });
@@ -597,15 +604,49 @@ window.kickUser = function(id) {
   }
 };
 
-// ** دالة تصفير العدادات **
+// ** دالة تصفير لجنة واحدة فقط **
+window.resetCommittee = async function(id) {
+    if(!confirm(`هل أنت متأكد من تصفير عداد لجنة ${id} فقط؟\nلا يمكن التراجع عن هذا الإجراء.`)) return;
+    
+    const updates = {};
+    const idNum = parseInt(id);
+    
+    // البحث عن الأصوات الفردية الخاصة بهذه اللجنة
+    const votesQ = query(ref(db, "votes"), orderByChild("committee"), equalTo(idNum));
+    // البحث عن أصوات الجملة الخاصة بهذه اللجنة
+    const bulkQ = query(ref(db, "bulk_counts"), orderByChild("committee"), equalTo(idNum));
+
+    try {
+        const [snapVotes, snapBulk] = await Promise.all([get(votesQ), get(bulkQ)]);
+        
+        // تحديد البيانات المراد حذفها
+        snapVotes.forEach(child => {
+            updates[`/votes/${child.key}`] = null;
+        });
+        snapBulk.forEach(child => {
+            updates[`/bulk_counts/${child.key}`] = null;
+        });
+
+        if(Object.keys(updates).length === 0) {
+            showFlashMsg("العداد صفر بالفعل!");
+            return;
+        }
+
+        // تنفيذ الحذف
+        await update(ref(db), updates);
+        showFlashMsg(`تم تصفير لجنة ${id} بنجاح`);
+
+    } catch(e) {
+        alert("حدث خطأ أثناء التصفير: " + e.message);
+    }
+};
+
 window.resetSystem = function() {
     const code = prompt("للتأكيد، أدخل كود الأمان (0000) لمسح كل الأصوات:");
     if(code === "0000") {
         if(confirm("⚠️ تحذير نهائي: سيتم حذف جميع الأصوات المسجلة لكل اللجان! هل أنت متأكد؟")) {
-            // حذف الأصوات الفردية والجملة
             remove(ref(db, "votes"));
             remove(ref(db, "bulk_counts"));
-            // اختياري: حذف الإشعارات القديمة
             remove(ref(db, "notifications"));
             showFlashMsg("🗑️ تم تصفير النظام بنجاح");
         }
@@ -614,9 +655,9 @@ window.resetSystem = function() {
     }
 };
 
-// Expose functions
 window.kickUser = window.kickUser; 
 window.resetSystem = window.resetSystem;
+window.resetCommittee = window.resetCommittee;
 </script>
 </body>
 </html>
