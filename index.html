@@ -2,14 +2,14 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8" />
-<title>تسجيل الحضور</title>
+<title>عداد اللجنة</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <style>
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Cairo", "Segoe UI", Tahoma, sans-serif;
+  font-family: "Cairo", sans-serif;
 }
 
 body {
@@ -19,631 +19,146 @@ body {
   justify-content: center;
   align-items: center;
   padding: 20px;
-  color: #fff;
-  overflow-x: hidden;
-}
-
-.hidden {
-  display: none !important;
-}
-
-/* Password Modal */
-#password-modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(10px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-}
-
-.pass-box {
-  width: 95%;
-  max-width: 400px;
-  background: #fff;
-  color: #222;
-  padding: 35px 18px;
-  border-radius: 18px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-  animation: pop 0.4s ease;
-  text-align: center;
-}
-
-@keyframes pop {
-  from {
-    transform: scale(0.6);
-    opacity: 0.2;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-.pass-title {
-  font-size: 1.6em;
-  font-weight: 900;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.pass-row {
-  position: relative;
-  margin-top: 20px;
-}
-
-.pass-input {
-  width: 100%;
-  padding: 14px 16px;
-  text-align: center;
-  border-radius: 12px;
-  border: 2px solid #e0e7ff;
-  background: #f8f9ff;
-  font-size: 1.1em;
-  transition: all 0.3s;
-}
-
-.pass-input:focus {
-  outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-.pass-toggle {
-  position: absolute;
-  left: 15px;
-  top: 52%;
-  transform: translateY(-50%);
-  font-size: 1.3em;
-  color: #667eea;
-  cursor: pointer;
-  opacity: 0.6;
-  transition: all 0.3s;
-}
-
-.pass-toggle:hover {
-  opacity: 1;
-}
-
-.pass-btn {
-  margin-top: 20px;
-  width: 100%;
-  padding: 13px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #fff;
-  border: none;
-  border-radius: 12px;
-  font-size: 1.05em;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.pass-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-}
-
-.pass-err {
-  margin-top: 12px;
-  padding: 10px;
-  border-radius: 8px;
-  font-weight: bold;
-  display: none;
-  font-size: 0.95em;
-  background: #ffebee;
-  color: #c62828;
-}
-
-/* Logout Button */
-.logout-btn {
-  position: fixed;
-  top: 20px;
-  left: 20px;
-  z-index: 1000;
-  background: linear-gradient(135deg, #ff6b6b 0%, #c62828 100%);
-  color: #fff;
-  border: none;
-  padding: 14px 26px;
-  border-radius: 12px;
-  font-weight: 700;
-  font-size: 1.07em;
-  cursor: pointer;
-  transition: all 0.3s;
-  box-shadow: 0 4px 12px rgba(198, 40, 40, 0.3);
-}
-
-.logout-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(198, 40, 40, 0.4);
-}
-
-.remote-logout-btn {
-  width: 100%;
-  margin-top: 15px;
-  padding: 12px;
-  background: #ffc107;
   color: #333;
-  font-weight: bold;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: background 0.3s;
 }
 
-.remote-logout-btn:hover {
-  background: #ff9800;
-}
+.hidden { display: none !important; }
 
-/* Active Committees List */
-.active-committee-item {
-  background: #fff;
-  border: 2px solid #4caf50;
-  padding: 12px;
-  border-radius: 10px;
-  margin-bottom: 10px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  transition: all 0.3s;
-  border-left: 5px solid #4caf50;
+/* Login Modal */
+#login-modal {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+  display: flex; justify-content: center; align-items: center; z-index: 9999;
 }
-
-.active-committee-item:hover {
-  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
-  transform: translateX(-3px);
+.login-box {
+  background: #fff; padding: 30px; border-radius: 15px;
+  width: 90%; max-width: 400px; text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
-
-.committee-info-text {
-  flex: 1;
+.login-input {
+  width: 100%; padding: 15px; margin: 15px 0;
+  border: 2px solid #eee; border-radius: 10px;
+  text-align: center; font-size: 1.2em;
 }
-
-.committee-number {
-  font-size: 1.2em;
-  font-weight: 900;
-  color: #4caf50;
-  margin-bottom: 3px;
-}
-
-.committee-details {
-  font-size: 0.9em;
-  color: #666;
-}
-
-.kick-btn {
-  background: linear-gradient(135deg, #ff6b6b 0%, #c62828 100%);
-  color: #fff;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.3s;
-  font-size: 0.95em;
-}
-
-.kick-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(198, 40, 40, 0.4);
-}
-
-.no-active-committees {
-  text-align: center;
-  padding: 20px;
-  color: #999;
-  font-style: italic;
+.btn-login {
+  width: 100%; padding: 12px; background: #667eea;
+  color: #fff; border: none; border-radius: 10px;
+  font-size: 1.1em; cursor: pointer; font-weight: bold;
 }
 
 /* Main Container */
 .container {
+  width: 100%; max-width: 500px;
+  background: #fff; border-radius: 20px;
+  padding: 25px; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  text-align: center; animation: slideUp 0.4s ease;
+}
+@keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
+
+.header-info {
+  background: #f3f4f6; padding: 15px; border-radius: 12px;
+  margin-bottom: 25px; border: 1px solid #e5e7eb;
+}
+.comm-title { font-weight: 900; font-size: 1.2em; color: #4b5563; }
+.comm-address { font-size: 0.9em; color: #6b7280; }
+
+/* THE BIG BUTTON (+1) */
+.btn-counter {
   width: 100%;
-  max-width: 420px;
-  background: #fff;
-  color: #222;
-  padding: 26px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #fff;
+  border: none;
   border-radius: 20px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  animation: fade 0.5s ease;
-}
-
-@keyframes fade {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-h2 {
-  text-align: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  font-size: 2em;
-  font-weight: 900;
-  margin-bottom: 10px;
-}
-
-.committee-info {
-  text-align: center;
-  margin-top: 12px;
-  margin-bottom: 15px;
-  background: linear-gradient(135deg, #f5f7ff 0%, #eff2ff 100%);
-  padding: 12px;
-  border-radius: 12px;
-  border-left: 4px solid #667eea;
-}
-
-.committee-name {
-  font-size: 1.06em;
-  font-weight: 700;
-  color: #667eea;
-  margin-bottom: 4px;
-}
-
-.committee-address {
-  font-size: 0.88em;
-  color: #666;
-  font-weight: 500;
-}
-
-/* Form Elements */
-label {
-  font-weight: 700;
-  color: #333;
-  margin-top: 16px;
-  display: block;
-}
-
-input[type="text"], input[type="number"] {
-  width: 100%;
-  padding: 13px 12px;
-  border-radius: 12px;
-  border: 2px solid #e0e7ff;
-  background: #f8f9ff;
-  font-size: 1em;
-  transition: all 0.3s;
-  margin-top: 8px;
-}
-
-input[type="text"]:focus, input[type="number"]:focus {
-  outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-/* Section Box */
-.sec-box {
-  margin-top: 13px;
-  background: linear-gradient(135deg, #f5f7ff 0%, #eff2ff 100%);
-  border: 2px solid #e0e7ff;
-  border-radius: 12px;
-  padding: 12px;
-}
-
-.sec-title {
-  font-weight: 700;
-  color: #667eea;
-  display: block;
-  margin-bottom: 12px;
-  font-size: 1em;
-}
-
-/* Buttons */
-.btn-row {
-  display: flex;
-  gap: 10px;
-  margin-top: 23px;
-}
-
-button {
-  flex: 1;
-  padding: 13px;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  font-weight: 700;
-  font-size: 1.03em;
-  transition: all 0.3s;
-}
-
-.btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #fff;
-}
-
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-}
-
-.btn-reset {
-  background: #e0e7ff;
-  color: #667eea;
-  font-weight: 700;
-}
-
-.btn-reset:hover {
-  background: #d3ddff;
-}
-
-/* Toggle Button */
-.toggle-btn {
-  width: 100%;
-  margin-top: 20px;
-  padding: 14px;
-  background: linear-gradient(135deg, #f0932b 0%, #e67e22 100%);
-  color: #fff;
-  border: none;
-  border-radius: 12px;
-  font-size: 1.1em;
+  padding: 40px 20px;
+  font-size: 2.5em;
   font-weight: 900;
   cursor: pointer;
-  transition: all 0.3s;
-  box-shadow: 0 4px 15px rgba(230, 126, 34, 0.3);
+  box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+  transition: all 0.1s;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  margin-bottom: 30px;
+  position: relative;
+  overflow: hidden;
+}
+.btn-counter:active {
+  transform: scale(0.96);
+  box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+}
+.btn-subtext {
+  display: block; font-size: 0.35em; font-weight: normal;
+  opacity: 0.9; margin-top: 5px;
 }
 
-.toggle-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(230, 126, 34, 0.5);
+/* Bulk Section */
+.bulk-section {
+  border-top: 2px dashed #e5e7eb;
+  padding-top: 20px; display: flex; gap: 10px;
+  align-items: center; justify-content: center;
+}
+.bulk-input {
+  width: 60%; padding: 12px; border: 2px solid #e5e7eb;
+  border-radius: 10px; text-align: center; font-size: 1.1em;
+}
+.btn-bulk {
+  width: 35%; padding: 12px; background: #f59e0b;
+  color: #fff; border: none; border-radius: 10px;
+  font-weight: bold; cursor: pointer;
 }
 
-/* Upload Button */
-.action-btn {
-  width: 100%;
-  margin-top: 15px;
-  padding: 13px;
-  background: linear-gradient(135deg, #4c28d3 0%, #7d45ff 100%);
-  color: #fff;
-  border: none;
-  border-radius: 12px;
-  font-size: 1.03em;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.3s;
+/* Upload & Extra */
+.upload-btn {
+  margin-top: 20px; background: #6366f1; color: #fff;
+  padding: 10px; width: 100%; border: none; border-radius: 10px;
+  cursor: pointer; font-weight: bold;
 }
 
-.action-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(76, 40, 211, 0.4);
-}
-
-/* Messages */
-.msg-warn,
-.msg-confirm {
-  display: none;
-  margin-top: 12px;
-  padding: 11px;
-  border-radius: 10px;
-  text-align: center;
-  font-weight: 700;
-  animation: slideDown 0.3s ease;
-  font-size: 1em;
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.msg-warn {
-  background: #ffebee;
-  color: #c62828;
-  border-left: 4px solid #c62828;
-}
-
-.msg-confirm {
-  background: #e8f5e9;
-  color: #2e7d32;
-  border-left: 4px solid #2e7d32;
-}
-
-/* Notification Bubble */
-#bubble {
-  position: fixed;
-  bottom: 13px;
-  right: 13px;
-  background: #fff;
-  color: #222;
-  padding: 16px;
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-  font-size: 1em;
-  font-weight: 700;
-  display: none;
-  width: 320px;
-  max-width: calc(100vw - 26px);
-  animation: slide 0.4s ease;
-  border-left: 4px solid #667eea;
-  z-index: 99999;
-}
-
-#bubble.active {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-}
-
-#bubble-icon {
-  font-size: 1.3em;
-  min-width: 28px;
-  text-align: center;
-  margin-top: 2px;
-}
-
-#bubble-content {
-  flex: 1;
-  line-height: 1.55;
-}
-
-#bubble-close {
-  background: none;
-  border: none;
-  font-size: 1.4em;
-  color: #999;
-  cursor: pointer;
-  padding: 0;
-  min-width: 28px;
-  text-align: center;
-  transition: all 0.3s;
-  opacity: 0.6;
-}
-
-#bubble-close:hover {
-  opacity: 1;
-  color: #667eea;
-}
-
-@keyframes slide {
-  from {
-    transform: translateY(18px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-/* Signature */
-.sig {
-  text-align: left;
-  margin-top: 17px;
-  color: #999;
-  font-style: italic;
-  font-size: 0.82em;
-}
-
-.sig a {
-  color: #1e3c72;
-  font-weight: 900;
-  text-decoration: underline;
-}
-
-/* Responsive */
-@media (max-width: 600px) {
-  .container {
-    max-width: 98vw;
-    padding: 5vw;
-    border-radius: 8px;
-  }
-
-  h2 {
-    font-size: 1.5em;
-  }
-
-  .logout-btn {
-    top: 7px;
-    left: 6px;
-    padding: 9px 13px;
-    font-size: 0.95em;
-    border-radius: 9px;
-  }
-
-  #bubble {
-    max-width: calc(100vw - 30px);
-    right: 10px;
-    padding: 12px;
-    font-size: 0.95em;
-  }
-
-  #bubble-close {
-    position: absolute;
-    right: 5px;
-    top: 5px;
-  }
+/* Feedback Message */
+.flash-msg {
+  position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+  background: #1f2937; color: #fff; padding: 10px 20px;
+  border-radius: 50px; z-index: 10000; display: none;
+  font-weight: bold; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 </style>
 </head>
 <body>
-<button class="logout-btn hidden" id="logout-btn" onclick="logoutCommittee()">تسجيل الخروج</button>
 
-<div id="bubble">
-  <div id="bubble-icon">💬</div>
-  <div id="bubble-content"></div>
-  <button id="bubble-close" onclick="closeBubble()">×</button>
-</div>
+<div id="flash-msg" class="flash-msg">✅ تم الاحتساب</div>
 
-<div id="password-modal">
-  <div class="pass-box">
-    <div class="pass-title">تسجيل الدخول</div>
-    <div class="pass-row">
-      <input type="password" id="password-input" class="pass-input" placeholder="ادخل كلمة السر (رقم اللجنة)" autocomplete="off">
-      <span class="pass-toggle" onclick="togglePass()">👁</span>
-    </div>
-    <button class="pass-btn" onclick="checkPass()">دخول</button>
-    <div id="pw-err" class="pass-err">كلمة السر غير صحيحة</div>
+<div id="login-modal">
+  <div class="login-box">
+    <h2 style="margin-bottom:10px; color:#4b5563;">تسجيل دخول اللجنة</h2>
+    <input type="number" id="pass-input" class="login-input" placeholder="اكتب رقم اللجنة">
+    <button class="btn-login" onclick="login()">دخول</button>
+    <div id="login-err" style="color:red; margin-top:10px; display:none;">رقم اللجنة غير صحيح</div>
   </div>
 </div>
 
-<div class="container hidden" id="main-container">
-  <h2 id="welcome-title">تسجيل الحضور</h2>
-  <div class="committee-info">
-    <div class="committee-name" id="committee-name-display"></div>
-    <div class="committee-address" id="committee-address-display"></div>
-  </div>
-  
-  <button class="remote-logout-btn hidden" id="remote-logout-btn" onclick="remoteLogout()">إخراج المشرف الحالي</button>
-  
-  <div id="active-committees-panel" class="hidden" style="margin-top: 20px;">
-    <div class="sec-box">
-      <span class="sec-title">اللجان النشطة المسجلة حالياً 🟢</span>
-      <div id="active-committees-list" style="margin-top: 15px;"></div>
-    </div>
-  </div>
-  
-  <div id="bulk-vote-section" class="hidden">
-    <div class="sec-box" style="border: 2px solid #667eea;">
-      <span class="sec-title">تسجيل العدد (جملة) 🔢</span>
-      <input type="number" id="bulk-count-input" placeholder="اكتب العدد هنا">
-      <button onclick="sendBulkCount()" class="btn-primary" style="margin-top: 10px; width: 100%;">ارسال العدد</button>
-    </div>
-    
-    <button id="show-individual-btn" class="toggle-btn" onclick="toggleIndividualForm()">➕ اضافة ناخب واحد (فردي)</button>
-  </div>
-  
-  <form id="vote-form" class="hidden" style="margin-top: 20px; border-top: 2px dashed #ddd; padding-top: 20px;">
-    <h3 style="text-align: center; color: #667eea; margin-bottom: 15px;">تسجيل حضور ناخب</h3>
-    <label>اسم الناخب:</label>
-    <input type="text" id="voter-name" placeholder="اكتب اسم الناخب">
-    
-    <div class="btn-row">
-      <button type="submit" class="btn-primary">تسجيل الحضور</button>
-      <button type="button" onclick="toggleIndividualForm()" class="btn-reset" style="background: #ffcdd2; color: #c62828;">إلغاء</button>
-    </div>
-  </form>
-
-  <div id="msg-warn" class="msg-warn"></div>
-  <div id="msg-confirm" class="msg-confirm"></div>
-
-  <div id="upload-section" class="hidden">
-    <button id="openUpload" class="action-btn">رفع محضر اللجنة 📄</button>
-    <input type="file" id="uploadFile" accept="image/*" style="display:none">
+<div id="app-container" class="container hidden">
+  <div class="header-info">
+    <div id="c-name" class="comm-title">لجنة رقم ...</div>
+    <div id="c-addr" class="comm-address">العنوان...</div>
   </div>
 
-  <div class="sig">
-    تم البرمجة بواسطة
-    <a href="https://www.facebook.com/en.mohamed.nasr" target="_blank">المهندس محمد حماد</a>
+  <button class="btn-counter" onclick="addOne()" id="main-btn">
+    +1 ناخب
+    <span class="btn-subtext">اضغط مرة واحدة عند دخول الناخب</span>
+  </button>
+
+  <div class="bulk-section">
+    <input type="number" id="bulk-val" class="bulk-input" placeholder="عدد (جملة)">
+    <button class="btn-bulk" onclick="addBulk()">إضافة رقم</button>
   </div>
+
+  <button class="upload-btn" onclick="document.getElementById('file-up').click()">📤 رفع صورة المحضر</button>
+  <input type="file" id="file-up" style="display:none" accept="image/*" onchange="uploadFile()">
+  
+  <div style="margin-top:20px; font-size:0.8em; color:#999;">برمجة م. محمد حماد</div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getDatabase, ref, set, onValue, onDisconnect, get, serverTimestamp, remove } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCxxXV_6CEo1fTp3rRbfwfYbe7WH0Cyg38",
@@ -658,71 +173,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-let committeeNumber = 0;
-let closedNotifications = new Set();
-let myPresenceRef = null;
-let isAdmin = false;
-
-const imgbbKey = "4580317b11de33e7c7630672bfc20bf9";
-
-// Upload Handler
-document.getElementById("openUpload").addEventListener("click", () => {
-  document.getElementById("uploadFile").click();
-});
-
-document.getElementById("uploadFile").addEventListener("change", function () {
-  const file = this.files[0];
-  if (!file) return;
-
-  const formData = new FormData();
-  formData.append("image", file);
-
-  document.getElementById("openUpload").innerText = "جاري رفع المحضر... ⏳";
-
-  fetch(`https://api.imgbb.com/1/upload?key=${imgbbKey}`, {
-    method: "POST",
-    body: formData
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data.success) {
-      const url = data.data.url;
-      showConfirm("✅ تم رفع صورة المحضر بنجاح!");
-      console.log("Image URL:", url);
-      document.getElementById("openUpload").innerText = "✔ تم الرفع";
-      document.getElementById("openUpload").style.background = "#28a745";
-    } else {
-      showWarn("❌ فشل رفع الصورة");
-      document.getElementById("openUpload").innerText = "رفع محضر اللجنة 📄";
-    }
-  })
-  .catch(err => {
-    console.error(err);
-    showWarn("❌ حدث خطأ أثناء رفع الصورة");
-    document.getElementById("openUpload").innerText = "رفع محضر اللجنة 📄";
-  });
-});
-
-function loadClosedNotifications() {
-  const stored = localStorage.getItem("closedNotifications");
-  if (stored) {
-    try {
-      closedNotifications = new Set(JSON.parse(stored));
-    } catch (e) {
-      closedNotifications = new Set();
-    }
-  }
-}
-
-function saveClosedNotifications() {
-  try {
-    localStorage.setItem("closedNotifications", JSON.stringify(Array.from(closedNotifications)));
-  } catch (e) {}
-}
-
-loadClosedNotifications();
-
-const committeeData = {
+// بيانات اللجان للعرض فقط
+const committeesDB = {
   1: {name: "الفروسات", address: "مدرسة احمد القصبى الابتدائية"},
   2: {name: "الفروسات", address: "مدرسة احمد القصبى الابتدائية"},
   3: {name: "أبو الأخضر", address: "مدرسة أبو الأخضر الابتدائية"},
@@ -785,385 +237,99 @@ const committeeData = {
   60: {name: "سوق الجمعة", address: "مدرسة الامام علي الابتدائية"}
 };
 
-window.togglePass = function() {
-  const p = document.getElementById("password-input");
-  p.type = (p.type === "password") ? "text" : "password";
-};
+let myCommittee = 0;
+const imgbbKey = "4580317b11de33e7c7630672bfc20bf9";
 
-async function tryCommitteeLogin(committee, info) {
-  const presenceRef = ref(db, `presence/committee_${committee}`);
-  const remoteLogoutBtn = document.getElementById("remote-logout-btn");
-  
-  try {
-    const snapshot = await get(presenceRef);
-    if (snapshot.exists()) {
-      if (isAdmin) {
-        remoteLogoutBtn.classList.remove("hidden");
-      } else {
-        const err = document.getElementById("pw-err");
-        err.textContent = "⚠️ يوجد مندوب آخر فاتح هذه اللجنة";
-        err.style.background = "#fff3cd";
-        err.style.color = "#856404";
-        err.style.display = "block";
-        setTimeout(() => err.style.display = "none", 3500);
-        return false;
-      }
-    } else {
-      remoteLogoutBtn.classList.add("hidden");
-    }
+window.login = function() {
+  const val = document.getElementById("pass-input").value;
+  const num = parseInt(val) - 100100; // كلمة السر: 100101 للجنة 1 وهكذا
 
-    if (!isAdmin) {
-      committeeNumber = committee;
-      myPresenceRef = presenceRef;
-      
-      await set(presenceRef, {
-        online: true,
-        loginTime: serverTimestamp(),
-        committee: committee
-      });
-      
-      const connectedRef = ref(db, '.info/connected');
-      onValue(connectedRef, async (snap) => {
-        if (snap.val() === true) {
-          await onDisconnect(presenceRef).remove();
-        }
-      });
-      
-      let isInitialLoad = true;
-      onValue(presenceRef, (snapshot) => {
-        if (isInitialLoad) {
-          isInitialLoad = false;
-          return;
-        }
-        
-        if (!snapshot.exists() && myPresenceRef) {
-          alert("⚠️ تم إخراجك من قبل المشرف العام");
-          myPresenceRef = null;
-          location.reload();
-        }
-      });
-    } else {
-      committeeNumber = committee;
-      myPresenceRef = null;
-    }
-
-    document.getElementById("password-modal").classList.add("hidden");
-    document.getElementById("main-container").classList.remove("hidden");
-    document.getElementById("logout-btn").classList.remove("hidden");
-    document.getElementById("welcome-title").textContent = (isAdmin ? "إدارة اللجنة " : "اللجنة ") + committee;
-    document.getElementById("committee-name-display").textContent = info.name;
-    document.getElementById("committee-address-display").textContent = info.address;
+  if(num >= 1 && num <= 60) {
+    myCommittee = num;
+    const info = committeesDB[num] || {name: "لجنة", address: ""};
     
-    if (isAdmin) {
-      document.getElementById("vote-form").classList.add('hidden');
-      document.getElementById("bulk-vote-section").classList.add("hidden");
-      document.getElementById("upload-section").classList.add('hidden');
-      document.getElementById("active-committees-panel").classList.add("hidden");
-    } else {
-      document.getElementById("bulk-vote-section").classList.remove("hidden");
-      document.getElementById("vote-form").classList.add('hidden');
-      document.getElementById("upload-section").classList.remove('hidden');
-    }
+    document.getElementById("c-name").innerText = `لجنة رقم ${num} - ${info.name}`;
+    document.getElementById("c-addr").innerText = info.address;
     
-    setupNotificationListeners(committee);
-    return true;
-  } catch (error) {
-    const err = document.getElementById("pw-err");
-    err.textContent = "خطأ في الاتصال";
-    err.style.display = "block";
-    setTimeout(() => err.style.display = "none", 2000);
-    return false;
-  }
-}
-
-window.remoteLogout = async function() {
-  if (!isAdmin || committeeNumber < 1 || committeeNumber > 60) {
-    alert("خطأ: لا تملك الصلاحية لإجراء هذه العملية.");
-    return;
-  }
-  
-  const confirmLogout = confirm(`هل أنت متأكد من إخراج المشرف الحالي من اللجنة ${committeeNumber}؟`);
-  if (!confirmLogout) return;
-  
-  const presenceRef = ref(db, `presence/committee_${committeeNumber}`);
-  try {
-    await remove(presenceRef);
-    document.getElementById("remote-logout-btn").classList.add("hidden");
-    showConfirm(`تم إخراج المشرف من اللجنة ${committeeNumber} بنجاح!`);
-  } catch (error) {
-    showWarn("فشل في إخراج المشرف.");
-  }
-};
-
-async function loadActiveCommittees() {
-  const presenceBaseRef = ref(db, 'presence');
-  onValue(presenceBaseRef, (snapshot) => {
-    const data = snapshot.val();
-    const listContainer = document.getElementById("active-committees-list");
-    listContainer.innerHTML = "";
-    
-    if (!data || Object.keys(data).length === 0) {
-      listContainer.innerHTML = '<div class="no-active-committees">لا توجد لجان نشطة حالياً</div>';
-      return;
-    }
-    
-    Object.entries(data).forEach(([key, value]) => {
-      const match = key.match(/committee_(\d+)/);
-      if (match && value.online) {
-        const committeeNum = parseInt(match[1]);
-        const info = committeeData[committeeNum] || { name: "لجنة", address: "بدون عنوان" };
-        
-        const item = document.createElement("div");
-        item.className = "active-committee-item";
-        item.innerHTML = `
-          <div class="committee-info-text">
-            <div class="committee-number">🟢 اللجنة ${committeeNum}</div>
-            <div class="committee-details">${info.name} - ${info.address}</div>
-          </div>
-          <button class="kick-btn" onclick="kickCommittee(${committeeNum})">تسجيل خروج</button>
-        `;
-        listContainer.appendChild(item);
-      }
-    });
-    
-    if (listContainer.children.length === 0) {
-      listContainer.innerHTML = '<div class="no-active-committees">لا توجد لجان نشطة حالياً</div>';
-    }
-  });
-}
-
-window.kickCommittee = async function(committeeNum) {
-  const confirmLogout = confirm(`هل أنت متأكد من إخراج المشرف من اللجنة ${committeeNum}؟\n\nسيتم إجبار المشرف على الخروج فوراً.`);
-  if (!confirmLogout) return;
-  
-  const presenceRef = ref(db, `presence/committee_${committeeNum}`);
-  try {
-    await remove(presenceRef);
-    showConfirm(`✅ تم إخراج المشرف من اللجنة ${committeeNum} بنجاح!`);
-  } catch (error) {
-    showWarn("❌ فشل في إخراج المشرف. حاول مرة أخرى.");
-  }
-};
-
-window.logoutCommittee = async function() {
-  if (myPresenceRef && committeeNumber > 0 && !isAdmin) {
-    try {
-      await remove(myPresenceRef);
-    } catch (error) {}
-  }
-  location.reload();
-};
-
-window.checkPass = async function() {
-  const val = document.getElementById("password-input").value.trim();
-  const err = document.getElementById("pw-err");
-  const numVal = parseInt(val);
-  const ADMIN_PREFIX = "251988";
-  const MAX_COMMITTEE = 60;
-
-  if (val === ADMIN_PREFIX) {
-    isAdmin = true;
-    document.getElementById("password-modal").classList.add("hidden");
-    document.getElementById("main-container").classList.remove("hidden");
-    document.getElementById("logout-btn").classList.remove("hidden");
-    document.getElementById("welcome-title").textContent = "مرحباً بـ Super Admin";
-    document.getElementById("committee-name-display").textContent = "وصول غير مقيد";
-    document.getElementById("committee-address-display").textContent = "صلاحيات مشرف عام";
-    committeeNumber = 0;
-    document.getElementById("remote-logout-btn").classList.add("hidden");
-    document.getElementById("bulk-vote-section").classList.add("hidden");
-    document.getElementById("vote-form").classList.add('hidden');
-    document.getElementById("upload-section").classList.add('hidden');
-    document.getElementById("active-committees-panel").classList.remove("hidden");
-    setupNotificationListeners(0);
-    loadActiveCommittees();
-    return;
-  }
-
-  if (val.startsWith(ADMIN_PREFIX) && val.length >= 7 && val.length <= 8) {
-    const committeeStr = val.substring(ADMIN_PREFIX.length);
-    const committee = parseInt(committeeStr);
-    if (!isNaN(committee) && committee >= 1 && committee <= MAX_COMMITTEE) {
-      const info = committeeData[committee] || { name: "لجنة", address: "بدون عنوان" };
-      isAdmin = true;
-      await tryCommitteeLogin(committee, info);
-      return;
-    }
-  }
-
-  isAdmin = false;
-  if (isNaN(numVal) || numVal < 100101 || numVal > 100160) {
-    err.textContent = "كلمة السر غير صحيحة";
-    err.style.display = "block";
-    setTimeout(() => err.style.display = "none", 3000);
-    return;
-  }
-
-  const committee = numVal - 100100;
-  const info = committeeData[committee] || { name: "لجنة", address: "بدون عنوان" };
-  await tryCommitteeLogin(committee, info);
-};
-
-function setupNotificationListeners(committee) {
-  try {
-    const allNotificationsRef = ref(db, "notifications/all");
-    let lastAllTimestamp = 0;
-    onValue(allNotificationsRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data && typeof data === 'object') {
-        Object.entries(data).forEach(([key, notif]) => {
-          if (notif && notif.message && notif.timestamp && notif.timestamp > lastAllTimestamp) {
-            lastAllTimestamp = notif.timestamp;
-            showFloatingNotification(notif.message, "عام");
-          }
-        });
-      }
-    });
-
-    if (committee >= 1 && committee <= 60 || committee === 0) {
-      const committeeNotificationsRef = ref(db, "notifications/committee_" + committee);
-      let lastCommitteeTimestamp = 0;
-      onValue(committeeNotificationsRef, (snapshot) => {
-        const data = snapshot.val();
-        if (data && typeof data === 'object') {
-          Object.entries(data).forEach(([key, notif]) => {
-            if (notif && notif.message && notif.timestamp && notif.timestamp > lastCommitteeTimestamp) {
-              lastCommitteeTimestamp = notif.timestamp;
-              showFloatingNotification(notif.message, "لجنتك");
-            }
-          });
-        }
-      });
-    }
-  } catch (e) {}
-}
-
-function showFloatingNotification(msg, type) {
-  const bubble = document.getElementById("bubble");
-  const content = document.getElementById("bubble-content");
-  const icon = document.getElementById("bubble-icon");
-  const notificationId = type + "_" + Date.now();
-  
-  bubble.dataset.notificationId = notificationId;
-  if (closedNotifications.has(notificationId)) return;
-  
-  content.textContent = msg;
-  if (type === "عام") {
-    bubble.style.borderLeft = "4px solid #667eea";
-    icon.textContent = "📢";
-  } else if (type === "لجنتك") {
-    bubble.style.borderLeft = "4px solid #11998e";
-    icon.textContent = "📩";
+    document.getElementById("login-modal").classList.add("hidden");
+    document.getElementById("app-container").classList.remove("hidden");
   } else {
-    bubble.style.borderLeft = "4px solid #ffcc00";
-    icon.textContent = "💬";
+    document.getElementById("login-err").style.display = "block";
   }
-  
-  bubble.classList.add("active");
-}
-
-window.closeBubble = function() {
-  const bubble = document.getElementById("bubble");
-  const notificationId = bubble.dataset.notificationId;
-  if (notificationId) {
-    closedNotifications.add(notificationId);
-    saveClosedNotifications();
-  }
-  bubble.classList.remove("active");
 };
 
-// Toggle Individual Form
-window.toggleIndividualForm = function() {
-  const form = document.getElementById("vote-form");
-  const btn = document.getElementById("show-individual-btn");
-  
-  if (form.classList.contains("hidden")) {
-    form.classList.remove("hidden");
-    btn.style.display = "none";
-    form.scrollIntoView({behavior: "smooth"});
-  } else {
-    form.classList.add("hidden");
-    btn.style.display = "block";
-    document.getElementById("vote-form").reset();
-  }
-}
+// ---------------------------------------------------------
+// دالة الزر +1 (عداد فردي)
+// ---------------------------------------------------------
+window.addOne = function() {
+  if(myCommittee === 0) return;
 
-// Bulk Vote Sender
-window.sendBulkCount = function() {
-  const countInput = document.getElementById("bulk-count-input");
-  const countVal = parseInt(countInput.value);
+  // 1. تأثير بصري للزر
+  const btn = document.getElementById("main-btn");
+  btn.style.transform = "scale(0.95)";
+  setTimeout(() => btn.style.transform = "scale(1)", 100);
+
+  const key = Date.now();
   
-  if (!countVal || countVal <= 0) {
-    showWarn("من فضلك ادخل رقم صحيح");
-    return;
-  }
-  
-  if (committeeNumber === 0) return showWarn("لا يمكن التسجيل بصلاحية المشرف العام");
-  
-  const confirmSend = confirm(`هل أنت متأكد من إرسال العدد: ${countVal} ؟`);
-  if (!confirmSend) return;
-  
-  const timestamp = Date.now();
-  const bulkRef = ref(db, "bulk_counts/" + timestamp);
-  
-  set(bulkRef, {
-    count: countVal,
-    committee: committeeNumber,
-    timestamp: timestamp,
-    type: "bulk_update"
+  // 2. الإرسال لقاعدة البيانات (يرسل رقم 1)
+  set(ref(db, "votes/" + key), {
+    committee: myCommittee,
+    count: 1,            // القيمة 1
+    type: "single",      // نوع العملية
+    timestamp: key
   }).then(() => {
-    showConfirm("✅ تم إرسال العدد بنجاح!");
-    countInput.value = "";
-  }).catch((err) => {
-    showWarn("خطأ في الإرسال: " + err.message);
+    showFlashMsg("✅ تم احتساب الناخب");
+  }).catch(err => alert("خطأ في الاتصال"));
+};
+
+// ---------------------------------------------------------
+// دالة إضافة جملة (رقم كبير)
+// ---------------------------------------------------------
+window.addBulk = function() {
+  const val = parseInt(document.getElementById("bulk-val").value);
+  if(!val || val <= 0) return;
+
+  if(confirm(`هل أنت متأكد من إضافة ${val} ناخب مرة واحدة؟`)) {
+    const key = Date.now();
+    set(ref(db, "bulk_counts/" + key), {
+      committee: myCommittee,
+      count: val,
+      type: "bulk",
+      timestamp: key
+    }).then(() => {
+      showFlashMsg(`✅ تم إضافة ${val} ناخب`);
+      document.getElementById("bulk-val").value = "";
+    });
+  }
+};
+
+// ---------------------------------------------------------
+// دالة رفع الصورة (نفس القديمة)
+// ---------------------------------------------------------
+window.uploadFile = function() {
+  const file = document.getElementById("file-up").files[0];
+  if(!file) return;
+  
+  const formData = new FormData();
+  formData.append("image", file);
+  
+  showFlashMsg("⏳ جاري رفع الصورة...");
+  
+  fetch(`https://api.imgbb.com/1/upload?key=${imgbbKey}`, {method: "POST", body: formData})
+  .then(res => res.json())
+  .then(data => {
+    if(data.success) showFlashMsg("✅ تم رفع الصورة بنجاح");
+    else showFlashMsg("❌ فشل الرفع");
   });
+};
+
+function showFlashMsg(txt) {
+  const msg = document.getElementById("flash-msg");
+  msg.innerText = txt;
+  msg.style.display = "block";
+  setTimeout(() => msg.style.display = "none", 2000);
 }
 
-function showWarn(msg) {
-  const el = document.getElementById("msg-warn");
-  el.textContent = msg;
-  el.style.display = "block";
-  setTimeout(() => el.style.display = "none", 2500);
-}
-
-function showConfirm(msg) {
-  const el = document.getElementById("msg-confirm");
-  el.textContent = msg;
-  el.style.display = "block";
-  setTimeout(() => el.style.display = "none", 3000);
-}
-
-// Simplified Form Submission (Attendance Only)
-document.getElementById("vote-form").addEventListener("submit", function(e) {
-  e.preventDefault();
-  
-  if (committeeNumber === 0) return showWarn("لا يمكن التسجيل بصلاحية المشرف العام.");
-  if (committeeNumber < 1 || committeeNumber > 60) return showWarn("يرجى تسجيل الدخول للجنة أولاً.");
-  
-  let name = document.getElementById("voter-name").value.trim();
-  if (!name) name = "بدون اسم";
-  
-  const voteKey = Date.now();
-  const voteRef = ref(db, "votes/" + voteKey);
-  
-  // Saving attendance (name only)
-  set(voteRef, {
-    name: name,
-    committee: committeeNumber,
-    timestamp: voteKey,
-    type: "individual_attendance"
-  }).then(() => {
-    showConfirm("تم تسجيل الناخب بنجاح!");
-    document.getElementById("vote-form").reset();
-    toggleIndividualForm();
-  }).catch(err => {
-    showWarn("خطأ: " + err.message);
-  });
-});
-
-document.getElementById("password-input").addEventListener("keypress", function(e) {
-  if (e.key === "Enter") checkPass();
-});
 </script>
 </body>
 </html>
