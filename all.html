@@ -6,14 +6,13 @@
     <title>لوحة التحكم المركزية | إدارة الانتخابات</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root {
             --primary-color: #1a3c6e; /* أزرق داكن رسمي */
             --secondary-color: #2c5282;
-            --accent-color: #e53e3e; /* أحمر للتنبيهات أو العناوين الهامة */
             --bg-color: #f4f6f9;
             --card-bg: #ffffff;
             --text-color: #2d3748;
@@ -39,103 +38,114 @@
         header {
             background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             color: white;
-            padding: 2rem 1rem;
+            padding: 2.5rem 1rem;
             text-align: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            margin-bottom: 2rem;
         }
 
         header h1 {
             font-weight: 800;
-            font-size: 2rem;
+            font-size: 2.2rem;
             margin-bottom: 0.5rem;
         }
 
         header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
+            font-size: 1.2rem;
+            opacity: 0.95;
+            font-weight: 600;
         }
 
         /* حاوية المحتوى */
         .container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 1rem;
+            max-width: 1000px; /* عرض أقل للبطاقات الأفقية */
+            margin: 0 auto 2rem auto;
+            padding: 0 1.5rem;
             flex: 1;
+            width: 100%;
         }
 
-        /* شبكة البطاقات */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        /* تنسيق القائمة العمودية للبطاقات */
+        .dashboard-column {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* تصميم البطاقة الأفقية */
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            transition: all 0.3s ease;
+            border-right: 6px solid var(--primary-color); /* تغيير الحد لليمين */
+            display: flex;
+            flex-direction: row; /* جعل العناصر بجانب بعضها */
+            align-items: center;
+            justify-content: flex-start;
             gap: 2rem;
         }
 
-        /* تصميم البطاقة */
-        .card {
-            background: var(--card-bg);
-            border-radius: 15px;
-            padding: 2rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border-top: 5px solid var(--primary-color);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
         .card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-3px) scale(1.01);
             box-shadow: var(--hover-shadow);
         }
 
         .card-icon {
             background-color: #ebf8ff;
             color: var(--primary-color);
-            width: 70px;
-            height: 70px;
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2rem;
-            margin-bottom: 1.5rem;
+            font-size: 2.2rem;
+            flex-shrink: 0; /* منع انكماش الأيقونة */
+        }
+
+        .card-content {
+            flex-grow: 1;
         }
 
         .card h2 {
             color: var(--primary-color);
-            font-size: 1.4rem;
-            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
             font-weight: 700;
         }
 
-        /* الأزرار */
+        /* الأزرار للوضع الأفقي */
         .btn-group {
-            width: 100%;
             display: flex;
-            flex-direction: column;
-            gap: 10px;
+            flex-direction: row; /* الأزرار بجانب بعضها */
+            gap: 15px;
+            flex-wrap: wrap;
         }
 
         .btn {
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 12px 20px;
-            border-radius: 8px;
+            padding: 12px 24px;
+            border-radius: 10px;
             text-decoration: none;
-            font-weight: 600;
+            font-weight: 700;
             transition: all 0.2s;
-            width: 100%;
             gap: 10px;
+            min-width: 180px; /* عرض أدنى للزر */
         }
 
         .btn-primary {
             background-color: var(--primary-color);
             color: white;
+            box-shadow: 0 4px 6px rgba(26, 60, 110, 0.2);
         }
 
         .btn-primary:hover {
             background-color: var(--secondary-color);
+            box-shadow: 0 6px 8px rgba(26, 60, 110, 0.3);
         }
 
         .btn-outline {
@@ -149,55 +159,70 @@
             color: white;
         }
 
-        /* الشريط المتحرك */
+        /* التجاوب مع الموبايل (إعادة البطاقة للوضع العمودي) */
+        @media (max-width: 768px) {
+            .card {
+                flex-direction: column;
+                text-align: center;
+                padding: 2rem;
+                border-right: none;
+                border-top: 6px solid var(--primary-color);
+                gap: 1.5rem;
+            }
+            .btn-group {
+                flex-direction: column;
+                width: 100%;
+            }
+            .btn {
+                width: 100%;
+            }
+        }
+
+
+        /* الشريط المتحرك - تعديل الاتجاه والسرعة */
         .ticker-wrap {
-            background-color: #2d3748;
-            color: #fbbf24; /* لون ذهبي للنص */
-            padding: 10px 0;
+            background-color: #1a202c;
+            color: #ecc94b; /* لون ذهبي */
+            padding: 12px 0;
             overflow: hidden;
             white-space: nowrap;
-            box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
-        }
-
-        .ticker-item {
-            display: inline-block;
-            padding-left: 100%;
-            animation: ticker 20s linear infinite;
-            font-size: 1.1rem;
-            font-weight: 600;
-        }
-
-        @keyframes ticker {
-            0% { transform: translate3d(0, 0, 0); }
-            100% { transform: translate3d(100%, 0, 0); } /* لاتجاه اليمين لليسار والعكس حسب اللغة */
+            box-shadow: 0 -4px 10px rgba(0,0,0,0.1);
+            border-bottom: 2px solid #ecc94b;
         }
         
-        /* ضبط الأنيميشن للعربية */
         .ticker-content {
             display: inline-block;
             white-space: nowrap;
-            animation: marquee 15s linear infinite;
+            /* مدة أطول (40s) لجعله أبطأ */
+            animation: marquee-reverse 40s linear infinite; 
+            font-size: 1.1rem;
+            font-weight: 700;
         }
         
-        @keyframes marquee {
-            0% { transform: translateX(100%); }
-            100% { transform: translateX(-100%); }
+        /* أنيميشن معكوس (من اليسار لليمين) */
+        @keyframes marquee-reverse {
+            0% { transform: translateX(-100%); } /* يبدأ من خارج الشاشة يساراً */
+            100% { transform: translateX(100%); } /* ينتهي خارج الشاشة يميناً */
         }
+
 
         /* الفوتر */
         footer {
             background-color: #1a202c;
-            color: #cbd5e0;
+            color: #a0aec0;
             text-align: center;
-            padding: 2rem 0;
+            padding: 2.5rem 0;
             margin-top: auto;
+            font-size: 0.95rem;
         }
 
         .developer-link {
             color: #63b3ed;
             text-decoration: none;
-            font-weight: bold;
+            font-weight: 700;
             transition: color 0.2s;
+            display: inline-block;
+            margin-top: 0.5rem;
         }
 
         .developer-link:hover {
@@ -206,13 +231,20 @@
         }
 
         /* تخصيص الألوان لكل قسم */
-        .card.monitoring { border-top-color: #3182ce; } /* أزرق */
-        .card.transport { border-top-color: #38a169; } /* أخضر */
-        .card.sorting { border-top-color: #d69e2e; } /* برتقالي */
+        .card.monitoring { border-right-color: #3182ce; }
+        .card.transport { border-right-color: #38a169; }
+        .card.sorting { border-right-color: #d69e2e; }
 
         .card.monitoring .card-icon { color: #3182ce; background-color: #ebf8ff; }
         .card.transport .card-icon { color: #38a169; background-color: #f0fff4; }
         .card.sorting .card-icon { color: #d69e2e; background-color: #fffff0; }
+
+        /* تعديل ألوان الحدود للموبايل */
+        @media (max-width: 768px) {
+            .card.monitoring { border-top-color: #3182ce; }
+            .card.transport { border-top-color: #38a169; }
+            .card.sorting { border-top-color: #d69e2e; }
+        }
 
     </style>
 </head>
@@ -224,22 +256,24 @@
     </header>
 
     <div class="container">
-        <div class="dashboard-grid">
+        <div class="dashboard-column">
             
             <div class="card monitoring">
                 <div class="card-icon">
                     <i class="fa-solid fa-check-to-slot"></i>
                 </div>
-                <h2>نظام مراقبة الانتخابات</h2>
-                <div class="btn-group">
-                    <a href="https://mohamednasr5.github.io/election-monitoring-system/" class="btn btn-primary" target="_blank">
-                        <i class="fa-solid fa-pen-to-square"></i>
-                        صفحة تسجيل الأصوات
-                    </a>
-                    <a href="https://mohamednasr5.github.io/election-monitoring-system/statistics.html" class="btn btn-outline" target="_blank">
-                        <i class="fa-solid fa-chart-pie"></i>
-                        صفحة الإحصائيات
-                    </a>
+                <div class="card-content">
+                    <h2>نظام مراقبة الانتخابات</h2>
+                    <div class="btn-group">
+                        <a href="https://mohamednasr5.github.io/election-monitoring-system/" class="btn btn-primary" target="_blank">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                            صفحة تسجيل الأصوات
+                        </a>
+                        <a href="https://mohamednasr5.github.io/election-monitoring-system/statistics.html" class="btn btn-outline" target="_blank">
+                            <i class="fa-solid fa-chart-pie"></i>
+                            صفحة الإحصائيات
+                        </a>
+                    </div>
                 </div>
             </div>
 
@@ -247,16 +281,18 @@
                 <div class="card-icon">
                     <i class="fa-solid fa-bus"></i>
                 </div>
-                <h2>نظام متابعة الحشد والنقل</h2>
-                <div class="btn-group">
-                    <a href="https://mohamednasr5.github.io/id/" class="btn btn-primary" target="_blank">
-                        <i class="fa-solid fa-user-plus"></i>
-                        صفحة التسجيل
-                    </a>
-                    <a href="https://mohamednasr5.github.io/id/stats.html" class="btn btn-outline" target="_blank">
-                        <i class="fa-solid fa-chart-bar"></i>
-                        صفحة الإحصائيات
-                    </a>
+                <div class="card-content">
+                    <h2>نظام متابعة الحشد والنقل</h2>
+                    <div class="btn-group">
+                        <a href="https://mohamednasr5.github.io/id/" class="btn btn-primary" target="_blank">
+                            <i class="fa-solid fa-user-plus"></i>
+                            صفحة التسجيل
+                        </a>
+                        <a href="https://mohamednasr5.github.io/id/stats.html" class="btn btn-outline" target="_blank">
+                            <i class="fa-solid fa-chart-bar"></i>
+                            صفحة الإحصائيات
+                        </a>
+                    </div>
                 </div>
             </div>
 
@@ -264,16 +300,18 @@
                 <div class="card-icon">
                     <i class="fa-solid fa-calculator"></i>
                 </div>
-                <h2>نظام فرز اللجان</h2>
-                <div class="btn-group">
-                    <a href="https://stud-egy.imgbb.com/" class="btn btn-primary" target="_blank">
-                        <i class="fa-solid fa-images"></i>
-                        مكان محاضر اللجان
-                    </a>
-                    <a href="https://mohamednasr5.github.io/election-monitoring-system/natiga.html" class="btn btn-outline" target="_blank">
-                        <i class="fa-solid fa-list-ol"></i>
-                        برنامج فرز المحاضر
-                    </a>
+                <div class="card-content">
+                    <h2>نظام فرز اللجان</h2>
+                    <div class="btn-group">
+                        <a href="https://stud-egy.imgbb.com/" class="btn btn-primary" target="_blank">
+                            <i class="fa-solid fa-images"></i>
+                            مكان محاضر اللجان
+                        </a>
+                        <a href="https://mohamednasr5.github.io/election-monitoring-system/natiga.html" class="btn btn-outline" target="_blank">
+                            <i class="fa-solid fa-list-ol"></i>
+                            برنامج فرز المحاضر
+                        </a>
+                    </div>
                 </div>
             </div>
 
@@ -283,15 +321,15 @@
     <div class="ticker-wrap">
         <div style="overflow: hidden; width: 100%;">
             <div class="ticker-content">
-                كل الدعم والإحترام للحاج أحمد الحديدي ربنا يوفقه وينصره يارب &nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp; كل الدعم والإحترام للحاج أحمد الحديدي ربنا يوفقه وينصره يارب &nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp; كل الدعم والإحترام للحاج أحمد الحديدي ربنا يوفقه وينصره يارب
+                <i class="fa-solid fa-star"></i> كل الدعم والإحترام للحاج أحمد الحديدي ربنا يوفقه وينصره يارب &nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp; <i class="fa-solid fa-star"></i> كل الدعم والإحترام للحاج أحمد الحديدي ربنا يوفقه وينصره يارب &nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp; <i class="fa-solid fa-star"></i> كل الدعم والإحترام للحاج أحمد الحديدي ربنا يوفقه وينصره يارب
             </div>
         </div>
     </div>
 
     <footer>
-        <div style="margin-bottom: 10px;">
-            <i class="fa-solid fa-code"></i>
-            تم برمجة الأنظمة بكل حب بواسطة المهندس <span style="color: #fff; font-weight: bold;">محمد حماد</span>
+        <div style="margin-bottom: 10px; font-size: 1.1rem;">
+            <i class="fa-solid fa-code" style="color: #ecc94b;"></i>
+            تم برمجة الأنظمة بكل حب بواسطة المهندس <span style="color: #fff; font-weight: 800;">محمد حماد</span>
         </div>
         <a href="https://www.facebook.com/en.mohamed.nasr" class="developer-link" target="_blank">
             <i class="fa-brands fa-facebook"></i> تواصل مع المطور
