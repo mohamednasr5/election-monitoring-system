@@ -32,7 +32,7 @@
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     position: relative; overflow: hidden;
   }
-  
+   
   /* تصميم نافذة الرسائل */
   .msg-header-icon { font-size: 3.5em; margin-bottom: 10px; display: block; transition: 0.3s; }
   .icon-broadcast { color: #ef4444; } /* أحمر للعام */
@@ -54,7 +54,7 @@
     text-align: center; font-size: 1.2em; font-weight: bold; outline: none; transition: 0.3s;
   }
   .login-input:focus { border-color: #3b82f6; }
-  
+   
   .msg-textarea {
     width: 100%; padding: 15px; margin: 10px 0 20px 0;
     border: 2px solid #e2e8f0; border-radius: 10px;
@@ -72,7 +72,7 @@
 
   .btn-send-msg { background: #1e293b; color: #fff; width: 100%; padding: 12px; border: none; border-radius: 10px; font-size: 1.1em; font-weight: bold; cursor: pointer; margin-bottom: 10px; transition:0.3s;}
   .btn-send-msg:hover { background: #0f172a; transform: scale(1.02); }
-  
+   
   .btn-cancel { background: #94a3b8; color: #fff; width: 100%; padding: 10px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
 
   /* Alert Box */
@@ -99,13 +99,13 @@
   .controls-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
   .action-btns { display: flex; gap: 10px; }
   .search-box { padding: 10px; border: 2px solid #cbd5e1; border-radius: 8px; font-weight: bold; width: 250px; }
-  
+   
   .btn { padding: 10px 20px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: #fff; display: flex; align-items: center; gap: 5px; }
   .btn-excel { background: #10b981; } .btn-excel:hover { background: #059669; }
   .btn-reset { background: #ef4444; } .btn-reset:hover { background: #dc2626; }
   .btn-broadcast { background: #ef4444; } .btn-broadcast:hover { background: #dc2626; }
   .btn-direct-nav { background: #3b82f6; } .btn-direct-nav:hover { background: #2563eb; }
-  
+   
   .btn-direct-msg { background: #f59e0b; padding: 5px 15px; border-radius: 6px; border:none; color: white; font-weight: bold; cursor: pointer; margin-right: 10px; font-size: 0.9em; }
 
   /* --- Grid System --- */
@@ -129,7 +129,7 @@
   .comm-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
   .badge-id { background: #f1f5f9; color: #475569; padding: 2px 8px; border-radius: 6px; font-size: 0.8em; font-weight: 800; }
   .comm-name { font-size: 1.1em; font-weight: 800; color: #1e293b; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  
+   
   .stats-display {
     display: flex; align-items: baseline; gap: 5px; direction: ltr; justify-content: flex-end;
   }
@@ -157,11 +157,17 @@
   .g-card { background: #f8fafc; padding: 15px; border-radius: 12px; text-align: center; border: 1px solid #e2e8f0; }
   .g-val { font-size: 1.6em; font-weight: 900; color: #1e293b; }
   .g-lbl { font-size: 0.8em; color: #64748b; font-weight: 700; }
-  
+   
   .log-feed { border: 1px solid #e2e8f0; border-radius: 12px; max-height: 250px; overflow-y: auto; background: #fafafa; }
   .log-item { padding: 10px 15px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; background: #fff; }
   .log-time { font-size: 0.85em; color: #64748b; font-weight: 600; }
   .log-v { font-weight: 800; color: #3b82f6; background: #dbeafe; padding: 2px 8px; border-radius: 4px; }
+
+  /* Log Action Buttons */
+  .log-actions { display: flex; gap: 5px; align-items: center; margin-right: 10px; }
+  .btn-log-action { border: none; width: 28px; height: 28px; border-radius: 6px; cursor: pointer; font-size: 0.8em; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+  .btn-edit-log { background: #eab308; color: #fff; } .btn-edit-log:hover { background: #ca8a04; }
+  .btn-del-log { background: #ef4444; color: #fff; } .btn-del-log:hover { background: #b91c1c; }
 
   @keyframes pulseGlow { 0% { border-color: #3b82f6; box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); } 100% { border-color: #e2e8f0; box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); } }
   .update-anim { animation: pulseGlow 1s ease-out; }
@@ -186,16 +192,16 @@
 <div id="msg-modal-overlay">
   <div class="msg-box">
     <i id="msg-icon" class="fa-solid fa-microphone msg-header-icon"></i>
-    
+     
     <h3 id="msg-title" style="color:#1e293b; margin-bottom:5px;">رسالة عامة</h3>
-    
+     
     <div id="target-input-container" class="target-input-wrapper">
       <span style="margin-left:5px; font-weight:bold; color:#64748b;">لجنة رقم:</span>
       <input type="number" id="msg-target-id" class="target-input" min="1" max="60">
     </div>
 
     <textarea id="msg-text" class="msg-textarea" placeholder="اكتب نص الرسالة هنا..."></textarea>
-    
+     
     <button class="btn-send-msg" onclick="sendMsg()"><i class="fa-solid fa-paper-plane"></i> إرسال</button>
     <button class="btn-cancel" onclick="closeMsgModal()">إلغاء</button>
   </div>
@@ -232,7 +238,7 @@
     <div class="controls-row">
       <input type="text" id="search" class="search-box" placeholder="🔍 بحث عن لجنة..." onkeyup="filterCommittees()">
       <div class="action-btns">
-        <button class="btn btn-broadcast" onclick="openBroadcastModal()"><i class="fa-solid fa-microphone"></i> نداء عام</button>
+        <button class="btn btn-broadcast" onclick="openBroadcastModal()"><i class="fa-solid fa-microphone"></i> رسالة للجميع</button>
         <button class="btn btn-direct-nav" onclick="openDirectModal('')"><i class="fa-solid fa-envelope"></i> رسالة خاصة</button>
         
         <button class="btn btn-excel" onclick="exportToExcel()"><i class="fa-solid fa-file-excel"></i> تصدير Excel</button>
@@ -263,7 +269,7 @@
         <div class="g-card" style="background:#fef2f2; border-color:#fecaca;"><div class="g-val" id="m-remaining" style="color:#dc2626">0</div><div class="g-lbl">المتبقي</div></div>
         <div class="g-card"><div class="g-val" id="m-rate-hour">0</div><div class="g-lbl">المعدل في الساعة</div></div>
       </div>
-      <div style="margin-bottom:10px; font-weight:bold; color:#334155;">سجل الإدخالات:</div>
+      <div style="margin-bottom:10px; font-weight:bold; color:#334155;">سجل الإدخالات (تعديل وحذف):</div>
       <div class="log-feed" id="m-logs"></div>
     </div>
   </div>
@@ -271,7 +277,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getDatabase, ref, onValue, set, push } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { getDatabase, ref, onValue, set, push, update, remove } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCxxXV_6CEo1fTp3rRbfwfYbe7WH0Cyg38",
@@ -353,7 +359,7 @@ let commStats = {};
 let previousCommStats = {};
 let currentOpenCommitteeId = null;
 let isFirstLoad = true;
-let currentMsgMode = 'all'; // 'all' or 'direct'
+let currentMsgMode = 'all'; 
 
 // --- Login Logic ---
 window.handleLogin = () => {
@@ -369,57 +375,45 @@ window.handleLogin = () => {
 }
 document.getElementById("pass-input").addEventListener("keypress", (e) => { if (e.key === "Enter") handleLogin(); });
 
-// --- New Messaging System Logic ---
-
-// 1. Open Broadcast (Microphone)
+// --- Messaging System ---
 window.openBroadcastModal = () => {
   currentMsgMode = 'all';
   setupModalUI();
   document.getElementById('msg-modal-overlay').style.display = 'flex';
 }
 
-// 2. Open Direct (Mail) - Generic or Specific
 window.openDirectModal = (targetId) => {
   currentMsgMode = 'direct';
   setupModalUI();
-  
-  // If ID provided, fill it
   if(targetId) {
     document.getElementById('msg-target-id').value = targetId;
   } else {
     document.getElementById('msg-target-id').value = "";
   }
-  
   document.getElementById('msg-modal-overlay').style.display = 'flex';
-  // Focus on input if empty, else text
   if(!targetId) document.getElementById('msg-target-id').focus();
   else document.getElementById('msg-text').focus();
 }
 
-// Helper: Triggered from Committee Modal
 window.openDirectFromModal = () => {
   if(currentOpenCommitteeId) openDirectModal(currentOpenCommitteeId);
 }
 
-// Helper: Setup UI based on Mode
 function setupModalUI() {
   const icon = document.getElementById('msg-icon');
   const title = document.getElementById('msg-title');
   const inputContainer = document.getElementById('target-input-container');
   const textArea = document.getElementById('msg-text');
 
-  // Reset classes
   icon.className = "fa-solid msg-header-icon";
   textArea.value = "";
 
   if(currentMsgMode === 'all') {
-    // Broadcast Mode
     icon.classList.add('fa-microphone', 'icon-broadcast');
     title.innerText = "نداء عام لجميع اللجان";
     inputContainer.style.display = 'none';
     textArea.placeholder = "تنبيه عام للجميع...";
   } else {
-    // Direct Mode
     icon.classList.add('fa-envelope', 'icon-direct');
     title.innerText = "رسالة خاصة للجنة";
     inputContainer.style.display = 'block';
@@ -434,7 +428,7 @@ window.closeMsgModal = () => {
 window.sendMsg = () => {
   const text = document.getElementById('msg-text').value.trim();
   let target = 'all';
-  
+   
   if(!text) return alert("الرجاء كتابة رسالة!");
 
   if(currentMsgMode === 'direct') {
@@ -455,11 +449,16 @@ window.sendMsg = () => {
   push(ref(db, 'notifications'), msgData)
     .then(() => {
       closeMsgModal();
-      const flash = document.getElementById("flash-msg");
-      flash.style.display = "block";
-      setTimeout(() => flash.style.display = "none", 2000);
+      showFlash("تم الارسال");
     })
     .catch((err) => alert("خطأ في الإرسال: " + err.message));
+}
+
+function showFlash(msg) {
+    const flash = document.getElementById("flash-msg");
+    flash.innerText = "✅ " + msg;
+    flash.style.display = "block";
+    setTimeout(() => flash.style.display = "none", 2000);
 }
 
 function initDashboard() {
@@ -494,9 +493,38 @@ function processData(data) {
     tempStats[i] = { current:0, original: committeesDB[i].original, logs:[] };
   }
 
-  if(data.votes) Object.values(data.votes).forEach(v => { if(tempStats[v.committee]) { tempStats[v.committee].current += (v.count||1); tempStats[v.committee].logs.push({val:1, time:v.timestamp}); }});
-  if(data.bulk_counts) Object.values(data.bulk_counts).forEach(v => { if(tempStats[v.committee]) { const n=parseInt(v.count); tempStats[v.committee].current += n; tempStats[v.committee].logs.push({val:n, time:v.timestamp}); }});
-  
+  // معالجة الأصوات الفردية مع حفظ المفتاح والمصدر
+  if(data.votes) {
+      Object.entries(data.votes).forEach(([key, v]) => { 
+        if(tempStats[v.committee]) { 
+            const count = v.count || 1;
+            tempStats[v.committee].current += count; 
+            tempStats[v.committee].logs.push({
+                val: count, 
+                time: v.timestamp, 
+                key: key, 
+                type: 'votes' 
+            }); 
+        }
+    });
+  }
+
+  // معالجة الأصوات المجمعة مع حفظ المفتاح والمصدر
+  if(data.bulk_counts) {
+      Object.entries(data.bulk_counts).forEach(([key, v]) => { 
+        if(tempStats[v.committee]) { 
+            const n = parseInt(v.count); 
+            tempStats[v.committee].current += n; 
+            tempStats[v.committee].logs.push({
+                val: n, 
+                time: v.timestamp, 
+                key: key, 
+                type: 'bulk_counts' 
+            }); 
+        }
+    });
+  }
+   
   commStats = tempStats;
   updateUI();
   if(currentOpenCommitteeId) renderModalContent(currentOpenCommitteeId);
@@ -524,7 +552,7 @@ function updateUI() {
 
     const badge = document.getElementById(`badge-${i}`);
     badge.className = "status-badge"; 
-    
+     
     if (logsSorted.length > 0 && (now - lastLogTime) > 3600000) {
         badge.innerText = "خاملة"; badge.classList.add("st-idle");
     } else if (hourlyCount > 300) {
@@ -559,8 +587,49 @@ function renderModalContent(id) {
   document.getElementById("m-present").innerText = s.current.toLocaleString();
   document.getElementById("m-remaining").innerText = (info.original - s.current).toLocaleString();
   document.getElementById("m-rate-hour").innerText = s.logs.filter(l => (now - l.time) < 3600000).reduce((a,b)=>a+b.val, 0);
+  
   const logs = [...s.logs].sort((a,b)=>b.time - a.time).slice(0,50);
-  document.getElementById("m-logs").innerHTML = logs.length ? logs.map(l => `<div class="log-item"><span class="log-time">${new Date(l.time).toLocaleTimeString("ar-EG")}</span><span class="log-v">+${l.val}</span></div>`).join('') : "<div style='text-align:center;padding:10px;color:#999'>لا يوجد نشاط</div>";
+  
+  document.getElementById("m-logs").innerHTML = logs.length ? logs.map(l => `
+    <div class="log-item">
+        <span class="log-time">${new Date(l.time).toLocaleTimeString("ar-EG")}</span>
+        <div style="display:flex;align-items:center;gap:10px;">
+            <span class="log-v">+${l.val}</span>
+            <div class="log-actions">
+                <button class="btn-log-action btn-edit-log" onclick="editEntry('${l.key}', '${l.type}', ${l.val})">
+                    <i class="fa-solid fa-pen"></i>
+                </button>
+                <button class="btn-log-action btn-del-log" onclick="deleteEntry('${l.key}', '${l.type}')">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+  `).join('') : "<div style='text-align:center;padding:10px;color:#999'>لا يوجد نشاط</div>";
+}
+
+// --- وظائف التعديل والحذف الجديدة ---
+window.editEntry = (key, type, oldVal) => {
+    const newVal = prompt("قم بتعديل قيمة الإدخال:", oldVal);
+    if(newVal !== null) {
+        if(!isNaN(newVal) && newVal !== "") {
+            const updates = {};
+            updates[`/${type}/${key}/count`] = parseInt(newVal);
+            update(ref(db), updates)
+             .then(() => showFlash("تم التعديل"))
+             .catch(err => alert(err.message));
+        } else {
+            alert("يرجى إدخال رقم صحيح");
+        }
+    }
+}
+
+window.deleteEntry = (key, type) => {
+    if(confirm("هل أنت متأكد من حذف هذا الإدخال نهائياً؟")) {
+        remove(ref(db, `${type}/${key}`))
+         .then(() => showFlash("تم الحذف"))
+         .catch(err => alert(err.message));
+    }
 }
 
 window.filterCommittees = () => {
