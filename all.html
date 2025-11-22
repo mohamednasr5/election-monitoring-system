@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم المركزية | إدارة الانتخابات</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #1a3c6e; /* أزرق داكن رسمي */
+            --secondary-color: #2c5282;
+            --accent-color: #e53e3e; /* أحمر للتنبيهات أو العناوين الهامة */
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-color: #2d3748;
+            --hover-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* الهيدر */
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 2rem 1rem;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-weight: 800;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* حاوية المحتوى */
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            flex: 1;
+        }
+
+        /* شبكة البطاقات */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        /* تصميم البطاقة */
+        .card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-top: 5px solid var(--primary-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--hover-shadow);
+        }
+
+        .card-icon {
+            background-color: #ebf8ff;
+            color: var(--primary-color);
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card h2 {
+            color: var(--primary-color);
+            font-size: 1.4rem;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+        }
+
+        /* الأزرار */
+        .btn-group {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s;
+            width: 100%;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        /* الشريط المتحرك */
+        .ticker-wrap {
+            background-color: #2d3748;
+            color: #fbbf24; /* لون ذهبي للنص */
+            padding: 10px 0;
+            overflow: hidden;
+            white-space: nowrap;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+        }
+
+        .ticker-item {
+            display: inline-block;
+            padding-left: 100%;
+            animation: ticker 20s linear infinite;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        @keyframes ticker {
+            0% { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(100%, 0, 0); } /* لاتجاه اليمين لليسار والعكس حسب اللغة */
+        }
+        
+        /* ضبط الأنيميشن للعربية */
+        .ticker-content {
+            display: inline-block;
+            white-space: nowrap;
+            animation: marquee 15s linear infinite;
+        }
+        
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* الفوتر */
+        footer {
+            background-color: #1a202c;
+            color: #cbd5e0;
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: auto;
+        }
+
+        .developer-link {
+            color: #63b3ed;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.2s;
+        }
+
+        .developer-link:hover {
+            color: #bee3f8;
+            text-decoration: underline;
+        }
+
+        /* تخصيص الألوان لكل قسم */
+        .card.monitoring { border-top-color: #3182ce; } /* أزرق */
+        .card.transport { border-top-color: #38a169; } /* أخضر */
+        .card.sorting { border-top-color: #d69e2e; } /* برتقالي */
+
+        .card.monitoring .card-icon { color: #3182ce; background-color: #ebf8ff; }
+        .card.transport .card-icon { color: #38a169; background-color: #f0fff4; }
+        .card.sorting .card-icon { color: #d69e2e; background-color: #fffff0; }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>غرفة العمليات المركزية</h1>
+        <p>نظام إدارة ومتابعة العملية الانتخابية</p>
+    </header>
+
+    <div class="container">
+        <div class="dashboard-grid">
+            
+            <div class="card monitoring">
+                <div class="card-icon">
+                    <i class="fa-solid fa-check-to-slot"></i>
+                </div>
+                <h2>نظام مراقبة الانتخابات</h2>
+                <div class="btn-group">
+                    <a href="https://mohamednasr5.github.io/election-monitoring-system/" class="btn btn-primary" target="_blank">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                        صفحة تسجيل الأصوات
+                    </a>
+                    <a href="https://mohamednasr5.github.io/election-monitoring-system/statistics.html" class="btn btn-outline" target="_blank">
+                        <i class="fa-solid fa-chart-pie"></i>
+                        صفحة الإحصائيات
+                    </a>
+                </div>
+            </div>
+
+            <div class="card transport">
+                <div class="card-icon">
+                    <i class="fa-solid fa-bus"></i>
+                </div>
+                <h2>نظام متابعة الحشد والنقل</h2>
+                <div class="btn-group">
+                    <a href="https://mohamednasr5.github.io/id/" class="btn btn-primary" target="_blank">
+                        <i class="fa-solid fa-user-plus"></i>
+                        صفحة التسجيل
+                    </a>
+                    <a href="https://mohamednasr5.github.io/id/stats.html" class="btn btn-outline" target="_blank">
+                        <i class="fa-solid fa-chart-bar"></i>
+                        صفحة الإحصائيات
+                    </a>
+                </div>
+            </div>
+
+            <div class="card sorting">
+                <div class="card-icon">
+                    <i class="fa-solid fa-calculator"></i>
+                </div>
+                <h2>نظام فرز اللجان</h2>
+                <div class="btn-group">
+                    <a href="https://stud-egy.imgbb.com/" class="btn btn-primary" target="_blank">
+                        <i class="fa-solid fa-images"></i>
+                        مكان محاضر اللجان
+                    </a>
+                    <a href="https://mohamednasr5.github.io/election-monitoring-system/natiga.html" class="btn btn-outline" target="_blank">
+                        <i class="fa-solid fa-list-ol"></i>
+                        برنامج فرز المحاضر
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="ticker-wrap">
+        <div style="overflow: hidden; width: 100%;">
+            <div class="ticker-content">
+                كل الدعم والإحترام للحاج أحمد الحديدي ربنا يوفقه وينصره يارب &nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp; كل الدعم والإحترام للحاج أحمد الحديدي ربنا يوفقه وينصره يارب &nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp; كل الدعم والإحترام للحاج أحمد الحديدي ربنا يوفقه وينصره يارب
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div style="margin-bottom: 10px;">
+            <i class="fa-solid fa-code"></i>
+            تم برمجة الأنظمة بكل حب بواسطة المهندس <span style="color: #fff; font-weight: bold;">محمد حماد</span>
+        </div>
+        <a href="https://www.facebook.com/en.mohamed.nasr" class="developer-link" target="_blank">
+            <i class="fa-brands fa-facebook"></i> تواصل مع المطور
+        </a>
+    </footer>
+
+</body>
+</html>
