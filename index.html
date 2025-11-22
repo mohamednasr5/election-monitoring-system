@@ -2,12 +2,10 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8" />
-<title>غرفة العمليات المركزية - الإصدار المطور</title>
+<title>نظام إدارة الانتخابات الموحد</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-<script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Cairo", sans-serif; }
@@ -51,101 +49,109 @@
   }
   @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
 
-  /* --- 2. Dashboard (الأدمن) --- */
-  #dashboard-content { display: none; width: 100%; max-width: 1200px; animation: fadeIn 0.8s ease; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-  /* Stats Cards */
-  .header-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
-  .stat-card { background: #fff; padding: 20px; border-radius: 16px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-bottom: 5px solid #ccc; text-align: center; }
-  .stat-value { font-size: 2.2em; font-weight: 900; color: #0f172a; line-height: 1; }
-  .stat-label { color: #64748b; font-size: 0.85em; font-weight: 700; margin-top: 8px; }
-
-  /* Control Panel */
-  .control-panel { background: #fff; padding: 20px; border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 25px; }
-  .panel-header { font-weight: 900; font-size: 1.2em; color: #1e293b; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; }
-  .controls-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
-  .action-btns { display: flex; gap: 10px; }
-  .search-box { padding: 10px; border: 2px solid #cbd5e1; border-radius: 8px; font-weight: bold; width: 250px; }
-  .btn { padding: 10px 20px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: #fff; display: flex; align-items: center; gap: 5px; }
-  .btn-excel { background: #10b981; } .btn-excel:hover { background: #059669; }
-  .btn-reset { background: #ef4444; } .btn-reset:hover { background: #dc2626; }
-
-  /* --- Grid System --- */
-  .comm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
-  .comm-card {
-    background: #fff; border-radius: 16px; padding: 15px; cursor: pointer; transition: all 0.3s;
-    border: 1px solid #e2e8f0; height: 190px; display: flex; flex-direction: column; justify-content: space-between;
-    position: relative; overflow: hidden;
+  /* --- 2. Committee Interface (المندوب) --- */
+  .comm-container {
+    width: 100%; max-width: 500px; background: #fff; border-radius: 24px;
+    padding: 25px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    text-align: center; animation: slideUp 0.5s ease; position: relative;
   }
-  .comm-card:hover { transform: translateY(-5px); border-color: #3b82f6; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+  @keyframes slideUp { from{transform:translateY(30px);opacity:0} to{transform:translateY(0);opacity:1} }
 
-  /* Status Badges (على الكارت) */
-  .status-badge {
-    position: absolute; top: 10px; left: 10px;
-    padding: 4px 10px; border-radius: 20px; font-size: 0.75em; font-weight: 800;
+  .logout-btn {
+    position: absolute; top: 15px; left: 15px;
+    background: #fee2e2; color: #ef4444; border: none;
+    width: 35px; height: 35px; border-radius: 50%;
+    cursor: pointer; font-size: 1em; display: flex; align-items: center; justify-content: center; transition: 0.2s;
   }
-  .st-high { background: #dcfce7; color: #166534; } /* عالي */
-  .st-mid { background: #e0f2fe; color: #075985; }  /* منخفض (بين 60 و 300) */
-  .st-weak { background: #fef9c3; color: #854d0e; } /* ضعيف */
-  .st-idle { background: #fee2e2; color: #991b1b; } /* خاملة */
+  .logout-btn:hover { background: #ef4444; color: #fff; }
 
-  .comm-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
-  .badge-id { background: #f1f5f9; color: #475569; padding: 2px 8px; border-radius: 6px; font-size: 0.8em; font-weight: 800; }
-  .comm-name { font-size: 1.1em; font-weight: 800; color: #1e293b; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .header-info { background: #f8fafc; padding: 15px; border-radius: 16px; margin-bottom: 25px; border: 1px solid #e2e8f0; }
+  .comm-title { font-weight: 900; font-size: 1.3em; color: #1e293b; }
+  .comm-address { font-size: 0.9em; color: #64748b; margin-top: 5px; }
+
+  .btn-counter {
+    width: 100%; background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: #fff; border: none; border-radius: 24px;
+    padding: 35px 20px; font-size: 2.2em; font-weight: 900;
+    cursor: pointer; box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.5);
+    transition: all 0.2s ease; margin-bottom: 30px; position: relative; overflow: hidden;
+  }
+  .btn-clicked-effect {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
+    box-shadow: 0 0 25px rgba(59, 130, 246, 0.6) !important; transform: scale(0.95);
+  }
+  .btn-subtext { display: block; font-size: 0.4em; font-weight: 600; opacity: 0.9; margin-top: 5px; }
+
+  .bulk-section { border-top: 2px dashed #e2e8f0; margin-top: 20px; padding-top: 20px; display: flex; gap: 10px; justify-content: center; }
+  .bulk-input { width: 60%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 12px; text-align: center; font-size: 1.1em; font-weight: bold; }
+  .btn-bulk { width: 35%; padding: 12px; background: #f59e0b; color: #fff; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
   
-  /* تنسيق الأرقام (الحضور / المقيدين) */
-  .stats-display {
-    display: flex; align-items: baseline; gap: 5px; direction: ltr; justify-content: flex-end;
-  }
-  .val-current { font-size: 1.8em; font-weight: 900; color: #3b82f6; }
-  .val-divider { font-size: 1.2em; color: #94a3b8; }
-  .val-total { font-size: 1.1em; font-weight: 700; color: #64748b; }
+  .upload-btn { margin-top: 20px; background: #6366f1; color: #fff; padding: 12px; width: 100%; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; }
 
-  .progress-bg { height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden; margin-top: 10px; }
-  .progress-fill { height: 100%; background: linear-gradient(90deg, #60a5fa, #2563eb); width: 0%; transition: width 0.6s; }
+  /* --- 3. Admin Interface (الأدمن) --- */
+  .admin-container {
+    width: 100%; max-width: 800px; background: #0f172a; border-radius: 24px;
+    padding: 30px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    color: #fff; animation: fadeIn 0.5s;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-  /* --- Modal --- */
-  .overlay {
-    position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); display: none; 
-    align-items: center; justify-content: center; z-index: 5000; backdrop-filter: blur(5px);
-  }
-  .modal {
-    background: #fff; width: 95%; max-width: 600px; border-radius: 24px; padding: 0;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); display: flex; flex-direction: column; max-height: 90vh;
-  }
-  .modal-head { background: #f8fafc; padding: 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
-  .m-title { font-size: 1.4em; font-weight: 900; color: #0f172a; }
-  .close-btn { background: #e2e8f0; width: 36px; height: 36px; border-radius: 50%; border: none; cursor: pointer; font-weight: bold; }
-  .modal-body { padding: 20px; overflow-y: auto; }
-  .grid-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-  .g-card { background: #f8fafc; padding: 15px; border-radius: 12px; text-align: center; border: 1px solid #e2e8f0; }
-  .g-val { font-size: 1.6em; font-weight: 900; color: #1e293b; }
-  .g-lbl { font-size: 0.8em; color: #64748b; font-weight: 700; }
+  .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid #334155; padding-bottom: 20px; }
+  .admin-title { font-size: 1.5em; font-weight: 900; color: #3b82f6; display: flex; align-items: center; gap: 10px; }
   
-  .log-feed { border: 1px solid #e2e8f0; border-radius: 12px; max-height: 250px; overflow-y: auto; background: #fafafa; }
-  .log-item { padding: 10px 15px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; background: #fff; }
-  .log-time { font-size: 0.85em; color: #64748b; font-weight: 600; }
-  .log-v { font-weight: 800; color: #3b82f6; background: #dbeafe; padding: 2px 8px; border-radius: 4px; }
+  .active-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; }
+  
+  .user-card {
+    background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155;
+    display: flex; flex-direction: column; justify-content: space-between; gap: 10px;
+  }
+  .u-header { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 1.1em; }
+  .status-dot { width: 10px; height: 10px; background: #10b981; border-radius: 50%; box-shadow: 0 0 8px #10b981; }
+  .u-time { font-size: 0.85em; color: #94a3b8; }
+  
+  .kick-btn {
+    background: #fee2e2; color: #ef4444; border: none; padding: 8px; border-radius: 6px;
+    cursor: pointer; font-weight: bold; width: 100%; display: flex; align-items: center; justify-content: center; gap: 5px; transition: 0.2s;
+  }
+  .kick-btn:hover { background: #ef4444; color: #fff; }
 
-  /* Animation Flash */
-  @keyframes pulseGlow { 0% { border-color: #3b82f6; box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); } 100% { border-color: #e2e8f0; box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); } }
-  .update-anim { animation: pulseGlow 1s ease-out; }
+  /* --- Shared --- */
+  .flash-msg {
+    position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+    background: #1f2937; color: #fff; padding: 10px 25px;
+    border-radius: 50px; z-index: 10000; display: none; font-weight: bold;
+  }
+  
+  .footer-link { display: block; margin-top: 25px; font-size: 0.85em; color: #94a3b8; text-decoration: none; font-weight: 600; text-align: center; }
+  .footer-link:hover { color: #3b82f6; }
+
+  /* Messages CSS */
+  #msg-container { position: fixed; bottom: 20px; right: 20px; width: 320px; z-index: 11000; display: flex; flex-direction: column; gap: 15px; pointer-events: none; }
+  .msg-box { background: #fff; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: slideIn 0.4s; pointer-events: auto; border-right: 6px solid #ccc; }
+  @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  .msg-private { border-right-color: #3b82f6; } .msg-public { border-right-color: #ef4444; }
+  .msg-header { padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 0.9em; }
+  .msg-private .msg-header { background: #eff6ff; color: #1e40af; } .msg-public .msg-header { background: #fef2f2; color: #991b1b; }
+  .msg-body { padding: 15px; color: #334155; font-weight: 700; }
+  .msg-footer { padding: 8px 15px; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; }
+  .btn-close-msg { background: #fee2e2; color: #ef4444; border: none; padding: 5px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; }
 
 </style>
 </head>
 <body>
 
-<div id="flash-msg" style="position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#1f2937;color:#fff;padding:10px 25px;border-radius:50px;z-index:10000;display:none;font-weight:bold;">✅ تم التنفيذ</div>
+<div id="msg-container"></div>
+<div id="flash-msg" class="flash-msg">✅ تم التنفيذ</div>
+<audio id="notif-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
 
 <div id="login-modal">
   <div class="login-box">
-    <div style="font-size:3em; color:#3b82f6; margin-bottom:10px;"><i class="fa-solid fa-shield-halved"></i></div>
-    <h2 style="margin-bottom:10px; color:#1e293b;">غرفة العمليات المركزية</h2>
-    <p style="color:#64748b; font-size:0.9em;">لوحة القيادة والمتابعة</p>
+    <div style="font-size:3em; color:#3b82f6; margin-bottom:10px;"><i class="fa-solid fa-fingerprint"></i></div>
+    <h2 style="margin-bottom:10px; color:#1e293b;">نظام الدخول الموحد</h2>
+    <p style="color:#64748b; font-size:0.9em;">أدخل كود اللجنة أو كود الإدارة</p>
     
-    <input type="password" id="pass-input" class="login-input" placeholder="الرقم السري للأدمن">
-    <button class="btn-login" onclick="handleLogin()">دخول الأدمن</button>
+    <input type="number" id="pass-input" class="login-input" placeholder="الكود السري">
+    <button class="btn-login" onclick="handleLogin()">تسجيل الدخول</button>
     
     <div id="login-err" class="alert-box">
       <i class="fa-solid fa-triangle-exclamation"></i> <span id="err-text">الكود غير صحيح</span>
@@ -153,71 +159,51 @@
   </div>
 </div>
 
-<div id="dashboard-content">
-  <div class="header-stats">
-    <div class="stat-card" style="border-bottom-color: #0f172a;">
-      <div class="stat-value" id="total-original-static">350,757</div>
-      <div class="stat-label">القوة التصويتية</div>
-    </div>
-    <div class="stat-card" style="border-bottom-color: #2563eb;">
-      <div class="stat-value" id="total-all">0</div>
-      <div class="stat-label">إجمالي الحضور</div>
-    </div>
-    <div class="stat-card" style="border-bottom-color: #10b981;">
-      <div class="stat-value" id="percent-all">0%</div>
-      <div class="stat-label">النسبة العامة</div>
-    </div>
-    <div class="stat-card" style="border-bottom-color: #f59e0b;">
-      <div class="stat-value" id="speed-min">0</div>
-      <div class="stat-label">المتوسط / دقيقة (آخر ساعة)</div>
-    </div>
-    <div class="stat-card" style="border-bottom-color: #ef4444;">
-      <div class="stat-value" id="total-remaining">0</div>
-      <div class="stat-label">الأصوات المتبقية</div>
-    </div>
+<div id="committee-panel" class="comm-container hidden">
+  <button class="logout-btn" onclick="logout()" title="خروج"><i class="fa-solid fa-power-off"></i></button>
+  
+  <div class="header-info">
+    <div id="c-name" class="comm-title">...</div>
+    <div id="c-addr" class="comm-address">...</div>
   </div>
 
-  <div class="control-panel">
-    <div class="panel-header">
-      <i class="fa-solid fa-sliders"></i> أدوات التحكم
-    </div>
-    <div class="controls-row">
-      <input type="text" id="search" class="search-box" placeholder="🔍 بحث عن لجنة..." onkeyup="filterCommittees()">
-      <div class="action-btns">
-        <button class="btn btn-excel" onclick="exportToExcel()"><i class="fa-solid fa-file-excel"></i> تصدير Excel احترافي</button>
-        <button class="btn btn-reset" onclick="confirmReset()"><i class="fa-solid fa-trash-can"></i> تصفير النظام</button>
-      </div>
-    </div>
+  <button class="btn-counter" onclick="addOne()" id="main-btn">
+    <i class="fa-solid fa-user-plus"></i> 1+ ناخب
+    <span class="btn-subtext">اضغط عند دخول ناخب جديد</span>
+  </button>
+
+  <div class="bulk-section">
+    <input type="number" id="bulk-val" class="bulk-input" placeholder="عدد (جملة)">
+    <button class="btn-bulk" onclick="addBulk()"><i class="fa-solid fa-users"></i> إضافة</button>
   </div>
 
-  <div class="comm-grid" id="grid-container"></div>
+  <button class="upload-btn" onclick="document.getElementById('file-up').click()">
+    <i class="fa-solid fa-camera"></i> رفع صورة المحضر
+  </button>
+  <input type="file" id="file-up" style="display:none" accept="image/*" onchange="uploadFile()">
+
+  <a href="https://www.facebook.com/en.mohamed.nasr" target="_blank" class="footer-link">
+    Programmed with ❤️ by Eng. Mohamed Nasr
+  </a>
 </div>
 
-<div class="overlay" id="modal-overlay">
-  <div class="modal">
-    <div class="modal-head">
-      <div>
-        <div class="m-title" id="m-title">لجنة 1</div>
-        <div style="font-size:0.9em; color:#64748b;" id="m-subtitle">المدرسة</div>
-      </div>
-      <button class="close-btn" onclick="closeModal()">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="grid-stats">
-        <div class="g-card"><div class="g-val" id="m-original">0</div><div class="g-lbl">المقيدين</div></div>
-        <div class="g-card" style="background:#eff6ff; border-color:#bfdbfe;"><div class="g-val" id="m-present" style="color:#2563eb">0</div><div class="g-lbl">الحضور</div></div>
-        <div class="g-card" style="background:#fef2f2; border-color:#fecaca;"><div class="g-val" id="m-remaining" style="color:#dc2626">0</div><div class="g-lbl">المتبقي</div></div>
-        <div class="g-card"><div class="g-val" id="m-rate-hour">0</div><div class="g-lbl">المعدل في الساعة</div></div>
-      </div>
-      <div style="margin-bottom:10px; font-weight:bold; color:#334155;">سجل الإدخالات:</div>
-      <div class="log-feed" id="m-logs"></div>
-    </div>
+<div id="admin-panel" class="admin-container hidden">
+  <div class="admin-header">
+    <div class="admin-title"><i class="fa-solid fa-shield-halved"></i> لوحة تحكم الأدمن</div>
+    <button class="logout-btn" onclick="logout()" style="position:static; background:#1e293b; border:1px solid #334155;">
+      <i class="fa-solid fa-right-from-bracket"></i>
+    </button>
   </div>
+  
+  <div style="margin-bottom:15px; color:#94a3b8;">اللجان النشطة حالياً (المتصلين):</div>
+  <div id="active-list" class="active-grid">
+    </div>
 </div>
+
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { getDatabase, ref, set, get, remove, onDisconnect, onValue, onChildAdded } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCxxXV_6CEo1fTp3rRbfwfYbe7WH0Cyg38",
@@ -233,320 +219,262 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 const committeesDB = {
-  1: {name: "الفروسات", address: "مدرسة احمد القصبى الابتدائية", original: 5929},
-  2: {name: "الفروسات", address: "مدرسة احمد القصبى الابتدائية", original: 5554},
-  3: {name: "أبو الأخضر", address: "مدرسة أبو الأخضر الابتدائية", original: 4617},
-  4: {name: "جديدة المنزلة", address: "مدرسة الشهيد محمد فوزى", original: 9197},
-  5: {name: "العامرة", address: "مدرسة العامرة الابتدائية", original: 3519},
-  6: {name: "جديدة المنزلة", address: "مدرسة عبده بطي الإعدادية", original: 3781},
-  7: {name: "عرب زيدان", address: "مدرسة عرب زيدان الابتدائية", original: 1848},
-  8: {name: "الستايتة", address: "مدرسة الشهيد محمد زغلول الابتدائية", original: 2239},
-  9: {name: "كفر حجاج", address: "مدرسة كفر حجاج الابتدائية", original: 2689},
-  10: {name: "ميت خض", address: "مدرسة محمد إسماعيل الإعدادية", original: 2204},
-  11: {name: "المواجدة", address: "مدرسة حسني الشناوى", original: 4891},
-  12: {name: "البصراط", address: "مدرسة الشهيد محمد المحلاوى الإعدادية", original: 9075},
-  13: {name: "البصراط", address: "مدرسة الشهيد محمد المحلاوى الإعدادية", original: 8966},
-  14: {name: "الطوابرة", address: "مدرسة النصر الإعدادية", original: 4194},
-  15: {name: "العمارنة", address: "مدرسة العمارنة الابتدائية", original: 9886},
-  16: {name: "أولاد بانا", address: "مدرسة أولاد بانا الابتدائية", original: 1892},
-  17: {name: "أولاد حانا", address: "مدرسة أولاد حانا الابتدائية", original: 4334},
-  18: {name: "القزاقزة", address: "مدرسة القزاقزة الابتدائية", original: 2239},
-  19: {name: "الحوته", address: "مدرسة الشهيد اسلام محمد", original: 4400},
-  20: {name: "أولاد نور", address: "مدرسة أولاد نور الابتدائية", original: 2290},
-  21: {name: "الخلايفة", address: "مدرسة الشهيد محمود فهيم الابتدائية", original: 1904},
-  22: {name: "القطشة", address: "مدرسة القطشة الإعدادية", original: 2052},
-  23: {name: "الجماملة", address: "مدرسة الجماملة الابتدائية", original: 1868},
-  24: {name: "العزيزة", address: "مدرسة مجمع العزيزة الابتدائية", original: 10131},
-  25: {name: "العزيزة", address: "مدرسة مجمع العزيزة الابتدائية", original: 10191},
-  26: {name: "الأحمدية", address: "مدرسة الاحمدية الابتدائية", original: 4683},
-  27: {name: "العربان", address: "مدرسة طاهر فرح", original: 560},
-  28: {name: "أولاد علم", address: "مدرسة الشني سليم الابتدائية", original: 1342},
-  29: {name: "أولاد ناصر", address: "مدرسة الدكتور محمد النحاس", original: 1642},
-  30: {name: "ببر هلال", address: "مدرسة ببر هلال الابتدائية", original: 3328},
-  31: {name: "الشبول", address: "معهد بني الشبول الأزهرى", original: 6250},
-  32: {name: "الشبول", address: "معهد بني الشبول الأزهرى", original: 5863},
-  33: {name: "الرودة", address: "مدرسة الرودة الإعدادية", original: 5498},
-  34: {name: "ميت شريف", address: "مدرسة أم المؤمنين الابتدائية", original: 5498},
-  35: {name: "بحر حادوث", address: "مدرسة السيد قطب الإعدادية", original: 9792},
-  36: {name: "النسايمة", address: "مدرسة النسايمة الابتدائية", original: 7021},
-  37: {name: "النسايمة", address: "مدرسة النسايمة الابتدائية", original: 6121},
-  38: {name: "شارع الثورة", address: "مدرسة الشهيد محمود النجدي الثانوية بنات", original: 7446},
-  39: {name: "شارع الثورة", address: "مدرسة الشهيد محمود النجدي الثانوية بنات", original: 7447},
-  40: {name: "شارع محمد فريد", address: "معهد فتيات المطرية ع ث", original: 8538},
-  41: {name: "شارع المينا القبلي", address: "مدرسة أبو بكر الصديق", original: 7310},
-  42: {name: "شارع الدقهلية", address: "مدرسة أحمد ماهر الثانوية بنين", original: 8793},
-  43: {name: "شارع الدقهلية", address: "مدرسة أحمد ماهر الثانوية بنين", original: 8793},
-  44: {name: "شارع المينا البحري", address: "مدرسة العاشر من رمضان الابتدائية", original: 7721},
-  45: {name: "شارع المينا البحري", address: "مدرسة طارق ابن زياد الأعدادية", original: 7421},
-  46: {name: "قرية العصافرة", address: "مدرسة السيدة نفسية الاعدادية بنات", original: 9704},
-  47: {name: "قرية العصافرة", address: "مدرسة السيدة نفسية الاعدادية بنات", original: 9704},
-  48: {name: "قرية الضهير", address: "مدرسة الضهير الإبتدائية", original: 3119},
-  49: {name: "شارع صلاح الدين", address: "معهد عثمان بن عفان الابتدائي", original: 8214},
-  50: {name: "شارع الدقهلية", address: "مدرسة خالد بن الوليد", original: 6247},
-  51: {name: "شارع الدقهلية", address: "مدرسة خالد بن الوليد", original: 6247},
-  52: {name: "شارع المينا البحري", address: "مدرسة المطرية الابتدائية", original: 6600},
-  53: {name: "شارع الثانوية", address: "مدرسة الثانوية بنين", original: 10721},
-  54: {name: "شارع مصنع البصل", address: "مدرسة عثمان بن عفان الإعدادية", original: 7871},
-  55: {name: "شارع مصنع البصل", address: "مدرسة عثمان بن عفان الإعدادية", original: 8436},
-  56: {name: "شارع بورسعيد", address: "مدرسة الأنصاري الابتدائية", original: 9689},
-  57: {name: "هاشم شلباية", address: "مدرسة هاشم شلباية خلف المستشفى", original: 10055},
-  58: {name: "شارع الزهراء", address: "مدرسة الزهراء الابتدائية", original: 6975},
-  59: {name: "شارع الزهراء", address: "مدرسة الزهراء الابتدائية", original: 5580},
-  60: {name: "سوق الجمعة", address: "مدرسة الامام علي الابتدائية", original: 10989}
+  1: {name: "الفروسات", address: "مدرسة احمد القصبى الابتدائية"},
+  2: {name: "الفروسات", address: "مدرسة احمد القصبى الابتدائية"},
+  3: {name: "أبو الأخضر", address: "مدرسة أبو الأخضر الابتدائية"},
+  4: {name: "جديدة المنزلة", address: "مدرسة الشهيد محمد فوزى"},
+  5: {name: "العامرة", address: "مدرسة العامرة الابتدائية"},
+  6: {name: "جديدة المنزلة", address: "مدرسة عبده بطي الإعدادية"},
+  7: {name: "عرب زيدان", address: "مدرسة عرب زيدان الابتدائية"},
+  8: {name: "الستايتة", address: "مدرسة الشهيد محمد زغلول الابتدائية"},
+  9: {name: "كفر حجاج", address: "مدرسة كفر حجاج الابتدائية"},
+  10: {name: "ميت خضير", address: "مدرسة محمد إسماعيل الإعدادية"},
+  11: {name: "المواجدة", address: "مدرسة حسني الشناوى"},
+  12: {name: "البصراط", address: "مدرسة الشهيد محمد المحلاوى الإعدادية"},
+  13: {name: "البصراط", address: "مدرسة الشهيد محمد المحلاوى الإعدادية"},
+  14: {name: "الطوابرة", address: "مدرسة النصر الإعدادية"},
+  15: {name: "العمارنة", address: "مدرسة العمارنة الابتدائية"},
+  16: {name: "أولاد بانا", address: "مدرسة أولاد بانا الابتدائية"},
+  17: {name: "أولاد حانا", address: "مدرسة أولاد حانا الابتدائية"},
+  18: {name: "القزاقزة", address: "مدرسة القزاقزة الابتدائية"},
+  19: {name: "الحوته", address: "مدرسة الشهيد اسلام محمد"},
+  20: {name: "أولاد نور", address: "مدرسة أولاد نور الابتدائية"},
+  21: {name: "الخلايفة", address: "مدرسة الشهيد محمود فهيم الابتدائية"},
+  22: {name: "القطشة", address: "مدرسة القطشة الإعدادية"},
+  23: {name: "الجماملة", address: "مدرسة الجماملة الابتدائية"},
+  24: {name: "العزيزة", address: "مدرسة مجمع العزيزة الابتدائية"},
+  25: {name: "العزيزة", address: "مدرسة مجمع العزيزة الابتدائية"},
+  26: {name: "الأحمدية", address: "مدرسة الاحمدية الابتدائية"},
+  27: {name: "العربان", address: "مدرسة طاهر فرح"},
+  28: {name: "أولاد علم", address: "مدرسة الشني سليم الابتدائية"},
+  29: {name: "أولاد ناصر", address: "مدرسة الدكتور محمد النحاس"},
+  30: {name: "ببر هلال", address: "مدرسة ببر هلال الابتدائية"},
+  31: {name: "الشبول", address: "معهد بني الشبول الأزهرى"},
+  32: {name: "الشبول", address: "معهد بني الشبول الأزهرى"},
+  33: {name: "الرودة", address: "مدرسة الرودة الإعدادية"},
+  34: {name: "ميت شريف", address: "مدرسة أم المؤمنين الابتدائية"},
+  35: {name: "بحر حادوث", address: "مدرسة السيد قطب الإعدادية"},
+  36: {name: "النسايمة", address: "مدرسة النسايمة الابتدائية"},
+  37: {name: "النسايمة", address: "مدرسة النسايمة الابتدائية"},
+  38: {name: "شارع الثورة", address: "مدرسة الشهيد محمود النجدي الثانوية بنات"},
+  39: {name: "شارع الثورة", address: "مدرسة الشهيد محمود النجدي الثانوية بنات"},
+  40: {name: "شارع محمد فريد", address: "معهد فتيات المطرية ع ث"},
+  41: {name: "شارع المينا القبلي", address: "مدرسة أبو بكر الصديق"},
+  42: {name: "شارع الدقهلية", address: "مدرسة أحمد ماهر الثانوية بنين"},
+  43: {name: "شارع الدقهلية", address: "مدرسة أحمد ماهر الثانوية بنين"},
+  44: {name: "شارع المينا البحري", address: "مدرسة العاشر من رمضان الابتدائية"},
+  45: {name: "شارع المينا البحري", address: "مدرسة طارق ابن زياد الأعدادية"},
+  46: {name: "قرية العصافرة", address: "مدرسة السيدة نفسية الاعدادية بنات"},
+  47: {name: "قرية العصافرة", address: "مدرسة السيدة نفسية الاعدادية بنات"},
+  48: {name: "قرية الضهير", address: "مدرسة الضهير الإبتدائية"},
+  49: {name: "شارع صلاح الدين", address: "معهد عثمان بن عفان الابتدائي"},
+  50: {name: "شارع الدقهلية", address: "مدرسة خالد بن الوليد"},
+  51: {name: "شارع الدقهلية", address: "مدرسة خالد بن الوليد"},
+  52: {name: "شارع المينا البحري", address: "مدرسة المطرية الابتدائية"},
+  53: {name: "شارع الثانوية", address: "مدرسة الثانوية بنين"},
+  54: {name: "شارع مصنع البصل", address: "مدرسة عثمان بن عفان الإعدادية"},
+  55: {name: "شارع مصنع البصل", address: "مدرسة عثمان بن عفان الإعدادية"},
+  56: {name: "شارع بورسعيد", address: "مدرسة الأنصاري الابتدائية"},
+  57: {name: "هاشم شلباية", address: "مدرسة هاشم شلباية خلف المستشفى"},
+  58: {name: "شارع الزهراء", address: "مدرسة الزهراء الابتدائية"},
+  59: {name: "شارع الزهراء", address: "مدرسة الزهراء الابتدائية"},
+  60: {name: "سوق الجمعة", address: "مدرسة الامام علي الابتدائية"}
 };
 
-let commStats = {};
-let previousCommStats = {};
-let currentOpenCommitteeId = null;
-let isFirstLoad = true;
+let myCommittee = 0;
+let sessionID = Date.now().toString();
+let loginTime = Date.now();
+const imgbbKey = "4580317b11de33e7c7630672bfc20bf9";
 
-// --- Login ---
-window.checkEnter = (e) => { if(e.key === "Enter") attemptLogin(); }
-window.attemptLogin = () => {
-  const p = document.getElementById('password').value;
-  if(p === "521988") {
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('dashboard-content').style.display = 'block';
-    initDashboard();
-  } else {
-    document.getElementById('error-msg').style.display = 'block';
-  }
-}
+// ----------------------------------------------------
+// 1. MAIN LOGIN HANDLER
+// ----------------------------------------------------
+window.handleLogin = async function() {
+  const val = document.getElementById("pass-input").value;
+  const errBox = document.getElementById("login-err");
+  const errText = document.getElementById("err-text");
 
-function initDashboard() {
-  const container = document.getElementById("grid-container");
-  container.innerHTML = "";
-  for(let i=1; i<=60; i++) {
-    const info = committeesDB[i];
-    const d = document.createElement("div");
-    d.className = "comm-card";
-    d.id = `comm-${i}`;
-    d.onclick = () => openModal(i);
-    // حالة افتراضية
-    d.innerHTML = `
-      <div class="status-badge st-idle" id="badge-${i}">خاملة</div>
-      <div class="comm-header"><span class="badge-id">#${i}</span></div>
-      <div><div class="comm-name">${info.name}</div></div>
-      
-      <div class="stats-display">
-        <div class="val-current" id="val-${i}">0</div>
-        <div class="val-divider">/</div>
-        <div class="val-total">${info.original.toLocaleString()}</div>
-      </div>
-      <div class="progress-bg"><div class="progress-fill" id="bar-${i}"></div></div>
-    `;
-    container.appendChild(d);
-  }
-  onValue(ref(db, "/"), (snap) => processData(snap.val()));
-}
-
-function processData(data) {
-  data = data || {};
-  let tempStats = {};
-  
-  for(let i=1; i<=60; i++) {
-    tempStats[i] = { current:0, original: committeesDB[i].original, logs:[] };
+  // === ADMIN LOGIN ===
+  if(val === "521988") {
+    document.getElementById("login-modal").classList.add("hidden");
+    document.getElementById("admin-panel").classList.remove("hidden");
+    initAdminMonitor();
+    return;
   }
 
-  if(data.votes) Object.values(data.votes).forEach(v => { if(tempStats[v.committee]) { tempStats[v.committee].current += (v.count||1); tempStats[v.committee].logs.push({val:1, time:v.timestamp}); }});
-  if(data.bulk_counts) Object.values(data.bulk_counts).forEach(v => { if(tempStats[v.committee]) { const n=parseInt(v.count); tempStats[v.committee].current += n; tempStats[v.committee].logs.push({val:n, time:v.timestamp}); }});
-  
-  commStats = tempStats;
-  updateUI();
-  if(currentOpenCommitteeId) renderModalContent(currentOpenCommitteeId);
-  isFirstLoad = false;
-  previousCommStats = JSON.parse(JSON.stringify(commStats));
-}
-
-function updateUI() {
-  let totalC = 0; 
-  const totalO = 350757;
-  const now = Date.now();
-  const oneHour = 3600000;
-  let totalHourVotes = 0;
-
-  for(let i=1; i<=60; i++) {
-    const s = commStats[i];
-    const prev = previousCommStats[i] ? previousCommStats[i].current : 0;
-    totalC += s.current;
-
-    // تحديث الأرقام في الكارت
-    document.getElementById(`val-${i}`).innerText = s.current.toLocaleString();
-    const per = s.original > 0 ? (s.current/s.original)*100 : 0;
-    document.getElementById(`bar-${i}`).style.width = per + "%";
-
-    // --- منطق الحالة (عالي - منخفض - ضعيف - خاملة) ---
-    const logsSorted = s.logs.sort((a,b) => b.time - a.time);
-    const lastLogTime = logsSorted.length > 0 ? logsSorted[0].time : 0;
+  // === COMMITTEE LOGIN ===
+  const num = parseInt(val) - 100100;
+  if(num >= 1 && num <= 60) {
+    // Check for duplicate session
+    const sessionRef = ref(db, `active_sessions/${num}`);
+    const snapshot = await get(sessionRef);
     
-    // حساب الإدخال في آخر ساعة لهذه اللجنة
-    const hourlyCount = s.logs.filter(l => (now - l.time) < oneHour).reduce((a,b)=>a+b.val, 0);
-    totalHourVotes += hourlyCount;
-
-    const badge = document.getElementById(`badge-${i}`);
-    badge.className = "status-badge"; // reset classes
-    
-    // إذا لم يتم ادخال أي شيء منذ ساعة
-    if (logsSorted.length > 0 && (now - lastLogTime) > oneHour) {
-        badge.innerText = "خاملة";
-        badge.classList.add("st-idle");
-    } else if (hourlyCount > 300) {
-        badge.innerText = "عالي 🔥";
-        badge.classList.add("st-high");
-    } else if (hourlyCount < 60) {
-        badge.innerText = "ضعيف";
-        badge.classList.add("st-weak");
-    } else {
-        // بين 60 و 300
-        badge.innerText = "منخفض";
-        badge.classList.add("st-mid");
+    if(snapshot.exists()) {
+      errText.innerText = "⚠️ يوجد مندوب آخر متصل بهذه اللجنة!";
+      errBox.style.display = "block";
+      return;
     }
 
-    // Animation
-    const card = document.getElementById(`comm-${i}`);
-    if(!isFirstLoad && s.current > prev) {
-      card.classList.remove('update-anim'); void card.offsetWidth; card.classList.add('update-anim');
-    }
-  }
-
-  document.getElementById("total-all").innerText = totalC.toLocaleString();
-  document.getElementById("percent-all").innerText = ((totalC/totalO)*100).toFixed(1) + "%";
-  document.getElementById("total-remaining").innerText = (totalO - totalC).toLocaleString();
-  
-  // الأداء / دقيقة = (إجمالي آخر ساعة) / 60
-  const perfMin = (totalHourVotes / 60).toFixed(0);
-  document.getElementById("speed-min").innerText = perfMin;
-}
-
-// --- Modal ---
-window.openModal = (id) => { currentOpenCommitteeId = id; renderModalContent(id); document.getElementById("modal-overlay").style.display = "flex"; }
-window.closeModal = () => { currentOpenCommitteeId = null; document.getElementById("modal-overlay").style.display = "none"; }
-
-function renderModalContent(id) {
-  const s = commStats[id], info = committeesDB[id], now = Date.now();
-  document.getElementById("m-title").innerText = `لجنة ${id}`;
-  document.getElementById("m-subtitle").innerText = info.name;
-  document.getElementById("m-original").innerText = info.original.toLocaleString();
-  document.getElementById("m-present").innerText = s.current.toLocaleString();
-  
-  // حساب المتبقي
-  const rem = info.original - s.current;
-  document.getElementById("m-remaining").innerText = rem.toLocaleString();
-
-  const hourlyCount = s.logs.filter(l => (now - l.time) < 3600000).reduce((a,b)=>a+b.val, 0);
-  document.getElementById("m-rate-hour").innerText = hourlyCount;
-
-  const logs = [...s.logs].sort((a,b)=>b.time - a.time).slice(0,50);
-  document.getElementById("m-logs").innerHTML = logs.length ? logs.map(l => `<div class="log-item"><span class="log-time">${new Date(l.time).toLocaleTimeString("ar-EG")}</span><span class="log-v">+${l.val}</span></div>`).join('') : "<div style='text-align:center;padding:10px;color:#999'>لا يوجد نشاط</div>";
-}
-
-window.filterCommittees = () => {
-  const v = document.getElementById("search").value.trim();
-  for(let i=1; i<=60; i++) {
-    const el = document.getElementById(`comm-${i}`);
-    el.style.display = (v === "" || i == v || committeesDB[i].name.includes(v)) ? "flex" : "none";
-  }
-}
-
-window.confirmReset = () => {
-  if(prompt("كود التصفير:") === "521988") {
-    if(confirm("تحذير: سيتم حذف كافة البيانات!")) {
-      set(ref(db, 'votes'), null);
-      set(ref(db, 'bulk_counts'), null);
-      alert("تم تصفير النظام");
-    }
-  }
-}
-
-// --- Excel Export Pro ---
-window.exportToExcel = () => {
-  const wb = XLSX.utils.book_new();
-  const now = Date.now();
-  const oneHour = 3600000;
-  
-  // إعداد البيانات
-  // Header Row
-  const headers = ["رقم اللجنة", "اسم المنطقة", "المقيدين", "الحضور الفعلي", "النسبة %", "المعدل (ساعة)", "حالة النشاط"];
-  const dataRows = [];
-
-  for(let i=1; i<=60; i++) {
-    const s = commStats[i];
-    const info = committeesDB[i];
-    const per = s.original > 0 ? ((s.current/s.original)*100).toFixed(1) + "%" : "0%";
+    // Proceed to login
+    myCommittee = num;
+    loginTime = Date.now();
+    const info = committeesDB[num];
     
-    // حساب الحالة للتصدير
-    const lastLog = s.logs.length > 0 ? Math.max(...s.logs.map(l=>l.time)) : 0;
-    const hourlyCount = s.logs.filter(l => (now - l.time) < oneHour).reduce((a,b)=>a+b.val, 0);
+    document.getElementById("c-name").innerText = `لجنة ${num} - ${info.name}`;
+    document.getElementById("c-addr").innerHTML = `<i class="fa-solid fa-location-dot"></i> ${info.address}`;
     
-    let status = "منخفض";
-    if (s.logs.length > 0 && (now - lastLog) > oneHour) status = "خاملة";
-    else if (hourlyCount > 300) status = "عالي";
-    else if (hourlyCount < 60) status = "ضعيف";
+    // Register Session
+    set(sessionRef, { status: 'online', timestamp: Date.now(), id: sessionID });
+    onDisconnect(sessionRef).remove();
 
-    dataRows.push([
-      i, 
-      info.name, 
-      info.original, 
-      s.current, 
-      per, 
-      hourlyCount, 
-      status
-    ]);
-  }
-
-  // Create Sheet
-  const wsData = [headers, ...dataRows];
-  const ws = XLSX.utils.aoa_to_sheet(wsData);
-
-  // --- Styling Logic ---
-  const range = XLSX.utils.decode_range(ws['!ref']);
-  
-  // حدود سوداء ومحاذاة
-  const borderStyle = {
-    top: { style: "thin", color: { rgb: "000000" } },
-    bottom: { style: "thin", color: { rgb: "000000" } },
-    left: { style: "thin", color: { rgb: "000000" } },
-    right: { style: "thin", color: { rgb: "000000" } }
-  };
-
-  for (let R = range.s.r; R <= range.e.r; ++R) {
-    for (let C = range.s.c; C <= range.e.c; ++C) {
-      const cell_ref = XLSX.utils.encode_cell({c: C, r: R});
-      if (!ws[cell_ref]) ws[cell_ref] = { v: "", t: "s" }; // Ensure cell exists
-      
-      if (!ws[cell_ref].s) ws[cell_ref].s = {};
-
-      // Apply Border
-      ws[cell_ref].s.border = borderStyle;
-      ws[cell_ref].s.alignment = { horizontal: "center", vertical: "center" };
-      ws[cell_ref].s.font = { name: "Cairo", sz: 11 };
-
-      // Header Style
-      if (R === 0) {
-        ws[cell_ref].s.fill = { fgColor: { rgb: "CCCCCC" } }; // Grey header
-        ws[cell_ref].s.font = { name: "Cairo", sz: 12, bold: true, color: { rgb: "000000" } };
-      } 
-      // Rows Coloring (Alternate)
-      else {
-        if (R % 2 === 0) {
-           ws[cell_ref].s.fill = { fgColor: { rgb: "EFEFEF" } }; // Light Grey
-        } else {
-           ws[cell_ref].s.fill = { fgColor: { rgb: "FFFFFF" } }; // White
-        }
+    // Listen if Admin Kicks me
+    onValue(sessionRef, (snap) => {
+      if(!snap.exists() && myCommittee !== 0) {
+        alert("تم تسجيل خروجك بواسطة الأدمن!");
+        location.reload();
       }
-    }
+    });
+
+    document.getElementById("login-modal").classList.add("hidden");
+    document.getElementById("committee-panel").classList.remove("hidden");
+    startMessageListener();
+
+  } else {
+    errText.innerText = "الكود غير صحيح";
+    errBox.style.display = "block";
   }
+};
 
-  // Column Widths
-  ws['!cols'] = [{wch:10}, {wch:20}, {wch:12}, {wch:15}, {wch:10}, {wch:15}, {wch:15}];
+window.logout = function() {
+  if(myCommittee !== 0) {
+    remove(ref(db, `active_sessions/${myCommittee}`)).then(() => location.reload());
+  } else {
+    // Admin Logout
+    location.reload();
+  }
+};
 
-  // Set RTL
-  if(!ws['!views']) ws['!views'] = [];
-  ws['!views'].push({ rightToLeft: true });
+// ----------------------------------------------------
+// 2. COMMITTEE FUNCTIONS
+// ----------------------------------------------------
+window.addOne = function() {
+  if(myCommittee === 0) return;
+  const btn = document.getElementById("main-btn");
+  btn.classList.add("btn-clicked-effect");
+  setTimeout(() => btn.classList.remove("btn-clicked-effect"), 200);
 
-  XLSX.utils.book_append_sheet(wb, ws, "تقرير اللجان");
-  XLSX.writeFile(wb, "Election_Report_Pro.xlsx");
+  const key = Date.now();
+  set(ref(db, "votes/" + key), {
+    committee: myCommittee, count: 1, type: "single", timestamp: key
+  }).then(() => showFlashMsg("✅ تم احتساب الناخب"));
+};
+
+window.addBulk = function() {
+  const val = parseInt(document.getElementById("bulk-val").value);
+  if(!val || val <= 0) return;
+  if(confirm(`تأكيد إضافة ${val} ناخب؟`)) {
+    const key = Date.now();
+    set(ref(db, "bulk_counts/" + key), {
+      committee: myCommittee, count: val, type: "bulk", timestamp: key
+    }).then(() => {
+      showFlashMsg(`✅ تم إضافة ${val}`);
+      document.getElementById("bulk-val").value = "";
+    });
+  }
+};
+
+window.uploadFile = function() {
+  const file = document.getElementById("file-up").files[0];
+  if(!file) return;
+  const formData = new FormData(); formData.append("image", file);
+  showFlashMsg("⏳ جاري الرفع...");
+  fetch(`https://api.imgbb.com/1/upload?key=${imgbbKey}`, {method: "POST", body: formData})
+  .then(res => res.json())
+  .then(data => {
+    if(data.success) showFlashMsg("✅ تم الرفع بنجاح");
+    else showFlashMsg("❌ فشل الرفع");
+  });
+};
+
+function startMessageListener() {
+  onChildAdded(ref(db, 'messages'), (snapshot) => {
+    const msg = snapshot.val();
+    if(!msg || msg.timestamp < loginTime) return;
+    if(msg.target === 'all') showInboxMessage(msg.text, 'public', msg.timestamp);
+    else if(msg.target == myCommittee) showInboxMessage(msg.text, 'private', msg.timestamp);
+  });
 }
+
+// ----------------------------------------------------
+// 3. ADMIN FUNCTIONS
+// ----------------------------------------------------
+function initAdminMonitor() {
+  const list = document.getElementById("active-list");
+  onValue(ref(db, "active_sessions"), (snapshot) => {
+    list.innerHTML = "";
+    if(!snapshot.exists()) {
+      list.innerHTML = "<div style='color:#64748b; text-align:center; grid-column:1/-1;'>لا يوجد لجان نشطة حالياً</div>";
+      return;
+    }
+    snapshot.forEach((child) => {
+      const id = child.key;
+      const data = child.val();
+      const name = committeesDB[id] ? committeesDB[id].name : "غير معروف";
+      const timeStr = new Date(data.timestamp).toLocaleTimeString("ar-EG");
+
+      const div = document.createElement("div");
+      div.className = "user-card";
+      div.innerHTML = `
+        <div class="u-header"><span class="status-dot"></span> لجنة ${id}</div>
+        <div style="font-size:0.9em; color:#94a3b8;">${name}</div>
+        <div class="u-time">دخل منذ: ${timeStr}</div>
+        <button class="kick-btn" onclick="kickUser('${id}')">
+          <i class="fa-solid fa-ban"></i> طرد المشرف
+        </button>
+      `;
+      list.appendChild(div);
+    });
+  });
+}
+
+window.kickUser = function(id) {
+  if(confirm(`طرد مشرف لجنة ${id}؟`)) {
+    remove(ref(db, `active_sessions/${id}`))
+      .then(() => showFlashMsg("تم طرد المشرف"))
+      .catch((e) => alert("خطأ: " + e));
+  }
+};
+
+// ----------------------------------------------------
+// 4. SHARED UTILS
+// ----------------------------------------------------
+function showInboxMessage(text, type, time) {
+  const audio = document.getElementById("notif-sound");
+  audio.play().catch(e => console.log("Audio blocked"));
+  const container = document.getElementById("msg-container");
+  const isPrivate = type === 'private';
+  const headerText = isPrivate ? '📩 رسالة خاصة' : '📢 رسالة جماعية';
+  const headerClass = isPrivate ? 'msg-private' : 'msg-public';
+  const icon = isPrivate ? '<i class="fa-solid fa-envelope"></i>' : '<i class="fa-solid fa-bullhorn"></i>';
+  const msgDiv = document.createElement("div");
+  msgDiv.className = `msg-box ${headerClass}`;
+  const timeStr = new Date(time).toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'});
+  msgDiv.innerHTML = `
+    <div class="msg-header"><span>${icon} ${headerText}</span></div>
+    <div class="msg-body">${text}</div>
+    <div class="msg-footer"><span class="msg-time">${timeStr}</span><button class="btn-close-msg" onclick="this.parentElement.parentElement.remove()">إغلاق <i class="fa-solid fa-xmark"></i></button></div>
+  `;
+  container.appendChild(msgDiv);
+}
+
+function showFlashMsg(txt) {
+  const msg = document.getElementById("flash-msg");
+  msg.innerText = txt; msg.style.display = "block";
+  setTimeout(() => msg.style.display = "none", 2000);
+}
+
+// Expose kickUser to window for HTML onclick
+window.kickUser = window.kickUser; 
 </script>
 </body>
 </html>
