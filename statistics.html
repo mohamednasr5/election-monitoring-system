@@ -35,7 +35,7 @@
     text-align: center; font-size: 1.2em; font-weight: bold; outline: none; transition: 0.3s;
   }
   .login-input:focus { border-color: #3b82f6; }
-  
+   
   .btn-login {
     width: 100%; padding: 12px; background: #3b82f6;
     color: #fff; border: none; border-radius: 10px;
@@ -93,7 +93,7 @@
   .comm-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
   .badge-id { background: #f1f5f9; color: #475569; padding: 2px 8px; border-radius: 6px; font-size: 0.8em; font-weight: 800; }
   .comm-name { font-size: 1.1em; font-weight: 800; color: #1e293b; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  
+   
   /* تنسيق الأرقام (الحضور / المقيدين) */
   .stats-display {
     display: flex; align-items: baseline; gap: 5px; direction: ltr; justify-content: flex-end;
@@ -122,7 +122,7 @@
   .g-card { background: #f8fafc; padding: 15px; border-radius: 12px; text-align: center; border: 1px solid #e2e8f0; }
   .g-val { font-size: 1.6em; font-weight: 900; color: #1e293b; }
   .g-lbl { font-size: 0.8em; color: #64748b; font-weight: 700; }
-  
+   
   .log-feed { border: 1px solid #e2e8f0; border-radius: 12px; max-height: 250px; overflow-y: auto; background: #fafafa; }
   .log-item { padding: 10px 15px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; background: #fff; }
   .log-time { font-size: 0.85em; color: #64748b; font-weight: 600; }
@@ -144,7 +144,7 @@
     <h2 style="margin-bottom:10px; color:#1e293b;">غرفة العمليات المركزية</h2>
     <p style="color:#64748b; font-size:0.9em;">لوحة القيادة والمتابعة</p>
     
-    <input type="password" id="pass-input" class="login-input" placeholder="الرقم السري للأدمن">
+    <input type="password" id="pass-input" class="login-input" placeholder="الرقم السري للأدمن" autofocus>
     <button class="btn-login" onclick="handleLogin()">دخول الأدمن</button>
     
     <div id="login-err" class="alert-box">
@@ -300,18 +300,32 @@ let previousCommStats = {};
 let currentOpenCommitteeId = null;
 let isFirstLoad = true;
 
-// --- Login ---
-window.checkEnter = (e) => { if(e.key === "Enter") attemptLogin(); }
-window.attemptLogin = () => {
-  const p = document.getElementById('password').value;
+// --- Login Logic (FIXED) ---
+window.handleLogin = () => {
+  const passInput = document.getElementById('pass-input');
+  const p = passInput.value;
+  const modal = document.getElementById('login-modal');
+  const dashboard = document.getElementById('dashboard-content');
+  const err = document.getElementById('login-err');
+
   if(p === "521988") {
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('dashboard-content').style.display = 'block';
+    modal.classList.add('hidden');
+    dashboard.style.display = 'block';
     initDashboard();
   } else {
-    document.getElementById('error-msg').style.display = 'block';
+    err.style.display = 'block';
+    passInput.value = ""; // تفريغ الحقل
+    passInput.focus(); // إعادة التركيز للكتابة مرة أخرى
   }
 }
+
+// Event Listener for ENTER Key
+document.getElementById("pass-input").addEventListener("keypress", function(event) {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    handleLogin();
+  }
+});
 
 function initDashboard() {
   const container = document.getElementById("grid-container");
