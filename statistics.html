@@ -471,14 +471,171 @@ window.sendMsg = () => {
   push(ref(db, 'notifications'), msgData).then(() => { closeMsgModal(); showFlash("تم الإرسال بنجاح"); }).catch((err) => alert("خطأ في الإرسال: " + err.message));
 };
 
-function showFlash(msg) { const flash = document.getElementById("flash-msg"); flash.innerText = "✅ " + msg; flash.style.display = "block"; setTimeout(() => flash.style.display = "none", 2500); }
+function showFlash(msg) { 
+  const flash = document.getElementById("flash-msg"); 
+  flash.innerText = "✅ " + msg; 
+  flash.style.display = "block"; 
+  setTimeout(() => flash.style.display = "none", 2500); 
+}
 
-function initDashboard(){const c=document.getElementById("grid-container");c.innerHTML="";for(let i=1;i<=60;i++){const info=committeesDB[i];const d=document.createElement("div");d.className="comm-card";d.id=`comm-${i}`;d.onclick=()=>openModal(i);d.innerHTML=`<div class="status-badge st-idle" id="badge-${i}">خاملة</div><div class="comm-header"><span class="badge-id">#${i}</span></div><div><div class="comm-name">${info.name}</div><small class="mini-stat">آخر 5 دق: <span id="rt-${i}">0</span></small></div><div class="stats-display"><div class="val-current" id="val-${i}">0</div><div class="val-total">/${info.original.toLocaleString()}</div></div><div class="progress-bg"><div class="progress-fill" id="bar-${i}"></div></div>`;c.appendChild(d);}onValue(ref(db,"/"),(snap)=>processData(snap.val()));}function processData(data){data=data||{};let tempStats={};const now=Date.now();for(let i=1;i<=60;i++){tempStats[i]={id:i,current:0,original:committeesDB[i].original,logs:[],alreadyPinged:false};}if(data.votes){Object.entries(data.votes).forEach(([key,v])=>{if(tempStats[v.committee]){const count=v.count||1;tempStats[v.committee].current+=count;tempStats[v.committee].logs.push({val:count,time:v.timestamp,key:key,type:'votes'})}});}if(data.bulk_counts){Object.entries(data.bulk_counts).forEach(([key,v])=>{if(tempStats[v.committee]){const n=parseInt(v.count);tempStats[v.committee].current+=n;tempStats[v.committee].logs.push({val:n,time:v.timestamp,key:key,type:'bulk_counts'})}});}commStats=tempStats;updateUI();if(currentOpenCommitteeId)renderModalContent(currentOpenCommitteeId);isFirstLoad=false;previousCommStats=JSON.parse(JSON.stringify(commStats));}function updateUI(){let totalC=0,totalO=350757,now=Date.now(),totalHourVotes=0,highActivityCount=0,normalCount=0,lowCount=0;for(let i=1;i<=60;i++){const s=commStats[i],prev=previousCommStats[i]?previousCommStats[i].current:0;totalC+=s.current;document.getElementById(`val-${i}`).innerText=s.current.toLocaleString();const per=s.original>0?(s.current/s.original)*100:0;document.getElementById(`bar-${i}`).style.width=per+"%";const logsSorted=s.logs.sort((a,b)=>b.time-a.time),lastLogTime=logsSorted.length>0?logsSorted[0].time:0;const last5Min=s.logs.filter(l=>(now-l.time)<300000).reduce((a,b)=>a+b.val,0);document.getElementById(`rt-${i}`).innerText=last5Min.toLocaleString();const hourlyCount=s.logs.filter(l=>(now-l.time)<3600000).reduce((a,b)=>a+b.val,0);totalHourVotes+=hourlyCount;const badge=document.getElementById(`badge-${i}`);badge.className="status-badge";let statusText="منخفض",statusClass="st-mid";if(logsSorted.length>0&&(now-lastLogTime)>3600000){statusText="خاملة";statusClass="st-idle";}else if(hourlyCount>300){statusText="🔥 نشاط عالي";statusClass="st-high";highActivityCount++;}else if(hourlyCount<60){statusText="ضعيف";statusClass="st-weak";lowCount++;}else{normalCount++;}badge.innerText=statusText;badge.classList.add(statusClass);s.currentStatusText=statusText;s.currentStatusClass=statusClass;const card=document.getElementById(`comm-${i}`);if(!isFirstLoad&&s.current>prev){card.classList.remove('update-anim');void card.offsetWidth;card.classList.add('update-anim');}if(prev>50&&hourlyCount<10){card.style.animation="pulseRed 1.5s";setTimeout(()=>card.style.animation="",2000);}}document.getElementById("total-all").innerText=totalC.toLocaleString();document.getElementById("percent-all").innerText=((totalC/totalO)*100).toFixed(1)+"%";document.getElementById("total-remaining").innerText=(totalO-totalC).toLocaleString();document.getElementById("speed-min").innerText=(totalHourVotes/60).toFixed(0);const fast=Object.values(commStats).map(c=>({id:c.id,rate:c.logs.filter(l=>now-l.time<3600000).reduce((a,b)=>a+b.val,0)})).sort((a,b)=>b.rate-a.rate).slice(0,5);let leaderboardHTML='';fast.forEach(c=>{leaderboardHTML+=`<div class=\"leaderboard-item\"><span>لجنة #${c.id}</span><span>${c.rate} صوت/ساعة</span></div>`;});document.getElementById('leaderboard-list').innerHTML=leaderboardHTML;if(top10Chart){const sortedCommittees=Object.values(commStats).sort((a,b)=>b.current-a.current).slice(0,10);top10Chart.data.labels=sortedCommittees.map(c=>`لجنة ${c.id}`);top10Chart.data.datasets[0].data=sortedCommittees.map(c=>c.current);top10Chart.update();}if(pieChart){pieChart.data.datasets[0].data=[highActivityCount,normalCount,lowCount];pieChart.update();}}
-window.openModal=(id)=>{currentOpenCommitteeId=id;renderModalContent(id);document.getElementById("modal-overlay").style.display="flex";};
-window.closeModal=()=>{currentOpenCommitteeId=null;document.getElementById("modal-overlay").style.display="none";};
-function renderModalContent(id){const s=commStats[id],info=committeesDB[id],now=Date.now();document.getElementById("m-title").innerText=`لجنة ${id}`;document.getElementById("m-subtitle").innerText=info.name;const statusBadge=document.getElementById("m-status-badge");statusBadge.innerText=s.currentStatusText||"...";statusBadge.className="modal-status-indicator "+(s.currentStatusClass||"st-mid");const remaining=info.original-s.current,gap=((remaining)/info.original*100).toFixed(1),hourlyCount=s.logs.filter(l=>(now-l.time)<3600000).reduce((a,b)=>a+b.val,0),eta=(remaining/(hourlyCount||1)).toFixed(1);document.getElementById("m-original").innerText=info.original.toLocaleString();document.getElementById("m-present").innerText=s.current.toLocaleString();document.getElementById("m-remaining").innerText=remaining.toLocaleString();document.getElementById("m-remaining").title=`نسبة الفجوة: ${gap}%`;document.getElementById("m-rate-hour").innerText=hourlyCount;document.getElementById("m-rate-hour").title=`متوقع الإغلاق خلال ${eta} ساعة`;const logs=[...s.logs].sort((a,b)=>b.time-a.time).slice(0,50);document.getElementById("m-logs").innerHTML=logs.length?logs.map(l=>`<div class=\"log-item\"><span style=\"font-size:0.85em; color:#64748b; font-weight:600;\"><i class=\"fa-regular fa-clock\"></i> ${new Date(l.time).toLocaleTimeString("ar-EG")}</span><div style=\"display:flex;align-items:center;gap:10px;\"><span style=\"font-weight:800; color:#2563eb; background:#dbeafe; padding:4px 10px; border-radius:6px;\">+${l.val}</span><div style=\"display:flex; gap:5px;\"><button onclick=\"editEntry('${l.key}', '${l.type}', ${l.val})\" style=\"border:none; background:#eab308; color:white; width:28px; height:28px; border-radius:6px; cursor:pointer;\"><i class=\"fa-solid fa-pen\"></i></button><button onclick=\"deleteEntry('${l.key}', '${l.type}')\" style=\"border:none; background:#ef4444; color:white; width:28px; height:28px; border-radius:6px; cursor:pointer;\"><i class=\"fa-solid fa-trash\"></i></button></div></div></div>`).join(''):"<div style='text-align:center;padding:20px;color:#94a3b8'>لا يوجد نشاط مسجل</div>";}
-window.editEntry=(key,type,oldVal)=>{const newVal=prompt("تعديل قيمة الإدخال:",oldVal);if(newVal!==null&&!isNaN(newVal)&&newVal!==""){update(ref(db),{[`/${type}/${key}/count`]:parseInt(newVal)}).then(()=>showFlash("تم التعديل")).catch(err=>alert(err.message));}else{alert("يرجى إدخال رقم صحيح");}}
-window.deleteEntry=(key,type)=>{if(confirm("هل أنت متأكد من حذف هذا الإدخال؟")){remove(ref(db,`${type}/${key}`)).then(()=>showFlash("تم الحذف")).catch(err=>alert(err.message));}}
+function initDashboard(){
+  const c=document.getElementById("grid-container");
+  c.innerHTML="";
+  for(let i=1;i<=60;i++){
+    const info=committeesDB[i];
+    const d=document.createElement("div");
+    d.className="comm-card";
+    d.id=`comm-${i}`;
+    d.onclick=()=>openModal(i);
+    d.innerHTML=`<div class="status-badge st-idle" id="badge-${i}">خاملة</div><div class="comm-header"><span class="badge-id">#${i}</span></div><div><div class="comm-name">${info.name}</div><small class="mini-stat">آخر 5 دق: <span id="rt-${i}">0</span></small></div><div class="stats-display"><div class="val-current" id="val-${i}">0</div><div class="val-total">/${info.original.toLocaleString()}</div></div><div class="progress-bg"><div class="progress-fill" id="bar-${i}"></div></div>`;
+    c.appendChild(d);
+  }
+  onValue(ref(db,"/"),(snap)=>processData(snap.val()));
+}
+
+function processData(data){
+  data=data||{};
+  let tempStats={};
+  const now=Date.now();
+  for(let i=1;i<=60;i++){
+    tempStats[i]={id:i,current:0,original:committeesDB[i].original,logs:[],alreadyPinged:false};
+  }
+  if(data.votes){
+    Object.entries(data.votes).forEach(([key,v])=>{
+      if(tempStats[v.committee]){
+        const count=v.count||1;
+        tempStats[v.committee].current+=count;
+        tempStats[v.committee].logs.push({val:count,time:v.timestamp,key:key,type:'votes'})
+      }
+    });
+  }
+  if(data.bulk_counts){
+    Object.entries(data.bulk_counts).forEach(([key,v])=>{
+      if(tempStats[v.committee]){
+        const n=parseInt(v.count);
+        tempStats[v.committee].current+=n;
+        tempStats[v.committee].logs.push({val:n,time:v.timestamp,key:key,type:'bulk_counts'})
+      }
+    });
+  }
+  commStats=tempStats;
+  updateUI();
+  if(currentOpenCommitteeId)renderModalContent(currentOpenCommitteeId);
+  isFirstLoad=false;
+  previousCommStats=JSON.parse(JSON.stringify(commStats));
+}
+
+function updateUI(){
+  let totalC=0,totalO=350757,now=Date.now(),totalHourVotes=0,highActivityCount=0,normalCount=0,lowCount=0;
+  for(let i=1;i<=60;i++){
+    const s=commStats[i],prev=previousCommStats[i]?previousCommStats[i].current:0;
+    totalC+=s.current;
+    document.getElementById(`val-${i}`).innerText=s.current.toLocaleString();
+    const per=s.original>0?(s.current/s.original)*100:0;
+    document.getElementById(`bar-${i}`).style.width=per+"%";
+    const logsSorted=s.logs.sort((a,b)=>b.time-a.time),lastLogTime=logsSorted.length>0?logsSorted[0].time:0;
+    const last5Min=s.logs.filter(l=>(now-l.time)<300000).reduce((a,b)=>a+b.val,0);
+    document.getElementById(`rt-${i}`).innerText=last5Min.toLocaleString();
+    const hourlyCount=s.logs.filter(l=>(now-l.time)<3600000).reduce((a,b)=>a+b.val,0);
+    totalHourVotes+=hourlyCount;
+    const badge=document.getElementById(`badge-${i}`);
+    badge.className="status-badge";
+    let statusText="منخفض",statusClass="st-mid";
+    if(logsSorted.length>0&&(now-lastLogTime)>3600000){
+      statusText="خاملة";
+      statusClass="st-idle";
+    }else if(hourlyCount>300){
+      statusText="🔥 نشاط عالي";
+      statusClass="st-high";
+      highActivityCount++;
+    }else if(hourlyCount<60){
+      statusText="ضعيف";
+      statusClass="st-weak";
+      lowCount++;
+    }else{
+      normalCount++;
+    }
+    badge.innerText=statusText;
+    badge.classList.add(statusClass);
+    s.currentStatusText=statusText;
+    s.currentStatusClass=statusClass;
+    const card=document.getElementById(`comm-${i}`);
+    if(!isFirstLoad&&s.current>prev){
+      card.classList.remove('update-anim');
+      void card.offsetWidth;
+      card.classList.add('update-anim');
+    }
+    if(prev>50&&hourlyCount<10){
+      card.style.animation="pulseRed 1.5s";
+      setTimeout(()=>card.style.animation="",2000);
+    }
+  }
+  document.getElementById("total-all").innerText=totalC.toLocaleString();
+  document.getElementById("percent-all").innerText=((totalC/totalO)*100).toFixed(1)+"%";
+  document.getElementById("total-remaining").innerText=(totalO-totalC).toLocaleString();
+  document.getElementById("speed-min").innerText=(totalHourVotes/60).toFixed(0);
+  const fast=Object.values(commStats).map(c=>({id:c.id,rate:c.logs.filter(l=>now-l.time<3600000).reduce((a,b)=>a+b.val,0)})).sort((a,b)=>b.rate-a.rate).slice(0,5);
+  let leaderboardHTML='';
+  fast.forEach(c=>{
+    leaderboardHTML+=`<div class=\"leaderboard-item\"><span>لجنة #${c.id}</span><span>${c.rate} صوت/ساعة</span></div>`;
+  });
+  document.getElementById('leaderboard-list').innerHTML=leaderboardHTML;
+  if(top10Chart){
+    const sortedCommittees=Object.values(commStats).sort((a,b)=>b.current-a.current).slice(0,10);
+    top10Chart.data.labels=sortedCommittees.map(c=>`لجنة ${c.id}`);
+    top10Chart.data.datasets[0].data=sortedCommittees.map(c=>c.current);
+    top10Chart.update();
+  }
+  if(pieChart){
+    pieChart.data.datasets[0].data=[highActivityCount,normalCount,lowCount];
+    pieChart.update();
+  }
+}
+
+window.openModal=(id)=>{
+  currentOpenCommitteeId=id;
+  renderModalContent(id);
+  document.getElementById("modal-overlay").style.display="flex";
+};
+
+window.closeModal=()=>{
+  currentOpenCommitteeId=null;
+  document.getElementById("modal-overlay").style.display="none";
+};
+
+function renderModalContent(id){
+  const s=commStats[id],info=committeesDB[id],now=Date.now();
+  document.getElementById("m-title").innerText=`لجنة ${id}`;
+  document.getElementById("m-subtitle").innerText=info.name;
+  const statusBadge=document.getElementById("m-status-badge");
+  statusBadge.innerText=s.currentStatusText||"...";
+  statusBadge.className="modal-status-indicator "+(s.currentStatusClass||"st-mid");
+  const remaining=info.original-s.current,gap=((remaining)/info.original*100).toFixed(1),hourlyCount=s.logs.filter(l=>(now-l.time)<3600000).reduce((a,b)=>a+b.val,0),eta=(remaining/(hourlyCount||1)).toFixed(1);
+  document.getElementById("m-original").innerText=info.original.toLocaleString();
+  document.getElementById("m-present").innerText=s.current.toLocaleString();
+  document.getElementById("m-remaining").innerText=remaining.toLocaleString();
+  document.getElementById("m-remaining").title=`نسبة الفجوة: ${gap}%`;
+  document.getElementById("m-rate-hour").innerText=hourlyCount;
+  document.getElementById("m-rate-hour").title=`متوقع الإغلاق خلال ${eta} ساعة`;
+  const logs=[...s.logs].sort((a,b)=>b.time-a.time).slice(0,50);
+  document.getElementById("m-logs").innerHTML=logs.length?logs.map(l=>`<div class=\"log-item\"><span style=\"font-size:0.85em; color:#64748b; font-weight:600;\"><i class=\"fa-regular fa-clock\"></i> ${new Date(l.time).toLocaleTimeString("ar-EG")}</span><div style=\"display:flex;align-items:center;gap:10px;\"><span style=\"font-weight:800; color:#2563eb; background:#dbeafe; padding:4px 10px; border-radius:6px;\">+${l.val}</span><div style=\"display:flex; gap:5px;\"><button onclick=\"editEntry('${l.key}', '${l.type}', ${l.val})\" style=\"border:none; background:#eab308; color:white; width:28px; height:28px; border-radius:6px; cursor:pointer;\"><i class=\"fa-solid fa-pen\"></i></button><button onclick=\"deleteEntry('${l.key}', '${l.type}')\" style=\"border:none; background:#ef4444; color:white; width:28px; height:28px; border-radius:6px; cursor:pointer;\"><i class=\"fa-solid fa-trash\"></i></button></div></div></div>`).join(''):"<div style='text-align:center;padding:20px;color:#94a3b8'>لا يوجد نشاط مسجل</div>";
+}
+
+window.editEntry=(key,type,oldVal)=>{
+  const newVal=prompt("تعديل قيمة الإدخال:",oldVal);
+  if(newVal!==null&&!isNaN(newVal)&&newVal!==""){
+    update(ref(db),{[`/${type}/${key}/count`]:parseInt(newVal)}).then(()=>showFlash("تم التعديل")).catch(err=>alert(err.message));
+  }else{
+    alert("يرجى إدخال رقم صحيح");
+  }
+}
+
+window.deleteEntry=(key,type)=>{
+  if(confirm("هل أنت متأكد من حذف هذا الإدخال؟")){
+    remove(ref(db,`${type}/${key}`)).then(()=>showFlash("تم الحذف")).catch(err=>alert(err.message));
+  }
+}
+
 window.filterCommittees = () => {
   const v = document.getElementById("search").value.trim();
   
@@ -505,10 +662,72 @@ window.filterCommittees = () => {
     }
   }
 };
-.confirmReset=()=>{if(prompt("أدخل كود التصفير:")==="521988"){if(confirm("تحذير نهائي: سيتم حذف جميع الأصوات!")){set(ref(db,'votes'),null);set(ref(db,'bulk_counts'),null);set(ref(db,'notifications'),null);alert("تم إعادة ضبط النظام");}}}
-window.exportSingleCommittee=()=>{if(!currentOpenCommitteeId)return;const id=currentOpenCommitteeId,s=commStats[id],info=committeesDB[id],now=Date.now(),wb=XLSX.utils.book_new(),headers=["رقم اللجنة","اسم المنطقة","المقيدين","الحضور الفعلي","النسبة %","المعدل (ساعة)","حالة النشاط"],per=s.original>0?((s.current/s.original)*100).toFixed(1)+"%":"0%",hourlyCount=s.logs.filter(l=>(now-l.time)<3600000).reduce((a,b)=>a+b.val,0),status=s.currentStatusText||"...",dataRow=[id,info.name,info.original,s.current,per,hourlyCount,status],ws=XLSX.utils.aoa_to_sheet([headers,dataRow]),range=XLSX.utils.decode_range(ws['!ref']),borderStyle={top:{style:"thin",color:{rgb:"000000"}},bottom:{style:"thin",color:{rgb:"000000"}},left:{style:"thin",color:{rgb:"000000"}},right:{style:"thin",color:{rgb:"000000"}}};for(let R=range.s.r;R<=range.e.r;++R){for(let C=range.s.c;C<=range.e.c;++C){const cell_ref=XLSX.utils.encode_cell({c:C,r:R});if(!ws[cell_ref])ws[cell_ref]={v:"",t:"s"};if(!ws[cell_ref].s)ws[cell_ref].s={};ws[cell_ref].s.border=borderStyle;ws[cell_ref].s.alignment={horizontal:"center",vertical:"center"};ws[cell_ref].s.font={name:"Cairo",sz:11};if(R===0){ws[cell_ref].s.fill={fgColor:{rgb:"CCCCCC"}};ws[cell_ref].s.font={name:"Cairo",sz:12,bold:true};}}}ws['!cols']=[{wch:10},{wch:20},{wch:12},{wch:15},{wch:10},{wch:15},{wch:15}];if(!ws['!views'])ws['!views']=[];ws['!views'].push({rightToLeft:true});XLSX.utils.book_append_sheet(wb,ws,`لجنة ${id}`);XLSX.writeFile(wb,`Report_Committee_${id}.xlsx`);};
-window.exportToExcel=()=>{const wb=XLSX.utils.book_new(),now=Date.now(),headers=["رقم اللجنة","اسم المنطقة","المقيدين","الحضور الفعلي","النسبة %","المعدل (ساعة)","حالة النشاط"],dataRows=[];for(let i=1;i<=60;i++){const s=commStats[i],info=committeesDB[i],per=s.original>0?((s.current/s.original)*100).toFixed(1)+"%":"0%",lastLog=s.logs.length>0?Math.max(...s.logs.map(l=>l.time)):0,hourlyCount=s.logs.filter(l=>(now-l.time)<3600000).reduce((a,b)=>a+b.val,0),status=s.currentStatusText||"...";dataRows.push([i,info.name,info.original,s.current,per,hourlyCount,status]);}const ws=XLSX.utils.aoa_to_sheet([headers,...dataRows]),range=XLSX.utils.decode_range(ws['!ref']),borderStyle={top:{style:"thin",color:{rgb:"000000"}},bottom:{style:"thin",color:{rgb:"000000"}},left:{style:"thin",color:{rgb:"000000"}},right:{style:"thin",color:{rgb:"000000"}}};for(let R=range.s.r;R<=range.e.r;++R){for(let C=range.s.c;C<=range.e.c;++C){const cell_ref=XLSX.utils.encode_cell({c:C,r:R});if(!ws[cell_ref])ws[cell_ref]={v:"",t:"s"};if(!ws[cell_ref].s)ws[cell_ref].s={};ws[cell_ref].s.border=borderStyle;ws[cell_ref].s.alignment={horizontal:"center",vertical:"center"};ws[cell_ref].s.font={name:"Cairo",sz:11};if(R===0){ws[cell_ref].s.fill={fgColor:{rgb:"CCCCCC"}};ws[cell_ref].s.font={name:"Cairo",sz:12,bold:true,color:{rgb:"000000"}};}else{ws[cell_ref].s.fill={fgColor:{rgb:(R%2===0)?"EFEFEF":"FFFFFF"}};}}}ws['!cols']=[{wch:10},{wch:20},{wch:12},{wch:15},{wch:10},{wch:15},{wch:15}];if(!ws['!views'])ws['!views']=[];ws['!views'].push({rightToLeft:true});XLSX.utils.book_append_sheet(wb,ws,"تقرير اللجان");XLSX.writeFile(wb,"Election_Report_Pro.xlsx");};
-// ... جميع دوال window الأخرى
+
+window.confirmReset=()=>{
+  if(prompt("أدخل كود التصفير:")==="521988"){
+    if(confirm("تحذير نهائي: سيتم حذف جميع الأصوات!")){
+      set(ref(db,'votes'),null);
+      set(ref(db,'bulk_counts'),null);
+      set(ref(db,'notifications'),null);
+      alert("تم إعادة ضبط النظام");
+    }
+  }
+}
+
+window.exportSingleCommittee=()=>{
+  if(!currentOpenCommitteeId)return;
+  const id=currentOpenCommitteeId,s=commStats[id],info=committeesDB[id],now=Date.now(),wb=XLSX.utils.book_new(),headers=["رقم اللجنة","اسم المنطقة","المقيدين","الحضور الفعلي","النسبة %","المعدل (ساعة)","حالة النشاط"],per=s.original>0?((s.current/s.original)*100).toFixed(1)+"%":"0%",hourlyCount=s.logs.filter(l=>(now-l.time)<3600000).reduce((a,b)=>a+b.val,0),status=s.currentStatusText||"...",dataRow=[id,info.name,info.original,s.current,per,hourlyCount,status],ws=XLSX.utils.aoa_to_sheet([headers,dataRow]),range=XLSX.utils.decode_range(ws['!ref']),borderStyle={top:{style:"thin",color:{rgb:"000000"}},bottom:{style:"thin",color:{rgb:"000000"}},left:{style:"thin",color:{rgb:"000000"}},right:{style:"thin",color:{rgb:"000000"}}};
+  for(let R=range.s.r;R<=range.e.r;++R){
+    for(let C=range.s.c;C<=range.e.c;++C){
+      const cell_ref=XLSX.utils.encode_cell({c:C,r:R});
+      if(!ws[cell_ref])ws[cell_ref]={v:"",t:"s"};
+      if(!ws[cell_ref].s)ws[cell_ref].s={};
+      ws[cell_ref].s.border=borderStyle;
+      ws[cell_ref].s.alignment={horizontal:"center",vertical:"center"};
+      ws[cell_ref].s.font={name:"Cairo",sz:11};
+      if(R===0){
+        ws[cell_ref].s.fill={fgColor:{rgb:"CCCCCC"}};
+        ws[cell_ref].s.font={name:"Cairo",sz:12,bold:true};
+      }
+    }
+  }
+  ws['!cols']=[{wch:10},{wch:20},{wch:12},{wch:15},{wch:10},{wch:15},{wch:15}];
+  if(!ws['!views'])ws['!views']=[];
+  ws['!views'].push({rightToLeft:true});
+  XLSX.utils.book_append_sheet(wb,ws,`لجنة ${id}`);
+  XLSX.writeFile(wb,`Report_Committee_${id}.xlsx`);
+};
+
+window.exportToExcel=()=>{
+  const wb=XLSX.utils.book_new(),now=Date.now(),headers=["رقم اللجنة","اسم المنطقة","المقيدين","الحضور الفعلي","النسبة %","المعدل (ساعة)","حالة النشاط"],dataRows=[];
+  for(let i=1;i<=60;i++){
+    const s=commStats[i],info=committeesDB[i],per=s.original>0?((s.current/s.original)*100).toFixed(1)+"%":"0%",lastLog=s.logs.length>0?Math.max(...s.logs.map(l=>l.time)):0,hourlyCount=s.logs.filter(l=>(now-l.time)<3600000).reduce((a,b)=>a+b.val,0),status=s.currentStatusText||"...";
+    dataRows.push([i,info.name,info.original,s.current,per,hourlyCount,status]);
+  }
+  const ws=XLSX.utils.aoa_to_sheet([headers,...dataRows]),range=XLSX.utils.decode_range(ws['!ref']),borderStyle={top:{style:"thin",color:{rgb:"000000"}},bottom:{style:"thin",color:{rgb:"000000"}},left:{style:"thin",color:{rgb:"000000"}},right:{style:"thin",color:{rgb:"000000"}}};
+  for(let R=range.s.r;R<=range.e.r;++R){
+    for(let C=range.s.c;C<=range.e.c;++C){
+      const cell_ref=XLSX.utils.encode_cell({c:C,r:R});
+      if(!ws[cell_ref])ws[cell_ref]={v:"",t:"s"};
+      if(!ws[cell_ref].s)ws[cell_ref].s={};
+      ws[cell_ref].s.border=borderStyle;
+      ws[cell_ref].s.alignment={horizontal:"center",vertical:"center"};
+      ws[cell_ref].s.font={name:"Cairo",sz:11};
+      if(R===0){
+        ws[cell_ref].s.fill={fgColor:{rgb:"CCCCCC"}};
+        ws[cell_ref].s.font={name:"Cairo",sz:12,bold:true,color:{rgb:"000000"}};
+      }else{
+        ws[cell_ref].s.fill={fgColor:{rgb:(R%2===0)?"EFEFEF":"FFFFFF"}};
+      }
+    }
+  }
+  ws['!cols']=[{wch:10},{wch:20},{wch:12},{wch:15},{wch:10},{wch:15},{wch:15}];
+  if(!ws['!views'])ws['!views']=[];
+  ws['!views'].push({rightToLeft:true});
+  XLSX.utils.book_append_sheet(wb,ws,"تقرير اللجان");
+  XLSX.writeFile(wb,"Election_Report_Pro.xlsx");
+};
+
 
 window.showCommitteesSum = () => {
   const val = document.getElementById('sum-committees-input').value;
@@ -525,5 +744,6 @@ window.showCommitteesSum = () => {
 </script>
 </body>
 </html>
+
 
 
