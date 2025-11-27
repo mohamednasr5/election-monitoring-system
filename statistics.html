@@ -479,8 +479,33 @@ window.closeModal=()=>{currentOpenCommitteeId=null;document.getElementById("moda
 function renderModalContent(id){const s=commStats[id],info=committeesDB[id],now=Date.now();document.getElementById("m-title").innerText=`لجنة ${id}`;document.getElementById("m-subtitle").innerText=info.name;const statusBadge=document.getElementById("m-status-badge");statusBadge.innerText=s.currentStatusText||"...";statusBadge.className="modal-status-indicator "+(s.currentStatusClass||"st-mid");const remaining=info.original-s.current,gap=((remaining)/info.original*100).toFixed(1),hourlyCount=s.logs.filter(l=>(now-l.time)<3600000).reduce((a,b)=>a+b.val,0),eta=(remaining/(hourlyCount||1)).toFixed(1);document.getElementById("m-original").innerText=info.original.toLocaleString();document.getElementById("m-present").innerText=s.current.toLocaleString();document.getElementById("m-remaining").innerText=remaining.toLocaleString();document.getElementById("m-remaining").title=`نسبة الفجوة: ${gap}%`;document.getElementById("m-rate-hour").innerText=hourlyCount;document.getElementById("m-rate-hour").title=`متوقع الإغلاق خلال ${eta} ساعة`;const logs=[...s.logs].sort((a,b)=>b.time-a.time).slice(0,50);document.getElementById("m-logs").innerHTML=logs.length?logs.map(l=>`<div class=\"log-item\"><span style=\"font-size:0.85em; color:#64748b; font-weight:600;\"><i class=\"fa-regular fa-clock\"></i> ${new Date(l.time).toLocaleTimeString("ar-EG")}</span><div style=\"display:flex;align-items:center;gap:10px;\"><span style=\"font-weight:800; color:#2563eb; background:#dbeafe; padding:4px 10px; border-radius:6px;\">+${l.val}</span><div style=\"display:flex; gap:5px;\"><button onclick=\"editEntry('${l.key}', '${l.type}', ${l.val})\" style=\"border:none; background:#eab308; color:white; width:28px; height:28px; border-radius:6px; cursor:pointer;\"><i class=\"fa-solid fa-pen\"></i></button><button onclick=\"deleteEntry('${l.key}', '${l.type}')\" style=\"border:none; background:#ef4444; color:white; width:28px; height:28px; border-radius:6px; cursor:pointer;\"><i class=\"fa-solid fa-trash\"></i></button></div></div></div>`).join(''):"<div style='text-align:center;padding:20px;color:#94a3b8'>لا يوجد نشاط مسجل</div>";}
 window.editEntry=(key,type,oldVal)=>{const newVal=prompt("تعديل قيمة الإدخال:",oldVal);if(newVal!==null&&!isNaN(newVal)&&newVal!==""){update(ref(db),{[`/${type}/${key}/count`]:parseInt(newVal)}).then(()=>showFlash("تم التعديل")).catch(err=>alert(err.message));}else{alert("يرجى إدخال رقم صحيح");}}
 window.deleteEntry=(key,type)=>{if(confirm("هل أنت متأكد من حذف هذا الإدخال؟")){remove(ref(db,`${type}/${key}`)).then(()=>showFlash("تم الحذف")).catch(err=>alert(err.message));}}
-window.filterCommittees=()=>{const v=document.getElementById("search").value.trim();for(let i=1;i<=60;i++){const el=document.getElementById(`comm-${i}`);el.style.display=(v===""||i==v||committeesDB[i].name.includes(v))?"flex":"none";}}
-window.confirmReset=()=>{if(prompt("أدخل كود التصفير:")==="521988"){if(confirm("تحذير نهائي: سيتم حذف جميع الأصوات!")){set(ref(db,'votes'),null);set(ref(db,'bulk_counts'),null);set(ref(db,'notifications'),null);alert("تم إعادة ضبط النظام");}}}
+window.filterCommittees = () => {
+  const v = document.getElementById("search").value.trim();
+  
+  if (v === "") {
+    for(let i=1; i<=60; i++){
+      document.getElementById(`comm-${i}`).style.display = "flex";
+    }
+    return;
+  }
+  
+  const numbers = v.split(/[،,\s]+/)
+    .map(n => parseInt(n.trim()))
+    .filter(n => !isNaN(n) && n >= 1 && n <= 60);
+  
+  if (numbers.length > 0) {
+    for(let i=1; i<=60; i++){
+      const el = document.getElementById(`comm-${i}`);
+      el.style.display = numbers.includes(i) ? "flex" : "none";
+    }
+  } else {
+    for(let i=1; i<=60; i++){
+      const el = document.getElementById(`comm-${i}`);
+      el.style.display = (committeesDB[i].name.includes(v)) ? "flex" : "none";
+    }
+  }
+};
+.confirmReset=()=>{if(prompt("أدخل كود التصفير:")==="521988"){if(confirm("تحذير نهائي: سيتم حذف جميع الأصوات!")){set(ref(db,'votes'),null);set(ref(db,'bulk_counts'),null);set(ref(db,'notifications'),null);alert("تم إعادة ضبط النظام");}}}
 window.exportSingleCommittee=()=>{if(!currentOpenCommitteeId)return;const id=currentOpenCommitteeId,s=commStats[id],info=committeesDB[id],now=Date.now(),wb=XLSX.utils.book_new(),headers=["رقم اللجنة","اسم المنطقة","المقيدين","الحضور الفعلي","النسبة %","المعدل (ساعة)","حالة النشاط"],per=s.original>0?((s.current/s.original)*100).toFixed(1)+"%":"0%",hourlyCount=s.logs.filter(l=>(now-l.time)<3600000).reduce((a,b)=>a+b.val,0),status=s.currentStatusText||"...",dataRow=[id,info.name,info.original,s.current,per,hourlyCount,status],ws=XLSX.utils.aoa_to_sheet([headers,dataRow]),range=XLSX.utils.decode_range(ws['!ref']),borderStyle={top:{style:"thin",color:{rgb:"000000"}},bottom:{style:"thin",color:{rgb:"000000"}},left:{style:"thin",color:{rgb:"000000"}},right:{style:"thin",color:{rgb:"000000"}}};for(let R=range.s.r;R<=range.e.r;++R){for(let C=range.s.c;C<=range.e.c;++C){const cell_ref=XLSX.utils.encode_cell({c:C,r:R});if(!ws[cell_ref])ws[cell_ref]={v:"",t:"s"};if(!ws[cell_ref].s)ws[cell_ref].s={};ws[cell_ref].s.border=borderStyle;ws[cell_ref].s.alignment={horizontal:"center",vertical:"center"};ws[cell_ref].s.font={name:"Cairo",sz:11};if(R===0){ws[cell_ref].s.fill={fgColor:{rgb:"CCCCCC"}};ws[cell_ref].s.font={name:"Cairo",sz:12,bold:true};}}}ws['!cols']=[{wch:10},{wch:20},{wch:12},{wch:15},{wch:10},{wch:15},{wch:15}];if(!ws['!views'])ws['!views']=[];ws['!views'].push({rightToLeft:true});XLSX.utils.book_append_sheet(wb,ws,`لجنة ${id}`);XLSX.writeFile(wb,`Report_Committee_${id}.xlsx`);};
 window.exportToExcel=()=>{const wb=XLSX.utils.book_new(),now=Date.now(),headers=["رقم اللجنة","اسم المنطقة","المقيدين","الحضور الفعلي","النسبة %","المعدل (ساعة)","حالة النشاط"],dataRows=[];for(let i=1;i<=60;i++){const s=commStats[i],info=committeesDB[i],per=s.original>0?((s.current/s.original)*100).toFixed(1)+"%":"0%",lastLog=s.logs.length>0?Math.max(...s.logs.map(l=>l.time)):0,hourlyCount=s.logs.filter(l=>(now-l.time)<3600000).reduce((a,b)=>a+b.val,0),status=s.currentStatusText||"...";dataRows.push([i,info.name,info.original,s.current,per,hourlyCount,status]);}const ws=XLSX.utils.aoa_to_sheet([headers,...dataRows]),range=XLSX.utils.decode_range(ws['!ref']),borderStyle={top:{style:"thin",color:{rgb:"000000"}},bottom:{style:"thin",color:{rgb:"000000"}},left:{style:"thin",color:{rgb:"000000"}},right:{style:"thin",color:{rgb:"000000"}}};for(let R=range.s.r;R<=range.e.r;++R){for(let C=range.s.c;C<=range.e.c;++C){const cell_ref=XLSX.utils.encode_cell({c:C,r:R});if(!ws[cell_ref])ws[cell_ref]={v:"",t:"s"};if(!ws[cell_ref].s)ws[cell_ref].s={};ws[cell_ref].s.border=borderStyle;ws[cell_ref].s.alignment={horizontal:"center",vertical:"center"};ws[cell_ref].s.font={name:"Cairo",sz:11};if(R===0){ws[cell_ref].s.fill={fgColor:{rgb:"CCCCCC"}};ws[cell_ref].s.font={name:"Cairo",sz:12,bold:true,color:{rgb:"000000"}};}else{ws[cell_ref].s.fill={fgColor:{rgb:(R%2===0)?"EFEFEF":"FFFFFF"}};}}}ws['!cols']=[{wch:10},{wch:20},{wch:12},{wch:15},{wch:10},{wch:15},{wch:15}];if(!ws['!views'])ws['!views']=[];ws['!views'].push({rightToLeft:true});XLSX.utils.book_append_sheet(wb,ws,"تقرير اللجان");XLSX.writeFile(wb,"Election_Report_Pro.xlsx");};
 // ... جميع دوال window الأخرى
@@ -500,4 +525,5 @@ window.showCommitteesSum = () => {
 </script>
 </body>
 </html>
+
 
