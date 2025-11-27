@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إحصائيات اللجان - المطرية والمنزلة والعزيزة</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            padding: 15px;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .regions-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .region-section {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .region-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .day-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .day-tab {
+            flex: 1;
+            padding: 10px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .day-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .day-content {
+            display: none;
+        }
+
+        .day-content.active {
+            display: block;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85em;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 5px;
+            text-align: center;
+            font-size: 0.95em;
+        }
+
+        td {
+            padding: 6px 4px;
+            text-align: center;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        tr:hover {
+            background: #f8f9ff;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 6px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 0.95em;
+            text-align: center;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .total-row {
+            background: #f8f9ff !important;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .total-row td {
+            color: #667eea;
+            border-top: 3px solid #667eea;
+        }
+
+        .controls {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: white;
+            min-width: 80px;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .btn-export {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            color: #667eea;
+            font-size: 0.95em;
+            margin-bottom: 8px;
+        }
+
+        .stat-card .number {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #764ba2;
+        }
+
+        .total-input-box {
+            background: #f8f9ff;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .total-input-box label {
+            display: block;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+
+        .total-input-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .total-input-box select,
+        .total-input-box input {
+            flex: 1;
+            padding: 8px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 0.95em;
+        }
+
+        .total-input-box button {
+            padding: 8px 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: bold;
+        }
+
+        .total-input-box button:hover {
+            background: #764ba2;
+        }
+
+        .flash-message {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #4CAF50;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            z-index: 1000;
+            animation: slideDown 0.5s;
+            font-size: 0.95em;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translate(-50%, -100%);
+                opacity: 0;
+            }
+            to {
+                transform: translate(-50%, 0);
+                opacity: 1;
+            }
+        }
+
+        .committee-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.85em;
+        }
+
+        .sync-status {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #4CAF50;
+            margin-right: 5px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+            .controls, .day-tabs, .total-input-box {
+                display: none;
+            }
+        }
+
+        @media (max-width: 1400px) {
+            .regions-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 إحصائيات اللجان الانتخابية</h1>
+            <p style="color: #666; font-size: 1em; margin-top: 5px;">
+                <span class="sync-status"></span>
+                المطرية • المنزلة • العزيزة
+            </p>
+        </div>
+
+        <div class="stats-row">
+            <div class="stat-card">
+                <h3>إجمالي اليوم الأول</h3>
+                <div class="number" id="grandTotalDay1">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>إجمالي اليوم الثاني</h3>
+                <div class="number" id="grandTotalDay2">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>المجموع الكلي</h3>
+                <div class="number" id="grandTotal">0</div>
+            </div>
+        </div>
+
+        <div class="regions-container">
+            <!-- المطرية -->
+            <div class="region-section">
+                <div class="region-header">🏛️ المطرية</div>
+                
+                <div class="day-tabs">
+                    <button class="day-tab active" onclick="switchTab('matareya', 1)">اليوم الأول</button>
+                    <button class="day-tab" onclick="switchTab('matareya', 2)">اليوم الثاني</button>
+                </div>
+
+                <div id="matareya-day1" class="day-content active">
+                    <div class="controls">
+                        <button class="btn btn-save" onclick="saveRegionData('matareya', 1)">💾 حفظ</button>
+                        <button class="btn btn-export" onclick="exportToExcel('matareya', 1)">📥 تصدير</button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>اللجنة</th>
+                                <th>المدرسة</th>
+                                <th>الأصوات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="matareya-day1-body"></tbody>
+                    </table>
+                </div>
+
+                <div id="matareya-day2" class="day-content">
+                    <div class="total-input-box">
+                        <label>🎯 توزيع تلقائي للمجموع الكلي:</label>
+                        <div class="total-input-row">
+                            <select id="matareya-select"></select>
+                            <input type="number" id="matareya-total" placeholder="الكلي" min="0">
+                            <button onclick="distributeTotal('matareya')">توزيع</button>
+                        </div>
+                    </div>
+                    <div class="controls">
+                        <button class="btn btn-save" onclick="saveRegionData('matareya', 2)">💾 حفظ</button>
+                        <button class="btn btn-export" onclick="exportToExcel('matareya', 2)">📥 تصدير</button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>اللجنة</th>
+                                <th>المدرسة</th>
+                                <th>الأصوات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="matareya-day2-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- المنزلة -->
+            <div class="region-section">
+                <div class="region-header">🏛️ المنزلة</div>
+                
+                <div class="day-tabs">
+                    <button class="day-tab active" onclick="switchTab('mnzl', 1)">اليوم الأول</button>
+                    <button class="day-tab" onclick="switchTab('mnzl', 2)">اليوم الثاني</button>
+                </div>
+
+                <div id="mnzl-day1" class="day-content active">
+                    <div class="controls">
+                        <button class="btn btn-save" onclick="saveRegionData('mnzl', 1)">💾 حفظ</button>
+                        <button class="btn btn-export" onclick="exportToExcel('mnzl', 1)">📥 تصدير</button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>اللجنة</th>
+                                <th>المدرسة</th>
+                                <th>الأصوات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="mnzl-day1-body"></tbody>
+                    </table>
+                </div>
+
+                <div id="mnzl-day2" class="day-content">
+                    <div class="total-input-box">
+                        <label>🎯 توزيع تلقائي للمجموع الكلي:</label>
+                        <div class="total-input-row">
+                            <select id="mnzl-select"></select>
+                            <input type="number" id="mnzl-total" placeholder="الكلي" min="0">
+                            <button onclick="distributeTotal('mnzl')">توزيع</button>
+                        </div>
+                    </div>
+                    <div class="controls">
+                        <button class="btn btn-save" onclick="saveRegionData('mnzl', 2)">💾 حفظ</button>
+                        <button class="btn btn-export" onclick="exportToExcel('mnzl', 2)">📥 تصدير</button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>اللجنة</th>
+                                <th>المدرسة</th>
+                                <th>الأصوات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="mnzl-day2-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- العزيزة -->
+            <div class="region-section">
+                <div class="region-header">🏛️ العزيزة</div>
+                
+                <div class="day-tabs">
+                    <button class="day-tab active" onclick="switchTab('aziza', 1)">اليوم الأول</button>
+                    <button class="day-tab" onclick="switchTab('aziza', 2)">اليوم الثاني</button>
+                </div>
+
+                <div id="aziza-day1" class="day-content active">
+                    <div class="controls">
+                        <button class="btn btn-save" onclick="saveRegionData('aziza', 1)">💾 حفظ</button>
+                        <button class="btn btn-export" onclick="exportToExcel('aziza', 1)">📥 تصدير</button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>اللجنة</th>
+                                <th>الفئة</th>
+                                <th>الأصوات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="aziza-day1-body"></tbody>
+                    </table>
+                </div>
+
+                <div id="aziza-day2" class="day-content">
+                    <div class="total-input-box">
+                        <label>🎯 توزيع تلقائي للمجموع الكلي:</label>
+                        <div class="total-input-row">
+                            <select id="aziza-select"></select>
+                            <input type="number" id="aziza-total" placeholder="الكلي" min="0">
+                            <button onclick="distributeTotal('aziza')">توزيع</button>
+                        </div>
+                    </div>
+                    <div class="controls">
+                        <button class="btn btn-save" onclick="saveRegionData('aziza', 2)">💾 حفظ</button>
+                        <button class="btn btn-export" onclick="exportToExcel('aziza', 2)">📥 تصدير</button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>اللجنة</th>
+                                <th>الفئة</th>
+                                <th>الأصوات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="aziza-day2-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getDatabase, ref, set, get, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+        // تهيئة Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCxxXV_6CEo1fTp3rRbfwfYbe7WH0Cyg38",
+            authDomain: "elahmadiya.firebaseapp.com",
+            databaseURL: "https://elahmadiya-default-rtdb.firebaseio.com",
+            projectId: "elahmadiya",
+            storageBucket: "elahmadiya.firebasestorage.app",
+            messagingSenderId: "594580767620",
+            appId: "1:594580767620:web:f5be3b87d4c704854e53d1"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        window.database = database;
+        window.dbRef = ref;
+        window.dbSet = set;
+        window.dbGet = get;
+        window.dbOnValue = onValue;
+
+        console.log('✅ Firebase متصل بنجاح');
+        showMessage('🔗 تم الاتصال بقاعدة البيانات', '#4CAF50');
+    </script>
+
+    <script>
+        // بيانات المناطق
+        const regions = {
+            matareya: [
+                { id: 38, name: 'الشهيد محمود النجدي' },
+                { id: 39, name: 'الشهيد محمود النجدي' },
+                { id: 40, name: 'معهد فتيات المطرية' },
+                { id: 41, name: 'ابو بكر الصديق' },
+                { id: 42, name: 'احمد ماهر' },
+                { id: 43, name: 'احمد ماهر' },
+                { id: 44, name: 'العاشر من رمضان' },
+                { id: 45, name: 'طارق ابن زياد' },
+                { id: 46, name: 'السيدة نفيسة' },
+                { id: 47, name: 'السيدة نفيسة' },
+                { id: 48, name: 'الضهير' },
+                { id: 49, name: 'معهد عثمان بن عفان' },
+                { id: 50, name: 'خالد بن الوليد' },
+                { id: 51, name: 'خالد بن الوليد' },
+                { id: 52, name: 'المطرية الابتدائية' }
+            ],
+            mnzl: [
+                { id: 53, name: 'مدرسة الثانوية' },
+                { id: 54, name: 'مدرسة عثمان' },
+                { id: 55, name: 'مدرسة عثمان' },
+                { id: 56, name: 'مدرسة الانصاري' },
+                { id: 57, name: 'هاشم شلباية' },
+                { id: 58, name: 'الزهراء رجال' },
+                { id: 59, name: 'الزهراء حريم' },
+                { id: 60, name: 'الامام على' }
+            ],
+            aziza: [
+                { id: 24, name: 'رجال' },
+                { id: 25, name: 'نساء' }
+            ]
+        };
+
+        // تهيئة الصفحة
+        function init() {
+            generateTables('matareya');
+            generateTables('mnzl');
+            generateTables('aziza');
+            
+            // الانتظار حتى يتم تحميل Firebase ثم تحميل البيانات
+            setTimeout(() => {
+                loadAllDataFromFirebase();
+                setupRealtimeListeners();
+            }, 1000);
+        }
+
+        // إنشاء الجداول
+        function generateTables(region) {
+            populateSelect(region);
+            generateDayTable(region, 1);
+            generateDayTable(region, 2);
+        }
+
+        // ملء قائمة اللجان
+        function populateSelect(region) {
+            const select = document.getElementById(`${region}-select`);
+            select.innerHTML = '<option value="">اختر اللجنة</option>';
+            regions[region].forEach(committee => {
+                const option = document.createElement('option');
+                option.value = committee.id;
+                option.textContent = `${committee.id} - ${committee.name}`;
+                select.appendChild(option);
+            });
+        }
+
+        // إنشاء جدول يوم
+        function generateDayTable(region, day) {
+            const tbody = document.getElementById(`${region}-day${day}-body`);
+            tbody.innerHTML = '';
+            
+            regions[region].forEach(committee => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td class="committee-name">${committee.id}</td>
+                    <td class="committee-name">${committee.name}</td>
+                    <td><input type="number" id="${region}-day${day}-${committee.id}" min="0" value="0" onchange="calculateAllTotals(); autoSaveToFirebase('${region}', ${day})"></td>
+                `;
+            });
+
+            const totalRow = tbody.insertRow();
+            totalRow.className = 'total-row';
+            totalRow.innerHTML = `
+                <td colspan="2">المجموع</td>
+                <td id="${region}-day${day}-total">0</td>
+            `;
+        }
+
+        // تبديل التبويب
+        function switchTab(region, day) {
+            document.querySelectorAll(`#${region}-day1, #${region}-day2`).forEach(el => el.classList.remove('active'));
+            document.querySelector(`#${region}-day${day}`).classList.add('active');
+            
+            const parent = document.querySelector(`#${region}-day${day}`).closest('.region-section');
+            parent.querySelectorAll('.day-tab').forEach((tab, index) => {
+                tab.classList.toggle('active', index + 1 === day);
+            });
+        }
+
+        // حساب جميع المجاميع
+        function calculateAllTotals() {
+            let grandDay1 = 0;
+            let grandDay2 = 0;
+
+            Object.keys(regions).forEach(region => {
+                [1, 2].forEach(day => {
+                    let total = 0;
+                    regions[region].forEach(committee => {
+                        const value = parseInt(document.getElementById(`${region}-day${day}-${committee.id}`).value) || 0;
+                        total += value;
+                    });
+                    document.getElementById(`${region}-day${day}-total`).textContent = total.toLocaleString();
+                    if (day === 1) grandDay1 += total;
+                    else grandDay2 += total;
+                });
+            });
+
+            document.getElementById('grandTotalDay1').textContent = grandDay1.toLocaleString();
+            document.getElementById('grandTotalDay2').textContent = grandDay2.toLocaleString();
+            document.getElementById('grandTotal').textContent = (grandDay1 + grandDay2).toLocaleString();
+        }
+
+        // توزيع المجموع الكلي
+        function distributeTotal(region) {
+            const committeeId = document.getElementById(`${region}-select`).value;
+            const totalInput = parseInt(document.getElementById(`${region}-total`).value) || 0;
+
+            if (!committeeId) {
+                showMessage('⚠️ اختر اللجنة أولاً', '#ff9800');
+                return;
+            }
+
+            if (totalInput <= 0) {
+                showMessage('⚠️ أدخل مجموع كلي صحيح', '#ff9800');
+                return;
+            }
+
+            const day1Value = parseInt(document.getElementById(`${region}-day1-${committeeId}`).value) || 0;
+            const day2Value = totalInput - day1Value;
+
+            if (day2Value < 0) {
+                showMessage('⚠️ المجموع الكلي أقل من اليوم الأول', '#f44336');
+                return;
+            }
+
+            document.getElementById(`${region}-day2-${committeeId}`).value = day2Value;
+            calculateAllTotals();
+            autoSaveToFirebase(region, 2);
+            showMessage(`✅ تم توزيع ${day2Value.toLocaleString()} صوت لليوم الثاني`, '#4CAF50');
+            
+            document.getElementById(`${region}-select`).value = '';
+            document.getElementById(`${region}-total`).value = '';
+        }
+
+        // حفظ تلقائي في Firebase
+        let saveTimeout;
+        function autoSaveToFirebase(region, day) {
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(() => {
+                saveRegionData(region, day);
+            }, 1000);
+        }
+
+        // حفظ البيانات في Firebase
+        async function saveRegionData(region, day) {
+            if (!window.database) {
+                showMessage('⚠️ جاري الاتصال بقاعدة البيانات...', '#ff9800');
+                return;
+            }
+
+            const data = {};
+            regions[region].forEach(committee => {
+                data[committee.id] = parseInt(document.getElementById(`${region}-day${day}-${committee.id}`).value) || 0;
+            });
+
+            try {
+                const dataRef = window.dbRef(window.database, `statistics/${region}/day${day}`);
+                await window.dbSet(dataRef, data);
+                showMessage(`✅ تم حفظ ${getRegionName(region)} - اليوم ${day}`, '#4CAF50');
+            } catch (error) {
+                console.error('خطأ في الحفظ:', error);
+                showMessage('❌ فشل الحفظ - تحقق من الاتصال', '#f44336');
+            }
+        }
+
+        // تحميل البيانات من Firebase
+        async function loadAllDataFromFirebase() {
+            if (!window.database) {
+                console.log('Firebase ليس جاهزاً بعد');
+                return;
+            }
+
+            try {
+                for (const region of Object.keys(regions)) {
+                    for (const day of [1, 2]) {
+                        const dataRef = window.dbRef(window.database, `statistics/${region}/day${day}`);
+                        const snapshot = await window.dbGet(dataRef);
+                        
+                        if (snapshot.exists()) {
+                            const data = snapshot.val();
+                            regions[region].forEach(committee => {
+                                if (data[committee.id] !== undefined) {
+                                    document.getElementById(`${region}-day${day}-${committee.id}`).value = data[committee.id];
+                                }
+                            });
+                        }
+                    }
+                }
+                calculateAllTotals();
+                console.log('✅ تم تحميل البيانات من Firebase');
+            } catch (error) {
+                console.error('خطأ في التحميل:', error);
+            }
+        }
+
+        // إعداد المستمعين للتحديثات الفورية
+        function setupRealtimeListeners() {
+            if (!window.database) return;
+
+            Object.keys(regions).forEach(region => {
+                [1, 2].forEach(day => {
+                    const dataRef = window.dbRef(window.database, `statistics/${region}/day${day}`);
+                    window.dbOnValue(dataRef, (snapshot) => {
+                        if (snapshot.exists()) {
+                            const data = snapshot.val();
+                            regions[region].forEach(committee => {
+                                if (data[committee.id] !== undefined) {
+                                    const input = document.getElementById(`${region}-day${day}-${committee.id}`);
+                                    if (document.activeElement !== input) {
+                                        input.value = data[committee.id];
+                                    }
+                                }
+                            });
+                            calculateAllTotals();
+                        }
+                    });
+                });
+            });
+        }
+
+        // تصدير لإكسل بألوان وتنسيق
+        function exportToExcel(region, day) {
+            // إنشاء مصنف جديد
+            const wb = XLSX.utils.book_new();
+            
+            // إعداد البيانات
+            const data = [];
+            
+            // العنوان الرئيسي
+            data.push([`${getRegionName(region)} - اليوم ${day}`]);
+            data.push([]); // سطر فارغ
+
+            // رؤوس الأعمدة
+            const headers = region === 'aziza' 
+                ? ['اللجنة', 'الفئة', 'عدد الأصوات'] 
+                : ['رقم اللجنة', 'المدرسة', 'عدد الأصوات'];
+            data.push(headers);
+
+            // البيانات
+            let total = 0;
+            regions[region].forEach(committee => {
+                const votes = parseInt(document.getElementById(`${region}-day${day}-${committee.id}`).value) || 0;
+                total += votes;
+                data.push([committee.id, committee.name, votes]);
+            });
+
+            // صف المجموع
+            data.push(['', 'المجموع الكلي', total]);
+
+            // إنشاء ورقة العمل
+            const ws = XLSX.utils.aoa_to_sheet(data);
+
+            // دمج الخلايا للعنوان الرئيسي
+            if (!ws['!merges']) ws['!merges'] = [];
+            ws['!merges'].push({ s: { r: 0, c: 0 }, e: { r: 0, c: 2 } });
+
+            // تنسيق عرض الأعمدة
+            ws['!cols'] = [
+                { wch: 15 },
+                { wch: 30 },
+                { wch: 15 }
+            ];
+
+            // تطبيق التنسيقات الأساسية باستخدام مكتبة xlsx العادية
+            // تحديد نطاق البيانات
+            const range = XLSX.utils.decode_range(ws['!ref']);
+            
+            // تطبيق التنسيقات الأساسية
+            for (let R = range.s.r; R <= range.e.r; ++R) {
+                for (let C = range.s.c; C <= range.e.c; ++C) {
+                    const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+                    
+                    if (!ws[cellAddress]) continue;
+                    
+                    // تنسيق العنوان الرئيسي
+                    if (R === 0) {
+                        ws[cellAddress].s = {
+                            font: { bold: true, sz: 16 },
+                            alignment: { horizontal: "center" }
+                        };
+                    }
+                    // تنسيق رؤوس الأعمدة
+                    else if (R === 2) {
+                        ws[cellAddress].s = {
+                            font: { bold: true, sz: 12 },
+                            alignment: { horizontal: "center" }
+                        };
+                    }
+                    // تنسيق صف المجموع
+                    else if (R === range.e.r) {
+                        ws[cellAddress].s = {
+                            font: { bold: true, sz: 12 },
+                            alignment: { horizontal: "center" }
+                        };
+                    }
+                    // تنسيق البيانات العادية
+                    else if (R > 2 && R < range.e.r) {
+                        ws[cellAddress].s = {
+                            font: { sz: 11 },
+                            alignment: { horizontal: "center" }
+                        };
+                    }
+                }
+            }
+
+            // إضافة الورقة إلى المصنف
+            XLSX.utils.book_append_sheet(wb, ws, `اليوم ${day}`);
+
+            // حفظ الملف
+            const fileName = `${getRegionName(region)}_اليوم_${day}_${new Date().toLocaleDateString('ar-EG')}.xlsx`;
+            XLSX.writeFile(wb, fileName);
+            showMessage('📥 تم التصدير بنجاح', '#4CAF50');
+        }
+
+        // الحصول على اسم المنطقة
+        function getRegionName(region) {
+            const names = { matareya: 'المطرية', mnzl: 'المنزلة', aziza: 'العزيزة' };
+            return names[region];
+        }
+
+        // عرض رسالة
+        function showMessage(message, color) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'flash-message';
+            msgDiv.textContent = message;
+            msgDiv.style.background = color;
+            document.body.appendChild(msgDiv);
+            
+            setTimeout(() => msgDiv.remove(), 3000);
+        }
+
+        // جعل الوظائف عامة
+        window.switchTab = switchTab;
+        window.distributeTotal = distributeTotal;
+        window.saveRegionData = saveRegionData;
+        window.exportToExcel = exportToExcel;
+        window.calculateAllTotals = calculateAllTotals;
+        window.showMessage = showMessage;
+
+        window.onload = init;
+    </script>
+</body>
+</html>
