@@ -321,6 +321,15 @@ body {
       </div>
     </div>
   </div>
+<div class="control-panel" style="margin-top: 15px;">
+  <div style="display:flex; align-items:center; gap:12px;">
+    <input type="text" id="sum-committees-input" class="search-box" style="width:230px;" placeholder="أدخل أرقام اللجان (مثال: 2,5,8)">
+    <button class="btn btn-excel" onclick="showCommitteesSum()">
+      <i class="fa-solid fa-plus"></i> حساب المجموع
+    </button>
+    <div id="sum-committees-result" style="font-weight:800; color:#2563eb; margin-right:20px;"></div>
+  </div>
+</div>
 
   <div class="comm-grid" id="grid-container"></div>
 </div>
@@ -474,6 +483,21 @@ window.filterCommittees=()=>{const v=document.getElementById("search").value.tri
 window.confirmReset=()=>{if(prompt("أدخل كود التصفير:")==="521988"){if(confirm("تحذير نهائي: سيتم حذف جميع الأصوات!")){set(ref(db,'votes'),null);set(ref(db,'bulk_counts'),null);set(ref(db,'notifications'),null);alert("تم إعادة ضبط النظام");}}}
 window.exportSingleCommittee=()=>{if(!currentOpenCommitteeId)return;const id=currentOpenCommitteeId,s=commStats[id],info=committeesDB[id],now=Date.now(),wb=XLSX.utils.book_new(),headers=["رقم اللجنة","اسم المنطقة","المقيدين","الحضور الفعلي","النسبة %","المعدل (ساعة)","حالة النشاط"],per=s.original>0?((s.current/s.original)*100).toFixed(1)+"%":"0%",hourlyCount=s.logs.filter(l=>(now-l.time)<3600000).reduce((a,b)=>a+b.val,0),status=s.currentStatusText||"...",dataRow=[id,info.name,info.original,s.current,per,hourlyCount,status],ws=XLSX.utils.aoa_to_sheet([headers,dataRow]),range=XLSX.utils.decode_range(ws['!ref']),borderStyle={top:{style:"thin",color:{rgb:"000000"}},bottom:{style:"thin",color:{rgb:"000000"}},left:{style:"thin",color:{rgb:"000000"}},right:{style:"thin",color:{rgb:"000000"}}};for(let R=range.s.r;R<=range.e.r;++R){for(let C=range.s.c;C<=range.e.c;++C){const cell_ref=XLSX.utils.encode_cell({c:C,r:R});if(!ws[cell_ref])ws[cell_ref]={v:"",t:"s"};if(!ws[cell_ref].s)ws[cell_ref].s={};ws[cell_ref].s.border=borderStyle;ws[cell_ref].s.alignment={horizontal:"center",vertical:"center"};ws[cell_ref].s.font={name:"Cairo",sz:11};if(R===0){ws[cell_ref].s.fill={fgColor:{rgb:"CCCCCC"}};ws[cell_ref].s.font={name:"Cairo",sz:12,bold:true};}}}ws['!cols']=[{wch:10},{wch:20},{wch:12},{wch:15},{wch:10},{wch:15},{wch:15}];if(!ws['!views'])ws['!views']=[];ws['!views'].push({rightToLeft:true});XLSX.utils.book_append_sheet(wb,ws,`لجنة ${id}`);XLSX.writeFile(wb,`Report_Committee_${id}.xlsx`);};
 window.exportToExcel=()=>{const wb=XLSX.utils.book_new(),now=Date.now(),headers=["رقم اللجنة","اسم المنطقة","المقيدين","الحضور الفعلي","النسبة %","المعدل (ساعة)","حالة النشاط"],dataRows=[];for(let i=1;i<=60;i++){const s=commStats[i],info=committeesDB[i],per=s.original>0?((s.current/s.original)*100).toFixed(1)+"%":"0%",lastLog=s.logs.length>0?Math.max(...s.logs.map(l=>l.time)):0,hourlyCount=s.logs.filter(l=>(now-l.time)<3600000).reduce((a,b)=>a+b.val,0),status=s.currentStatusText||"...";dataRows.push([i,info.name,info.original,s.current,per,hourlyCount,status]);}const ws=XLSX.utils.aoa_to_sheet([headers,...dataRows]),range=XLSX.utils.decode_range(ws['!ref']),borderStyle={top:{style:"thin",color:{rgb:"000000"}},bottom:{style:"thin",color:{rgb:"000000"}},left:{style:"thin",color:{rgb:"000000"}},right:{style:"thin",color:{rgb:"000000"}}};for(let R=range.s.r;R<=range.e.r;++R){for(let C=range.s.c;C<=range.e.c;++C){const cell_ref=XLSX.utils.encode_cell({c:C,r:R});if(!ws[cell_ref])ws[cell_ref]={v:"",t:"s"};if(!ws[cell_ref].s)ws[cell_ref].s={};ws[cell_ref].s.border=borderStyle;ws[cell_ref].s.alignment={horizontal:"center",vertical:"center"};ws[cell_ref].s.font={name:"Cairo",sz:11};if(R===0){ws[cell_ref].s.fill={fgColor:{rgb:"CCCCCC"}};ws[cell_ref].s.font={name:"Cairo",sz:12,bold:true,color:{rgb:"000000"}};}else{ws[cell_ref].s.fill={fgColor:{rgb:(R%2===0)?"EFEFEF":"FFFFFF"}};}}}ws['!cols']=[{wch:10},{wch:20},{wch:12},{wch:15},{wch:10},{wch:15},{wch:15}];if(!ws['!views'])ws['!views']=[];ws['!views'].push({rightToLeft:true});XLSX.utils.book_append_sheet(wb,ws,"تقرير اللجان");XLSX.writeFile(wb,"Election_Report_Pro.xlsx");};
+// ... جميع دوال window الأخرى
+
+window.showCommitteesSum = () => {
+  const val = document.getElementById('sum-committees-input').value;
+  if (!val.trim()) return document.getElementById('sum-committees-result').innerText = "يرجى إدخال أرقام اللجان";
+  let nums = [...new Set(val.split(/[،, ]+/).map(x => parseInt(x.trim())).filter(n => !isNaN(n) && n>=1 && n<=60))];
+  if (nums.length === 0) return document.getElementById('sum-committees-result').innerText = "أرقام غير صالحة!";
+  let sum = nums.reduce((acc, n) => acc + (commStats[n]?.current||0), 0);
+  document.getElementById('sum-committees-result').innerText = `المجموع: ${sum.toLocaleString()}`;
+}
+
+// ... (إذا كان هناك نهاية للسكريبت)
+</script>
+
 </script>
 </body>
 </html>
+
