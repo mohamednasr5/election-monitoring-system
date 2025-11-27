@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
 <style>
@@ -98,17 +98,15 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
 .dev-link { color: var(--primary); text-decoration: none; font-weight: bold; transition: 0.3s; }
 .dev-link:hover { color: var(--accent); text-decoration: underline; }
 .dedication { color: var(--warning); font-weight: bold; display: block; margin-top: 10px; font-size: 1.1rem; }
-/* --- إضافة حركة نبض القلوب --- */
 
-/* 1. تعريف الحركة (تكبير وتوهج أحمر) */
 @keyframes pulse-red {
   0% {
     transform: scale(1);
     filter: drop-shadow(0 0 0 rgba(239, 68, 68, 0));
   }
   50% {
-    transform: scale(1.3); /* تكبير حجم القلب */
-    filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.8)); /* إضافة توهج أحمر */
+    transform: scale(1.3);
+    filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.8));
   }
   100% {
     transform: scale(1);
@@ -116,12 +114,12 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
   }
 }
 
-/* 2. تطبيق الحركة على كلاس القلوب */
 .heart-icon {
-  display: inline-block; /* ضروري لكي تعمل خاصية transform */
-  animation: pulse-red 1.5s infinite ease-in-out; /* تشغيل الحركة بشكل متكرر */
-  margin: 0 5px; /* مسافة صغيرة حول القلب */
+  display: inline-block;
+  animation: pulse-red 1.5s infinite ease-in-out;
+  margin: 0 5px;
 }
+
 /* الطباعة */
 @media print {
   body * { visibility: hidden; }
@@ -235,6 +233,7 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
 
   <div style="display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap;">
     <button class="btn btn-export" onclick="exportToExcel()">📤 تصدير قاعدة البيانات كاملة</button>
+    <button class="btn" style="background:#8b5cf6" onclick="exportComparisonMatrix()">📊 تصدير مصفوفة المقارنة الشاملة</button>
     <button class="btn btn-danger" onclick="resetData()">🗑️ تصفير</button>
     <button class="btn" style="background:#8b5cf6" onclick="location.reload()">🔄 تحديث</button>
   </div>
@@ -425,7 +424,6 @@ document.getElementById("add-form").onsubmit = function(e) {
   const valid = parseInt(dt.get("valid"));
   const invalid = parseInt(dt.get("invalid"));
   
-  // التحقق من جمع الصحيح والباطل
   if(valid + invalid !== total) return alert("مجموع الصحيحة والباطلة غير مطابق للإجمالي");
   
   let cand = {}, sum=0;
@@ -434,9 +432,6 @@ document.getElementById("add-form").onsubmit = function(e) {
     sum += cand[id];
   });
   
-  // -----------------------------------------------------------
-  // ⭐ التعديل هنا: السماح بأن يكون المجموع ضعف الأصوات الصحيحة
-  // -----------------------------------------------------------
   if(sum !== (valid * 2)) {
       return alert("تنبيه: بما أن كل ناخب يختار 2 مرشح، يجب أن يكون مجموع أصوات المرشحين (" + sum + ") مساوياً لضعف الأصوات الصحيحة (" + (valid * 2) + ")");
   }
@@ -559,12 +554,11 @@ function showCommStats() {
         return;
     }
 
-    // تجهيز ترتيب كل المرشحين بالكامل
     let arr = candidates.map(([id, name, emj]) => ({
         name: `${emj} ${name}`,
         votes: commData.candidates[id] || 0,
         percent: commData.validVotes ? ((commData.candidates[id] / commData.validVotes) * 100).toFixed(1) : 0
-    })).sort((a,b) => b.votes - a.votes); // ترتيب كامل
+    })).sort((a,b) => b.votes - a.votes);
 
     let html = `<div class="scroll-list" style="width:100%;">`;
 
@@ -592,38 +586,29 @@ function showCommStats() {
 
 // --- 5. Export Functions ---
 
-// ==========================================
-// 🎨 1. تعريف الستايلات والأدوات المساعدة (مرحلة التجهيز)
-// ==========================================
-
-// تعريف حدود سوداء واضحة
 const borderStyle = { style: "thin", color: { rgb: "000000" } };
 const mainBorders = { top: borderStyle, bottom: borderStyle, left: borderStyle, right: borderStyle };
 
-// ستايل العناوين (رأس الجدول)
 const headerStyle = {
     font: { bold: true, color: { rgb: "FFFFFF" }, sz: 12, name: "Cairo" },
-    fill: { fgColor: { rgb: "1e293b" } }, // كحلي
+    fill: { fgColor: { rgb: "1e293b" } },
     alignment: { horizontal: "center", vertical: "center" },
     border: mainBorders
 };
 
-// ستايل الخلايا العادية
 const cellStyle = {
     font: { name: "Arial", sz: 11, color: { rgb: "000000" } },
     alignment: { horizontal: "center", vertical: "center" },
     border: mainBorders
 };
 
-// ستايل لتمييز النتائج (مثل الفائز أو الأرقام المهمة) - اختياري
 const highlightStyle = {
     font: { bold: true, name: "Arial", sz: 11, color: { rgb: "000000" } },
-    fill: { fgColor: { rgb: "fbbf24" } }, // أصفر
+    fill: { fgColor: { rgb: "fbbf24" } },
     alignment: { horizontal: "center", vertical: "center" },
     border: mainBorders
 };
 
-// دالة مساعدة لتحويل صف عادي إلى صف منسق
 function formatRow(rowArray, isHeader = false, customStyle = null) {
     return rowArray.map(val => {
         return { 
@@ -633,17 +618,64 @@ function formatRow(rowArray, isHeader = false, customStyle = null) {
     });
 }
 
-// دالة لحفظ الملف مع تفعيل خاصية اليمين لليسار (RTL)
 function saveStyledWorkbook(wb, filename) {
     if(!wb.Workbook) wb.Workbook = {};
     if(!wb.Workbook.Views) wb.Workbook.Views = [];
-    wb.Workbook.Views[0] = { RTL: true }; // إجبار الملف بالكامل ليكون يمين-يسار
+    wb.Workbook.Views[0] = { RTL: true };
     XLSX.writeFile(wb, filename);
 }
 
 // ==========================================
-// 🚀 2. دوال التصدير المعدلة (تستخدم الستايلات أعلاه)
+// 🆕 الدالة الجديدة: تصدير مصفوفة المقارنة الشاملة
 // ==========================================
+function exportComparisonMatrix() {
+    const wb = XLSX.utils.book_new();
+    let wsData = [];
+
+    // 1. صف العنوان
+    wsData.push(formatRow(["مصفوفة المقارنة الشاملة - جميع المرشحين × جميع اللجان"], true));
+    wsData.push(formatRow([""], false)); // سطر فارغ
+
+    // 2. صف رأس الجدول: "اللجنة" + أسماء المرشحين الـ15
+    let headerRow = ["اللجنة"];
+    candidates.forEach(([id, name]) => {
+        headerRow.push(`${id}. ${name}`);
+    });
+    wsData.push(formatRow(headerRow, true));
+
+    // 3. بناء الصفوف: كل صف يمثل لجنة
+    for(let commNum = 1; commNum <= 60; commNum++) {
+        const commData = allCommittees.find(c => c.number === commNum);
+        const commInfo = commMap[commNum];
+        
+        // اسم اللجنة
+        let rowData = [`${commNum}. ${commInfo ? commInfo.name : 'غير معروف'}`];
+        
+        // أصوات كل مرشح في هذه اللجنة
+        candidates.forEach(([id]) => {
+            const votes = (commData && commData.candidates && commData.candidates[id]) ? commData.candidates[id] : 0;
+            rowData.push(votes);
+        });
+        
+        wsData.push(formatRow(rowData, false));
+    }
+
+    // 4. إنشاء الشيت
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    
+    // 5. ضبط عرض الأعمدة
+    let cols = [{ wch: 30 }]; // عمود اللجنة
+    for(let i = 0; i < 15; i++) {
+        cols.push({ wch: 20 }); // عرض أعمدة المرشحين
+    }
+    ws['!cols'] = cols;
+
+    // 6. حفظ الملف
+    XLSX.utils.book_append_sheet(wb, ws, "المقارنة الشاملة");
+    saveStyledWorkbook(wb, "Comparison_Matrix.xlsx");
+    
+    alert("✅ تم تصدير مصفوفة المقارنة الشاملة بنجاح!");
+}
 
 function exportComparison() {
     const id1 = document.getElementById("comp1").value;
@@ -655,17 +687,16 @@ function exportComparison() {
     const t = getTotals();
     const wb = XLSX.utils.book_new();
 
-    // بناء البيانات بالتنسيق
     let wsData = [];
-    wsData.push(formatRow(["تقرير مقارنة أصوات"], true)); // عنوان
-    wsData.push(formatRow([" "], false)); // سطر فارغ (للمنظر فقط)
+    wsData.push(formatRow(["تقرير مقارنة أصوات"], true));
+    wsData.push(formatRow([" "], false));
     wsData.push(formatRow(["البيان", "المرشح", "الأصوات"], true));
     wsData.push(formatRow(["المرشح الأول", name1, t.cands[id1]], false));
     wsData.push(formatRow(["المرشح الثاني", name2, t.cands[id2]], false));
     wsData.push(formatRow(["الفرق", "---", Math.abs(t.cands[id1] - t.cands[id2])], false, highlightStyle));
 
     const ws = XLSX.utils.aoa_to_sheet(wsData);
-    ws['!cols'] = [{wch:20}, {wch:30}, {wch:15}]; // عرض الأعمدة
+    ws['!cols'] = [{wch:20}, {wch:30}, {wch:15}];
     
     XLSX.utils.book_append_sheet(wb, ws, "المقارنة");
     saveStyledWorkbook(wb, "Comparison.xlsx");
@@ -714,18 +745,15 @@ function exportSpecificComm() {
     const wb = XLSX.utils.book_new();
     let wsData = [];
 
-    // معلومات اللجنة
     wsData.push(formatRow(["تقرير لجنة رقم", commId], true));
     wsData.push(formatRow(["اسم اللجنة", commInfo.name], false));
     wsData.push(formatRow(["العنوان", commInfo.address], false));
-    wsData.push(formatRow([""], false)); // فاصل
+    wsData.push(formatRow([""], false));
 
-    // إحصائيات
     wsData.push(formatRow(["إجمالي الحضور", "الصحيحة", "الباطلة"], true));
     wsData.push(formatRow([commData.totalVotes, commData.validVotes, commData.invalidVotes], false));
-    wsData.push(formatRow([""], false)); // فاصل
+    wsData.push(formatRow([""], false));
 
-    // الجدول التفصيلي
     wsData.push(formatRow(["الترتيب", "المرشح", "الأصوات", "النسبة %"], true));
 
     let arr = candidates.map(([id, name]) => ({
@@ -759,9 +787,7 @@ function exportRanking() {
     })).sort((a,b) => b.v - a.v);
 
     arr.forEach((c, i) => {
-        // تمييز الثلاثة الأوائل بلون مختلف (اختياري)
-        let style = i < 3 ? highlightStyle : cellStyle;
-        wsData.push(formatRow([i+1, c.name, c.v, c.p + "%"], false, i < 3 ? null : null)); 
+        wsData.push(formatRow([i+1, c.name, c.v, c.p + "%"], false));
     });
 
     const ws = XLSX.utils.aoa_to_sheet(wsData);
@@ -793,11 +819,9 @@ function exportLog() {
 }
 
 function exportToExcel() {
-    // هذه الدالة لتصدير قاعدة البيانات كاملة
     const t = getTotals();
     const wb = XLSX.utils.book_new();
     
-    // --- الشيت الأول: النتائج ---
     let rankData = [];
     rankData.push(formatRow(["المرشح", "الأصوات"], true));
     candidates.forEach(([id, n]) => {
@@ -807,7 +831,6 @@ function exportToExcel() {
     ws1['!cols'] = [{ wch: 30 }, { wch: 15 }];
     XLSX.utils.book_append_sheet(wb, ws1, "النتائج");
 
-    // --- الشيت الثاني: اللجان ---
     let commData = [];
     commData.push(formatRow(["رقم اللجنة", "اسم اللجنة", "الإجمالي", "صحيح", "باطل"], true));
     t.list.forEach(c => {
@@ -824,7 +847,7 @@ function exportToExcel() {
 
 function renderAll() {
   const t = getTotals();
-  // Stats Cards with Animation
+  
   document.getElementById("stat-cards").innerHTML = `
     <div class="card blue"><div class="card-title">إجمالي الأصوات</div><div class="card-num" id="num-total">0</div></div>
     <div class="card green"><div class="card-title">الصحيحة</div><div class="card-num" id="num-valid">0</div></div>
@@ -856,48 +879,48 @@ function renderAll() {
 
   const ctx = document.getElementById("mainChart").getContext("2d");
   if(chartInstance) chartInstance.destroy();
+  
   chartInstance = new Chart(ctx, {
     type: "bar",
-    data: { labels: arr.map(x => x.name.split(" ")[1]), datasets: [{ label:"أصوات", data: arr.map(x=>x.v), backgroundColor:"#3b82f6", borderRadius:4 }] },
-    options: { 
-        responsive:true, 
-        maintainAspectRatio:false, 
-        animation: { duration: 1000, easing: 'easeOutQuart' }, 
-        scales: { x: {ticks:{color:"#94a3b8"}}, y: {ticks:{color:"#94a3b8"}, grid:{color:"#334155"}} }, 
-        plugins: { legend:{display:false} } 
+    data: {
+      labels: arr.map(c => c.name),
+      datasets: [{
+        label: "الأصوات",
+        data: arr.map(c => c.v),
+        backgroundColor: "rgba(59, 130, 246, 0.6)",
+        borderColor: "rgba(59, 130, 246, 1)",
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true } }
     }
   });
   
   updateCompare();
-  updateBestComm();
-  showCommStats();
 }
 
-// 🌟 Secure Reset Logic 🌟
 function resetData() {
-    const password = prompt("⛔ منطقة خطر!\n\nأدخل كود المسؤول لإتمام عملية التصفير:");
-    if (password === "521988") {
-        if(confirm("⚠️ تحذير نهائي وأخير:\n\nسيتم حذف كل البيانات المسجلة فوراً.\nهل أنت متأكد تماماً؟")) {
-            db.ref("committees").remove()
-            .then(() => {
-                alert("✅ تم تصفير قاعدة البيانات بنجاح.");
-                location.reload();
-            })
-            .catch(err => alert("حدث خطأ: " + err.message));
-        }
-    } else if (password !== null) {
-        alert("❌ كود غير صحيح. تم إلغاء العملية.");
-    }
-}
-// الضغط على Enter لتسجيل الدخول
-document.addEventListener("DOMContentLoaded", () => {
-    const inp = document.getElementById("login-pass");
-    inp.addEventListener("keyup", function(e) {
-        if (e.key === "Enter") {
-            loginNow();
-        }
+  if(confirm("⚠️ هل أنت متأكد من تصفير كل البيانات؟")) {
+    db.ref("committees").remove(() => {
+      alert("✅ تم تصفير البيانات");
+      location.reload();
     });
-});
+  }
+}
+
+function printSection(sectionId) {
+    document.getElementById("p-date-val").textContent = new Date().toLocaleString("ar-EG");
+    const section = document.getElementById(sectionId);
+    if(!section) return;
+    
+    section.classList.add("section-to-print");
+    window.print();
+    section.classList.remove("section-to-print");
+}
 
 </script>
 </body>
