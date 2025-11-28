@@ -76,7 +76,6 @@ header { text-align: center; margin-bottom: 25px; border-bottom: 1px solid #3341
 .region-name { font-weight: bold; font-size: 1rem; }
 .region-votes { font-size: 1.3rem; font-weight: bold; color: var(--warning); }
 
-/* 🆕 ستايلات المحضر */
 .mahdar-header {
     background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
     padding: 20px;
@@ -269,7 +268,6 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
 
   </div>
 
-  <!-- 🆕 صندوق محضر اللجنة -->
   <div class="analysis-row">
     <div class="analysis-box" style="grid-column: 1 / -1;">
       <div class="box-header">
@@ -290,7 +288,6 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
     </div>
   </div>
 
-  <!-- صندوق تحليل المناطق -->
   <div class="analysis-row">
     <div class="analysis-box" style="grid-column: 1 / -1;">
       <div class="box-header">
@@ -503,7 +500,7 @@ function populateSelects() {
         if(commMap[i]) { commOpts += `<option value="${i}">${i}. ${commMap[i].name} (${commMap[i].address})</option>`; }
     }
     document.getElementById("specific-comm-select").innerHTML = commOpts;
-    document.getElementById("mahdar-comm-select").innerHTML = commOpts; // 🆕
+    document.getElementById("mahdar-comm-select").innerHTML = commOpts;
 
     document.querySelector(".cand-row").innerHTML = candidates.map(([id,n,e]) => 
         `<div class="cand-item"><label style="display:block;font-size:0.8rem;margin-bottom:2px;">${id}.${n}</label>
@@ -696,7 +693,6 @@ function showCommStats() {
     resBox.innerHTML = html;
 }
 
-// 🆕 دالة عرض محضر اللجنة الكامل
 function showMahdar() {
     const commId = parseInt(document.getElementById("mahdar-comm-select").value);
     const contentBox = document.getElementById("mahdar-content");
@@ -750,22 +746,16 @@ function showMahdar() {
         </div>
     `;
     
-    // ترتيب المرشحين حسب الأصوات
-    let candResults = candidates.map(([id, name, emoji]) => ({
-        id, name, emoji,
-        votes: commData.candidates[id] || 0
-    })).sort((a, b) => b.votes - a.votes);
-    
-    candResults.forEach((cand, index) => {
-        let rankEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '▪️';
+    candidates.forEach((cand, index) => {
+        const [id, name, emoji] = cand;
+        const votes = commData.candidates[id] || 0;
         html += `
         <div class="cand-result-item">
             <div class="cand-result-name">
-                <span>${rankEmoji}</span>
-                <span class="cand-result-emoji">${cand.emoji}</span>
-                <span>${cand.id}. ${cand.name}</span>
+                <span class="cand-result-emoji">${emoji}</span>
+                <span>${id}. ${name}</span>
             </div>
-            <div class="cand-result-votes">${cand.votes}</div>
+            <div class="cand-result-votes">${votes}</div>
         </div>`;
     });
     
@@ -773,7 +763,6 @@ function showMahdar() {
     contentBox.innerHTML = html;
 }
 
-// 🆕 طباعة المحضر
 function printMahdar() {
     const commId = document.getElementById("mahdar-comm-select").value;
     if(!commId) {
@@ -788,7 +777,6 @@ function printMahdar() {
     section.classList.remove("section-to-print");
 }
 
-// 🆕 تصدير المحضر لـ Excel
 function exportMahdar() {
     const commId = parseInt(document.getElementById("mahdar-comm-select").value);
     if(!commId) { alert("اختر لجنة"); return; }
@@ -799,35 +787,123 @@ function exportMahdar() {
     const commInfo = commMap[commId];
     const wb = XLSX.utils.book_new();
     let wsData = [];
+    
+    const titleStyle = {
+        font: { bold: true, sz: 16, color: { rgb: "FFFFFF" }, name: "Cairo" },
+        fill: { fgColor: { rgb: "1e293b" } },
+        alignment: { horizontal: "center", vertical: "center" },
+        border: { top: { style: "thin", color: { rgb: "000000" } },
+                 bottom: { style: "thin", color: { rgb: "000000" } },
+                 left: { style: "thin", color: { rgb: "000000" } },
+                 right: { style: "thin", color: { rgb: "000000" } } }
+    };
+    
+    const infoLabelStyle = {
+        font: { bold: true, sz: 12, color: { rgb: "FFFFFF" }, name: "Cairo" },
+        fill: { fgColor: { rgb: "334155" } },
+        alignment: { horizontal: "right", vertical: "center" },
+        border: { top: { style: "thin", color: { rgb: "000000" } },
+                 bottom: { style: "thin", color: { rgb: "000000" } },
+                 left: { style: "thin", color: { rgb: "000000" } },
+                 right: { style: "thin", color: { rgb: "000000" } } }
+    };
+    
+    const infoValueStyle = {
+        font: { bold: true, sz: 14, color: { rgb: "3b82f6" }, name: "Cairo" },
+        fill: { fgColor: { rgb: "f1f5f9" } },
+        alignment: { horizontal: "center", vertical: "center" },
+        border: { top: { style: "thin", color: { rgb: "000000" } },
+                 bottom: { style: "thin", color: { rgb: "000000" } },
+                 left: { style: "thin", color: { rgb: "000000" } },
+                 right: { style: "thin", color: { rgb: "000000" } } }
+    };
+    
+    const candHeaderStyle = {
+        font: { bold: true, sz: 12, color: { rgb: "FFFFFF" }, name: "Cairo" },
+        fill: { fgColor: { rgb: "1e293b" } },
+        alignment: { horizontal: "center", vertical: "center" },
+        border: { top: { style: "thin", color: { rgb: "000000" } },
+                 bottom: { style: "thin", color: { rgb: "000000" } },
+                 left: { style: "thin", color: { rgb: "000000" } },
+                 right: { style: "thin", color: { rgb: "000000" } } }
+    };
+    
+    const candCellStyle = {
+        font: { sz: 11, color: { rgb: "000000" }, name: "Cairo" },
+        alignment: { horizontal: "center", vertical: "center" },
+        border: { top: { style: "thin", color: { rgb: "000000" } },
+                 bottom: { style: "thin", color: { rgb: "000000" } },
+                 left: { style: "thin", color: { rgb: "000000" } },
+                 right: { style: "thin", color: { rgb: "000000" } } }
+    };
 
-    wsData.push(formatRow([`محضر اللجنة رقم ${commId}`], true));
-    wsData.push(formatRow([commInfo.name], false));
-    wsData.push(formatRow([commInfo.address], false));
-    wsData.push(formatRow([commData.day === "day1" ? "اليوم الأول" : "اليوم الثاني"], false));
-    wsData.push(formatRow([""], false));
-
-    wsData.push(formatRow(["البيان", "العدد"], true));
-    wsData.push(formatRow(["إجمالي الحضور", commData.totalVotes], false));
-    wsData.push(formatRow(["الأصوات الصحيحة", commData.validVotes], false));
-    wsData.push(formatRow(["الأصوات الباطلة", commData.invalidVotes], false));
-    wsData.push(formatRow([""], false));
-
-    wsData.push(formatRow(["الترتيب", "الرمز", "المرشح", "الأصوات"], true));
-
-    let candResults = candidates.map(([id, name, emoji]) => ({
-        id, name, emoji,
-        votes: commData.candidates[id] || 0
-    })).sort((a, b) => b.votes - a.votes);
-
-    candResults.forEach((cand, index) => {
-        wsData.push(formatRow([index + 1, cand.emoji, `${cand.id}. ${cand.name}`, cand.votes], false));
+    wsData.push([{ v: `محضر اللجنة رقم ${commId}`, s: titleStyle }]);
+    wsData.push([{ v: "", s: titleStyle }]);
+    
+    wsData.push([
+        { v: commInfo.name, s: infoLabelStyle },
+        { v: "", s: infoLabelStyle }
+    ]);
+    wsData.push([
+        { v: commInfo.address, s: infoLabelStyle },
+        { v: "", s: infoLabelStyle }
+    ]);
+    wsData.push([{ v: "", s: infoLabelStyle }]);
+    
+    wsData.push([
+        { v: "البيان", s: candHeaderStyle },
+        { v: "العدد", s: candHeaderStyle }
+    ]);
+    
+    wsData.push([
+        { v: "إجمالي الحضور", s: infoLabelStyle },
+        { v: commData.totalVotes, s: infoValueStyle }
+    ]);
+    
+    wsData.push([
+        { v: "الأصوات الصحيحة", s: infoLabelStyle },
+        { v: commData.validVotes, s: infoValueStyle }
+    ]);
+    
+    wsData.push([
+        { v: "الأصوات الباطلة", s: infoLabelStyle },
+        { v: commData.invalidVotes, s: infoValueStyle }
+    ]);
+    
+    wsData.push([{ v: "", s: candHeaderStyle }]);
+    wsData.push([{ v: "", s: candHeaderStyle }]);
+    
+    wsData.push([
+        { v: "الرمز", s: candHeaderStyle },
+        { v: "المرشح", s: candHeaderStyle },
+        { v: "الأصوات", s: candHeaderStyle }
+    ]);
+    
+    candidates.forEach(([id, name, emoji]) => {
+        wsData.push([
+            { v: emoji, s: candCellStyle },
+            { v: `${id}. ${name}`, s: candCellStyle },
+            { v: commData.candidates[id] || 0, s: candCellStyle }
+        ]);
     });
 
     const ws = XLSX.utils.aoa_to_sheet(wsData);
-    ws['!cols'] = [{wch:12}, {wch:8}, {wch:30}, {wch:15}];
-
+    
+    ws['!cols'] = [
+        { wch: 12 },
+        { wch: 35 },
+        { wch: 15 }
+    ];
+    
+    ws['!merges'] = [
+        { s: { r: 0, c: 0 }, e: { r: 0, c: 2 } },
+        { s: { r: 1, c: 0 }, e: { r: 1, c: 2 } }
+    ];
+    
     XLSX.utils.book_append_sheet(wb, ws, `محضر لجنة ${commId}`);
     saveStyledWorkbook(wb, `Mahdar_Committee_${commId}.xlsx`);
+    
+    alert("✅ تم تصدير المحضر بنجاح!");
 }
 
 function updateRegionsAnalysis() {
@@ -925,8 +1001,6 @@ function exportRegionsAnalysis() {
     XLSX.utils.book_append_sheet(wb, ws, "تحليل المناطق");
     saveStyledWorkbook(wb, `Regions_${candName}.xlsx`);
 }
-
-// --- Export Functions ---
 
 const borderStyle = { style: "thin", color: { rgb: "000000" } };
 const mainBorders = { top: borderStyle, bottom: borderStyle, left: borderStyle, right: borderStyle };
