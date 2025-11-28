@@ -1302,18 +1302,19 @@ function renderAll() {
       plugins: { 
         legend: { display: false },
         datalabels: {
-          anchor: 'end',
-          align: 'top',
-          color: '#f1f5f9',
-          font: {
-            weight: 'bold',
-            size: 12,
-            family: 'Cairo'
-          },
-          formatter: function(value) {
-            return value;
-          }
-        }
+          datalabels: {
+  anchor: 'center',      // بدلاً من 'end'
+  align: 'center',       // بدلاً من 'top'
+  color: '#ffffff',      // بدلاً من '#f1f5f9'
+  font: {
+    weight: 'bold',
+    size: 16,            // بدلاً من 12
+    family: 'Cairo'
+  },
+  formatter: function(value) {
+    return value;
+  }
+}
       },
       scales: { y: { beginAtZero: true } }
     }
