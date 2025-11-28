@@ -158,6 +158,8 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
 .btn-export { background: var(--primary); }
 .btn-danger { background: var(--danger); }
 
+.admin-only { display: none; }
+
 .form-section { background: var(--bg-card); padding: 25px; border-radius: 16px; margin-bottom: 30px; border: 1px solid #334155; }
 .input-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 15px; }
 .input-row input, select { width: 100%; padding: 10px; background: var(--bg-input); border: 1px solid #475569; border-radius: 8px; color: white; }
@@ -304,7 +306,7 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
     </div>
   </div>
 
-  <form id="add-form" class="form-section" autocomplete="off">
+  <form id="add-form" class="form-section admin-only" autocomplete="off">
     <div style="margin-bottom:15px; font-weight:bold; font-size:1.2rem;">➕ إدخال / تعديل لجنة</div>
     
     <div class="input-row">
@@ -332,7 +334,7 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
   <div style="display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap;">
     <button class="btn btn-export" onclick="exportToExcel()">📤 تصدير قاعدة البيانات كاملة</button>
     <button class="btn" style="background:#8b5cf6" onclick="exportComparisonMatrix()">📊 تصدير مصفوفة المقارنة الشاملة</button>
-    <button class="btn btn-danger" onclick="resetData()">🗑️ تصفير</button>
+    <button class="btn btn-danger admin-only" onclick="resetData()">🗑️ تصفير</button>
     <button class="btn" style="background:#8b5cf6" onclick="location.reload()">🔄 تحديث</button>
   </div>
 
@@ -390,14 +392,14 @@ const commMap = {
   3: { name: "أبو الأخضر", address: "مدرسة أبو الأخضر الابتدائية" },
   4: { name: "جديدة المنزلة", address: "مدرسة الشهيد محمد فوزى" },
   5: { name: "العامرة", address: "مدرسة العامرة الابتدائية" },
-  6: { name: "مصر الجديدة", address: "مدرسة عبده بطين الإعدادية" },
+  6: { name: "جديدة المنزلة", address: "مدرسة عبده بطي الإعدادية" },
   7: { name: "عرب زيدان", address: "مدرسة عرب زيدان الابتدائية" },
   8: { name: "الستايتة", address: "مدرسة الشهيد محمد زغلول الابتدائية" },
   9: { name: "كفر حجاج", address: "مدرسة كفر حجاج الابتدائية" },
-  10: { name: "ميت خضير", address: "مدرسة محمد إسماعيل الإعدادية" },
+  10: { name: "ميت خض", address: "مدرسة محمد إسماعيل الإعدادية" },
   11: { name: "المواجدة", address: "مدرسة حسني الشناوى" },
-  12: { name: "البصراط", address: "مدرسة الشهيد محمد المحلاوى الإعدادية" },
-  13: { name: "البصراط", address: "مدرسة الشهيد محمد المحلاوى الإعدادية" },
+  12: { name: "البضاط", address: "مدرسة الشهيد محمد المحلاوى الإعدادية" },
+  13: { name: "البضاط", address: "مدرسة الشهيد محمد المحلاوى الإعدادية" },
   14: { name: "الطوابرة", address: "مدرسة النصر الإعدادية" },
   15: { name: "العمارنة", address: "مدرسة العمارنة الابتدائية" },
   16: { name: "أولاد بانا", address: "مدرسة أولاد بانا الابتدائية" },
@@ -414,7 +416,7 @@ const commMap = {
   27: { name: "العربان", address: "مدرسة طاهر فرح" },
   28: { name: "أولاد علم", address: "مدرسة الشني سليم الابتدائية" },
   29: { name: "أولاد ناصر", address: "مدرسة الدكتور محمد النحاس" },
-  30: { name: "بني هلال", address: "مدرسة ببر هلال الابتدائية" },
+  30: { name: "ببر هلال", address: "مدرسة ببر هلال الابتدائية" },
   31: { name: "الشبول", address: "معهد بني الشبول الأزهرى" },
   32: { name: "الشبول", address: "معهد بني الشبول الأزهرى" },
   33: { name: "الرودة", address: "مدرسة الرودة الإعدادية" },
@@ -462,11 +464,25 @@ function getRegionByCommittee(commNum) {
   return null;
 }
 
+let isAdmin = false;
+
 function loginNow() {
-  if(document.getElementById("login-pass").value === "521988") {
+  const pass = document.getElementById("login-pass").value;
+  if(pass === "742018") {
+    // أدمن - إظهار كل الصلاحيات
+    isAdmin = true;
     document.getElementById("login-screen").style.display="none";
     document.getElementById("main-app").style.display="block";
-  } else { document.getElementById("login-error").textContent = "❌ كود خطأ"; }
+    document.querySelectorAll('.admin-only').forEach(e => e.style.display = 'block');
+  } else if(pass === "521988") {
+    // مستخدم عادي - إخفاء صلاحيات الأدمن
+    isAdmin = false;
+    document.getElementById("login-screen").style.display="none";
+    document.getElementById("main-app").style.display="block";
+    document.querySelectorAll('.admin-only').forEach(e => e.style.display = 'none');
+  } else { 
+    document.getElementById("login-error").textContent = "❌ كود خطأ"; 
+  }
 }
 
 const firebaseConfig = {
@@ -1296,33 +1312,38 @@ function renderAll() {
         borderWidth: 2
       }]
     },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { 
-        legend: { display: false },
-        datalabels: {
-          anchor: 'center',
-          align: 'center',
-          color: '#ffffff',
-          font: {
-            weight: 'bold',
-            size: 16,
-            family: 'Cairo'
-          },
-          formatter: function(value) {
-            return value;
-          }
-        }
+   options: {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: { 
+    legend: { display: false },
+    datalabels: {
+      anchor: 'center',
+      align: 'center',
+      color: '#ffffff',
+      font: {
+        weight: 'bold',
+        size: 16,
+        family: 'Cairo'
       },
-      scales: { y: { beginAtZero: true } }
+      formatter: function(value) {
+        return value;
+      }
     }
+  },
+  scales: { y: { beginAtZero: true } }
+}
   });
   
   updateCompare();
 }
 
 function resetData() {
+  if(!isAdmin) {
+    alert("⛔ غير مسموح - صلاحيات محدودة");
+    return;
+  }
+  
   if(confirm("⚠️ هل أنت متأكد من تصفير كل البيانات؟")) {
     db.ref("committees").remove(() => {
       alert("✅ تم تصفير البيانات");
