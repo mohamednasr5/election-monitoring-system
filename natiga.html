@@ -76,6 +76,77 @@ header { text-align: center; margin-bottom: 25px; border-bottom: 1px solid #3341
 .region-name { font-weight: bold; font-size: 1rem; }
 .region-votes { font-size: 1.3rem; font-weight: bold; color: var(--warning); }
 
+/* 🆕 ستايلات المحضر */
+.mahdar-header {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    border: 2px solid #475569;
+}
+.mahdar-title {
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--warning);
+    margin-bottom: 15px;
+}
+.mahdar-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+.mahdar-info-item {
+    background: var(--bg-input);
+    padding: 12px;
+    border-radius: 8px;
+    border-left: 3px solid var(--primary);
+}
+.mahdar-info-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 5px;
+}
+.mahdar-info-value {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--text-main);
+}
+.mahdar-candidates {
+    background: var(--bg-card);
+    padding: 20px;
+    border-radius: 12px;
+}
+.cand-result-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    margin-bottom: 8px;
+    background: var(--bg-input);
+    border-radius: 8px;
+    transition: 0.3s;
+}
+.cand-result-item:hover {
+    background: #475569;
+    transform: translateX(-5px);
+}
+.cand-result-name {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1rem;
+}
+.cand-result-emoji {
+    font-size: 1.5rem;
+}
+.cand-result-votes {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: var(--primary);
+}
+
 table { width: 100%; border-collapse: collapse; background: var(--bg-card); }
 th { background: #111827; padding: 12px; color: var(--text-muted); text-align: right; font-size: 0.9rem; }
 td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
@@ -114,8 +185,10 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
 @media print {
   body * { visibility: hidden; }
   .section-to-print, .section-to-print * { visibility: visible; }
-  .section-to-print { position: absolute; left: 0; top: 0; width: 100%; background: white !important; color: black !important; border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; }
+  .section-to-print { position: absolute; left: 0; top: 0; width: 100%; background: white !important; color: black !important; border: none !important; box-shadow: none !important; padding: 20px !important; margin: 0 !important; }
   .section-to-print button, .box-header { display: none !important; }
+  .mahdar-header { background: white !important; border: 2px solid black !important; }
+  .mahdar-info-item, .cand-result-item { background: white !important; border: 1px solid #999 !important; }
   table, th, td { color: black !important; background-color: white !important; border: 1px solid #999 !important; }
   th { background-color: #eee !important; }
   .table-scroll-wrapper { max-height: none !important; overflow: visible !important; }
@@ -196,7 +269,28 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
 
   </div>
 
-  <!-- 🆕 صندوق تحليل المناطق الجغرافية -->
+  <!-- 🆕 صندوق محضر اللجنة -->
+  <div class="analysis-row">
+    <div class="analysis-box" style="grid-column: 1 / -1;">
+      <div class="box-header">
+          <span class="box-title">📋 محضر اللجنة الكامل</span>
+          <div style="display:flex; gap:5px;">
+              <button class="mini-export-btn mini-print-btn" onclick="printMahdar()">🖨️ طباعة</button>
+              <button class="mini-export-btn" onclick="exportMahdar()">📥 Excel</button>
+          </div>
+      </div>
+      <select id="mahdar-comm-select" class="vs-select" onchange="showMahdar()" style="margin-bottom:15px; width:100%;">
+        <option value="">-- اختر اللجنة لعرض المحضر --</option>
+      </select>
+      <div id="mahdar-content" style="min-height:200px;">
+        <div style="text-align:center; color:var(--text-muted); padding:50px;">
+          اختر لجنة لعرض المحضر الكامل
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- صندوق تحليل المناطق -->
   <div class="analysis-row">
     <div class="analysis-box" style="grid-column: 1 / -1;">
       <div class="box-header">
@@ -292,7 +386,6 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
 </div>
 
 <script>
-// --- 1. Base Data & Config ---
 const commMap = {
   1: { name: "الفروسات", address: "مدرسة احمد القصبى الابتدائية" },
   2: { name: "الفروسات", address: "مدرسة احمد القصبى الابتدائية" },
@@ -356,7 +449,6 @@ const commMap = {
   60: { name: "سوق الجمعة", address: "مدرسة الامام علي الابتدائية" }
 };
 
-// 🆕 تعريف المناطق الجغرافية
 const regions = {
   aziza: { name: "العزيزة", committees: [24, 25], icon: "🟡" },
   matareya: { name: "المطرية", committees: [38,39,40,41,42,43,44,45,46,47,48,49,50,51,52], icon: "🟢" },
@@ -411,6 +503,7 @@ function populateSelects() {
         if(commMap[i]) { commOpts += `<option value="${i}">${i}. ${commMap[i].name} (${commMap[i].address})</option>`; }
     }
     document.getElementById("specific-comm-select").innerHTML = commOpts;
+    document.getElementById("mahdar-comm-select").innerHTML = commOpts; // 🆕
 
     document.querySelector(".cand-row").innerHTML = candidates.map(([id,n,e]) => 
         `<div class="cand-item"><label style="display:block;font-size:0.8rem;margin-bottom:2px;">${id}.${n}</label>
@@ -603,7 +696,140 @@ function showCommStats() {
     resBox.innerHTML = html;
 }
 
-// 🆕 دالة تحليل المرشح حسب المناطق
+// 🆕 دالة عرض محضر اللجنة الكامل
+function showMahdar() {
+    const commId = parseInt(document.getElementById("mahdar-comm-select").value);
+    const contentBox = document.getElementById("mahdar-content");
+    
+    if(!commId) {
+        contentBox.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding:50px;">
+            اختر لجنة لعرض المحضر الكامل
+        </div>`;
+        return;
+    }
+    
+    const commData = allCommittees.find(c => c.number === commId);
+    if(!commData) {
+        contentBox.innerHTML = `<div style="text-align:center; color:var(--warning); padding:50px;">
+            لم يتم رصد بيانات لهذه اللجنة بعد
+        </div>`;
+        return;
+    }
+    
+    const commInfo = commMap[commId];
+    const dayText = commData.day === "day1" ? "اليوم الأول" : "اليوم الثاني";
+    
+    let html = `
+    <div class="mahdar-header">
+        <div class="mahdar-title">📋 محضر اللجنة رقم ${commId}</div>
+        <div style="text-align:center; margin-bottom:15px;">
+            <div style="font-size:1.1rem; color:var(--primary);">${commInfo.name}</div>
+            <div style="font-size:0.9rem; color:var(--text-muted);">${commInfo.address}</div>
+            <div style="font-size:0.85rem; color:var(--warning); margin-top:5px;">⏰ ${dayText}</div>
+        </div>
+        
+        <div class="mahdar-info">
+            <div class="mahdar-info-item">
+                <div class="mahdar-info-label">إجمالي الحضور</div>
+                <div class="mahdar-info-value" style="color:var(--primary);">${commData.totalVotes}</div>
+            </div>
+            <div class="mahdar-info-item" style="border-left-color:var(--success);">
+                <div class="mahdar-info-label">الأصوات الصحيحة</div>
+                <div class="mahdar-info-value" style="color:var(--success);">${commData.validVotes}</div>
+            </div>
+            <div class="mahdar-info-item" style="border-left-color:var(--danger);">
+                <div class="mahdar-info-label">الأصوات الباطلة</div>
+                <div class="mahdar-info-value" style="color:var(--danger);">${commData.invalidVotes}</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mahdar-candidates">
+        <div style="font-weight:bold; font-size:1.1rem; margin-bottom:15px; color:var(--warning);">
+            🗳️ نتائج المرشحين
+        </div>
+    `;
+    
+    // ترتيب المرشحين حسب الأصوات
+    let candResults = candidates.map(([id, name, emoji]) => ({
+        id, name, emoji,
+        votes: commData.candidates[id] || 0
+    })).sort((a, b) => b.votes - a.votes);
+    
+    candResults.forEach((cand, index) => {
+        let rankEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '▪️';
+        html += `
+        <div class="cand-result-item">
+            <div class="cand-result-name">
+                <span>${rankEmoji}</span>
+                <span class="cand-result-emoji">${cand.emoji}</span>
+                <span>${cand.id}. ${cand.name}</span>
+            </div>
+            <div class="cand-result-votes">${cand.votes}</div>
+        </div>`;
+    });
+    
+    html += `</div>`;
+    contentBox.innerHTML = html;
+}
+
+// 🆕 طباعة المحضر
+function printMahdar() {
+    const commId = document.getElementById("mahdar-comm-select").value;
+    if(!commId) {
+        alert("اختر لجنة أولاً");
+        return;
+    }
+    
+    document.getElementById("p-date-val").textContent = new Date().toLocaleString("ar-EG");
+    const section = document.getElementById("mahdar-content");
+    section.classList.add("section-to-print");
+    window.print();
+    section.classList.remove("section-to-print");
+}
+
+// 🆕 تصدير المحضر لـ Excel
+function exportMahdar() {
+    const commId = parseInt(document.getElementById("mahdar-comm-select").value);
+    if(!commId) { alert("اختر لجنة"); return; }
+    
+    const commData = allCommittees.find(c => c.number === commId);
+    if(!commData) { alert("لا توجد بيانات"); return; }
+    
+    const commInfo = commMap[commId];
+    const wb = XLSX.utils.book_new();
+    let wsData = [];
+
+    wsData.push(formatRow([`محضر اللجنة رقم ${commId}`], true));
+    wsData.push(formatRow([commInfo.name], false));
+    wsData.push(formatRow([commInfo.address], false));
+    wsData.push(formatRow([commData.day === "day1" ? "اليوم الأول" : "اليوم الثاني"], false));
+    wsData.push(formatRow([""], false));
+
+    wsData.push(formatRow(["البيان", "العدد"], true));
+    wsData.push(formatRow(["إجمالي الحضور", commData.totalVotes], false));
+    wsData.push(formatRow(["الأصوات الصحيحة", commData.validVotes], false));
+    wsData.push(formatRow(["الأصوات الباطلة", commData.invalidVotes], false));
+    wsData.push(formatRow([""], false));
+
+    wsData.push(formatRow(["الترتيب", "الرمز", "المرشح", "الأصوات"], true));
+
+    let candResults = candidates.map(([id, name, emoji]) => ({
+        id, name, emoji,
+        votes: commData.candidates[id] || 0
+    })).sort((a, b) => b.votes - a.votes);
+
+    candResults.forEach((cand, index) => {
+        wsData.push(formatRow([index + 1, cand.emoji, `${cand.id}. ${cand.name}`, cand.votes], false));
+    });
+
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    ws['!cols'] = [{wch:12}, {wch:8}, {wch:30}, {wch:15}];
+
+    XLSX.utils.book_append_sheet(wb, ws, `محضر لجنة ${commId}`);
+    saveStyledWorkbook(wb, `Mahdar_Committee_${commId}.xlsx`);
+}
+
 function updateRegionsAnalysis() {
     const candId = document.getElementById("region-cand-select").value;
     const resBox = document.getElementById("regions-result");
@@ -616,7 +842,6 @@ function updateRegionsAnalysis() {
     const candName = candidates.find(c=>c[0]==candId)[1];
     const t = getTotals();
     
-    // حساب الأصوات لكل منطقة
     let regionStats = {};
     for(let key in regions) {
         regionStats[key] = 0;
@@ -636,7 +861,6 @@ function updateRegionsAnalysis() {
                 ${candName} - إجمالي الأصوات: ${totalVotes}
              </div>`;
     
-    // عرض بطاقات المناطق
     for(let key in regions) {
         const reg = regions[key];
         const votes = regionStats[key];
@@ -659,7 +883,6 @@ function updateRegionsAnalysis() {
     resBox.innerHTML = html;
 }
 
-// 🆕 تصدير تحليل المناطق إلى Excel
 function exportRegionsAnalysis() {
     const candId = document.getElementById("region-cand-select").value;
     if(!candId) { alert("اختر مرشحاً"); return; }
