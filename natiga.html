@@ -1296,28 +1296,25 @@ function renderAll() {
         borderWidth: 2
       }]
     },
-   options: {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: { 
-    legend: { display: false },
-    datalabels: {
-      anchor: 'center',
-      align: 'center',
-      color: '#ffffff',
-      font: {
-        weight: 'bold',
-        size: 16,
-        family: 'Cairo'
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { 
+        legend: { display: false },
+        datalabels: {
+          anchor: 'center',
+          align: 'center',
+          color: '#ffffff',
+          font: {
+            weight: 'bold',
+            size: 16,
+            family: 'Cairo'
+          },
+          formatter: function(value) {
+            return value;
+          }
+        }
       },
-      formatter: function(value) {
-        return value;
-      }
-    }
-  },
-  scales: { y: { beginAtZero: true } }
-}
-   },
       scales: { y: { beginAtZero: true } }
     }
   });
