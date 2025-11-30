@@ -429,7 +429,7 @@ const commMap = {
   7: { name: "عرب زيدان", address: "مدرسة عرب زيدان الابتدائية" },
   8: { name: "الستايتة", address: "مدرسة الشهيد محمد زغلول الابتدائية" },
   9: { name: "كفر حجاج", address: "مدرسة كفر حجاج الابتدائية" },
-  10: { name: "ميت خض", address: "مدرسة محمد إسماعيل الإعدادية" },
+  10: { name: "ميت خضير", address: "مدرسة محمد إسماعيل الإعدادية" },
   11: { name: "المواجدة", address: "مدرسة حسني الشناوى" },
   12: { name: "البصراط", address: "مدرسة الشهيد محمد المحلاوى الإعدادية" },
   13: { name: "البصراط", address: "مدرسة الشهيد محمد المحلاوى الإعدادية" },
@@ -483,10 +483,37 @@ const commMap = {
 };
 
 const regions = {
-  aziza: { name: "العزيزة", committees: [24, 25], icon: "🟡" },
-  matareya: { name: "المطرية", committees: [38,39,40,41,42,43,44,45,46,47,48,49,50,51,52], icon: "🟢" },
-  manzoula: { name: "المنزلة", committees: [53,54,55,56,57,58,59,60], icon: "🔵" }
+  aziza: { 
+    name: "العزيزة", 
+    committees: [24, 25], 
+    icon: "🟡" 
+  },
+
+  asafra: { 
+    name: "العصافرة", 
+    committees: [46, 47], 
+    icon: "🟠" 
+  },
+
+  daher: { 
+    name: "الضهير", 
+    committees: [48], 
+    icon: "🟤" 
+  },
+
+  matareya: { 
+    name: "المطرية", 
+    committees: [38,39,40,41,42,43,44,45,49,50,51,52], 
+    icon: "🟢" 
+  },
+
+  manzoula: { 
+    name: "المنزلة", 
+    committees: [53,54,55,56,57,58,59,60], 
+    icon: "🔵" 
+  }
 };
+
 
 function getRegionByCommittee(commNum) {
   for(let key in regions) {
