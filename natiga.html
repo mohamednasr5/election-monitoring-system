@@ -124,6 +124,36 @@ header { text-align: center; margin-bottom: 25px; border-bottom: 1px solid #3341
     font-weight: bold;
     color: var(--text-main);
 }
+
+/* تنسيق جديد للقيم القابلة للتعديل */
+.editable-value {
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: 0.3s;
+    display: inline-block;
+}
+.editable-value:hover {
+    background: rgba(59, 130, 246, 0.2);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+}
+.editable-value.editing {
+    background: var(--bg-input);
+    padding: 0;
+}
+.editable-value input {
+    width: 80px;
+    padding: 4px 8px;
+    background: var(--bg-input);
+    border: 2px solid var(--primary);
+    color: var(--warning);
+    border-radius: 4px;
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+    font-family: 'Cairo', sans-serif;
+}
+
 .mahdar-candidates {
     background: var(--bg-card);
     padding: 20px;
@@ -206,6 +236,7 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
   th { background-color: #eee !important; }
   .table-scroll-wrapper { max-height: none !important; overflow: visible !important; }
   #print-date-footer { display: block !important; text-align: center; margin-top: 20px; }
+  .editable-value { background: transparent !important; box-shadow: none !important; }
 }
 </style>
 </head>
@@ -292,7 +323,7 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
   <div class="analysis-row">
     <div class="analysis-box" style="grid-column: 1 / -1;">
       <div class="box-header">
-          <span class="box-title">📋 محضر اللجنة الكامل</span>
+          <span class="box-title">📋 محضر اللجنة الكامل <span class="admin-only" style="font-size:0.8rem; color:var(--success);">(اضغط على أي رقم لتعديله)</span></span>
           <div style="display:flex; gap:5px;">
               <button class="mini-export-btn mini-print-btn" onclick="printMahdar()">🖨️ طباعة</button>
               <button class="mini-export-btn" onclick="exportMahdar()">📥 Excel</button>
@@ -362,7 +393,7 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
     <button class="btn" style="background:#8b5cf6" onclick="location.reload()">🔄 تحديث</button>
   </div>
 
-  <div style="background:var(--bg-card); padding:15px; border-radius:16px; margin-bottom:20px; height:350px;">
+  <div style="background:var(--bg-card); padding:15px; border-radius:16px; margin-bottom:20px; height:400px;">
     <canvas id="mainChart"></canvas>
   </div>
 
@@ -615,7 +646,6 @@ function getTotals() {
   return t;
 }
 
-// دالة مساعدة لفرز البيانات حسب الفلتر المختار
 function getSortedList(list, sortValue) {
   let sorted = [...list];
   if(sortValue === "num") {
@@ -699,7 +729,6 @@ function updateBestComm() {
     })
     .filter(item => item.votes > 0);
 
-    // تطبيق الترتيب
     if(sortOrder === "desc") {
         stats.sort((a, b) => b.votes - a.votes);
     } else if(sortOrder === "asc") {
@@ -771,6 +800,7 @@ function showCommStats() {
     resBox.innerHTML = html;
 }
 
+// ======= دالة عرض المحضر مع إمكانية التعديل للأدمن =======
 function showMahdar() {
     const commId = parseInt(document.getElementById("mahdar-comm-select").value);
     const contentBox = document.getElementById("mahdar-content");
@@ -805,15 +835,21 @@ function showMahdar() {
         <div class="mahdar-info">
             <div class="mahdar-info-item">
                 <div class="mahdar-info-label">إجمالي الحضور</div>
-                <div class="mahdar-info-value" style="color:var(--primary);">${commData.totalVotes}</div>
+                <div class="mahdar-info-value" style="color:var(--primary);">
+                    ${isAdmin ? `<span class="editable-value" data-field="totalVotes" data-comm="${commId}" onclick="editValue(this)">${commData.totalVotes}</span>` : commData.totalVotes}
+                </div>
             </div>
             <div class="mahdar-info-item" style="border-left-color:var(--success);">
                 <div class="mahdar-info-label">الأصوات الصحيحة</div>
-                <div class="mahdar-info-value" style="color:var(--success);">${commData.validVotes}</div>
+                <div class="mahdar-info-value" style="color:var(--success);">
+                    ${isAdmin ? `<span class="editable-value" data-field="validVotes" data-comm="${commId}" onclick="editValue(this)">${commData.validVotes}</span>` : commData.validVotes}
+                </div>
             </div>
             <div class="mahdar-info-item" style="border-left-color:var(--danger);">
                 <div class="mahdar-info-label">الأصوات الباطلة</div>
-                <div class="mahdar-info-value" style="color:var(--danger);">${commData.invalidVotes}</div>
+                <div class="mahdar-info-value" style="color:var(--danger);">
+                    ${isAdmin ? `<span class="editable-value" data-field="invalidVotes" data-comm="${commId}" onclick="editValue(this)">${commData.invalidVotes}</span>` : commData.invalidVotes}
+                </div>
             </div>
         </div>
     </div>
@@ -833,12 +869,108 @@ function showMahdar() {
                 <span class="cand-result-emoji">${emoji}</span>
                 <span>${id}. ${name}</span>
             </div>
-            <div class="cand-result-votes">${votes}</div>
+            <div class="cand-result-votes">
+                ${isAdmin ? `<span class="editable-value" data-field="cand_${id}" data-comm="${commId}" onclick="editValue(this)">${votes}</span>` : votes}
+            </div>
         </div>`;
     });
     
     html += `</div>`;
     contentBox.innerHTML = html;
+}
+
+// ======= دالة التعديل عند الضغط على أي رقم =======
+function editValue(element) {
+    if(!isAdmin) return;
+    
+    const currentValue = parseInt(element.textContent);
+    const field = element.getAttribute('data-field');
+    const commId = parseInt(element.getAttribute('data-comm'));
+    
+    element.classList.add('editing');
+    element.innerHTML = `<input type="number" value="${currentValue}" min="0" style="width:80px;" 
+                         onblur="saveEdit(this, '${field}', ${commId})" 
+                         onkeypress="if(event.key==='Enter') this.blur();">`;
+    element.querySelector('input').focus();
+    element.querySelector('input').select();
+}
+
+// ======= دالة حفظ التعديل مع إعادة حساب الإحصائيات =======
+function saveEdit(input, field, commId) {
+    const newValue = parseInt(input.value) || 0;
+    const commData = allCommittees.find(c => c.number === commId);
+    
+    if(!commData) {
+        alert("خطأ: اللجنة غير موجودة");
+        return;
+    }
+    
+    // تحديث القيمة في البيانات المحلية
+    if(field === 'totalVotes') {
+        commData.totalVotes = newValue;
+    } else if(field === 'validVotes') {
+        commData.validVotes = newValue;
+    } else if(field === 'invalidVotes') {
+        commData.invalidVotes = newValue;
+    } else if(field.startsWith('cand_')) {
+        const candId = field.replace('cand_', '');
+        if(!commData.candidates) commData.candidates = {};
+        commData.candidates[candId] = newValue;
+    }
+    
+    // التحقق من صحة البيانات
+    if(field === 'totalVotes' || field === 'validVotes' || field === 'invalidVotes') {
+        if(commData.validVotes + commData.invalidVotes !== commData.totalVotes) {
+            if(confirm("⚠️ تحذير: مجموع الصحيحة والباطلة لا يساوي الإجمالي!\nهل تريد المتابعة رغم ذلك؟")) {
+                saveToFirebase(commId, commData);
+            } else {
+                showMahdar(); // إلغاء التعديل وإعادة العرض
+                return;
+            }
+        } else {
+            saveToFirebase(commId, commData);
+        }
+    } else if(field.startsWith('cand_')) {
+        // حساب مجموع أصوات المرشحين
+        let totalCandVotes = 0;
+        candidates.forEach(([id]) => {
+            totalCandVotes += commData.candidates[id] || 0;
+        });
+        
+        const expectedTotal = commData.validVotes * 2;
+        if(totalCandVotes !== expectedTotal) {
+            if(confirm(`⚠️ تحذير: مجموع أصوات المرشحين (${totalCandVotes}) لا يساوي ضعف الصحيحة (${expectedTotal})!\nهل تريد المتابعة رغم ذلك؟`)) {
+                saveToFirebase(commId, commData);
+            } else {
+                showMahdar(); // إلغاء التعديل وإعادة العرض
+                return;
+            }
+        } else {
+            saveToFirebase(commId, commData);
+        }
+    } else {
+        saveToFirebase(commId, commData);
+    }
+}
+
+function saveToFirebase(commId, commData) {
+    db.ref("committees/" + commId).set({
+        number: commData.number,
+        totalVotes: commData.totalVotes,
+        validVotes: commData.validVotes,
+        invalidVotes: commData.invalidVotes,
+        day: commData.day,
+        candidates: commData.candidates
+    }, err => {
+        if(!err) {
+            // إعادة عرض المحضر بالقيم الجديدة
+            showMahdar();
+            // إعادة عرض كل الإحصائيات
+            renderAll();
+        } else {
+            alert("❌ خطأ في الحفظ: " + err);
+        }
+    });
 }
 
 function printMahdar() {
@@ -1011,7 +1143,6 @@ function updateRegionsAnalysis() {
     
     const totalVotes = Object.values(regionStats).reduce((a, b) => a + b, 0);
     
-    // تحويل إلى مصفوفة للترتيب
     let regionArray = [];
     for(let key in regions) {
         const reg = regions[key];
@@ -1027,7 +1158,6 @@ function updateRegionsAnalysis() {
         });
     }
     
-    // تطبيق الترتيب
     if(sortOrder === "desc") {
         regionArray.sort((a, b) => b.votes - a.votes);
     } else if(sortOrder === "asc") {
@@ -1079,7 +1209,6 @@ function exportRegionsAnalysis() {
     
     const totalVotes = Object.values(regionStats).reduce((a, b) => a + b, 0);
     
-    // تحويل إلى مصفوفة مع تطبيق الترتيب
     let regionArray = [];
     for(let key in regions) {
         const reg = regions[key];
@@ -1235,7 +1364,6 @@ function exportBestComm() {
         return { num: comm.number, name: info.name, address: info.address, votes: votes };
     }).filter(item => item.votes > 0);
     
-    // تطبيق نفس الترتيب المختار
     if(sortOrder === "desc") {
         stats.sort((a, b) => b.votes - a.votes);
     } else if(sortOrder === "asc") {
@@ -1288,196 +1416,4 @@ function exportSpecificComm() {
     let arr = candidates.map(([id, name]) => ({
         name: name, 
         votes: commData.candidates[id] || 0, 
-        percent: commData.validVotes ? ((commData.candidates[id] / commData.validVotes) * 100).toFixed(1) : 0
-    })).sort((a,b) => b.votes - a.votes);
-
-    arr.forEach((c, i) => {
-        wsData.push(formatRow([i+1, c.name, c.votes, c.percent + "%"], false));
-    });
-
-    const ws = XLSX.utils.aoa_to_sheet(wsData);
-    ws['!cols'] = [{wch:10}, {wch:30}, {wch:15}, {wch:15}];
-
-    XLSX.utils.book_append_sheet(wb, ws, "اللجنة");
-    saveStyledWorkbook(wb, `Committee_${commId}.xlsx`);
-}
-
-function exportRanking() {
-    const t = getTotals();
-    const wb = XLSX.utils.book_new();
-    let wsData = [];
-
-    wsData.push(formatRow(["الترتيب العام للمرشحين"], true));
-    wsData.push(formatRow([`تاريخ التقرير: ${new Date().toLocaleString("ar-EG")}`], false));
-    wsData.push(formatRow(["الترتيب", "المرشح", "الأصوات", "النسبة"], true));
-
-    let arr = candidates.map(([id,n]) => ({
-        name: n, v: t.cands[id], p: t.valid ? ((t.cands[id]/t.valid)*100).toFixed(1) : 0
-    })).sort((a,b) => b.v - a.v);
-
-    arr.forEach((c, i) => {
-        wsData.push(formatRow([i+1, c.name, c.v, c.p + "%"], false));
-    });
-
-    const ws = XLSX.utils.aoa_to_sheet(wsData);
-    ws['!cols'] = [{wch:10}, {wch:30}, {wch:15}, {wch:15}];
-
-    XLSX.utils.book_append_sheet(wb, ws, "الترتيب");
-    saveStyledWorkbook(wb, "Ranking.xlsx");
-}
-
-function exportLog() {
-    const t = getTotals();
-    const sortValue = document.getElementById("log-sort").value;
-    const sortedList = getSortedList(t.list, sortValue);
-    
-    const wb = XLSX.utils.book_new();
-    let wsData = [];
-
-    wsData.push(formatRow(["سجل الفرز الكامل"], true));
-    wsData.push(formatRow([`عدد اللجان: ${sortedList.length}`], false));
-    wsData.push(formatRow(["رقم اللجنة", "المدرسة", "العنوان", "الإجمالي", "صحيحة", "باطلة"], true));
-
-    sortedList.forEach(c => {
-        const info = commMap[c.number] || {name: "", address: ""};
-        wsData.push(formatRow([c.number, info.name, info.address, c.totalVotes, c.validVotes, c.invalidVotes], false));
-    });
-
-    const ws = XLSX.utils.aoa_to_sheet(wsData);
-    ws['!cols'] = [{wch:10}, {wch:30}, {wch:30}, {wch:12}, {wch:12}, {wch:12}];
-
-    XLSX.utils.book_append_sheet(wb, ws, "السجل");
-    saveStyledWorkbook(wb, "Committees_Log.xlsx");
-}
-
-function exportToExcel() {
-    const t = getTotals();
-    const wb = XLSX.utils.book_new();
-    
-    let rankData = [];
-    rankData.push(formatRow(["المرشح", "الأصوات"], true));
-    candidates.forEach(([id, n]) => {
-        rankData.push(formatRow([n, t.cands[id]], false));
-    });
-    const ws1 = XLSX.utils.aoa_to_sheet(rankData);
-    ws1['!cols'] = [{ wch: 30 }, { wch: 15 }];
-    XLSX.utils.book_append_sheet(wb, ws1, "النتائج");
-
-    let commData = [];
-    commData.push(formatRow(["رقم اللجنة", "اسم اللجنة", "الإجمالي", "صحيح", "باطل"], true));
-    t.list.forEach(c => {
-        const info = commMap[c.number] || { name: "" };
-        commData.push(formatRow([c.number, info.name, c.totalVotes, c.validVotes, c.invalidVotes], false));
-    });
-    const ws2 = XLSX.utils.aoa_to_sheet(commData);
-    ws2['!cols'] = [{ wch: 10 }, { wch: 30 }, { wch: 10 }, { wch: 10 }, { wch: 10 }];
-    
-    XLSX.utils.book_append_sheet(wb, ws2, "اللجان");
-
-    saveStyledWorkbook(wb, "Full_Database_Pro.xlsx");
-}
-
-function renderAll() {
-  const t = getTotals();
-  
-  document.getElementById("stat-cards").innerHTML = `
-    <div class="card blue"><div class="card-title">إجمالي الأصوات</div><div class="card-num" id="num-total">0</div></div>
-    <div class="card green"><div class="card-title">الصحيحة</div><div class="card-num" id="num-valid">0</div></div>
-    <div class="card red"><div class="card-title">الباطلة</div><div class="card-num" id="num-invalid">0</div></div>
-    <div class="card purple"><div class="card-title">تم فرز</div><div class="card-num" id="num-comm">0</div></div>
-  `;
-  
-  animateValue("num-total", 0, t.total, 1000);
-  animateValue("num-valid", 0, t.valid, 1000);
-  animateValue("num-invalid", 0, t.invalid, 1000);
-  document.getElementById("num-comm").textContent = `${t.list.length} / 60`;
-
-  let arr = candidates.map(([id,n,e]) => ({
-    name: `${e} ${n}`, v: t.cands[id], p: t.valid ? ((t.cands[id]/t.valid)*100).toFixed(1) : 0
-  })).sort((a,b) => b.v - a.v);
-  
-  document.querySelector("#cand-table tbody").innerHTML = arr.map((c,i) => `
-    <tr>
-        <td>${i+1}</td>
-        <td>${c.name}</td>
-        <td style="font-weight:bold; color:var(--primary)">${c.v}</td>
-        <td>${c.p}%</td>
-    </tr>`).join("");
-
-  // ترتيب سجل اللجان حسب الفلتر
-  const sortValue = document.getElementById("log-sort").value;
-  const sortedList = getSortedList(t.list, sortValue);
-
-  document.querySelector("#comm-table tbody").innerHTML = sortedList.map(c => {
-      const info = commMap[c.number] || {name: "لجنة "+c.number, address: ""};
-      return `<tr><td><span class="comm-name">${c.number}. ${info.name}</span><span class="comm-addr">${info.address}</span></td><td>${c.totalVotes}</td><td style="color:var(--success)">${c.validVotes}</td><td style="color:var(--danger)">${c.invalidVotes}</td></tr>`;
-  }).join("");
-
-  const ctx = document.getElementById("mainChart").getContext("2d");
-  if(chartInstance) chartInstance.destroy();
-  
-  chartInstance = new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: arr.map(c => c.name),
-      datasets: [{
-        label: "الأصوات",
-        data: arr.map(c => c.v),
-        backgroundColor: "rgba(59, 130, 246, 0.6)",
-        borderColor: "rgba(59, 130, 246, 1)",
-        borderWidth: 2
-      }]
-    },
-   options: {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: { 
-    legend: { display: false },
-    datalabels: {
-      anchor: 'center',
-      align: 'center',
-      color: '#ffffff',
-      font: {
-        weight: 'bold',
-        size: 16,
-        family: 'Cairo'
-      },
-      formatter: function(value) {
-        return value;
-      }
-    }
-  },
-  scales: { y: { beginAtZero: true } }
-}
-  });
-  
-  updateCompare();
-}
-
-function resetData() {
-  if(!isAdmin) {
-    alert("⛔ غير مسموح - صلاحيات محدودة");
-    return;
-  }
-  
-  if(confirm("⚠️ هل أنت متأكد من تصفير كل البيانات؟")) {
-    db.ref("committees").remove(() => {
-      alert("✅ تم تصفير البيانات");
-      location.reload();
-    });
-  }
-}
-
-function printSection(sectionId) {
-    document.getElementById("p-date-val").textContent = new Date().toLocaleString("ar-EG");
-    const section = document.getElementById(sectionId);
-    if(!section) return;
-    
-    section.classList.add("section-to-print");
-    window.print();
-    section.classList.remove("section-to-print");
-}
-
-</script>
-</body>
-</html>
+        percent: commData.validVotes ? ((commData.candidates[id] / commData.vali
