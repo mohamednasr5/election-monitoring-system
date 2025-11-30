@@ -1793,8 +1793,9 @@ function saveEdit(input, field, commId) {
         });
         
         const expectedTotal = commData.validVotes * 2;
-        if(totalCandVotes !== expectedTotal) {
-            if(confirm(`⚠️ تحذير: مجموع أصوات المرشحين (${totalCandVotes}) لا يساوي ضعف الصحيحة (${expectedTotal})!\nهل تريد المتابعة رغم ذلك?")) {
+       if (totalCandVotes !== expectedTotal) {
+    if (confirm(`⚠️ تحذير: مجموع أصوات المرشحين (${totalCandVotes}) لا يساوي ضعف الصحيحة (${expectedTotal})!\nهل تريد المتابعة رغم ذلك؟`)) {
+
                 saveToFirebase(commId, commData);
             } else {
                 showMahdar();
