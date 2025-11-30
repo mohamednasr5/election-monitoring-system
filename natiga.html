@@ -124,6 +124,45 @@ header { text-align: center; margin-bottom: 25px; border-bottom: 1px solid #3341
     font-weight: bold;
     color: var(--text-main);
 }
+
+/* إضافة أنماط للتعديل */
+.mahdar-info-value.editable {
+    cursor: pointer;
+    position: relative;
+    padding: 5px 8px;
+    border-radius: 4px;
+    transition: 0.2s;
+}
+
+.mahdar-info-value.editable:hover {
+    background: rgba(59, 130, 246, 0.2);
+}
+
+.mahdar-info-value.editable::after {
+    content: '✏️';
+    position: absolute;
+    right: -20px;
+    opacity: 0;
+    transition: 0.2s;
+    font-size: 0.8rem;
+}
+
+.mahdar-info-value.editable:hover::after {
+    opacity: 1;
+}
+
+.edit-input {
+    width: 80px;
+    padding: 5px;
+    background: var(--bg-body);
+    border: 2px solid var(--primary);
+    color: white;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
 .mahdar-candidates {
     background: var(--bg-card);
     padding: 20px;
@@ -156,6 +195,48 @@ header { text-align: center; margin-bottom: 25px; border-bottom: 1px solid #3341
     font-size: 1.3rem;
     font-weight: bold;
     color: var(--primary);
+}
+
+/* إضافة أنماط للتعديل في أصوات المرشحين */
+.cand-result-votes.editable {
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: 0.2s;
+    position: relative;
+}
+
+.cand-result-votes.editable:hover {
+    background: rgba(59, 130, 246, 0.3);
+}
+
+.cand-result-votes.editable::after {
+    content: '✏️';
+    position: absolute;
+    right: -20px;
+    opacity: 0;
+    transition: 0.2s;
+    font-size: 0.7rem;
+}
+
+.cand-result-votes.editable:hover::after {
+    opacity: 1;
+}
+
+.edit-save-btn {
+    background: var(--success);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 15px;
+    display: none;
+}
+
+.edit-save-btn.visible {
+    display: block;
 }
 
 table { width: 100%; border-collapse: collapse; background: var(--bg-card); }
@@ -306,6 +387,7 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
           اختر لجنة لعرض المحضر الكامل
         </div>
       </div>
+      <button id="save-mahdar-btn" class="edit-save-btn" onclick="saveMahdarEdits()">💾 حفظ التعديلات</button>
     </div>
   </div>
 
@@ -429,7 +511,7 @@ const commMap = {
   7: { name: "عرب زيدان", address: "مدرسة عرب زيدان الابتدائية" },
   8: { name: "الستايتة", address: "مدرسة الشهيد محمد زغلول الابتدائية" },
   9: { name: "كفر حجاج", address: "مدرسة كفر حجاج الابتدائية" },
-  10: { name: "ميت خض", address: "مدرسة محمد إسماعيل الإعدادية" },
+  10: { name: "ميت خضير", address: "مدرسة محمد إسماعيل الإعدادية" },
   11: { name: "المواجدة", address: "مدرسة حسني الشناوى" },
   12: { name: "البصراط", address: "مدرسة الشهيد محمد المحلاوى الإعدادية" },
   13: { name: "البصراط", address: "مدرسة الشهيد محمد المحلاوى الإعدادية" },
@@ -498,6 +580,8 @@ function getRegionByCommittee(commNum) {
 }
 
 let isAdmin = false;
+let currentEditingComm = null;
+let editedData = {};
 
 function loginNow() {
   const pass = document.getElementById("login-pass").value;
@@ -615,7 +699,6 @@ function getTotals() {
   return t;
 }
 
-// دالة مساعدة لفرز البيانات حسب الفلتر المختار
 function getSortedList(list, sortValue) {
   let sorted = [...list];
   if(sortValue === "num") {
@@ -699,7 +782,6 @@ function updateBestComm() {
     })
     .filter(item => item.votes > 0);
 
-    // تطبيق الترتيب
     if(sortOrder === "desc") {
         stats.sort((a, b) => b.votes - a.votes);
     } else if(sortOrder === "asc") {
@@ -771,9 +853,16 @@ function showCommStats() {
     resBox.innerHTML = html;
 }
 
+// دالة عرض المحضر مع إمكانية التعديل
 function showMahdar() {
     const commId = parseInt(document.getElementById("mahdar-comm-select").value);
     const contentBox = document.getElementById("mahdar-content");
+    const saveBtn = document.getElementById("save-mahdar-btn");
+    
+    // إخفاء زر الحفظ وإعادة تعيين البيانات المعدلة
+    saveBtn.classList.remove("visible");
+    currentEditingComm = null;
+    editedData = {};
     
     if(!commId) {
         contentBox.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding:50px;">
@@ -790,8 +879,15 @@ function showMahdar() {
         return;
     }
     
+    currentEditingComm = commId;
     const commInfo = commMap[commId];
     const dayText = commData.day === "day1" ? "اليوم الأول" : "اليوم الثاني";
+    
+    // إضافة class editable إذا كان المستخدم أدمن
+    const editableClass = isAdmin ? ' editable' : '';
+    const editableAttr = isAdmin ? ' onclick="editValue(this, \'total\')"' : '';
+    const editableValidAttr = isAdmin ? ' onclick="editValue(this, \'valid\')"' : '';
+    const editableInvalidAttr = isAdmin ? ' onclick="editValue(this, \'invalid\')"' : '';
     
     let html = `
     <div class="mahdar-header">
@@ -805,15 +901,15 @@ function showMahdar() {
         <div class="mahdar-info">
             <div class="mahdar-info-item">
                 <div class="mahdar-info-label">إجمالي الحضور</div>
-                <div class="mahdar-info-value" style="color:var(--primary);">${commData.totalVotes}</div>
+                <div class="mahdar-info-value${editableClass}" style="color:var(--primary);" data-original="${commData.totalVotes}"${editableAttr}>${commData.totalVotes}</div>
             </div>
             <div class="mahdar-info-item" style="border-left-color:var(--success);">
                 <div class="mahdar-info-label">الأصوات الصحيحة</div>
-                <div class="mahdar-info-value" style="color:var(--success);">${commData.validVotes}</div>
+                <div class="mahdar-info-value${editableClass}" style="color:var(--success);" data-original="${commData.validVotes}"${editableValidAttr}>${commData.validVotes}</div>
             </div>
             <div class="mahdar-info-item" style="border-left-color:var(--danger);">
                 <div class="mahdar-info-label">الأصوات الباطلة</div>
-                <div class="mahdar-info-value" style="color:var(--danger);">${commData.invalidVotes}</div>
+                <div class="mahdar-info-value${editableClass}" style="color:var(--danger);" data-original="${commData.invalidVotes}"${editableInvalidAttr}>${commData.invalidVotes}</div>
             </div>
         </div>
     </div>
@@ -827,18 +923,121 @@ function showMahdar() {
     candidates.forEach((cand, index) => {
         const [id, name, emoji] = cand;
         const votes = commData.candidates[id] || 0;
+        const candEditableClass = isAdmin ? ' editable' : '';
+        const candEditableAttr = isAdmin ? ` onclick="editValue(this, 'cand_${id}')"` : '';
+        
         html += `
         <div class="cand-result-item">
             <div class="cand-result-name">
                 <span class="cand-result-emoji">${emoji}</span>
                 <span>${id}. ${name}</span>
             </div>
-            <div class="cand-result-votes">${votes}</div>
+            <div class="cand-result-votes${candEditableClass}" data-cand-id="${id}" data-original="${votes}"${candEditableAttr}>${votes}</div>
         </div>`;
     });
     
     html += `</div>`;
     contentBox.innerHTML = html;
+}
+
+// دالة تعديل القيم
+function editValue(element, type) {
+    if(!isAdmin) return;
+    
+    const currentValue = element.textContent;
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.className = 'edit-input';
+    input.value = currentValue;
+    input.min = '0';
+    
+    element.textContent = '';
+    element.appendChild(input);
+    input.focus();
+    input.select();
+    
+    // حفظ عند الضغط على Enter
+    input.addEventListener('keypress', function(e) {
+        if(e.key === 'Enter') {
+            saveEditedValue(element, input, type);
+        }
+    });
+    
+    // حفظ عند فقدان التركيز
+    input.addEventListener('blur', function() {
+        saveEditedValue(element, input, type);
+    });
+}
+
+// دالة حفظ القيمة المعدلة
+function saveEditedValue(element, input, type) {
+    const newValue = parseInt(input.value) || 0;
+    element.textContent = newValue;
+    
+    // تخزين التعديل
+    editedData[type] = newValue;
+    
+    // إظهار زر الحفظ
+    document.getElementById("save-mahdar-btn").classList.add("visible");
+}
+
+// دالة حفظ التعديلات في Firebase
+function saveMahdarEdits() {
+    if(!isAdmin || !currentEditingComm) {
+        alert("خطأ في الحفظ");
+        return;
+    }
+    
+    const commData = allCommittees.find(c => c.number === currentEditingComm);
+    if(!commData) return;
+    
+    // إنشاء كائن البيانات المحدثة
+    let updatedData = {
+        number: currentEditingComm,
+        totalVotes: editedData.total !== undefined ? editedData.total : commData.totalVotes,
+        validVotes: editedData.valid !== undefined ? editedData.valid : commData.validVotes,
+        invalidVotes: editedData.invalid !== undefined ? editedData.invalid : commData.invalidVotes,
+        day: commData.day,
+        candidates: {...commData.candidates}
+    };
+    
+    // تحديث أصوات المرشحين
+    candidates.forEach(([id]) => {
+        const key = `cand_${id}`;
+        if(editedData[key] !== undefined) {
+            updatedData.candidates[id] = editedData[key];
+        }
+    });
+    
+    // التحقق من الصحة
+    if(updatedData.validVotes + updatedData.invalidVotes !== updatedData.totalVotes) {
+        alert("⚠️ خطأ: مجموع الصحيحة والباطلة غير مطابق للإجمالي");
+        return;
+    }
+    
+    // حساب مجموع أصوات المرشحين
+    let candSum = 0;
+    for(let id in updatedData.candidates) {
+        candSum += updatedData.candidates[id];
+    }
+    
+    if(candSum !== (updatedData.validVotes * 2)) {
+        if(!confirm(`⚠️ تنبيه: مجموع أصوات المرشحين (${candSum}) لا يساوي ضعف الأصوات الصحيحة (${updatedData.validVotes * 2}). هل تريد الحفظ رغم ذلك؟`)) {
+            return;
+        }
+    }
+    
+    // الحفظ في Firebase
+    db.ref("committees/" + currentEditingComm).set(updatedData, err => {
+        if(!err) {
+            alert("✅ تم حفظ التعديلات بنجاح");
+            document.getElementById("save-mahdar-btn").classList.remove("visible");
+            editedData = {};
+            showMahdar(); // إعادة عرض المحضر
+        } else {
+            alert("❌ حدث خطأ أثناء الحفظ");
+        }
+    });
 }
 
 function printMahdar() {
@@ -1011,7 +1210,6 @@ function updateRegionsAnalysis() {
     
     const totalVotes = Object.values(regionStats).reduce((a, b) => a + b, 0);
     
-    // تحويل إلى مصفوفة للترتيب
     let regionArray = [];
     for(let key in regions) {
         const reg = regions[key];
@@ -1027,7 +1225,6 @@ function updateRegionsAnalysis() {
         });
     }
     
-    // تطبيق الترتيب
     if(sortOrder === "desc") {
         regionArray.sort((a, b) => b.votes - a.votes);
     } else if(sortOrder === "asc") {
@@ -1079,7 +1276,6 @@ function exportRegionsAnalysis() {
     
     const totalVotes = Object.values(regionStats).reduce((a, b) => a + b, 0);
     
-    // تحويل إلى مصفوفة مع تطبيق الترتيب
     let regionArray = [];
     for(let key in regions) {
         const reg = regions[key];
@@ -1235,7 +1431,6 @@ function exportBestComm() {
         return { num: comm.number, name: info.name, address: info.address, votes: votes };
     }).filter(item => item.votes > 0);
     
-    // تطبيق نفس الترتيب المختار
     if(sortOrder === "desc") {
         stats.sort((a, b) => b.votes - a.votes);
     } else if(sortOrder === "asc") {
@@ -1308,176 +1503,250 @@ function exportRanking() {
     let wsData = [];
 
     wsData.push(formatRow(["الترتيب العام للمرشحين"], true));
-    wsData.push(formatRow([`تاريخ التقرير: ${new Date().toLocaleString("ar-EG")}`], false));
-    wsData.push(formatRow(["الترتيب", "المرشح", "الأصوات", "النسبة"], true));
+    wsData.push(formatRow([""], false));
+    wsData.push(formatRow(["الترتيب", "المرشح", "الأصوات", "النسبة %"], true));
 
-    let arr = candidates.map(([id,n]) => ({
-        name: n, v: t.cands[id], p: t.valid ? ((t.cands[id]/t.valid)*100).toFixed(1) : 0
-    })).sort((a,b) => b.v - a.v);
+    let sorted = candidates.map(([id, name]) => ({
+        name: name,
+        votes: t.cands[id] || 0,
+        percent: t.valid > 0 ? ((t.cands[id] / (t.valid * 2)) * 100).toFixed(1) : 0
+    })).sort((a, b) => b.votes - a.votes);
 
-    arr.forEach((c, i) => {
-        wsData.push(formatRow([i+1, c.name, c.v, c.p + "%"], false));
+    sorted.forEach((c, i) => {
+        let style = (i === 0) ? highlightStyle : cellStyle;
+        wsData.push(formatRow([i + 1, c.name, c.votes, c.percent + "%"], false, style));
     });
 
     const ws = XLSX.utils.aoa_to_sheet(wsData);
-    ws['!cols'] = [{wch:10}, {wch:30}, {wch:15}, {wch:15}];
+    ws['!cols'] = [{wch: 10}, {wch: 30}, {wch: 15}, {wch: 15}];
 
-    XLSX.utils.book_append_sheet(wb, ws, "الترتيب");
-    saveStyledWorkbook(wb, "Ranking.xlsx");
+    XLSX.utils.book_append_sheet(wb, ws, "الترتيب العام");
+    saveStyledWorkbook(wb, "Overall_Ranking.xlsx");
 }
 
 function exportLog() {
     const t = getTotals();
     const sortValue = document.getElementById("log-sort").value;
-    const sortedList = getSortedList(t.list, sortValue);
-    
+    const sorted = getSortedList(t.list, sortValue);
+
     const wb = XLSX.utils.book_new();
     let wsData = [];
 
-    wsData.push(formatRow(["سجل الفرز الكامل"], true));
-    wsData.push(formatRow([`عدد اللجان: ${sortedList.length}`], false));
-    wsData.push(formatRow(["رقم اللجنة", "المدرسة", "العنوان", "الإجمالي", "صحيحة", "باطلة"], true));
+    wsData.push(formatRow(["سجل اللجان الكامل"], true));
+    wsData.push(formatRow([""], false));
+    wsData.push(formatRow(["رقم اللجنة", "اسم اللجنة", "العنوان", "إجمالي الحضور", "الصحيحة", "الباطلة"], true));
 
-    sortedList.forEach(c => {
-        const info = commMap[c.number] || {name: "", address: ""};
+    sorted.forEach(c => {
+        const info = commMap[c.number] || { name: "غير معروف", address: "" };
         wsData.push(formatRow([c.number, info.name, info.address, c.totalVotes, c.validVotes, c.invalidVotes], false));
     });
 
     const ws = XLSX.utils.aoa_to_sheet(wsData);
-    ws['!cols'] = [{wch:10}, {wch:30}, {wch:30}, {wch:12}, {wch:12}, {wch:12}];
+    ws['!cols'] = [{wch: 12}, {wch: 25}, {wch: 35}, {wch: 15}, {wch: 12}, {wch: 12}];
 
-    XLSX.utils.book_append_sheet(wb, ws, "السجل");
+    XLSX.utils.book_append_sheet(wb, ws, "سجل اللجان");
     saveStyledWorkbook(wb, "Committees_Log.xlsx");
 }
 
 function exportToExcel() {
-    const t = getTotals();
     const wb = XLSX.utils.book_new();
-    
-    let rankData = [];
-    rankData.push(formatRow(["المرشح", "الأصوات"], true));
-    candidates.forEach(([id, n]) => {
-        rankData.push(formatRow([n, t.cands[id]], false));
-    });
-    const ws1 = XLSX.utils.aoa_to_sheet(rankData);
-    ws1['!cols'] = [{ wch: 30 }, { wch: 15 }];
-    XLSX.utils.book_append_sheet(wb, ws1, "النتائج");
+    let wsData = [];
 
-    let commData = [];
-    commData.push(formatRow(["رقم اللجنة", "اسم اللجنة", "الإجمالي", "صحيح", "باطل"], true));
-    t.list.forEach(c => {
-        const info = commMap[c.number] || { name: "" };
-        commData.push(formatRow([c.number, info.name, c.totalVotes, c.validVotes, c.invalidVotes], false));
-    });
-    const ws2 = XLSX.utils.aoa_to_sheet(commData);
-    ws2['!cols'] = [{ wch: 10 }, { wch: 30 }, { wch: 10 }, { wch: 10 }, { wch: 10 }];
-    
-    XLSX.utils.book_append_sheet(wb, ws2, "اللجان");
+    wsData.push(formatRow(["قاعدة البيانات الكاملة"], true));
+    wsData.push(formatRow([""], false));
 
-    saveStyledWorkbook(wb, "Full_Database_Pro.xlsx");
+    let headerRow = ["رقم اللجنة", "اسم اللجنة", "العنوان", "إجمالي الحضور", "الصحيحة", "الباطلة"];
+    candidates.forEach(([id, name]) => {
+        headerRow.push(`${id}. ${name}`);
+    });
+    wsData.push(formatRow(headerRow, true));
+
+    for (let commNum = 1; commNum <= 60; commNum++) {
+        const commData = allCommittees.find(c => c.number === commNum);
+        const commInfo = commMap[commNum];
+
+        let rowData = [
+            commNum,
+            commInfo ? commInfo.name : "غير معروف",
+            commInfo ? commInfo.address : "",
+            commData ? commData.totalVotes : 0,
+            commData ? commData.validVotes : 0,
+            commData ? commData.invalidVotes : 0
+        ];
+
+        candidates.forEach(([id]) => {
+            const votes = (commData && commData.candidates && commData.candidates[id]) ? commData.candidates[id] : 0;
+            rowData.push(votes);
+        });
+
+        wsData.push(formatRow(rowData, false));
+    }
+
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+    let cols = [{ wch: 12 }, { wch: 25 }, { wch: 35 }, { wch: 15 }, { wch: 12 }, { wch: 12 }];
+    for (let i = 0; i < 15; i++) {
+        cols.push({ wch: 20 });
+    }
+    ws['!cols'] = cols;
+
+    XLSX.utils.book_append_sheet(wb, ws, "البيانات الكاملة");
+    saveStyledWorkbook(wb, "Full_Database.xlsx");
 }
 
 function renderAll() {
-  const t = getTotals();
-  
-  document.getElementById("stat-cards").innerHTML = `
-    <div class="card blue"><div class="card-title">إجمالي الأصوات</div><div class="card-num" id="num-total">0</div></div>
-    <div class="card green"><div class="card-title">الصحيحة</div><div class="card-num" id="num-valid">0</div></div>
-    <div class="card red"><div class="card-title">الباطلة</div><div class="card-num" id="num-invalid">0</div></div>
-    <div class="card purple"><div class="card-title">تم فرز</div><div class="card-num" id="num-comm">0</div></div>
-  `;
-  
-  animateValue("num-total", 0, t.total, 1000);
-  animateValue("num-valid", 0, t.valid, 1000);
-  animateValue("num-invalid", 0, t.invalid, 1000);
-  document.getElementById("num-comm").textContent = `${t.list.length} / 60`;
+    const t = getTotals();
 
-  let arr = candidates.map(([id,n,e]) => ({
-    name: `${e} ${n}`, v: t.cands[id], p: t.valid ? ((t.cands[id]/t.valid)*100).toFixed(1) : 0
-  })).sort((a,b) => b.v - a.v);
-  
-  document.querySelector("#cand-table tbody").innerHTML = arr.map((c,i) => `
-    <tr>
-        <td>${i+1}</td>
-        <td>${c.name}</td>
-        <td style="font-weight:bold; color:var(--primary)">${c.v}</td>
-        <td>${c.p}%</td>
-    </tr>`).join("");
+    document.getElementById("stat-cards").innerHTML = `
+        <div class="card blue">
+            <div style="font-size:0.9rem;">📊 إجمالي الحضور</div>
+            <div class="card-num" id="stat-total">${t.total}</div>
+        </div>
+        <div class="card green">
+            <div style="font-size:0.9rem;">✅ الصحيحة</div>
+            <div class="card-num" id="stat-valid">${t.valid}</div>
+        </div>
+        <div class="card red">
+            <div style="font-size:0.9rem;">❌ الباطلة</div>
+            <div class="card-num" id="stat-invalid">${t.invalid}</div>
+        </div>
+        <div class="card purple">
+            <div style="font-size:0.9rem;">🗳️ اللجان المرصودة</div>
+            <div class="card-num">${t.list.length}</div>
+        </div>
+        <div class="card yellow">
+            <div style="font-size:0.9rem;">📈 نسبة الصحيحة</div>
+            <div class="card-num">${t.total > 0 ? ((t.valid / t.total) * 100).toFixed(1) : 0}%</div>
+        </div>
+    `;
 
-  // ترتيب سجل اللجان حسب الفلتر
-  const sortValue = document.getElementById("log-sort").value;
-  const sortedList = getSortedList(t.list, sortValue);
+    let sorted = candidates.map(([id, name, emoji]) => ({
+        id: id,
+        name: name,
+        emoji: emoji,
+        votes: t.cands[id] || 0,
+        percent: t.valid > 0 ? ((t.cands[id] / (t.valid * 2)) * 100).toFixed(1) : 0
+    })).sort((a, b) => b.votes - a.votes);
 
-  document.querySelector("#comm-table tbody").innerHTML = sortedList.map(c => {
-      const info = commMap[c.number] || {name: "لجنة "+c.number, address: ""};
-      return `<tr><td><span class="comm-name">${c.number}. ${info.name}</span><span class="comm-addr">${info.address}</span></td><td>${c.totalVotes}</td><td style="color:var(--success)">${c.validVotes}</td><td style="color:var(--danger)">${c.invalidVotes}</td></tr>`;
-  }).join("");
+    let tbody = "";
+    sorted.forEach((c, i) => {
+        let rankColor = i === 0 ? '#fbbf24' : i === 1 ? '#94a3b8' : i === 2 ? '#b45309' : 'white';
+        tbody += `<tr style="background:${i % 2 === 0 ? 'var(--bg-card)' : 'var(--bg-input)'}">
+            <td style="color:${rankColor}; font-weight:bold;">${i + 1}</td>
+            <td style="text-align:right;"><span style="font-size:1.2rem;">${c.emoji}</span> ${c.id}. ${c.name}</td>
+            <td style="color:var(--primary); font-weight:bold;">${c.votes}</td>
+            <td>${c.percent}%</td>
+        </tr>`;
+    });
+    document.querySelector("#cand-table tbody").innerHTML = tbody;
 
-  const ctx = document.getElementById("mainChart").getContext("2d");
-  if(chartInstance) chartInstance.destroy();
-  
-  chartInstance = new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: arr.map(c => c.name),
-      datasets: [{
-        label: "الأصوات",
-        data: arr.map(c => c.v),
-        backgroundColor: "rgba(59, 130, 246, 0.6)",
-        borderColor: "rgba(59, 130, 246, 1)",
-        borderWidth: 2
-      }]
-    },
-   options: {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: { 
-    legend: { display: false },
-    datalabels: {
-      anchor: 'center',
-      align: 'center',
-      color: '#ffffff',
-      font: {
-        weight: 'bold',
-        size: 16,
-        family: 'Cairo'
-      },
-      formatter: function(value) {
-        return value;
-      }
-    }
-  },
-  scales: { y: { beginAtZero: true } }
+    const sortValue = document.getElementById("log-sort").value;
+    const sortedComms = getSortedList(t.list, sortValue);
+
+    let commTbody = "";
+    sortedComms.forEach((c, i) => {
+        const info = commMap[c.number] || { name: "غير معروف", address: "" };
+        commTbody += `<tr style="background:${i % 2 === 0 ? 'var(--bg-card)' : 'var(--bg-input)'}">
+            <td>
+                <span class="comm-name">${c.number}. ${info.name}</span>
+                <span class="comm-addr">${info.address}</span>
+            </td>
+            <td style="color:var(--primary); font-weight:bold;">${c.totalVotes}</td>
+            <td style="color:var(--success);">${c.validVotes}</td>
+            <td style="color:var(--danger);">${c.invalidVotes}</td>
+        </tr>`;
+    });
+    document.querySelector("#comm-table tbody").innerHTML = commTbody;
+
+    updateCompare();
+    renderChart(sorted);
 }
-  });
-  
-  updateCompare();
+
+function renderChart(sorted) {
+    const ctx = document.getElementById("mainChart");
+    if (!ctx) return;
+
+    const labels = sorted.map(c => `${c.emoji} ${c.name}`);
+    const data = sorted.map(c => c.votes);
+
+    const colors = [
+        '#fbbf24', '#94a3b8', '#b45309', '#3b82f6', '#10b981',
+        '#ef4444', '#8b5cf6', '#f59e0b', '#06b6d4', '#ec4899',
+        '#6366f1', '#14b8a6', '#f97316', '#a855f7', '#84cc16'
+    ];
+
+    if (chartInstance) {
+        chartInstance.destroy();
+    }
+
+    chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'عدد الأصوات',
+                data: data,
+                backgroundColor: colors,
+                borderColor: colors.map(c => c),
+                borderWidth: 2,
+                borderRadius: 8
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: { display: false },
+                datalabels: {
+                    anchor: 'end',
+                    align: 'end',
+                    color: 'white',
+                    font: { weight: 'bold', size: 12 },
+                    formatter: (val) => val
+                }
+            },
+            scales: {
+                x: { 
+                    beginAtZero: true, 
+                    grid: { color: '#334155' },
+                    ticks: { color: '#94a3b8' }
+                },
+                y: { 
+                    grid: { display: false },
+                    ticks: { color: '#f1f5f9', font: { size: 11 } }
+                }
+            }
+        },
+        plugins: [ChartDataLabels]
+    });
 }
 
 function resetData() {
-  if(!isAdmin) {
-    alert("⛔ غير مسموح - صلاحيات محدودة");
-    return;
-  }
-  
-  if(confirm("⚠️ هل أنت متأكد من تصفير كل البيانات؟")) {
-    db.ref("committees").remove(() => {
-      alert("✅ تم تصفير البيانات");
-      location.reload();
-    });
-  }
+    if (!isAdmin) return;
+    if (!confirm("⚠️ هل أنت متأكد من حذف جميع البيانات؟ هذا الإجراء لا يمكن التراجع عنه!")) return;
+    
+    const finalConfirm = prompt("اكتب كلمة 'حذف' للتأكيد:");
+    if (finalConfirm === "حذف") {
+        db.ref("committees").remove(err => {
+            if (!err) {
+                alert("✅ تم تصفير البيانات");
+                location.reload();
+            } else {
+                alert("❌ حدث خطأ");
+            }
+        });
+    }
 }
 
 function printSection(sectionId) {
     document.getElementById("p-date-val").textContent = new Date().toLocaleString("ar-EG");
     const section = document.getElementById(sectionId);
-    if(!section) return;
-    
     section.classList.add("section-to-print");
     window.print();
     section.classList.remove("section-to-print");
 }
-
 </script>
+
 </body>
 </html>
