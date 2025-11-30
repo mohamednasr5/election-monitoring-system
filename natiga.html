@@ -125,7 +125,6 @@ header { text-align: center; margin-bottom: 25px; border-bottom: 1px solid #3341
     color: var(--text-main);
 }
 
-/* تنسيق جديد للقيم القابلة للتعديل */
 .editable-value {
     cursor: pointer;
     padding: 2px 6px;
@@ -681,6 +680,129 @@ function animateValue(id, start, end, duration) {
   window.requestAnimationFrame(step);
 }
 
+function renderAll() {
+  const t = getTotals();
+  
+  document.getElementById("stat-cards").innerHTML = `
+    <div class="card blue"><div>🗳️ إجمالي الحضور</div><div class="card-num" id="anim-total">0</div></div>
+    <div class="card green"><div>✅ الصحيحة</div><div class="card-num" id="anim-valid">0</div></div>
+    <div class="card red"><div>❌ الباطلة</div><div class="card-num" id="anim-invalid">0</div></div>
+    <div class="card purple"><div>📊 عدد اللجان</div><div class="card-num" id="anim-comm">0</div></div>
+    <div class="card yellow"><div>👥 المشاركة</div><div class="card-num" id="anim-part">0%</div></div>
+  `;
+  
+  animateValue("anim-total", 0, t.total, 800);
+  animateValue("anim-valid", 0, t.valid, 800);
+  animateValue("anim-invalid", 0, t.invalid, 800);
+  animateValue("anim-comm", 0, t.list.length, 800);
+  
+  const partPercent = t.total > 0 ? Math.round((t.valid / t.total) * 100) : 0;
+  setTimeout(() => {
+    document.getElementById("anim-part").textContent = partPercent + "%";
+  }, 800);
+  
+  renderChart(t);
+  renderRankingTable(t);
+  renderCommTable(t);
+  updateCompare();
+}
+
+function renderChart(t) {
+  const ctx = document.getElementById('mainChart').getContext('2d');
+  
+  let labels = [];
+  let data = [];
+  let colors = [];
+  
+  candidates.forEach(([id, name]) => {
+    labels.push(name);
+    data.push(t.cands[id] || 0);
+    colors.push(`hsl(${Math.random()*360}, 70%, 60%)`);
+  });
+  
+  if(chartInstance) chartInstance.destroy();
+  
+  chartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'عدد الأصوات',
+        data: data,
+        backgroundColor: colors,
+        borderColor: colors.map(c => c.replace('60%', '40%')),
+        borderWidth: 2
+      }]
+    },
+    options: {
+      indexAxis: 'x',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        datalabels: {
+          anchor: 'end',
+          align: 'top',
+          color: '#fff',
+          font: { weight: 'bold', size: 12 },
+          formatter: (val) => val
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { color: '#94a3b8', font: { family: 'Cairo' } },
+          grid: { color: '#334155' }
+        },
+        x: {
+          ticks: { color: '#94a3b8', font: { family: 'Cairo', size: 10 }, maxRotation: 45, minRotation: 45 },
+          grid: { display: false }
+        }
+      }
+    },
+    plugins: [ChartDataLabels]
+  });
+}
+
+function renderRankingTable(t) {
+  let arr = candidates.map(([id, name, emoji]) => ({
+    id, name, emoji,
+    votes: t.cands[id] || 0,
+    percent: t.valid > 0 ? ((t.cands[id] / (t.valid * 2)) * 100).toFixed(1) : 0
+  })).sort((a, b) => b.votes - a.votes);
+  
+  let tbody = "";
+  arr.forEach((c, i) => {
+    let medalColor = i === 0 ? '#fbbf24' : i === 1 ? '#94a3b8' : i === 2 ? '#b45309' : 'white';
+    tbody += `<tr>
+      <td style="color:${medalColor}; font-weight:bold;">${i+1}</td>
+      <td style="text-align:right;"><span style="font-size:1.3rem;">${c.emoji}</span> ${c.name}</td>
+      <td style="font-weight:bold; color:${medalColor};">${c.votes}</td>
+      <td style="color:var(--warning);">${c.percent}%</td>
+    </tr>`;
+  });
+  
+  document.querySelector("#cand-table tbody").innerHTML = tbody;
+}
+
+function renderCommTable(t) {
+  const sortValue = document.getElementById("log-sort").value;
+  const sorted = getSortedList(t.list, sortValue);
+  
+  let tbody = "";
+  sorted.forEach(c => {
+    const info = commMap[c.number] || {name: "غير معروف", address: ""};
+    tbody += `<tr>
+      <td><span class="comm-name">${c.number}. ${info.name}</span><span class="comm-addr">${info.address}</span></td>
+      <td style="color:var(--primary); font-weight:bold;">${c.totalVotes}</td>
+      <td style="color:var(--success); font-weight:bold;">${c.validVotes}</td>
+      <td style="color:var(--danger); font-weight:bold;">${c.invalidVotes}</td>
+    </tr>`;
+  });
+  
+  document.querySelector("#comm-table tbody").innerHTML = tbody;
+}
+
 function updateCompare() {
     const t = getTotals();
     const id1 = document.getElementById("comp1").value;
@@ -800,7 +922,6 @@ function showCommStats() {
     resBox.innerHTML = html;
 }
 
-// ======= دالة عرض المحضر مع إمكانية التعديل للأدمن =======
 function showMahdar() {
     const commId = parseInt(document.getElementById("mahdar-comm-select").value);
     const contentBox = document.getElementById("mahdar-content");
@@ -879,7 +1000,6 @@ function showMahdar() {
     contentBox.innerHTML = html;
 }
 
-// ======= دالة التعديل عند الضغط على أي رقم =======
 function editValue(element) {
     if(!isAdmin) return;
     
@@ -895,7 +1015,6 @@ function editValue(element) {
     element.querySelector('input').select();
 }
 
-// ======= دالة حفظ التعديل مع إعادة حساب الإحصائيات =======
 function saveEdit(input, field, commId) {
     const newValue = parseInt(input.value) || 0;
     const commData = allCommittees.find(c => c.number === commId);
@@ -905,7 +1024,6 @@ function saveEdit(input, field, commId) {
         return;
     }
     
-    // تحديث القيمة في البيانات المحلية
     if(field === 'totalVotes') {
         commData.totalVotes = newValue;
     } else if(field === 'validVotes') {
@@ -918,20 +1036,18 @@ function saveEdit(input, field, commId) {
         commData.candidates[candId] = newValue;
     }
     
-    // التحقق من صحة البيانات
     if(field === 'totalVotes' || field === 'validVotes' || field === 'invalidVotes') {
         if(commData.validVotes + commData.invalidVotes !== commData.totalVotes) {
             if(confirm("⚠️ تحذير: مجموع الصحيحة والباطلة لا يساوي الإجمالي!\nهل تريد المتابعة رغم ذلك؟")) {
                 saveToFirebase(commId, commData);
             } else {
-                showMahdar(); // إلغاء التعديل وإعادة العرض
+                showMahdar();
                 return;
             }
         } else {
             saveToFirebase(commId, commData);
         }
     } else if(field.startsWith('cand_')) {
-        // حساب مجموع أصوات المرشحين
         let totalCandVotes = 0;
         candidates.forEach(([id]) => {
             totalCandVotes += commData.candidates[id] || 0;
@@ -942,7 +1058,7 @@ function saveEdit(input, field, commId) {
             if(confirm(`⚠️ تحذير: مجموع أصوات المرشحين (${totalCandVotes}) لا يساوي ضعف الصحيحة (${expectedTotal})!\nهل تريد المتابعة رغم ذلك؟`)) {
                 saveToFirebase(commId, commData);
             } else {
-                showMahdar(); // إلغاء التعديل وإعادة العرض
+                showMahdar();
                 return;
             }
         } else {
@@ -963,10 +1079,7 @@ function saveToFirebase(commId, commData) {
         candidates: commData.candidates
     }, err => {
         if(!err) {
-            // إعادة عرض المحضر بالقيم الجديدة
             showMahdar();
-            // إعادة عرض كل الإحصائيات
-            renderAll();
         } else {
             alert("❌ خطأ في الحفظ: " + err);
         }
@@ -987,133 +1100,12 @@ function printMahdar() {
     section.classList.remove("section-to-print");
 }
 
-function exportMahdar() {
-    const commId = parseInt(document.getElementById("mahdar-comm-select").value);
-    if(!commId) { alert("اختر لجنة"); return; }
-    
-    const commData = allCommittees.find(c => c.number === commId);
-    if(!commData) { alert("لا توجد بيانات"); return; }
-    
-    const commInfo = commMap[commId];
-    const wb = XLSX.utils.book_new();
-    let wsData = [];
-    
-    const titleStyle = {
-        font: { bold: true, sz: 16, color: { rgb: "FFFFFF" }, name: "Cairo" },
-        fill: { fgColor: { rgb: "1e293b" } },
-        alignment: { horizontal: "center", vertical: "center" },
-        border: { top: { style: "thin", color: { rgb: "000000" } },
-                 bottom: { style: "thin", color: { rgb: "000000" } },
-                 left: { style: "thin", color: { rgb: "000000" } },
-                 right: { style: "thin", color: { rgb: "000000" } } }
-    };
-    
-    const infoLabelStyle = {
-        font: { bold: true, sz: 12, color: { rgb: "FFFFFF" }, name: "Cairo" },
-        fill: { fgColor: { rgb: "334155" } },
-        alignment: { horizontal: "right", vertical: "center" },
-        border: { top: { style: "thin", color: { rgb: "000000" } },
-                 bottom: { style: "thin", color: { rgb: "000000" } },
-                 left: { style: "thin", color: { rgb: "000000" } },
-                 right: { style: "thin", color: { rgb: "000000" } } }
-    };
-    
-    const infoValueStyle = {
-        font: { bold: true, sz: 14, color: { rgb: "3b82f6" }, name: "Cairo" },
-        fill: { fgColor: { rgb: "f1f5f9" } },
-        alignment: { horizontal: "center", vertical: "center" },
-        border: { top: { style: "thin", color: { rgb: "000000" } },
-                 bottom: { style: "thin", color: { rgb: "000000" } },
-                 left: { style: "thin", color: { rgb: "000000" } },
-                 right: { style: "thin", color: { rgb: "000000" } } }
-    };
-    
-    const candHeaderStyle = {
-        font: { bold: true, sz: 12, color: { rgb: "FFFFFF" }, name: "Cairo" },
-        fill: { fgColor: { rgb: "1e293b" } },
-        alignment: { horizontal: "center", vertical: "center" },
-        border: { top: { style: "thin", color: { rgb: "000000" } },
-                 bottom: { style: "thin", color: { rgb: "000000" } },
-                 left: { style: "thin", color: { rgb: "000000" } },
-                 right: { style: "thin", color: { rgb: "000000" } } }
-    };
-    
-    const candCellStyle = {
-        font: { sz: 11, color: { rgb: "000000" }, name: "Cairo" },
-        alignment: { horizontal: "center", vertical: "center" },
-        border: { top: { style: "thin", color: { rgb: "000000" } },
-                 bottom: { style: "thin", color: { rgb: "000000" } },
-                 left: { style: "thin", color: { rgb: "000000" } },
-                 right: { style: "thin", color: { rgb: "000000" } } }
-    };
-
-    wsData.push([{ v: `محضر اللجنة رقم ${commId}`, s: titleStyle }]);
-    wsData.push([{ v: "", s: titleStyle }]);
-    
-    wsData.push([
-        { v: commInfo.name, s: infoLabelStyle },
-        { v: "", s: infoLabelStyle }
-    ]);
-    wsData.push([
-        { v: commInfo.address, s: infoLabelStyle },
-        { v: "", s: infoLabelStyle }
-    ]);
-    wsData.push([{ v: "", s: infoLabelStyle }]);
-    
-    wsData.push([
-        { v: "البيان", s: candHeaderStyle },
-        { v: "العدد", s: candHeaderStyle }
-    ]);
-    
-    wsData.push([
-        { v: "إجمالي الحضور", s: infoLabelStyle },
-        { v: commData.totalVotes, s: infoValueStyle }
-    ]);
-    
-    wsData.push([
-        { v: "الأصوات الصحيحة", s: infoLabelStyle },
-        { v: commData.validVotes, s: infoValueStyle }
-    ]);
-    
-    wsData.push([
-        { v: "الأصوات الباطلة", s: infoLabelStyle },
-        { v: commData.invalidVotes, s: infoValueStyle }
-    ]);
-    
-    wsData.push([{ v: "", s: candHeaderStyle }]);
-    wsData.push([{ v: "", s: candHeaderStyle }]);
-    
-    wsData.push([
-        { v: "الرمز", s: candHeaderStyle },
-        { v: "المرشح", s: candHeaderStyle },
-        { v: "الأصوات", s: candHeaderStyle }
-    ]);
-    
-    candidates.forEach(([id, name, emoji]) => {
-        wsData.push([
-            { v: emoji, s: candCellStyle },
-            { v: `${id}. ${name}`, s: candCellStyle },
-            { v: commData.candidates[id] || 0, s: candCellStyle }
-        ]);
-    });
-
-    const ws = XLSX.utils.aoa_to_sheet(wsData);
-    
-    ws['!cols'] = [
-        { wch: 12 },
-        { wch: 35 },
-        { wch: 15 }
-    ];
-    
-    ws['!merges'] = [
-        { s: { r: 0, c: 0 }, e: { r: 0, c: 2 } },
-        { s: { r: 1, c: 0 }, e: { r: 1, c: 2 } }
-    ];
-    
-    XLSX.utils.book_append_sheet(wb, ws, `محضر لجنة ${commId}`);
-    saveStyledWorkbook(wb, `Mahdar_Committee_${commId}.xlsx`);
-    
-    alert("✅ تم تصدير المحضر بنجاح!");
+function printSection(sectionId) {
+    document.getElementById("p-date-val").textContent = new Date().toLocaleString("ar-EG");
+    const section = document.getElementById(sectionId);
+    section.classList.add("section-to-print");
+    window.print();
+    section.classList.remove("section-to-print");
 }
 
 function updateRegionsAnalysis() {
@@ -1187,64 +1179,15 @@ function updateRegionsAnalysis() {
     resBox.innerHTML = html;
 }
 
-function exportRegionsAnalysis() {
-    const candId = document.getElementById("region-cand-select").value;
-    const sortOrder = document.getElementById("region-sort").value;
-    if(!candId) { alert("اختر مرشحاً"); return; }
-    
-    const candName = candidates.find(c=>c[0]==candId)[1];
-    const t = getTotals();
-    
-    let regionStats = {};
-    for(let key in regions) {
-        regionStats[key] = 0;
-    }
-    
-    t.list.forEach(comm => {
-        const region = getRegionByCommittee(comm.number);
-        if(region && comm.candidates && comm.candidates[candId]) {
-            regionStats[region] += comm.candidates[candId];
+function resetData() {
+    if(!isAdmin) return;
+    if(confirm("⚠️⚠️⚠️\nتحذير خطير!\nهل أنت متأكد من حذف جميع البيانات؟\n\nهذا الإجراء لا يمكن التراجع عنه!")) {
+        if(prompt("اكتب 'حذف' للتأكيد:") === "حذف") {
+            db.ref("committees").remove(err => {
+                if(!err) { alert("✅ تم حذف جميع البيانات"); location.reload(); }
+            });
         }
-    });
-    
-    const totalVotes = Object.values(regionStats).reduce((a, b) => a + b, 0);
-    
-    let regionArray = [];
-    for(let key in regions) {
-        const reg = regions[key];
-        const votes = regionStats[key];
-        const percent = totalVotes > 0 ? ((votes / totalVotes) * 100).toFixed(1) : 0;
-        regionArray.push({
-            name: reg.name,
-            committees: reg.committees.length,
-            votes: votes,
-            percent: percent
-        });
     }
-    
-    if(sortOrder === "desc") {
-        regionArray.sort((a, b) => b.votes - a.votes);
-    } else if(sortOrder === "asc") {
-        regionArray.sort((a, b) => a.votes - b.votes);
-    }
-    
-    const wb = XLSX.utils.book_new();
-    let wsData = [];
-    
-    wsData.push(formatRow([`تحليل المناطق للمرشح: ${candName}`], true));
-    wsData.push(formatRow([`إجمالي الأصوات: ${totalVotes}`], false));
-    wsData.push(formatRow([""], false));
-    wsData.push(formatRow(["المنطقة", "عدد اللجان", "الأصوات", "النسبة %"], true));
-    
-    regionArray.forEach(reg => {
-        wsData.push(formatRow([reg.name, reg.committees, reg.votes, reg.percent + "%"], false));
-    });
-    
-    const ws = XLSX.utils.aoa_to_sheet(wsData);
-    ws['!cols'] = [{wch:20}, {wch:15}, {wch:15}, {wch:15}];
-    
-    XLSX.utils.book_append_sheet(wb, ws, "تحليل المناطق");
-    saveStyledWorkbook(wb, `Regions_${candName}.xlsx`);
 }
 
 const borderStyle = { style: "thin", color: { rgb: "000000" } };
@@ -1284,6 +1227,46 @@ function saveStyledWorkbook(wb, filename) {
     if(!wb.Workbook.Views) wb.Workbook.Views = [];
     wb.Workbook.Views[0] = { RTL: true };
     XLSX.writeFile(wb, filename);
+}
+
+function exportToExcel() {
+    const wb = XLSX.utils.book_new();
+    let wsData = [];
+
+    wsData.push(formatRow(["رقم اللجنة", "اسم اللجنة", "العنوان", "إجمالي", "صحيح", "باطل", "اليوم"], true));
+
+    for(let commNum = 1; commNum <= 60; commNum++) {
+        const commData = allCommittees.find(c => c.number === commNum);
+        const commInfo = commMap[commNum];
+        
+        if(commData) {
+            wsData.push(formatRow([
+                commNum,
+                commInfo.name,
+                commInfo.address,
+                commData.totalVotes,
+                commData.validVotes,
+                commData.invalidVotes,
+                commData.day === "day1" ? "اليوم الأول" : "اليوم الثاني"
+            ], false));
+        } else {
+            wsData.push(formatRow([
+                commNum,
+                commInfo.name,
+                commInfo.address,
+                "-",
+                "-",
+                "-",
+                "-"
+            ], false));
+        }
+    }
+
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    ws['!cols'] = [{wch:10}, {wch:20}, {wch:35}, {wch:10}, {wch:10}, {wch:10}, {wch:15}];
+    
+    XLSX.utils.book_append_sheet(wb, ws, "البيانات الكاملة");
+    saveStyledWorkbook(wb, "Complete_Data.xlsx");
 }
 
 function exportComparisonMatrix() {
@@ -1416,4 +1399,77 @@ function exportSpecificComm() {
     let arr = candidates.map(([id, name]) => ({
         name: name, 
         votes: commData.candidates[id] || 0, 
-        percent: commData.validVotes ? ((commData.candidates[id] / commData.vali
+        percent: commData.validVotes ? ((commData.candidates[id] / commData.validVotes) * 100).toFixed(1) : 0
+    })).sort((a,b) => b.votes - a.votes);
+    
+    arr.forEach((c, i) => {
+        wsData.push(formatRow([i+1, c.name, c.votes, c.percent + "%"], false));
+    });
+
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    ws['!cols'] = [{wch:10}, {wch:25}, {wch:15}, {wch:15}];
+    
+    XLSX.utils.book_append_sheet(wb, ws, `لجنة ${commId}`);
+    saveStyledWorkbook(wb, `Committee_${commId}.xlsx`);
+}
+
+function exportMahdar() {
+    const commId = parseInt(document.getElementById("mahdar-comm-select").value);
+    if(!commId) { alert("اختر لجنة"); return; }
+    
+    const commData = allCommittees.find(c => c.number === commId);
+    if(!commData) { alert("لا توجد بيانات"); return; }
+    
+    const commInfo = commMap[commId];
+    const wb = XLSX.utils.book_new();
+    let wsData = [];
+    
+    const titleStyle = {
+        font: { bold: true, sz: 16, color: { rgb: "FFFFFF" }, name: "Cairo" },
+        fill: { fgColor: { rgb: "1e293b" } },
+        alignment: { horizontal: "center", vertical: "center" },
+        border: mainBorders
+    };
+    
+    const infoLabelStyle = {
+        font: { bold: true, sz: 12, color: { rgb: "FFFFFF" }, name: "Cairo" },
+        fill: { fgColor: { rgb: "334155" } },
+        alignment: { horizontal: "right", vertical: "center" },
+        border: mainBorders
+    };
+    
+    const infoValueStyle = {
+        font: { bold: true, sz: 14, color: { rgb: "3b82f6" }, name: "Cairo" },
+        fill: { fgColor: { rgb: "f1f5f9" } },
+        alignment: { horizontal: "center", vertical: "center" },
+        border: mainBorders
+    };
+    
+    const candHeaderStyle = {
+        font: { bold: true, sz: 12, color: { rgb: "FFFFFF" }, name: "Cairo" },
+        fill: { fgColor: { rgb: "1e293b" } },
+        alignment: { horizontal: "center", vertical: "center" },
+        border: mainBorders
+    };
+    
+    const candCellStyle = {
+        font: { sz: 11, color: { rgb: "000000" }, name: "Cairo" },
+        alignment: { horizontal: "center", vertical: "center" },
+        border: mainBorders
+    };
+
+    wsData.push([{ v: `محضر اللجنة رقم ${commId}`, s: titleStyle }]);
+    wsData.push([{ v: "", s: titleStyle }]);
+    
+    wsData.push([
+        { v: commInfo.name, s: infoLabelStyle },
+        { v: "", s: infoLabelStyle }
+    ]);
+    wsData.push([
+        { v: commInfo.address, s: infoLabelStyle },
+        { v: "", s: infoLabelStyle }
+    ]);
+    wsData.push([{ v: "", s: infoLabelStyle }]);
+    
+    wsData.push([
+        { v: "البيان", s: candHeaderStyle },
