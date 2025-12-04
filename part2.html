@@ -88,6 +88,76 @@ header { text-align: center; margin-bottom: 25px; border-bottom: 1px solid #3341
 .region-name { font-weight: bold; font-size: 1rem; }
 .region-votes { font-size: 1.3rem; font-weight: bold; color: var(--warning); }
 
+.mahdar-header {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    border: 2px solid #475569;
+}
+.mahdar-title {
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--warning);
+    margin-bottom: 15px;
+}
+.mahdar-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+.mahdar-info-item {
+    background: var(--bg-input);
+    padding: 12px;
+    border-radius: 8px;
+    border-left: 3px solid var(--primary);
+}
+.mahdar-info-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 5px;
+}
+.mahdar-info-value {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--text-main);
+}
+.mahdar-candidates {
+    background: var(--bg-card);
+    padding: 20px;
+    border-radius: 12px;
+}
+.cand-result-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    margin-bottom: 8px;
+    background: var(--bg-input);
+    border-radius: 8px;
+    transition: 0.3s;
+}
+.cand-result-item:hover {
+    background: #475569;
+    transform: translateX(-5px);
+}
+.cand-result-name {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1rem;
+}
+.cand-result-emoji {
+    font-size: 1.5rem;
+}
+.cand-result-votes {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: var(--primary);
+}
+
 table { width: 100%; border-collapse: collapse; background: var(--bg-card); }
 th { background: #111827; padding: 12px; color: var(--text-muted); text-align: right; font-size: 0.9rem; }
 td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
@@ -339,7 +409,6 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
 </div>
 
 <script>
-// نفس commMap و regions كما في الكود الأصلي
 const commMap = {
   1: { name: "الفروسات", address: "مدرسة احمد القصبى الابتدائية" },
   2: { name: "الفروسات", address: "مدرسة احمد القصبى الابتدائية" },
@@ -486,12 +555,12 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// *** هنا التعديل الأساسي: 4 مرشحين فقط ***
+// المرشحون الأربعة فقط
 const candidates = [
-  ["1", "ايهاب العمدة", "👑"],    // رمز التاج
-  ["2", "أحمد الحديدي", "🦁"],   // رمز الأسد
-  ["3", "عادل الجيار", "🦅"],    // رمز الصقر
-  ["4", "البدوي جميز", "🐋"]     // رمز الحوت
+  ["1", "ايهاب العمدة", "👑"],    // التاج
+  ["2", "أحمد الحديدي", "🦁"],   // الأسد
+  ["3", "عادل الجيار", "🦅"],    // الصقر
+  ["4", "البدوي جميز", "🐋"]     // الحوت
 ];
 
 function populateSelects() {
@@ -550,13 +619,10 @@ document.getElementById("add-form").onsubmit = function(e) {
     sum += cand[id];
   });
   
-  // لو لسه ناوي تحافظ على اختيار 2 مرشح لكل ناخب، خليه كما هو، أو الغه لو عايز حرية كاملة:
-  // هنا ألغيت الشرط عشان جولة الإعادة غالباً صوت واحد:
-  /*
+  // قاعدة: كل ناخب يختار 2 مرشح
   if(sum !== (valid * 2)) {
       return alert("تنبيه: بما أن كل ناخب يختار 2 مرشح، يجب أن يكون مجموع أصوات المرشحين (" + sum + ") مساوياً لضعف الأصوات الصحيحة (" + (valid * 2) + ")");
   }
-  */
 
   db.ref("committees/" + num).set({
     number: num, totalVotes: total, validVotes: valid, invalidVotes: invalid, day: "all", candidates: cand
@@ -566,7 +632,6 @@ document.getElementById("add-form").onsubmit = function(e) {
 };
 
 function getTotals() {
-  // بما أنه لا يوجد يوم أول/ثاني، الكل في "all"
   const list = allCommittees;
   let t = { total:0, valid:0, invalid:0, cands:{}, list: list };
   candidates.forEach(([id]) => t.cands[id]=0);
@@ -819,6 +884,45 @@ function printMahdar() {
     section.classList.remove("section-to-print");
 }
 
+const borderStyle = { style: "thin", color: { rgb: "000000" } };
+const mainBorders = { top: borderStyle, bottom: borderStyle, left: borderStyle, right: borderStyle };
+
+const headerStyle = {
+    font: { bold: true, color: { rgb: "FFFFFF" }, sz: 12, name: "Cairo" },
+    fill: { fgColor: { rgb: "1e293b" } },
+    alignment: { horizontal: "center", vertical: "center" },
+    border: mainBorders
+};
+
+const cellStyle = {
+    font: { name: "Arial", sz: 11, color: { rgb: "000000" } },
+    alignment: { horizontal: "center", vertical: "center" },
+    border: mainBorders
+};
+
+const highlightStyle = {
+    font: { bold: true, name: "Arial", sz: 11, color: { rgb: "000000" } },
+    fill: { fgColor: { rgb: "fbbf24" } },
+    alignment: { horizontal: "center", vertical: "center" },
+    border: mainBorders
+};
+
+function formatRow(rowArray, isHeader = false, customStyle = null) {
+    return rowArray.map(val => {
+        return { 
+            v: val, 
+            s: customStyle ? customStyle : (isHeader ? headerStyle : cellStyle) 
+        };
+    });
+}
+
+function saveStyledWorkbook(wb, filename) {
+    if(!wb.Workbook) wb.Workbook = {};
+    if(!wb.Workbook.Views) wb.Workbook.Views = [];
+    wb.Workbook.Views[0] = { RTL: true };
+    XLSX.writeFile(wb, filename);
+}
+
 function exportMahdar() {
     const commId = parseInt(document.getElementById("mahdar-comm-select").value);
     if(!commId) { alert("اختر لجنة"); return; }
@@ -834,50 +938,25 @@ function exportMahdar() {
         font: { bold: true, sz: 16, color: { rgb: "FFFFFF" }, name: "Cairo" },
         fill: { fgColor: { rgb: "1e293b" } },
         alignment: { horizontal: "center", vertical: "center" },
-        border: { top: { style: "thin", color: { rgb: "000000" } },
-                 bottom: { style: "thin", color: { rgb: "000000" } },
-                 left: { style: "thin", color: { rgb: "000000" } },
-                 right: { style: "thin", color: { rgb: "000000" } } }
+        border: mainBorders
     };
     
     const infoLabelStyle = {
         font: { bold: true, sz: 12, color: { rgb: "FFFFFF" }, name: "Cairo" },
         fill: { fgColor: { rgb: "334155" } },
         alignment: { horizontal: "right", vertical: "center" },
-        border: { top: { style: "thin", color: { rgb: "000000" } },
-                 bottom: { style: "thin", color: { rgb: "000000" } },
-                 left: { style: "thin", color: { rgb: "000000" } },
-                 right: { style: "thin", color: { rgb: "000000" } } }
+        border: mainBorders
     };
     
     const infoValueStyle = {
         font: { bold: true, sz: 14, color: { rgb: "3b82f6" }, name: "Cairo" },
         fill: { fgColor: { rgb: "f1f5f9" } },
         alignment: { horizontal: "center", vertical: "center" },
-        border: { top: { style: "thin", color: { rgb: "000000" } },
-                 bottom: { style: "thin", color: { rgb: "000000" } },
-                 left: { style: "thin", color: { rgb: "000000" } },
-                 right: { style: "thin", color: { rgb: "000000" } } }
+        border: mainBorders
     };
     
-    const candHeaderStyle = {
-        font: { bold: true, sz: 12, color: { rgb: "FFFFFF" }, name: "Cairo" },
-        fill: { fgColor: { rgb: "1e293b" } },
-        alignment: { horizontal: "center", vertical: "center" },
-        border: { top: { style: "thin", color: { rgb: "000000" } },
-                 bottom: { style: "thin", color: { rgb: "000000" } },
-                 left: { style: "thin", color: { rgb: "000000" } },
-                 right: { style: "thin", color: { rgb: "000000" } } }
-    };
-    
-    const candCellStyle = {
-        font: { sz: 11, color: { rgb: "000000" }, name: "Cairo" },
-        alignment: { horizontal: "center", vertical: "center" },
-        border: { top: { style: "thin", color: { rgb: "000000" } },
-                 bottom: { style: "thin", color: { rgb: "000000" } },
-                 left: { style: "thin", color: { rgb: "000000" } },
-                 right: { style: "thin", color: { rgb: "000000" } } }
-    };
+    const candHeaderStyle = headerStyle;
+    const candCellStyle = cellStyle;
 
     wsData.push([{ v: `محضر اللجنة رقم ${commId}`, s: titleStyle }]);
     wsData.push([{ v: "", s: titleStyle }]);
@@ -1077,45 +1156,6 @@ function exportRegionsAnalysis() {
     
     XLSX.utils.book_append_sheet(wb, ws, "تحليل المناطق");
     saveStyledWorkbook(wb, `Regions_${candName}.xlsx`);
-}
-
-const borderStyle = { style: "thin", color: { rgb: "000000" } };
-const mainBorders = { top: borderStyle, bottom: borderStyle, left: borderStyle, right: borderStyle };
-
-const headerStyle = {
-    font: { bold: true, color: { rgb: "FFFFFF" }, sz: 12, name: "Cairo" },
-    fill: { fgColor: { rgb: "1e293b" } },
-    alignment: { horizontal: "center", vertical: "center" },
-    border: mainBorders
-};
-
-const cellStyle = {
-    font: { name: "Arial", sz: 11, color: { rgb: "000000" } },
-    alignment: { horizontal: "center", vertical: "center" },
-    border: mainBorders
-};
-
-const highlightStyle = {
-    font: { bold: true, name: "Arial", sz: 11, color: { rgb: "000000" } },
-    fill: { fgColor: { rgb: "fbbf24" } },
-    alignment: { horizontal: "center", vertical: "center" },
-    border: mainBorders
-};
-
-function formatRow(rowArray, isHeader = false, customStyle = null) {
-    return rowArray.map(val => {
-        return { 
-            v: val, 
-            s: customStyle ? customStyle : (isHeader ? headerStyle : cellStyle) 
-        };
-    });
-}
-
-function saveStyledWorkbook(wb, filename) {
-    if(!wb.Workbook) wb.Workbook = {};
-    if(!wb.Workbook.Views) wb.Workbook.Views = [];
-    wb.Workbook.Views[0] = { RTL: true };
-    XLSX.writeFile(wb, filename);
 }
 
 function exportComparisonMatrix() {
@@ -1386,27 +1426,27 @@ function renderAll() {
         borderWidth: 2
       }]
     },
-   options: {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: { 
-    legend: { display: false },
-    datalabels: {
-      anchor: 'center',
-      align: 'center',
-      color: '#ffffff',
-      font: {
-        weight: 'bold',
-        size: 16,
-        family: 'Cairo'
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { 
+        legend: { display: false },
+        datalabels: {
+          anchor: 'center',
+          align: 'center',
+          color: '#ffffff',
+          font: {
+            weight: 'bold',
+            size: 16,
+            family: 'Cairo'
+          },
+          formatter: function(value) {
+            return value;
+          }
+        }
       },
-      formatter: function(value) {
-        return value;
-      }
+      scales: { y: { beginAtZero: true } }
     }
-  },
-  scales: { y: { beginAtZero: true } }
-}
   });
   
   updateCompare();
