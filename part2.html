@@ -543,24 +543,26 @@ function loginNow() {
   }
 }
 
+// إعدادات Firebase الجديدة
 const firebaseConfig = {
-  apiKey: "AIzaSyARV_6b-JA6FkWE5EwqMZeLUi2D5ZGonDI",
-  authDomain: "natiga-16c46.firebaseapp.com",
-  databaseURL: "https://natiga-16c46-default-rtdb.firebaseio.com",
-  projectId: "natiga-16c46",
-  storageBucket: "natiga-16c46.firebasestorage.app",
-  messagingSenderId: "213324147570",
-  appId: "1:213324147570:web:3eff7ea7eddac2c5eb4beb"
+  apiKey: "AIzaSyDmZbk7WVAal2ZJIagWjsFQ8qRaj8tAtgg",
+  authDomain: "part-4a8bd.firebaseapp.com",
+  databaseURL: "https://part-4a8bd-default-rtdb.firebaseio.com",
+  projectId: "part-4a8bd",
+  storageBucket: "part-4a8bd.firebasestorage.app",
+  messagingSenderId: "221193653394",
+  appId: "1:221193653394:web:7d440bfc9dfd0a2c9faa4b",
+  measurementId: "G-K46GB707MS"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// المرشحون الأربعة فقط
+// المرشحون الأربعة حسب كشفك
 const candidates = [
-  ["1", "ايهاب العمدة", "👑"],    // التاج
-  ["2", "أحمد الحديدي", "🦁"],   // الأسد
-  ["3", "عادل الجيار", "🦅"],    // الصقر
-  ["4", "البدوي جميز", "🐋"]     // الحوت
+  ["1", "ايهاب العميري", "👑"],
+  ["2", "أحمد الحديدي", "🦁"],
+  ["3", "عادل الجيار", "🦅"],
+  ["4", "البدوي جميز", "🐋"]
 ];
 
 function populateSelects() {
