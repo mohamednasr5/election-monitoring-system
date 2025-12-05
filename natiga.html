@@ -183,6 +183,52 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
 .dev-link:hover { color: var(--accent); text-decoration: underline; }
 .dedication { color: var(--warning); font-weight: bold; display: block; margin-top: 10px; font-size: 1.1rem; }
 
+/* إضافات جديدة لنظام نقاط القوة والضعف */
+.strength-weakness-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+    gap: 15px; 
+    margin-top: 15px; 
+}
+.sw-card {
+    background: var(--bg-input);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-left: 5px solid;
+}
+.sw-card.strength {
+    border-left-color: var(--success);
+    background: linear-gradient(90deg, rgba(16, 185, 129, 0.1) 0%, transparent 100%);
+}
+.sw-card.weakness {
+    border-left-color: var(--danger);
+    background: linear-gradient(90deg, rgba(239, 68, 68, 0.1) 0%, transparent 100%);
+}
+.performance-indicator {
+    height: 8px;
+    border-radius: 4px;
+    background: #334155;
+    margin: 10px 0;
+    overflow: hidden;
+}
+.performance-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s ease;
+}
+.performance-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 5px;
+}
+.performance-value {
+    font-weight: bold;
+    color: var(--text-main);
+}
+
 @keyframes pulse-red {
   0% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(239, 68, 68, 0)); }
   50% { transform: scale(1.3); filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.8)); }
@@ -234,6 +280,38 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
   </header>
 
   <div class="stat-grid" id="stat-cards"></div>
+
+  <!-- قسم جديد: تحليل نقاط القوة والضعف -->
+  <div class="analysis-row">
+    <div class="analysis-box" style="grid-column: 1 / -1;">
+      <div class="box-header">
+          <span class="box-title">⚡ تحليل نقاط القوة والضعف للمرشحين الأوائل</span>
+          <div style="display:flex; gap:5px;">
+              <button class="mini-export-btn mini-print-btn" onclick="printSection('strength-weakness-section')">🖨️ طباعة</button>
+              <button class="mini-export-btn" onclick="exportStrengthWeaknessAnalysis()">📥 Excel</button>
+          </div>
+      </div>
+      
+      <div style="margin-bottom:15px;">
+        <select id="top-candidates-count" class="sort-select" onchange="updateStrengthWeaknessAnalysis()">
+          <option value="4">عرض الأربعة الأوائل</option>
+          <option value="8">عرض الثمانية الأوائل</option>
+          <option value="15">عرض جميع المرشحين</option>
+        </select>
+        <select id="sw-sort" class="sort-select" onchange="updateStrengthWeaknessAnalysis()">
+          <option value="votes">ترتيب حسب الأصوات</option>
+          <option value="strength">ترتيب حسب نقاط القوة</option>
+          <option value="weakness">ترتيب حسب نقاط الضعف</option>
+        </select>
+      </div>
+      
+      <div id="strength-weakness-section" style="min-height:200px;">
+        <div style="text-align:center; color:var(--text-muted); padding:50px;">
+          جاري تحليل بيانات المرشحين...
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div class="analysis-row">
     
@@ -358,6 +436,7 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
   <div style="display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap;">
     <button class="btn btn-export" onclick="exportToExcel()">📤 تصدير قاعدة البيانات كاملة</button>
     <button class="btn" style="background:#8b5cf6" onclick="exportComparisonMatrix()">📊 تصدير مصفوفة المقارنة الشاملة</button>
+    <button class="btn" style="background:#f59e0b" onclick="exportStrengthWeaknessAnalysis()">⚡ تصدير تحليل القوة والضعف</button>
     <button class="btn btn-danger admin-only" onclick="resetData()">🗑️ تصفير</button>
     <button class="btn" style="background:#8b5cf6" onclick="location.reload()">🔄 تحديث</button>
   </div>
@@ -488,32 +567,26 @@ const regions = {
     committees: [24, 25], 
     icon: "🟡" 
   },
-
   asafra: { 
     name: "العصافرة", 
     committees: [46, 47], 
     icon: "🟠" 
   },
-
   daher: { 
     name: "الضهير", 
     committees: [48], 
     icon: "🟤" 
   },
-
   matareya: { 
     name: "المطرية", 
     committees: [38,39,40,41,42,43,44,45,49,50,51,52], 
     icon: "🟢" 
   },
-
   manzoula: { 
     name: "قسم المنزلة",  
     committees: [53,54,55,56,57,58,59,60], 
     icon: "🔵" 
   },
-
-  // 👇👇 إضافة قرى مركز المنزلة من لجنة 1 إلى 37
   manzala_villages: {
     name: "قرى مركز المنزلة",
     committees: [
@@ -525,7 +598,6 @@ const regions = {
     icon: "🟣"
   }
 };
-
 
 function getRegionByCommittee(commNum) {
   for(let key in regions) {
@@ -688,6 +760,306 @@ function animateValue(id, start, end, duration) {
     }
   };
   window.requestAnimationFrame(step);
+}
+
+// دالة جديدة: تحليل نقاط القوة والضعف
+function updateStrengthWeaknessAnalysis() {
+    const t = getTotals();
+    const count = parseInt(document.getElementById("top-candidates-count").value);
+    const sortType = document.getElementById("sw-sort").value;
+    
+    let arr = candidates.map(([id,n,e]) => ({
+        id: id,
+        name: `${e} ${n}`,
+        fullName: n,
+        votes: t.cands[id] || 0,
+        percent: t.valid ? ((t.cands[id]/t.valid)*100).toFixed(1) : 0,
+        strengthPoints: 0,
+        weaknessPoints: 0,
+        committeesWon: [],
+        weakCommittees: []
+    }));
+    
+    // تحليل كل لجنة لتحديد الفائز والمركز الثاني
+    t.list.forEach(comm => {
+        if (!comm.candidates) return;
+        
+        // الحصول على نتائج المرشحين في هذه اللجنة
+        let commResults = candidates.map(([id]) => ({
+            id: id,
+            votes: comm.candidates[id] || 0,
+            percent: comm.validVotes ? ((comm.candidates[id] / comm.validVotes) * 100).toFixed(1) : 0
+        })).filter(r => r.votes > 0);
+        
+        // ترتيب النتائج تنازلياً
+        commResults.sort((a, b) => b.votes - a.votes);
+        
+        // منح نقاط القوة للفائز والمركز الثاني
+        if (commResults.length >= 1) {
+            const winner = arr.find(c => c.id === commResults[0].id);
+            if (winner) {
+                winner.strengthPoints += 3; // الفائز يحصل على 3 نقاط
+                winner.committeesWon.push({
+                    number: comm.number,
+                    name: commMap[comm.number]?.name || `لجنة ${comm.number}`,
+                    votes: commResults[0].votes,
+                    percent: commResults[0].percent,
+                    position: 1
+                });
+            }
+        }
+        
+        if (commResults.length >= 2) {
+            const second = arr.find(c => c.id === commResults[1].id);
+            if (second) {
+                second.strengthPoints += 1; // المركز الثاني يحصل على نقطة
+                second.committeesWon.push({
+                    number: comm.number,
+                    name: commMap[comm.number]?.name || `لجنة ${comm.number}`,
+                    votes: commResults[1].votes,
+                    percent: commResults[1].percent,
+                    position: 2
+                });
+            }
+        }
+        
+        // تحديد نقاط الضعف (النسبة أقل من 10%)
+        commResults.forEach(result => {
+            if (parseFloat(result.percent) < 10) {
+                const candidate = arr.find(c => c.id === result.id);
+                if (candidate) {
+                    candidate.weaknessPoints += 1;
+                    candidate.weakCommittees.push({
+                        number: comm.number,
+                        name: commMap[comm.number]?.name || `لجنة ${comm.number}`,
+                        votes: result.votes,
+                        percent: result.percent
+                    });
+                }
+            }
+        });
+    });
+    
+    // ترتيب المرشحين حسب الخيار المحدد
+    if (sortType === "votes") {
+        arr.sort((a, b) => b.votes - a.votes);
+    } else if (sortType === "strength") {
+        arr.sort((a, b) => b.strengthPoints - a.strengthPoints);
+    } else if (sortType === "weakness") {
+        arr.sort((a, b) => b.weaknessPoints - a.weaknessPoints);
+    }
+    
+    // أخذ العدد المطلوب فقط
+    const displayArr = arr.slice(0, count);
+    
+    // بناء واجهة العرض
+    let html = '<div class="strength-weakness-grid">';
+    
+    displayArr.forEach((cand, index) => {
+        const strengthColor = cand.strengthPoints > 0 ? '#10b981' : '#94a3b8';
+        const weaknessColor = cand.weaknessPoints > 0 ? '#ef4444' : '#94a3b8';
+        
+        html += `
+        <div style="background: var(--bg-input); border-radius: 12px; padding: 15px; margin-bottom: 15px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <div>
+                    <div style="font-weight: bold; font-size: 1.1rem; color: ${index < 4 ? '#fbbf24' : 'var(--text-main)'}">
+                        #${index + 1} ${cand.name}
+                    </div>
+                    <div style="font-size: 0.9rem; color: var(--text-muted)">
+                        ${cand.votes} صوت (${cand.percent}%)
+                    </div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 0.8rem; color: var(--text-muted)">نقاط القوة</div>
+                    <div style="font-size: 1.3rem; font-weight: bold; color: ${strengthColor}">${cand.strengthPoints}</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 0.8rem; color: var(--text-muted)">نقاط الضعف</div>
+                    <div style="font-size: 1.3rem; font-weight: bold; color: ${weaknessColor}">${cand.weaknessPoints}</div>
+                </div>
+            </div>
+            
+            <div class="performance-indicator">
+                <div class="performance-fill" style="width: ${(cand.strengthPoints / (cand.strengthPoints + cand.weaknessPoints)) * 100 || 50}%; background: linear-gradient(90deg, ${strengthColor}, ${weaknessColor});"></div>
+            </div>
+            
+            <div style="margin-top: 15px;">
+                ${cand.committeesWon.length > 0 ? `
+                <div style="font-size: 0.9rem; font-weight: bold; color: var(--success); margin-bottom: 5px;">
+                    ✓ قوة: فاز في ${cand.committeesWon.length} لجنة
+                </div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">
+                    ${cand.committeesWon.slice(0, 3).map(c => `لجنة ${c.number} (${c.percent}%)`).join('، ')}
+                    ${cand.committeesWon.length > 3 ? `و ${cand.committeesWon.length - 3} أخرى` : ''}
+                </div>
+                ` : ''}
+                
+                ${cand.weakCommittees.length > 0 ? `
+                <div style="font-size: 0.9rem; font-weight: bold; color: var(--danger); margin-bottom: 5px;">
+                    ✗ ضعف: نسبة أقل من 10% في ${cand.weakCommittees.length} لجنة
+                </div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">
+                    ${cand.weakCommittees.slice(0, 3).map(c => `لجنة ${c.number} (${c.percent}%)`).join('، ')}
+                    ${cand.weakCommittees.length > 3 ? `و ${cand.weakCommittees.length - 3} أخرى` : ''}
+                </div>
+                ` : cand.weaknessPoints === 0 ? `
+                <div style="font-size: 0.9rem; font-weight: bold; color: var(--success);">
+                    ✓ لا توجد نقاط ضعف (نسبة جيدة في جميع اللجان)
+                </div>
+                ` : ''}
+            </div>
+        </div>`;
+    });
+    
+    html += '</div>';
+    
+    document.getElementById("strength-weakness-section").innerHTML = html;
+    
+    // حفظ البيانات للتصدير
+    window.lastSWAnalysis = { arr: arr, displayArr: displayArr, t: t };
+}
+
+// دالة جديدة: تصدير تحليل القوة والضعف إلى Excel
+function exportStrengthWeaknessAnalysis() {
+    if (!window.lastSWAnalysis) {
+        alert("يجب تشغيل تحليل القوة والضعف أولاً");
+        return;
+    }
+    
+    const { arr, displayArr, t } = window.lastSWAnalysis;
+    const wb = XLSX.utils.book_new();
+    
+    // صفحة ملخص المرشحين
+    let summaryData = [];
+    summaryData.push(formatRow(["تحليل نقاط القوة والضعف للمرشحين"], true));
+    summaryData.push(formatRow([`تاريخ التقرير: ${new Date().toLocaleString("ar-EG")}`], false));
+    summaryData.push(formatRow([`عدد اللجان: ${t.list.length}`], false));
+    summaryData.push(formatRow([""], false));
+    
+    summaryData.push(formatRow([
+        "الترتيب", "المرشح", "الأصوات", "النسبة %", 
+        "نقاط القوة", "نقاط الضعف", "الفرق", "القوة/الضعف %"
+    ], true));
+    
+    displayArr.forEach((cand, index) => {
+        const strengthWeaknessRatio = cand.weaknessPoints > 0 ? 
+            ((cand.strengthPoints / cand.weaknessPoints) * 100).toFixed(1) : "عالية";
+        
+        summaryData.push(formatRow([
+            index + 1,
+            cand.fullName,
+            cand.votes,
+            cand.percent + "%",
+            cand.strengthPoints,
+            cand.weaknessPoints,
+            cand.strengthPoints - cand.weaknessPoints,
+            strengthWeaknessRatio + (strengthWeaknessRatio === "عالية" ? "" : "%")
+        ], false));
+    });
+    
+    const ws1 = XLSX.utils.aoa_to_sheet(summaryData);
+    ws1['!cols'] = [
+        { wch: 8 }, { wch: 30 }, { wch: 12 }, { wch: 12 },
+        { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 15 }
+    ];
+    XLSX.utils.book_append_sheet(wb, ws1, "الملخص");
+    
+    // صفحة تفاصيل نقاط القوة لكل مرشح
+    displayArr.forEach(cand => {
+        let detailData = [];
+        detailData.push(formatRow([`تفاصيل نقاط القوة والضعف للمرشح: ${cand.fullName}`], true));
+        detailData.push(formatRow([`الأصوات: ${cand.votes} | النسبة: ${cand.percent}%`], false));
+        detailData.push(formatRow([`نقاط القوة: ${cand.strengthPoints} | نقاط الضعف: ${cand.weaknessPoints}`], false));
+        detailData.push(formatRow([""], false));
+        
+        if (cand.committeesWon.length > 0) {
+            detailData.push(formatRow(["نقاط القوة - اللجان التي فاز فيها المرشح"], true));
+            detailData.push(formatRow(["الترتيب", "رقم اللجنة", "اسم اللجنة", "الأصوات", "النسبة %", "المركز"], true));
+            
+            cand.committeesWon.forEach((comm, idx) => {
+                detailData.push(formatRow([
+                    idx + 1,
+                    comm.number,
+                    comm.name,
+                    comm.votes,
+                    comm.percent + "%",
+                    comm.position === 1 ? "الأول" : "الثاني"
+                ], false));
+            });
+            detailData.push(formatRow([""], false));
+        }
+        
+        if (cand.weakCommittees.length > 0) {
+            detailData.push(formatRow(["نقاط الضعف - اللجان التي حصل فيها على أقل من 10%"], true));
+            detailData.push(formatRow(["الترتيب", "رقم اللجنة", "اسم اللجنة", "الأصوات", "النسبة %"], true));
+            
+            cand.weakCommittees.forEach((comm, idx) => {
+                detailData.push(formatRow([
+                    idx + 1,
+                    comm.number,
+                    comm.name,
+                    comm.votes,
+                    comm.percent + "%"
+                ], false));
+            });
+        } else {
+            detailData.push(formatRow(["لا توجد نقاط ضعف - أداء جيد في جميع اللجان"], true));
+        }
+        
+        const wsName = cand.fullName.substring(0, 30);
+        const ws = XLSX.utils.aoa_to_sheet(detailData);
+        ws['!cols'] = [
+            { wch: 8 }, { wch: 10 }, { wch: 30 }, { wch: 12 }, { wch: 12 }, { wch: 10 }
+        ];
+        XLSX.utils.book_append_sheet(wb, ws, wsName);
+    });
+    
+    // صفحة تحليل المناطق
+    let regionData = [];
+    regionData.push(formatRow(["تحليل المناطق للمرشحين الأوائل"], true));
+    regionData.push(formatRow([""], false));
+    
+    // رؤوس الأعمدة
+    let headerRow = ["المرشح", "إجمالي الأصوات"];
+    for(let key in regions) {
+        headerRow.push(regions[key].name);
+    }
+    regionData.push(formatRow(headerRow, true));
+    
+    // بيانات كل مرشح
+    displayArr.forEach(cand => {
+        let regionStats = {};
+        for(let key in regions) {
+            regionStats[key] = 0;
+        }
+        
+        t.list.forEach(comm => {
+            const region = getRegionByCommittee(comm.number);
+            if(region && comm.candidates && comm.candidates[cand.id]) {
+                regionStats[region] += comm.candidates[cand.id];
+            }
+        });
+        
+        let rowData = [cand.fullName, cand.votes];
+        for(let key in regions) {
+            const votes = regionStats[key];
+            const percent = cand.votes > 0 ? ((votes / cand.votes) * 100).toFixed(1) : 0;
+            rowData.push(`${votes} (${percent}%)`);
+        }
+        
+        regionData.push(formatRow(rowData, false));
+    });
+    
+    const ws3 = XLSX.utils.aoa_to_sheet(regionData);
+    ws3['!cols'] = [{ wch: 30 }, { wch: 15 }];
+    for(let i = 0; i < Object.keys(regions).length; i++) {
+        ws3['!cols'].push({ wch: 20 });
+    }
+    XLSX.utils.book_append_sheet(wb, ws3, "المناطق");
+    
+    saveStyledWorkbook(wb, "Strength_Weakness_Analysis.xlsx");
+    alert("✅ تم تصدير تحليل القوة والضعف بنجاح!");
 }
 
 function updateCompare() {
@@ -1154,7 +1526,7 @@ function exportRegionsAnalysis() {
     ws['!cols'] = [{wch:20}, {wch:15}, {wch:15}, {wch:15}];
     
     XLSX.utils.book_append_sheet(wb, ws, "تحليل المناطق");
-    saveStyledWorkbook(wb, `Regions_${candName}.xlsx`);
+    saveStyledWorkbook(wb, `Regions_${candName}.xlsx");
 }
 
 const borderStyle = { style: "thin", color: { rgb: "000000" } };
@@ -1491,6 +1863,7 @@ function renderAll() {
   });
   
   updateCompare();
+  updateStrengthWeaknessAnalysis();
 }
 
 function resetData() {
