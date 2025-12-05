@@ -212,6 +212,11 @@
   </button>
   <input type="file" id="file-up" style="display:none" accept="image/*" onchange="uploadFile()">
 
+  <!-- زر إرسال محضر اللجنة عبر واتساب -->
+  <button class="upload-btn" style="margin-top:10px; background:#25D366;" onclick="sendCommitteeReport()">
+    <i class="fa-brands fa-whatsapp"></i> إرسال محضر اللجنة على واتساب
+  </button>
+
   <a href="https://www.facebook.com/en.mohamed.nasr" target="_blank" class="footer-link">
     تم البرمجة بكل حب <i class="fa-solid fa-heart" style="color:#ef4444;"></i> من المهندس محمد حماد
   </a>
@@ -238,7 +243,6 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-// أضفنا update للقائمة
 import { getDatabase, ref, set, get, remove, update, onDisconnect, onValue, onChildAdded, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
 const firebaseConfig = {
@@ -484,6 +488,29 @@ window.uploadFile = function() {
   });
 };
 
+// ===== زر إرسال محضر اللجنة عبر واتساب =====
+window.sendCommitteeReport = function() {
+  if (!myCommittee || myCommittee < 1 || myCommittee > 60) {
+    alert("لم يتم تحديد رقم اللجنة بشكل صحيح.");
+    return;
+  }
+
+  // رقم الواتساب الدولي بدون علامة +
+  const phone = "201279934735";
+
+  // الرسالة التلقائية: لجنة رقم X
+  const message = `لجنة رقم ${myCommittee}`;
+
+  // ترميز النص ليتوافق مع عنوان URL
+  const encodedMsg = encodeURIComponent(message); // [web:9]
+
+  // رابط Click-to-Chat لواتساب
+  const waLink = `https://wa.me/${phone}?text=${encodedMsg}`; // [web:1][web:5][web:24]
+
+  // فتح الواتساب (موبايل: التطبيق، كمبيوتر: واتساب ويب)
+  window.open(waLink, "_blank");
+};
+
 // ----------------------------------------------------
 // ** MESSAGING **
 // ----------------------------------------------------
@@ -670,7 +697,3 @@ window.resetCommittee = window.resetCommittee;
 </script>
 </body>
 </html>
-
-
-
-
