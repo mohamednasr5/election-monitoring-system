@@ -231,6 +231,91 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
     color: var(--text-main);
 }
 
+/* إضافة توقع الفائزين */
+.prediction-card {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    border-radius: 12px;
+    padding: 20px;
+    border: 2px solid #475569;
+    margin-bottom: 20px;
+}
+.prediction-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+.prediction-option {
+    background: var(--bg-input);
+    padding: 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    text-align: center;
+}
+.prediction-option:hover {
+    background: #475569;
+    transform: translateY(-3px);
+}
+.prediction-option.selected {
+    border-color: var(--success);
+    background: rgba(16, 185, 129, 0.2);
+}
+.prediction-option.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.vote-btn {
+    background: var(--warning);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 25px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+.vote-btn:hover {
+    background: #d97706;
+    transform: translateY(-2px);
+}
+.vote-btn:disabled {
+    background: #64748b;
+    cursor: not-allowed;
+    transform: none;
+}
+.prediction-stats {
+    background: var(--bg-input);
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 20px;
+}
+.prediction-stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    margin-bottom: 8px;
+    background: #0f172a;
+    border-radius: 6px;
+}
+.prediction-progress {
+    height: 10px;
+    background: #334155;
+    border-radius: 5px;
+    overflow: hidden;
+    margin: 5px 0;
+}
+.prediction-progress-bar {
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.5s ease;
+}
+
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
   10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
@@ -271,11 +356,6 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
     <input type="password" id="login-pass" placeholder="أدخل كود الدخول" class="login-input" autocomplete="off" />
     <button class="login-btn" onclick="loginNow()">دخول</button>
     <div id="login-error" style="color:var(--danger); margin-top:10px; font-size:0.9rem;"></div>
-    <div style="margin-top:15px; font-size:0.8rem; color:var(--text-muted);">
-      <div>كود المدير: 742018</div>
-      <div>كود المشرف: 521988</div>
-      <div>كود الزائر: 123456</div>
-    </div>
   </div>
 </div>
 
@@ -293,6 +373,27 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
   </header>
 
   <div class="stat-grid" id="stat-cards"></div>
+
+  <!-- قسم جديد: توقع الفائزين في جولة الإعادة -->
+  <div class="analysis-row">
+    <div class="analysis-box" style="grid-column: 1 / -1;">
+      <div class="box-header">
+          <span class="box-title">🎯 توقع الفائزين في جولة الإعادة (اختر 2 من الأربعة الأوائل)</span>
+          <div style="display:flex; gap:5px;">
+              <button class="mini-export-btn mini-print-btn" onclick="printSection('prediction-section')">🖨️ طباعة</button>
+              <button class="mini-export-btn" onclick="exportPredictions()">📥 Excel</button>
+          </div>
+      </div>
+      
+      <div id="prediction-section" style="min-height:200px;">
+        <div class="prediction-card">
+          <div style="text-align:center; color:var(--text-muted); padding:20px;">
+            جاري تحميل بيانات المرشحين الأربعة الأوائل...
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- قسم جديد: تحليل نقاط القوة والضعف -->
   <div class="analysis-row">
@@ -450,6 +551,7 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
     <button class="btn btn-export" onclick="exportToExcel()">📤 تصدير قاعدة البيانات كاملة</button>
     <button class="btn" style="background:#8b5cf6" onclick="exportComparisonMatrix()">📊 تصدير مصفوفة المقارنة الشاملة</button>
     <button class="btn" style="background:#f59e0b" onclick="exportStrengthWeaknessAnalysis()">⚡ تصدير تحليل القوة والضعف</button>
+    <button class="btn" style="background:#ec4899" onclick="exportPredictions()">🎯 تصدير توقعات الفائزين</button>
     <button class="btn btn-danger admin-only" onclick="resetData()">🗑️ تصفير</button>
     <button class="btn" style="background:#8b5cf6" onclick="location.reload()">🔄 تحديث</button>
   </div>
@@ -622,34 +724,47 @@ function getRegionByCommittee(commNum) {
 }
 
 let isAdmin = false;
+let currentUserId = null;
 
 function loginNow() {
   const pass = document.getElementById("login-pass").value.trim();
   const errorDiv = document.getElementById("login-error");
   errorDiv.textContent = "";
 
-  // كلمات المرور المحددة
+  // كلمات المرور المحددة (غير ظاهرة للمستخدم)
   if (pass === "742018") {
     isAdmin = true;
+    currentUserId = "admin_" + Date.now();
     document.getElementById("login-screen").style.display = "none";
     document.getElementById("main-app").style.display = "block";
     document.querySelectorAll('.admin-only').forEach(e => e.style.display = 'block');
     errorDiv.textContent = "";
+    // حفظ جلسة المستخدم
+    localStorage.setItem('election_system_user', currentUserId);
+    localStorage.setItem('election_system_role', 'admin');
+    initializePredictionSystem();
   } else if (pass === "521988") {
     isAdmin = false;
+    currentUserId = "editor_" + Date.now();
     document.getElementById("login-screen").style.display = "none";
     document.getElementById("main-app").style.display = "block";
     document.querySelectorAll('.admin-only').forEach(e => e.style.display = 'none');
     errorDiv.textContent = "";
+    localStorage.setItem('election_system_user', currentUserId);
+    localStorage.setItem('election_system_role', 'editor');
+    initializePredictionSystem();
   } else if (pass === "123456") { // كود إضافي للزوار
     isAdmin = false;
+    currentUserId = "viewer_" + Date.now();
     document.getElementById("login-screen").style.display = "none";
     document.getElementById("main-app").style.display = "block";
     document.querySelectorAll('.admin-only').forEach(e => e.style.display = 'none');
     errorDiv.textContent = "";
+    localStorage.setItem('election_system_user', currentUserId);
+    localStorage.setItem('election_system_role', 'viewer');
+    initializePredictionSystem();
   } else {
     errorDiv.textContent = "❌ كود الدخول غير صحيح";
-    // هزة بصرية لصندوق الإدخال
     const input = document.getElementById("login-pass");
     input.style.borderColor = "var(--danger)";
     input.style.animation = "shake 0.5s ease";
@@ -975,7 +1090,312 @@ function updateStrengthWeaknessAnalysis() {
     window.lastSWAnalysis = { arr: arr, displayArr: displayArr, t: t };
 }
 
-// دالة جديدة: تصدير تحليل القوة والضعف إلى Excel
+// نظام التوقع - دالة جديدة
+let selectedCandidates = [];
+let topFourCandidates = [];
+let userPrediction = null;
+
+function initializePredictionSystem() {
+    updatePredictionDisplay();
+    
+    // الاستماع للتغييرات في توقعات المستخدمين
+    db.ref("predictions").on("value", function(snapshot) {
+        updatePredictionStats(snapshot.val());
+    });
+}
+
+function updatePredictionDisplay() {
+    const t = getTotals();
+    
+    // الحصول على الأربعة الأوائل
+    let arr = candidates.map(([id,n,e]) => ({
+        id: id,
+        name: `${e} ${n}`,
+        fullName: n,
+        votes: t.cands[id] || 0,
+        percent: t.valid ? ((t.cands[id]/t.valid)*100).toFixed(1) : 0
+    })).sort((a,b) => b.votes - a.votes).slice(0, 4);
+    
+    topFourCandidates = arr;
+    
+    // التحقق إذا كان المستخدم قد توقع سابقاً
+    const userId = localStorage.getItem('election_system_user');
+    if (userId) {
+        db.ref("predictions/" + userId).once("value", function(snapshot) {
+            if (snapshot.exists()) {
+                userPrediction = snapshot.val();
+                selectedCandidates = userPrediction.selectedCandidates || [];
+                updatePredictionUI();
+            } else {
+                updatePredictionUI();
+            }
+        });
+    }
+    
+    updatePredictionUI();
+}
+
+function updatePredictionUI() {
+    const container = document.getElementById("prediction-section");
+    if (!container) return;
+    
+    let html = `
+    <div class="prediction-card">
+        <div style="text-align:center; margin-bottom:20px;">
+            <h3 style="color:var(--warning); margin-bottom:10px;">🎯 توقع الفائزين في جولة الإعادة</h3>
+            <p style="color:var(--text-muted);">اختر مرشحين اثنين من الأربعة الأوائل الذين تعتقد أنهم سيفوزون في جولة الإعادة</p>
+        </div>
+        
+        <div class="prediction-options" id="prediction-options">
+    `;
+    
+    topFourCandidates.forEach((cand, index) => {
+        const isSelected = selectedCandidates.includes(cand.id);
+        const isDisabled = selectedCandidates.length >= 2 && !isSelected;
+        
+        html += `
+        <div class="prediction-option ${isSelected ? 'selected' : ''} ${isDisabled ? 'disabled' : ''}" 
+             onclick="${!isDisabled ? `selectCandidate('${cand.id}')` : ''}" 
+             data-candidate-id="${cand.id}">
+            <div style="font-size:1.5rem; margin-bottom:10px;">${cand.name.split(' ')[0]}</div>
+            <div style="font-weight:bold; font-size:1.1rem; margin-bottom:5px;">${cand.fullName}</div>
+            <div style="color:var(--text-muted); font-size:0.9rem;">${cand.votes} صوت (${cand.percent}%)</div>
+            <div style="color:var(--warning); font-size:0.8rem; margin-top:5px;">الترتيب: #${index + 1}</div>
+            ${isSelected ? '<div style="color:var(--success); margin-top:10px;">✓ مختار</div>' : ''}
+        </div>
+        `;
+    });
+    
+    html += `
+        </div>
+        
+        <div style="text-align:center; margin-top:20px;">
+            <div style="color:var(--text-muted); margin-bottom:10px;">
+                اختر ${selectedCandidates.length}/2 مرشحين
+            </div>
+            <button class="vote-btn" onclick="submitPrediction()" ${selectedCandidates.length !== 2 ? 'disabled' : ''}>
+                ${userPrediction ? '🔄 تحديث التوقع' : '✅ تأكيد التوقع'}
+            </button>
+        </div>
+        
+        <div id="prediction-stats-container" style="margin-top:25px;">
+            <!-- سيتم ملء الإحصائيات هنا -->
+        </div>
+    </div>
+    `;
+    
+    container.innerHTML = html;
+}
+
+function selectCandidate(candidateId) {
+    if (selectedCandidates.includes(candidateId)) {
+        // إلغاء التحديد
+        selectedCandidates = selectedCandidates.filter(id => id !== candidateId);
+    } else {
+        // التحديد
+        if (selectedCandidates.length < 2) {
+            selectedCandidates.push(candidateId);
+        }
+    }
+    
+    updatePredictionUI();
+}
+
+function submitPrediction() {
+    if (selectedCandidates.length !== 2) {
+        alert("⚠️ يجب اختيار مرشحين اثنين فقط");
+        return;
+    }
+    
+    const userId = localStorage.getItem('election_system_user');
+    if (!userId) {
+        alert("⚠️ يرجى تسجيل الدخول أولاً");
+        return;
+    }
+    
+    const predictionData = {
+        selectedCandidates: selectedCandidates,
+        timestamp: new Date().toISOString(),
+        userType: localStorage.getItem('election_system_role') || 'unknown'
+    };
+    
+    db.ref("predictions/" + userId).set(predictionData, function(error) {
+        if (error) {
+            alert("❌ حدث خطأ أثناء حفظ التوقع");
+        } else {
+            alert("✅ تم حفظ توقعك بنجاح!");
+            userPrediction = predictionData;
+            updatePredictionUI();
+        }
+    });
+}
+
+function updatePredictionStats(predictionsData) {
+    if (!predictionsData) return;
+    
+    const container = document.getElementById("prediction-stats-container");
+    if (!container) return;
+    
+    // حساب إحصائيات التوقع
+    const stats = {};
+    let totalVotes = 0;
+    
+    // تهيئة الإحصائيات
+    topFourCandidates.forEach(cand => {
+        stats[cand.id] = {
+            name: cand.fullName,
+            emoji: cand.name.split(' ')[0],
+            votes: 0
+        };
+    });
+    
+    // جمع التصويتات
+    Object.values(predictionsData).forEach(prediction => {
+        if (prediction.selectedCandidates) {
+            prediction.selectedCandidates.forEach(candidateId => {
+                if (stats[candidateId]) {
+                    stats[candidateId].votes++;
+                    totalVotes++;
+                }
+            });
+        }
+    });
+    
+    // تحويل إلى مصفوفة وترتيبها
+    const statsArray = Object.values(stats).sort((a, b) => b.votes - a.votes);
+    
+    let html = `
+    <div class="prediction-stats">
+        <div style="text-align:center; margin-bottom:15px;">
+            <h4 style="color:var(--primary);">📊 إحصائيات التوقعات (${Object.keys(predictionsData).length} مشاركة)</h4>
+        </div>
+    `;
+    
+    if (totalVotes > 0) {
+        statsArray.forEach(stat => {
+            const percentage = totalVotes > 0 ? ((stat.votes / totalVotes) * 100).toFixed(1) : 0;
+            const color = percentage > 40 ? '#10b981' : percentage > 20 ? '#f59e0b' : '#ef4444';
+            
+            html += `
+            <div class="prediction-stat-item">
+                <div style="display:flex; align-items:center;">
+                    <div style="font-size:1.5rem; margin-left:10px;">${stat.emoji}</div>
+                    <div>
+                        <div style="font-weight:bold;">${stat.name}</div>
+                        <div style="font-size:0.8rem; color:var(--text-muted);">${stat.votes} تصويت</div>
+                    </div>
+                </div>
+                <div style="text-align:left; min-width:60px;">
+                    <div style="font-weight:bold; color:${color};">${percentage}%</div>
+                </div>
+            </div>
+            <div class="prediction-progress">
+                <div class="prediction-progress-bar" style="width: ${percentage}%; background: ${color};"></div>
+            </div>
+            `;
+        });
+    } else {
+        html += `
+        <div style="text-align:center; color:var(--text-muted); padding:20px;">
+            لا توجد توقعات مسجلة بعد
+        </div>
+        `;
+    }
+    
+    html += `</div>`;
+    
+    container.innerHTML = html;
+}
+
+function exportPredictions() {
+    db.ref("predictions").once("value", function(snapshot) {
+        const predictionsData = snapshot.val();
+        if (!predictionsData) {
+            alert("لا توجد توقعات مسجلة");
+            return;
+        }
+        
+        const wb = XLSX.utils.book_new();
+        
+        // صفحة إحصائيات التوقع
+        let statsData = [];
+        statsData.push(formatRow(["إحصائيات توقعات الفائزين في جولة الإعادة"], true));
+        statsData.push(formatRow([`تاريخ التقرير: ${new Date().toLocaleString("ar-EG")}`], false));
+        statsData.push(formatRow([`عدد المشاركين: ${Object.keys(predictionsData).length}`], false));
+        statsData.push(formatRow([""], false));
+        
+        // حساب الإحصائيات
+        const stats = {};
+        let totalVotes = 0;
+        
+        // تهيئة الإحصائيات
+        topFourCandidates.forEach(cand => {
+            stats[cand.id] = {
+                name: cand.fullName,
+                votes: 0
+            };
+        });
+        
+        // جمع التصويتات
+        Object.values(predictionsData).forEach(prediction => {
+            if (prediction.selectedCandidates) {
+                prediction.selectedCandidates.forEach(candidateId => {
+                    if (stats[candidateId]) {
+                        stats[candidateId].votes++;
+                        totalVotes++;
+                    }
+                });
+            }
+        });
+        
+        statsData.push(formatRow(["الترتيب", "المرشح", "عدد التصويتات", "النسبة %"], true));
+        
+        const statsArray = Object.values(stats).sort((a, b) => b.votes - a.votes);
+        statsArray.forEach((stat, index) => {
+            const percentage = totalVotes > 0 ? ((stat.votes / totalVotes) * 100).toFixed(1) : 0;
+            statsData.push(formatRow([
+                index + 1,
+                stat.name,
+                stat.votes,
+                percentage + "%"
+            ], false));
+        });
+        
+        const ws1 = XLSX.utils.aoa_to_sheet(statsData);
+        ws1['!cols'] = [{ wch: 8 }, { wch: 30 }, { wch: 15 }, { wch: 12 }];
+        XLSX.utils.book_append_sheet(wb, ws1, "إحصائيات التوقع");
+        
+        // صفحة تفاصيل التوقعات
+        let detailsData = [];
+        detailsData.push(formatRow(["تفاصيل توقعات جميع المستخدمين"], true));
+        detailsData.push(formatRow([""], false));
+        detailsData.push(formatRow(["المستخدم", "المرشح الأول", "المرشح الثاني", "التاريخ", "النوع"], true));
+        
+        Object.entries(predictionsData).forEach(([userId, prediction]) => {
+            const cand1 = candidates.find(c => c[0] === prediction.selectedCandidates[0]);
+            const cand2 = candidates.find(c => c[0] === prediction.selectedCandidates[1]);
+            
+            if (cand1 && cand2) {
+                const date = new Date(prediction.timestamp).toLocaleString("ar-EG");
+                detailsData.push(formatRow([
+                    userId.substring(0, 8) + "...",
+                    cand1[1],
+                    cand2[1],
+                    date,
+                    prediction.userType
+                ], false));
+            }
+        });
+        
+        const ws2 = XLSX.utils.aoa_to_sheet(detailsData);
+        ws2['!cols'] = [{ wch: 15 }, { wch: 25 }, { wch: 25 }, { wch: 25 }, { wch: 12 }];
+        XLSX.utils.book_append_sheet(wb, ws2, "التفاصيل");
+        
+        saveStyledWorkbook(wb, "Predictions_Analysis.xlsx");
+        alert("✅ تم تصدير بيانات التوقعات بنجاح!");
+    });
+}
+
 function exportStrengthWeaknessAnalysis() {
     if (!window.lastSWAnalysis) {
         alert("يجب تشغيل تحليل القوة والضعف أولاً");
@@ -1919,6 +2339,7 @@ function renderAll() {
   
   updateCompare();
   updateStrengthWeaknessAnalysis();
+  updatePredictionDisplay();
 }
 
 function resetData() {
@@ -1950,19 +2371,25 @@ window.addEventListener('load', function() {
   // تركيز على حقل كلمة المرور عند تحميل الصفحة
   document.getElementById("login-pass").focus();
   
-  // إضافة شرح لكلمات المرور
-  const loginBox = document.querySelector('.login-box');
-  const infoDiv = document.createElement('div');
-  infoDiv.style.marginTop = '15px';
-  infoDiv.style.fontSize = '0.8rem';
-  infoDiv.style.color = 'var(--text-muted)';
-  infoDiv.innerHTML = `
-    <div style="margin-bottom:5px;">🔐 أكواد الدخول:</div>
-    <div>• المدير: 742018 (صلاحيات كاملة)</div>
-    <div>• المشرف: 521988 (عرض فقط)</div>
-    <div>• الزائر: 123456 (عرض فقط)</div>
-  `;
-  loginBox.appendChild(infoDiv);
+  // التحقق إذا كان المستخدم مسجل الدخول مسبقاً
+  const savedUser = localStorage.getItem('election_system_user');
+  const savedRole = localStorage.getItem('election_system_role');
+  
+  if (savedUser && savedRole) {
+    // محاكاة تسجيل الدخول التلقائي
+    isAdmin = savedRole === 'admin';
+    currentUserId = savedUser;
+    document.getElementById("login-screen").style.display = "none";
+    document.getElementById("main-app").style.display = "block";
+    
+    if (isAdmin) {
+      document.querySelectorAll('.admin-only').forEach(e => e.style.display = 'block');
+    } else {
+      document.querySelectorAll('.admin-only').forEach(e => e.style.display = 'none');
+    }
+    
+    initializePredictionSystem();
+  }
 });
 
 </script>
