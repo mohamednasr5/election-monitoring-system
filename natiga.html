@@ -34,8 +34,10 @@ header { text-align: center; margin-bottom: 25px; border-bottom: 1px solid #3341
 
 .login-screen { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.95); z-index: 999; display: flex; align-items: center; justify-content: center; }
 .login-box { background: var(--bg-card); padding: 40px; border-radius: 16px; width: 100%; max-width: 400px; text-align: center; border: 1px solid #334155; }
-.login-input { width: 100%; padding: 12px; background: var(--bg-input); border: none; color: white; border-radius: 8px; margin-bottom: 15px; text-align: center; font-size: 1.1rem; }
-.login-btn { width: 100%; padding: 12px; background: var(--success); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+.login-input { width: 100%; padding: 12px; background: var(--bg-input); border: none; color: white; border-radius: 8px; margin-bottom: 15px; text-align: center; font-size: 1.1rem; transition: all 0.3s ease; }
+.login-input:focus { border: 2px solid var(--primary); }
+.login-btn { width: 100%; padding: 12px; background: var(--success); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; }
+.login-btn:hover { background: #059669; transform: translateY(-2px); }
 
 .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 25px; }
 .card { 
@@ -229,6 +231,12 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
     color: var(--text-main);
 }
 
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
 @keyframes pulse-red {
   0% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(239, 68, 68, 0)); }
   50% { transform: scale(1.3); filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.8)); }
@@ -259,10 +267,15 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
 
 <div id="login-screen" class="login-screen">
   <div class="login-box">
-    <h2>🔐 دخول النظام</h2>
-    <input type="password" id="login-pass" placeholder="كود الدخول" class="login-input" />
+    <h2 style="color:var(--primary); margin-bottom:20px;">🔐 دخول النظام</h2>
+    <input type="password" id="login-pass" placeholder="أدخل كود الدخول" class="login-input" autocomplete="off" />
     <button class="login-btn" onclick="loginNow()">دخول</button>
-    <div id="login-error" style="color:red; margin-top:10px"></div>
+    <div id="login-error" style="color:var(--danger); margin-top:10px; font-size:0.9rem;"></div>
+    <div style="margin-top:15px; font-size:0.8rem; color:var(--text-muted);">
+      <div>كود المدير: 742018</div>
+      <div>كود المشرف: 521988</div>
+      <div>كود الزائر: 123456</div>
+    </div>
   </div>
 </div>
 
@@ -611,21 +624,49 @@ function getRegionByCommittee(commNum) {
 let isAdmin = false;
 
 function loginNow() {
-  const pass = document.getElementById("login-pass").value;
-  if(pass === "742018") {
+  const pass = document.getElementById("login-pass").value.trim();
+  const errorDiv = document.getElementById("login-error");
+  errorDiv.textContent = "";
+
+  // كلمات المرور المحددة
+  if (pass === "742018") {
     isAdmin = true;
-    document.getElementById("login-screen").style.display="none";
-    document.getElementById("main-app").style.display="block";
+    document.getElementById("login-screen").style.display = "none";
+    document.getElementById("main-app").style.display = "block";
     document.querySelectorAll('.admin-only').forEach(e => e.style.display = 'block');
-  } else if(pass === "521988") {
+    errorDiv.textContent = "";
+  } else if (pass === "521988") {
     isAdmin = false;
-    document.getElementById("login-screen").style.display="none";
-    document.getElementById("main-app").style.display="block";
+    document.getElementById("login-screen").style.display = "none";
+    document.getElementById("main-app").style.display = "block";
     document.querySelectorAll('.admin-only').forEach(e => e.style.display = 'none');
-  } else { 
-    document.getElementById("login-error").textContent = "❌ كود خطأ"; 
+    errorDiv.textContent = "";
+  } else if (pass === "123456") { // كود إضافي للزوار
+    isAdmin = false;
+    document.getElementById("login-screen").style.display = "none";
+    document.getElementById("main-app").style.display = "block";
+    document.querySelectorAll('.admin-only').forEach(e => e.style.display = 'none');
+    errorDiv.textContent = "";
+  } else {
+    errorDiv.textContent = "❌ كود الدخول غير صحيح";
+    // هزة بصرية لصندوق الإدخال
+    const input = document.getElementById("login-pass");
+    input.style.borderColor = "var(--danger)";
+    input.style.animation = "shake 0.5s ease";
+    setTimeout(() => {
+      input.style.animation = "";
+      input.value = "";
+      input.focus();
+    }, 500);
   }
 }
+
+// إضافة مستمع حدث للضغط على Enter في حقل كلمة المرور
+document.getElementById("login-pass").addEventListener("keypress", function(e) {
+  if (e.key === "Enter") {
+    loginNow();
+  }
+});
 
 const firebaseConfig = {
   apiKey: "AIzaSyARV_6b-JA6FkWE5EwqMZeLUi2D5ZGonDI",
@@ -636,7 +677,15 @@ const firebaseConfig = {
   messagingSenderId: "213324147570",
   appId: "1:213324147570:web:3eff7ea7eddac2c5eb4beb"
 };
-firebase.initializeApp(firebaseConfig);
+
+try {
+  firebase.initializeApp(firebaseConfig);
+} catch (err) {
+  if (!/already exists/.test(err.message)) {
+    console.error("Firebase initialization error", err.stack);
+  }
+}
+
 const db = firebase.database();
 
 const candidates = [
@@ -710,7 +759,13 @@ document.getElementById("add-form").onsubmit = function(e) {
   db.ref("committees/" + num).set({
     number: num, totalVotes: total, validVotes: valid, invalidVotes: invalid, day: dt.get("add_day"), candidates: cand
   }, err => {
-      if(!err) { alert("✅ تم الحفظ"); e.target.reset(); document.getElementById("comm-name-hint").textContent=""; }
+      if(!err) { 
+        alert("✅ تم الحفظ"); 
+        e.target.reset(); 
+        document.getElementById("comm-name-hint").textContent="";
+      } else {
+        alert("❌ حدث خطأ أثناء الحفظ");
+      }
   });
 };
 
@@ -1526,7 +1581,7 @@ function exportRegionsAnalysis() {
     ws['!cols'] = [{wch:20}, {wch:15}, {wch:15}, {wch:15}];
     
     XLSX.utils.book_append_sheet(wb, ws, "تحليل المناطق");
-    saveStyledWorkbook(wb, `Regions_${candName}.xlsx");
+    saveStyledWorkbook(wb, `Regions_${candName}.xlsx`);
 }
 
 const borderStyle = { style: "thin", color: { rgb: "000000" } };
@@ -1889,6 +1944,26 @@ function printSection(sectionId) {
     window.print();
     section.classList.remove("section-to-print");
 }
+
+// تشغيل التهيئة عند تحميل الصفحة
+window.addEventListener('load', function() {
+  // تركيز على حقل كلمة المرور عند تحميل الصفحة
+  document.getElementById("login-pass").focus();
+  
+  // إضافة شرح لكلمات المرور
+  const loginBox = document.querySelector('.login-box');
+  const infoDiv = document.createElement('div');
+  infoDiv.style.marginTop = '15px';
+  infoDiv.style.fontSize = '0.8rem';
+  infoDiv.style.color = 'var(--text-muted)';
+  infoDiv.innerHTML = `
+    <div style="margin-bottom:5px;">🔐 أكواد الدخول:</div>
+    <div>• المدير: 742018 (صلاحيات كاملة)</div>
+    <div>• المشرف: 521988 (عرض فقط)</div>
+    <div>• الزائر: 123456 (عرض فقط)</div>
+  `;
+  loginBox.appendChild(infoDiv);
+});
 
 </script>
 </body>
