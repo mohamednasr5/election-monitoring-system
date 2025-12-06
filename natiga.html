@@ -455,38 +455,35 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
 .clickable-strength:hover {
     background: rgba(16, 185, 129, 0.2);
     transform: scale(1.05);
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
 }
 
 .clickable-weakness:hover {
     background: rgba(239, 68, 68, 0.2);
     transform: scale(1.05);
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
 }
 
-.committees-modal {
+/* مودال اللجان العائم */
+.committees-floating-panel {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-
-.modal-content {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     background: var(--bg-card);
+    border-radius: 16px;
+    padding: 25px;
     width: 90%;
     max-width: 800px;
     max-height: 80vh;
-    border-radius: 16px;
-    padding: 25px;
     overflow-y: auto;
+    z-index: 9999;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
     border: 2px solid var(--primary);
+    display: none;
 }
 
-.modal-header {
+.committees-panel-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -495,13 +492,13 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
     border-bottom: 1px solid #334155;
 }
 
-.modal-title {
+.committees-panel-title {
     font-size: 1.4rem;
     color: var(--warning);
     font-weight: bold;
 }
 
-.close-modal {
+.close-panel {
     background: var(--danger);
     color: white;
     border: none;
@@ -516,18 +513,19 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
     transition: 0.3s;
 }
 
-.close-modal:hover {
+.close-panel:hover {
     background: #dc2626;
     transform: rotate(90deg);
 }
 
-.modal-committees-list {
+.committees-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 10px;
+    margin-top: 15px;
 }
 
-.modal-committee-item {
+.committee-item {
     background: var(--bg-input);
     padding: 12px;
     border-radius: 8px;
@@ -535,34 +533,69 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
     transition: 0.3s;
 }
 
-.modal-committee-item.weak {
+.committee-item.weak {
     border-left-color: var(--danger);
 }
 
-.modal-committee-item:hover {
+.committee-item:hover {
     transform: translateY(-3px);
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 
-.modal-comm-num {
+.committee-num {
     font-weight: bold;
     color: var(--primary);
     font-size: 1.1rem;
 }
 
-.modal-comm-name {
+.committee-name {
     font-size: 0.9rem;
     color: var(--text-main);
     margin: 5px 0;
 }
 
-.modal-comm-votes {
+.committee-address {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 5px;
+}
+
+.committee-votes {
     font-size: 0.85rem;
     color: var(--text-muted);
 }
 
-.modal-comm-votes strong {
+.committee-votes strong {
     color: var(--warning);
+}
+
+.committee-position {
+    display: inline-block;
+    background: var(--primary);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    margin-top: 5px;
+}
+
+.committee-position.first {
+    background: var(--warning);
+}
+
+.committee-position.second {
+    background: #64748b;
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 9998;
+    display: none;
 }
 
 @media print {
@@ -576,21 +609,20 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
   th { background-color: #eee !important; }
   .table-scroll-wrapper { max-height: none !important; overflow: visible !important; }
   #print-date-footer { display: block !important; text-align: center; margin-top: 20px; }
-  .committees-modal { display: none !important; }
+  .committees-floating-panel, .overlay { display: none !important; }
 }
 </style>
 </head>
 <body>
 
-<!-- Modal for showing committees -->
-<div id="committees-modal" class="committees-modal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <div class="modal-title" id="modal-title"></div>
-      <button class="close-modal" onclick="closeModal()">×</button>
-    </div>
-    <div id="modal-committees-content"></div>
+<!-- لوحة عائمة لعرض اللجان -->
+<div id="committees-overlay" class="overlay" onclick="closeCommitteesPanel()"></div>
+<div id="committees-floating-panel" class="committees-floating-panel">
+  <div class="committees-panel-header">
+    <div class="committees-panel-title" id="panel-title"></div>
+    <button class="close-panel" onclick="closeCommitteesPanel()">×</button>
   </div>
+  <div id="committees-list-content"></div>
 </div>
 
 <div id="login-screen" class="login-screen">
@@ -1534,12 +1566,18 @@ function displayDetailedComparison(winners, notSelected) {
 
 // ==================== دوال جديدة لعرض اللجان عند الضغط ====================
 
-function showCommitteesModal(title, committees, isStrength = true) {
-    const modal = document.getElementById("committees-modal");
-    const modalTitle = document.getElementById("modal-title");
-    const modalContent = document.getElementById("modal-committees-content");
+// دالة فتح اللوحة العائمة لعرض اللجان
+function showCommitteesPanel(candidateName, committees, isStrength = true) {
+    const panel = document.getElementById("committees-floating-panel");
+    const overlay = document.getElementById("committees-overlay");
+    const panelTitle = document.getElementById("panel-title");
+    const panelContent = document.getElementById("committees-list-content");
     
-    modalTitle.textContent = title;
+    const title = isStrength 
+        ? `${candidateName} - اللجان التي فاز فيها (${committees.length} لجنة)`
+        : `${candidateName} - اللجان بنسبة أقل من 10% (${committees.length} لجنة)`;
+    
+    panelTitle.textContent = title;
     
     let html = '';
     if (committees.length === 0) {
@@ -1547,29 +1585,49 @@ function showCommitteesModal(title, committees, isStrength = true) {
             <div style="font-size: 1.2rem; margin-bottom: 10px;">${isStrength ? 'لا توجد لجان فاز فيها' : 'لا توجد لجان بنسبة أقل من 10%'}</div>
         </div>`;
     } else {
-        html = '<div class="modal-committees-list">';
+        // ترتيب اللجان حسب الرقم
+        committees.sort((a, b) => a.number - b.number);
+        
+        html = '<div class="committees-list">';
         committees.forEach(comm => {
             html += `
-            <div class="modal-committee-item ${isStrength ? '' : 'weak'}">
-                <div class="modal-comm-num">لجنة ${comm.number}</div>
-                <div class="modal-comm-name">${comm.name}</div>
-                <div class="modal-comm-votes">
-                    ${comm.address}<br>
+            <div class="committee-item ${isStrength ? '' : 'weak'}">
+                <div class="committee-num">لجنة ${comm.number}</div>
+                <div class="committee-name">${comm.name}</div>
+                <div class="committee-address">${comm.address}</div>
+                <div class="committee-votes">
                     الأصوات: <strong>${comm.votes}</strong><br>
                     النسبة: <strong>${comm.percent}%</strong>
-                    ${comm.position ? ` | المركز: <strong>${comm.position === 1 ? 'الأول' : 'الثاني'}</strong>` : ''}
+                    ${comm.position ? `<br><span class="committee-position ${comm.position === 1 ? 'first' : 'second'}">المركز ${comm.position === 1 ? 'الأول' : 'الثاني'}</span>` : ''}
                 </div>
             </div>`;
         });
         html += '</div>';
     }
     
-    modalContent.innerHTML = html;
-    modal.style.display = 'flex';
+    panelContent.innerHTML = html;
+    panel.style.display = 'block';
+    overlay.style.display = 'block';
+    
+    // إضافة تأثير ظهور
+    setTimeout(() => {
+        panel.style.opacity = '1';
+        panel.style.transform = 'translate(-50%, -50%) scale(1)';
+    }, 10);
 }
 
-function closeModal() {
-    document.getElementById("committees-modal").style.display = 'none';
+// دالة إغلاق اللوحة العائمة
+function closeCommitteesPanel() {
+    const panel = document.getElementById("committees-floating-panel");
+    const overlay = document.getElementById("committees-overlay");
+    
+    panel.style.opacity = '0';
+    panel.style.transform = 'translate(-50%, -50%) scale(0.9)';
+    
+    setTimeout(() => {
+        panel.style.display = 'none';
+        overlay.style.display = 'none';
+    }, 300);
 }
 
 // ==================== دالة جديدة: تحليل نقاط القوة والضعف ====================
@@ -1666,6 +1724,9 @@ function updateStrengthWeaknessAnalysis() {
     // أخذ العدد المطلوب فقط
     const displayArr = arr.slice(0, count);
     
+    // حفظ البيانات للوصول إليها عند الضغط
+    window.currentSWData = { candidates: arr };
+    
     // بناء واجهة العرض
     let html = '<div class="strength-weakness-grid">';
     
@@ -1701,25 +1762,17 @@ function updateStrengthWeaknessAnalysis() {
             <div style="margin-top: 15px;">
                 ${cand.committeesWon.length > 0 ? `
                 <div style="font-size: 0.9rem; font-weight: bold; color: var(--success); margin-bottom: 5px;">
-                    <span class="clickable-strength" onclick="showCommitteesModal('${cand.fullName} - اللجان التي فاز فيها', ${JSON.stringify(cand.committeesWon).replace(/'/g, "\\'")}, true)">
+                    <span class="clickable-strength" onclick="showCommitteesPanel('${cand.fullName}', window.currentSWData.candidates.find(c => c.id === '${cand.id}').committeesWon, true)">
                         ✓ قوة: فاز في ${cand.committeesWon.length} لجنة
                     </span>
-                </div>
-                <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">
-                    ${cand.committeesWon.slice(0, 3).map(c => `لجنة ${c.number} (${c.percent}%)`).join('، ')}
-                    ${cand.committeesWon.length > 3 ? `و ${cand.committeesWon.length - 3} أخرى` : ''}
                 </div>
                 ` : ''}
                 
                 ${cand.weakCommittees.length > 0 ? `
                 <div style="font-size: 0.9rem; font-weight: bold; color: var(--danger); margin-bottom: 5px;">
-                    <span class="clickable-weakness" onclick="showCommitteesModal('${cand.fullName} - اللجان بنسبة أقل من 10%', ${JSON.stringify(cand.weakCommittees).replace(/'/g, "\\'")}, false)">
+                    <span class="clickable-weakness" onclick="showCommitteesPanel('${cand.fullName}', window.currentSWData.candidates.find(c => c.id === '${cand.id}').weakCommittees, false)">
                         ✗ ضعف: نسبة أقل من 10% في ${cand.weakCommittees.length} لجنة
                     </span>
-                </div>
-                <div style="font-size: 0.8rem; color: var(--text-muted);">
-                    ${cand.weakCommittees.slice(0, 3).map(c => `لجنة ${c.number} (${c.percent}%)`).join('، ')}
-                    ${cand.weakCommittees.length > 3 ? `و ${cand.weakCommittees.length - 3} أخرى` : ''}
                 </div>
                 ` : cand.weaknessPoints === 0 ? `
                 <div style="font-size: 0.9rem; font-weight: bold; color: var(--success);">
@@ -2884,6 +2937,13 @@ window.addEventListener('load', function() {
     
     initializeSystem();
   }
+});
+
+// إغلاق اللوحة العائمة بالضغط على ESC
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeCommitteesPanel();
+    }
 });
 
 </script>
