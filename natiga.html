@@ -316,6 +316,289 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
     transition: width 0.5s ease;
 }
 
+/* أنيمشن لنقاط القوة والضعف */
+@keyframes pulseStrength {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+@keyframes pulseWeakness {
+  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+@keyframes slideInUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes progressFill {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+.strength-animation {
+  animation: pulseStrength 2s infinite;
+}
+
+.weakness-animation {
+  animation: pulseWeakness 2s infinite;
+}
+
+.slide-up {
+  animation: slideInUp 0.5s ease-out;
+}
+
+.bounce-in {
+  animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.float-animation {
+  animation: float 3s ease-in-out infinite;
+}
+
+.progress-animation {
+  animation: progressFill 1.5s ease-out;
+}
+
+/* ستايلات الفائزين التلقائي */
+.auto-prediction-section {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.9) 100%);
+  border-radius: 16px;
+  padding: 25px;
+  margin-bottom: 30px;
+  border: 2px solid var(--warning);
+  animation: slideInUp 0.6s ease-out;
+}
+
+.auto-prediction-title {
+  text-align: center;
+  color: var(--warning);
+  font-size: 1.5rem;
+  margin-bottom: 25px;
+  font-weight: 900;
+}
+
+.winners-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.winner-card {
+  background: var(--bg-card);
+  border-radius: 12px;
+  padding: 20px;
+  border: 2px solid;
+  transition: all 0.3s ease;
+  animation: bounceIn 0.6s ease-out;
+}
+
+.winner-card.gold {
+  border-color: #fbbf24;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, transparent 100%);
+}
+
+.winner-card.silver {
+  border-color: #94a3b8;
+  background: linear-gradient(135deg, rgba(148, 163, 184, 0.1) 0%, transparent 100%);
+}
+
+.winner-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.winner-badge {
+  background: linear-gradient(135deg, #fbbf24, #d97706);
+  color: white;
+  padding: 5px 15px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.winner-name {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: var(--text-main);
+  margin-bottom: 5px;
+}
+
+.winner-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.winner-stat-item {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 10px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.winner-stat-value {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: var(--primary);
+}
+
+.winner-stat-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 5px;
+}
+
+.reasons-container {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
+  padding: 15px;
+  margin-top: 15px;
+}
+
+.reasons-title {
+  color: var(--success);
+  font-weight: bold;
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+}
+
+.reason-item {
+  padding: 8px;
+  margin-bottom: 5px;
+  background: rgba(16, 185, 129, 0.1);
+  border-radius: 6px;
+  border-right: 3px solid var(--success);
+}
+
+.rejection-reason {
+  padding: 8px;
+  margin-bottom: 5px;
+  background: rgba(239, 68, 68, 0.1);
+  border-radius: 6px;
+  border-right: 3px solid var(--danger);
+}
+
+.comparison-section {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 25px;
+}
+
+.comparison-title {
+  color: var(--warning);
+  font-weight: bold;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.comparison-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+}
+
+.not-selected-card {
+  background: var(--bg-input);
+  border-radius: 10px;
+  padding: 15px;
+  border: 1px solid var(--danger);
+}
+
+.not-selected-name {
+  color: var(--danger);
+  font-weight: bold;
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+}
+
+.sw-animation-container {
+  position: relative;
+  height: 100px;
+  margin: 20px 0;
+}
+
+.animation-circle {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.strength-circle {
+  background: rgba(16, 185, 129, 0.2);
+  border: 3px solid var(--success);
+  color: var(--success);
+  left: 10%;
+  top: 10px;
+}
+
+.weakness-circle {
+  background: rgba(239, 68, 68, 0.2);
+  border: 3px solid var(--danger);
+  color: var(--danger);
+  right: 10%;
+  top: 10px;
+}
+
+.sw-connector {
+  position: absolute;
+  width: 40%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--success), var(--danger));
+  top: 50px;
+  left: 30%;
+}
+
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
   10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
@@ -395,11 +678,81 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
     </div>
   </div>
 
-  <!-- قسم جديد: تحليل نقاط القوة والضعف -->
+  <!-- قسم جديد: التوقع التلقائي للفائزين -->
+  <div class="auto-prediction-section" id="auto-prediction-section">
+    <div class="auto-prediction-title">🏆 التوقع التلقائي للفائزين في جولة الإعادة</div>
+    
+    <div class="winners-container" id="auto-winners-container">
+      <!-- سيتم ملؤها تلقائياً -->
+    </div>
+    
+    <div class="comparison-section" id="comparison-section">
+      <div class="comparison-title">📊 مقارنة مع المرشحين غير المختارين</div>
+      <div class="comparison-grid" id="comparison-grid">
+        <!-- سيتم ملؤها تلقائياً -->
+      </div>
+    </div>
+    
+    <div style="text-align: center; margin-top: 25px;">
+      <button class="btn" style="background: var(--primary);" onclick="runAutoPrediction()">
+        🔄 تحديث التوقع التلقائي
+      </button>
+      <button class="btn" style="background: var(--success); margin-right: 10px;" onclick="exportAutoPrediction()">
+        📥 تصدير التقرير
+      </button>
+    </div>
+  </div>
+
+  <!-- قسم جديد: أنيمشن نقاط القوة والضعف -->
   <div class="analysis-row">
     <div class="analysis-box" style="grid-column: 1 / -1;">
       <div class="box-header">
-          <span class="box-title">⚡ تحليل نقاط القوة والضعف للمرشحين الأوائل</span>
+          <span class="box-title">⚡ أنيمشن تحليل نقاط القوة والضعف</span>
+          <div style="display:flex; gap:5px;">
+              <button class="mini-export-btn mini-print-btn" onclick="printSection('sw-animation-section')">🖨️ طباعة</button>
+              <button class="mini-export-btn" onclick="exportSWAnimation()">📥 Excel</button>
+          </div>
+      </div>
+      
+      <div id="sw-animation-section" style="min-height:300px; padding: 20px;">
+        <div class="sw-animation-container">
+          <div class="animation-circle strength-circle float-animation" id="strength-circle">
+            <span>0</span>
+          </div>
+          <div class="animation-circle weakness-circle float-animation" id="weakness-circle">
+            <span>0</span>
+          </div>
+          <div class="sw-connector"></div>
+        </div>
+        
+        <div id="sw-animation-stats" style="text-align: center; margin-top: 20px;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+            <div class="sw-card strength strength-animation" id="strength-card">
+              <div style="font-size: 1.2rem; font-weight: bold; color: var(--success);">نقاط القوة</div>
+              <div style="font-size: 2rem; font-weight: 900;" id="strength-value">0</div>
+              <div style="font-size: 0.9rem; color: var(--text-muted);">إجمالي نقاط القوة</div>
+            </div>
+            <div class="sw-card weakness weakness-animation" id="weakness-card">
+              <div style="font-size: 1.2rem; font-weight: bold; color: var(--danger);">نقاط الضعف</div>
+              <div style="font-size: 2rem; font-weight: 900;" id="weakness-value">0</div>
+              <div style="font-size: 0.9rem; color: var(--text-muted);">إجمالي نقاط الضعف</div>
+            </div>
+            <div class="sw-card" style="border-left-color: var(--primary);">
+              <div style="font-size: 1.2rem; font-weight: bold; color: var(--primary);">نسبة القوة/الضعف</div>
+              <div style="font-size: 2rem; font-weight: 900;" id="sw-ratio">0%</div>
+              <div style="font-size: 0.9rem; color: var(--text-muted);">مؤشر الأداء العام</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- قسم تحليل نقاط القوة والضعف -->
+  <div class="analysis-row">
+    <div class="analysis-box" style="grid-column: 1 / -1;">
+      <div class="box-header">
+          <span class="box-title">📊 تحليل نقاط القوة والضعف للمرشحين الأوائل</span>
           <div style="display:flex; gap:5px;">
               <button class="mini-export-btn mini-print-btn" onclick="printSection('strength-weakness-section')">🖨️ طباعة</button>
               <button class="mini-export-btn" onclick="exportStrengthWeaknessAnalysis()">📥 Excel</button>
@@ -552,6 +905,7 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
     <button class="btn" style="background:#8b5cf6" onclick="exportComparisonMatrix()">📊 تصدير مصفوفة المقارنة الشاملة</button>
     <button class="btn" style="background:#f59e0b" onclick="exportStrengthWeaknessAnalysis()">⚡ تصدير تحليل القوة والضعف</button>
     <button class="btn" style="background:#ec4899" onclick="exportPredictions()">🎯 تصدير توقعات الفائزين</button>
+    <button class="btn" style="background:#10b981" onclick="exportAutoPrediction()">🏆 تصدير التوقع التلقائي</button>
     <button class="btn btn-danger admin-only" onclick="resetData()">🗑️ تصفير</button>
     <button class="btn" style="background:#8b5cf6" onclick="location.reload()">🔄 تحديث</button>
   </div>
@@ -932,6 +1286,397 @@ function animateValue(id, start, end, duration) {
   window.requestAnimationFrame(step);
 }
 
+// ==================== نظام التوقع التلقائي للفائزين ====================
+
+function analyzeCandidatePerformance(candidatesArray, totals) {
+    // تحليل أداء كل مرشح في اللجان
+    totals.list.forEach(comm => {
+        if (!comm.candidates) return;
+        
+        // الحصول على نتائج المرشحين في هذه اللجنة
+        let commResults = candidatesArray.map(cand => ({
+            id: cand.id,
+            votes: comm.candidates[cand.id] || 0,
+            percent: comm.validVotes ? ((comm.candidates[cand.id] / comm.validVotes) * 100).toFixed(1) : 0
+        })).filter(r => r.votes > 0);
+        
+        // ترتيب النتائج تنازلياً
+        commResults.sort((a, b) => b.votes - a.votes);
+        
+        // منح نقاط القوة للفائز والمركز الثاني
+        if (commResults.length >= 1) {
+            const winner = candidatesArray.find(c => c.id === commResults[0].id);
+            if (winner) {
+                winner.strengthPoints += 3; // الفائز يحصل على 3 نقاط
+                winner.committeesWon.push({
+                    number: comm.number,
+                    name: commMap[comm.number]?.name || `لجنة ${comm.number}`,
+                    votes: commResults[0].votes,
+                    percent: commResults[0].percent,
+                    position: 1
+                });
+            }
+        }
+        
+        if (commResults.length >= 2) {
+            const second = candidatesArray.find(c => c.id === commResults[1].id);
+            if (second) {
+                second.strengthPoints += 1; // المركز الثاني يحصل على نقطة
+                second.committeesWon.push({
+                    number: comm.number,
+                    name: commMap[comm.number]?.name || `لجنة ${comm.number}`,
+                    votes: commResults[1].votes,
+                    percent: commResults[1].percent,
+                    position: 2
+                });
+            }
+        }
+        
+        // تحديد نقاط الضعف (النسبة أقل من 10%)
+        commResults.forEach(result => {
+            if (parseFloat(result.percent) < 10) {
+                const candidate = candidatesArray.find(c => c.id === result.id);
+                if (candidate) {
+                    candidate.weaknessPoints += 1;
+                    candidate.weakCommittees.push({
+                        number: comm.number,
+                        name: commMap[comm.number]?.name || `لجنة ${comm.number}`,
+                        votes: result.votes,
+                        percent: result.percent
+                    });
+                }
+            }
+        });
+    });
+    
+    // تحليل الأداء في المناطق
+    candidatesArray.forEach(cand => {
+        let regionStats = {};
+        for(let key in regions) {
+            regionStats[key] = 0;
+        }
+        
+        totals.list.forEach(comm => {
+            const region = getRegionByCommittee(comm.number);
+            if(region && comm.candidates && comm.candidates[cand.id]) {
+                regionStats[region] += comm.candidates[cand.id];
+            }
+        });
+        
+        cand.regionPerformance = regionStats;
+    });
+}
+
+function calculateCandidateScores(candidatesArray) {
+    // حساب النقاط الإجمالية لكل مرشح بناءً على معايير متعددة
+    candidatesArray.forEach(cand => {
+        let totalScore = 0;
+        
+        // 1. النسبة المئوية من الأصوات (40%)
+        const votesScore = (cand.votes / candidatesArray[0].votes) * 40;
+        
+        // 2. نقاط القوة (25%)
+        const maxStrength = Math.max(...candidatesArray.map(c => c.strengthPoints));
+        const strengthScore = maxStrength > 0 ? (cand.strengthPoints / maxStrength) * 25 : 0;
+        
+        // 3. نسبة الضعف (20%) - كلما كانت أقل كلما كان أفضل
+        const weaknessRatio = cand.weaknessPoints > 0 ? (cand.weaknessPoints / (cand.strengthPoints + cand.weaknessPoints)) : 0;
+        const weaknessScore = (1 - weaknessRatio) * 20;
+        
+        // 4. التوزيع الجغرافي (15%)
+        let regionDiversity = 0;
+        let regionsWithVotes = 0;
+        for(let key in cand.regionPerformance) {
+            if (cand.regionPerformance[key] > 0) {
+                regionsWithVotes++;
+            }
+        }
+        regionDiversity = (regionsWithVotes / Object.keys(regions).length) * 15;
+        
+        // النقاط الإجمالية
+        cand.totalScore = votesScore + strengthScore + weaknessScore + regionDiversity;
+        cand.votesScore = votesScore.toFixed(1);
+        cand.strengthScore = strengthScore.toFixed(1);
+        cand.weaknessScore = weaknessScore.toFixed(1);
+        cand.regionScore = regionDiversity.toFixed(1);
+    });
+}
+
+function selectTopTwoCandidates(candidatesArray) {
+    // ترتيب المرشحين حسب النقاط الإجمالية
+    const sortedCandidates = [...candidatesArray].sort((a, b) => b.totalScore - a.totalScore);
+    
+    // اختيار أول اثنين
+    return sortedCandidates.slice(0, 2);
+}
+
+function runAutoPrediction() {
+    const t = getTotals();
+    
+    // الحصول على المرشحين الأربعة الأوائل حسب الأصوات
+    let topFour = candidates.map(([id, n, e]) => ({
+        id: id,
+        name: n,
+        emoji: e,
+        fullName: `${e} ${n}`,
+        votes: t.cands[id] || 0,
+        percent: t.valid ? ((t.cands[id]/t.valid)*100).toFixed(1) : 0,
+        strengthPoints: 0,
+        weaknessPoints: 0,
+        committeesWon: [],
+        weakCommittees: [],
+        regionPerformance: {},
+        totalScore: 0
+    })).sort((a, b) => b.votes - a.votes).slice(0, 4);
+    
+    // تحليل الأداء
+    analyzeCandidatePerformance(topFour, t);
+    
+    // حساب النقاط
+    calculateCandidateScores(topFour);
+    
+    // اختيار الفائزين
+    const winners = selectTopTwoCandidates(topFour);
+    
+    // المرشحين غير المختارين
+    const notSelected = topFour.filter(c => !winners.some(w => w.id === c.id));
+    
+    // عرض النتائج
+    displayAutoPrediction(winners, notSelected, t);
+    
+    // تحديث أنيمشن نقاط القوة والضعف
+    updateSWAnimation(topFour);
+    
+    return { topFour, winners, notSelected };
+}
+
+function displayAutoPrediction(winners, notSelected, totals) {
+    let html = '';
+    
+    // عرض الفائزين
+    html += '<div class="winners-container">';
+    
+    winners.forEach((winner, index) => {
+        const isGold = index === 0;
+        const badgeText = isGold ? "🥇 الفائز الأول" : "🥈 الفائز الثاني";
+        const badgeClass = isGold ? "gold" : "silver";
+        
+        // أسباب الاختيار
+        let reasons = [];
+        if (winner.votes === Math.max(...winners.map(w => w.votes))) {
+            reasons.push("حصل على أعلى عدد من الأصوات بين الفائزين");
+        }
+        if (winner.strengthPoints > 0) {
+            reasons.push(`فاز في ${winner.committeesWon.length} لجنة`);
+        }
+        if (winner.weaknessPoints === 0) {
+            reasons.push("لا توجد نقاط ضعف (أداء متسق في جميع اللجان)");
+        } else if (winner.weaknessPoints < 3) {
+            reasons.push("نقاط ضعف قليلة جداً");
+        }
+        
+        // حساب التنوع الجغرافي
+        const regionsWithVotes = Object.values(winner.regionPerformance).filter(v => v > 0).length;
+        if (regionsWithVotes >= 3) {
+            reasons.push("أداء قوي في معظم المناطق الجغرافية");
+        }
+        
+        html += `
+        <div class="winner-card ${badgeClass} slide-up">
+            <div class="winner-header">
+                <div class="winner-badge">${badgeText}</div>
+                <div style="font-size: 1.1rem; color: var(--warning);">
+                    النقاط: ${winner.totalScore.toFixed(1)}
+                </div>
+            </div>
+            
+            <div class="winner-name">${winner.fullName}</div>
+            
+            <div class="winner-stats">
+                <div class="winner-stat-item">
+                    <div class="winner-stat-value">${winner.votes}</div>
+                    <div class="winner-stat-label">الأصوات</div>
+                </div>
+                <div class="winner-stat-item">
+                    <div class="winner-stat-value">${winner.strengthPoints}</div>
+                    <div class="winner-stat-label">نقاط القوة</div>
+                </div>
+                <div class="winner-stat-item">
+                    <div class="winner-stat-value">${winner.weaknessPoints}</div>
+                    <div class="winner-stat-label">نقاط الضعف</div>
+                </div>
+                <div class="winner-stat-item">
+                    <div class="winner-stat-value">${winner.committeesWon.length}</div>
+                    <div class="winner-stat-label">لجان فاز فيها</div>
+                </div>
+            </div>
+            
+            <div class="reasons-container">
+                <div class="reasons-title">🎯 أسباب الاختيار:</div>
+                ${reasons.map(reason => `
+                    <div class="reason-item">✓ ${reason}</div>
+                `).join('')}
+            </div>
+        </div>`;
+    });
+    
+    html += '</div>';
+    
+    // عرض المقارنة مع غير المختارين
+    if (notSelected.length > 0) {
+        html += `
+        <div class="comparison-section">
+            <div class="comparison-title">📊 مقارنة مع المرشحين غير المختارين</div>
+            <div class="comparison-grid">`;
+        
+        notSelected.forEach(candidate => {
+            // أسباب عدم الاختيار
+            let rejectionReasons = [];
+            
+            // مقارنة مع الفائز الأول
+            const firstWinner = winners[0];
+            
+            if (candidate.votes < firstWinner.votes * 0.8) {
+                rejectionReasons.push("عدد الأصوات أقل بكثير من الفائز الأول");
+            }
+            
+            if (candidate.strengthPoints < firstWinner.strengthPoints * 0.7) {
+                rejectionReasons.push("نقاط القوة أقل من الفائزين");
+            }
+            
+            if (candidate.weaknessPoints > 3) {
+                rejectionReasons.push(`لديه ${candidate.weaknessPoints} نقطة ضعف (أداء ضعيف في عدة لجان)`);
+            }
+            
+            const candidateRegions = Object.values(candidate.regionPerformance).filter(v => v > 0).length;
+            if (candidateRegions < 3) {
+                rejectionReasons.push("أداء ضعيف في بعض المناطق الجغرافية");
+            }
+            
+            if (candidate.totalScore < winners[1].totalScore) {
+                rejectionReasons.push("النقاط الإجمالية أقل من الفائزين");
+            }
+            
+            html += `
+            <div class="not-selected-card slide-up">
+                <div class="not-selected-name">${candidate.fullName}</div>
+                <div style="margin-bottom: 10px;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--text-muted);">الأصوات:</span>
+                        <span style="font-weight: bold;">${candidate.votes}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--text-muted);">النقاط:</span>
+                        <span style="font-weight: bold;">${candidate.totalScore.toFixed(1)}</span>
+                    </div>
+                </div>
+                
+                <div style="font-size: 0.9rem; color: var(--danger); font-weight: bold; margin-bottom: 5px;">
+                    أسباب عدم الاختيار:
+                </div>
+                ${rejectionReasons.map(reason => `
+                    <div class="rejection-reason">✗ ${reason}</div>
+                `).join('')}
+            </div>`;
+        });
+        
+        html += `</div></div>`;
+    }
+    
+    document.getElementById("auto-winners-container").innerHTML = html;
+    
+    // عرض مقارنة تفصيلية
+    displayDetailedComparison(winners, notSelected);
+}
+
+function displayDetailedComparison(winners, notSelected) {
+    let html = '';
+    
+    if (document.getElementById("comparison-section")) {
+        const allCandidates = [...winners, ...notSelected];
+        
+        html += `
+        <div style="margin-top: 25px; background: rgba(255, 255, 255, 0.03); border-radius: 12px; padding: 20px;">
+            <div style="font-size: 1.1rem; font-weight: bold; color: var(--warning); margin-bottom: 15px; text-align: center;">
+                📈 مقارنة تفصيلية للأداء
+            </div>
+            
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; background: rgba(255, 255, 255, 0.05);">
+                    <thead>
+                        <tr>
+                            <th style="padding: 12px; border: 1px solid #334155;">المرشح</th>
+                            <th style="padding: 12px; border: 1px solid #334155;">الأصوات</th>
+                            <th style="padding: 12px; border: 1px solid #334155;">نقاط القوة</th>
+                            <th style="padding: 12px; border: 1px solid #334155;">نقاط الضعف</th>
+                            <th style="padding: 12px; border: 1px solid #334155;">النقاط الإجمالية</th>
+                            <th style="padding: 12px; border: 1px solid #334155;">الترتيب</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+        
+        allCandidates.sort((a, b) => b.totalScore - a.totalScore).forEach((cand, index) => {
+            const isWinner = winners.some(w => w.id === cand.id);
+            const rowColor = isWinner ? 'background: rgba(16, 185, 129, 0.1);' : 'background: rgba(239, 68, 68, 0.05);';
+            
+            html += `
+            <tr style="${rowColor}">
+                <td style="padding: 10px; border: 1px solid #334155; ${isWinner ? 'font-weight: bold; color: var(--success);' : ''}">
+                    ${cand.fullName} ${isWinner ? '✅' : ''}
+                </td>
+                <td style="padding: 10px; border: 1px solid #334155; text-align: center;">${cand.votes}</td>
+                <td style="padding: 10px; border: 1px solid #334155; text-align: center; color: var(--success);">${cand.strengthPoints}</td>
+                <td style="padding: 10px; border: 1px solid #334155; text-align: center; color: var(--danger);">${cand.weaknessPoints}</td>
+                <td style="padding: 10px; border: 1px solid #334155; text-align: center; font-weight: bold;">${cand.totalScore.toFixed(1)}</td>
+                <td style="padding: 10px; border: 1px solid #334155; text-align: center;">${index + 1}</td>
+            </tr>`;
+        });
+        
+        html += `</tbody></table></div></div>`;
+        
+        const comparisonSection = document.getElementById("comparison-section");
+        if (comparisonSection) {
+            comparisonSection.insertAdjacentHTML('beforeend', html);
+        }
+    }
+}
+
+function updateSWAnimation(candidatesArray) {
+    // حساب إجمالي نقاط القوة والضعف
+    let totalStrength = 0;
+    let totalWeakness = 0;
+    
+    candidatesArray.forEach(cand => {
+        totalStrength += cand.strengthPoints;
+        totalWeakness += cand.weaknessPoints;
+    });
+    
+    // تحديث القيم مع أنيمشن
+    document.getElementById("strength-value").textContent = totalStrength;
+    document.getElementById("weakness-value").textContent = totalWeakness;
+    document.getElementById("strength-circle").innerHTML = `<span>${totalStrength}</span>`;
+    document.getElementById("weakness-circle").innerHTML = `<span>${totalWeakness}</span>`;
+    
+    // حساب النسبة
+    const ratio = totalWeakness > 0 ? ((totalStrength / totalWeakness) * 100).toFixed(1) : "عالية";
+    document.getElementById("sw-ratio").textContent = totalWeakness > 0 ? `${ratio}%` : "عالية جداً";
+    
+    // إضافة أنيمشن
+    document.getElementById("strength-card").classList.add("strength-animation");
+    document.getElementById("weakness-card").classList.add("weakness-animation");
+    
+    // تحديث أشرطة التقدم
+    setTimeout(() => {
+        document.querySelectorAll('.progress-animation').forEach(el => {
+            el.classList.remove('progress-animation');
+            void el.offsetWidth; // Trigger reflow
+            el.classList.add('progress-animation');
+        });
+    }, 100);
+}
+
+// ==================== نهاية نظام التوقع التلقائي ====================
+
 // دالة جديدة: تحليل نقاط القوة والضعف
 function updateStrengthWeaknessAnalysis() {
     const t = getTotals();
@@ -1030,7 +1775,7 @@ function updateStrengthWeaknessAnalysis() {
         const weaknessColor = cand.weaknessPoints > 0 ? '#ef4444' : '#94a3b8';
         
         html += `
-        <div style="background: var(--bg-input); border-radius: 12px; padding: 15px; margin-bottom: 15px;">
+        <div style="background: var(--bg-input); border-radius: 12px; padding: 15px; margin-bottom: 15px; animation: slideInUp 0.${index + 3}s ease-out;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                 <div>
                     <div style="font-weight: bold; font-size: 1.1rem; color: ${index < 4 ? '#fbbf24' : 'var(--text-main)'}">
@@ -1051,7 +1796,7 @@ function updateStrengthWeaknessAnalysis() {
             </div>
             
             <div class="performance-indicator">
-                <div class="performance-fill" style="width: ${(cand.strengthPoints / (cand.strengthPoints + cand.weaknessPoints)) * 100 || 50}%; background: linear-gradient(90deg, ${strengthColor}, ${weaknessColor});"></div>
+                <div class="performance-fill progress-animation" style="width: ${(cand.strengthPoints / (cand.strengthPoints + cand.weaknessPoints)) * 100 || 50}%; background: linear-gradient(90deg, ${strengthColor}, ${weaknessColor});"></div>
             </div>
             
             <div style="margin-top: 15px;">
@@ -1094,6 +1839,7 @@ function updateStrengthWeaknessAnalysis() {
 let selectedCandidates = [];
 let topFourCandidates = [];
 let userPrediction = null;
+let autoPredictionResults = null;
 
 function initializePredictionSystem() {
     updatePredictionDisplay();
@@ -1102,12 +1848,17 @@ function initializePredictionSystem() {
     db.ref("predictions").on("value", function(snapshot) {
         updatePredictionStats(snapshot.val());
     });
+    
+    // تشغيل التوقع التلقائي عند البدء
+    setTimeout(() => {
+        autoPredictionResults = runAutoPrediction();
+    }, 1000);
 }
 
 function updatePredictionDisplay() {
     const t = getTotals();
     
-    // الحصول على الأربعة الأوائل
+    // الحصول على المرشحين الأربعة الأوائل
     let arr = candidates.map(([id,n,e]) => ({
         id: id,
         name: `${e} ${n}`,
@@ -1307,13 +2058,199 @@ function updatePredictionStats(predictionsData) {
     container.innerHTML = html;
 }
 
+// ==================== دوال التصدير ====================
+
+function exportAutoPrediction() {
+    if (!autoPredictionResults) {
+        alert("يجب تشغيل التوقع التلقائي أولاً");
+        return;
+    }
+    
+    const { topFour, winners, notSelected } = autoPredictionResults;
+    const wb = XLSX.utils.book_new();
+    
+    // صفحة الملخص
+    let summaryData = [];
+    summaryData.push(formatRow(["التقرير التلقائي للفائزين في جولة الإعادة"], true));
+    summaryData.push(formatRow([`تاريخ التقرير: ${new Date().toLocaleString("ar-EG")}`], false));
+    summaryData.push(formatRow([`عدد اللجان: ${allCommittees.length}`], false));
+    summaryData.push(formatRow([""], false));
+    
+    // الفائزون
+    summaryData.push(formatRow(["الفائزان المرجحان في جولة الإعادة"], true));
+    summaryData.push(formatRow(["الترتيب", "المرشح", "الأصوات", "نقاط القوة", "نقاط الضعف", "النقاط الإجمالية", "الحالة"], true));
+    
+    winners.forEach((winner, index) => {
+        summaryData.push(formatRow([
+            index === 0 ? "الأول 🥇" : "الثاني 🥈",
+            winner.fullName,
+            winner.votes,
+            winner.strengthPoints,
+            winner.weaknessPoints,
+            winner.totalScore.toFixed(1),
+            "مختار"
+        ], false));
+    });
+    
+    summaryData.push(formatRow([""], false));
+    
+    // المرشحين غير المختارين
+    if (notSelected.length > 0) {
+        summaryData.push(formatRow(["المرشحين غير المختارين"], true));
+        summaryData.push(formatRow(["الترتيب", "المرشح", "الأصوات", "نقاط القوة", "نقاط الضعف", "النقاط الإجمالية", "الحالة"], true));
+        
+        notSelected.forEach((cand, index) => {
+            summaryData.push(formatRow([
+                index + 3,
+                cand.fullName,
+                cand.votes,
+                cand.strengthPoints,
+                cand.weaknessPoints,
+                cand.totalScore.toFixed(1),
+                "غير مختار"
+            ], false));
+        });
+    }
+    
+    const ws1 = XLSX.utils.aoa_to_sheet(summaryData);
+    ws1['!cols'] = [
+        { wch: 15 }, { wch: 30 }, { wch: 12 }, { wch: 12 },
+        { wch: 12 }, { wch: 12 }, { wch: 12 }
+    ];
+    XLSX.utils.book_append_sheet(wb, ws1, "الملخص");
+    
+    // صفحة أسباب الاختيار
+    let reasonsData = [];
+    reasonsData.push(formatRow(["أسباب اختيار الفائزين"], true));
+    
+    winners.forEach((winner, index) => {
+        reasonsData.push(formatRow([`الفائز ${index === 0 ? "الأول 🥇" : "الثاني 🥈"}: ${winner.fullName}`], true));
+        reasonsData.push(formatRow(["أسباب الاختيار:"], false));
+        
+        if (winner.votes === Math.max(...topFour.map(w => w.votes))) {
+            reasonsData.push(formatRow(["✓ حصل على أعلى عدد من الأصوات بين المرشحين الأربعة"], false));
+        }
+        
+        if (winner.strengthPoints > 0) {
+            reasonsData.push(formatRow([`✓ فاز في ${winner.committeesWon.length} لجنة من أصل 60`], false));
+        }
+        
+        if (winner.weaknessPoints === 0) {
+            reasonsData.push(formatRow(["✓ لا توجد نقاط ضعف (أداء متسق في جميع اللجان)"], false));
+        } else if (winner.weaknessPoints < 3) {
+            reasonsData.push(formatRow(["✓ نقاط ضعف قليلة جداً"], false));
+        }
+        
+        const regionsWithVotes = Object.values(winner.regionPerformance).filter(v => v > 0).length;
+        if (regionsWithVotes >= 3) {
+            reasonsData.push(formatRow(["✓ أداء قوي في معظم المناطق الجغرافية"], false));
+        }
+        
+        reasonsData.push(formatRow([""], false));
+    });
+    
+    const ws2 = XLSX.utils.aoa_to_sheet(reasonsData);
+    ws2['!cols'] = [{ wch: 60 }];
+    XLSX.utils.book_append_sheet(wb, ws2, "أسباب الاختيار");
+    
+    // صفحة أسباب عدم الاختيار
+    if (notSelected.length > 0) {
+        let rejectionData = [];
+        rejectionData.push(formatRow(["أسباب عدم اختيار المرشحين الآخرين"], true));
+        
+        notSelected.forEach((cand, index) => {
+            rejectionData.push(formatRow([`المرشح: ${cand.fullName}`], true));
+            rejectionData.push(formatRow(["أسباب عدم الاختيار:"], false));
+            
+            const firstWinner = winners[0];
+            
+            if (cand.votes < firstWinner.votes * 0.8) {
+                rejectionData.push(formatRow([`✗ عدد الأصوات أقل بكثير من الفائز الأول (${cand.votes} vs ${firstWinner.votes})`], false));
+            }
+            
+            if (cand.strengthPoints < firstWinner.strengthPoints * 0.7) {
+                rejectionData.push(formatRow([`✗ نقاط القوة أقل من الفائزين (${cand.strengthPoints} vs ${firstWinner.strengthPoints})`], false));
+            }
+            
+            if (cand.weaknessPoints > 3) {
+                rejectionData.push(formatRow([`✗ لديه ${cand.weaknessPoints} نقطة ضعف (أداء ضعيف في عدة لجان)`], false));
+            }
+            
+            const candidateRegions = Object.values(cand.regionPerformance).filter(v => v > 0).length;
+            if (candidateRegions < 3) {
+                rejectionData.push(formatRow([`✗ أداء ضعيف في بعض المناطق الجغرافية (${candidateRegions} منطقة فقط)`], false));
+            }
+            
+            if (cand.totalScore < winners[1].totalScore) {
+                rejectionData.push(formatRow([`✗ النقاط الإجمالية أقل من الفائزين (${cand.totalScore.toFixed(1)} vs ${winners[1].totalScore.toFixed(1)})`], false));
+            }
+            
+            rejectionData.push(formatRow([""], false));
+        });
+        
+        const ws3 = XLSX.utils.aoa_to_sheet(rejectionData);
+        ws3['!cols'] = [{ wch: 60 }];
+        XLSX.utils.book_append_sheet(wb, ws3, "أسباب عدم الاختيار");
+    }
+    
+    saveStyledWorkbook(wb, "Auto_Prediction_Report.xlsx");
+    alert("✅ تم تصدير تقرير التوقع التلقائي بنجاح!");
+}
+
+function exportSWAnimation() {
+    if (!window.lastSWAnalysis) {
+        alert("يجب تشغيل تحليل القوة والضعف أولاً");
+        return;
+    }
+    
+    const { arr, displayArr, t } = window.lastSWAnalysis;
+    const wb = XLSX.utils.book_new();
+    
+    let summaryData = [];
+    summaryData.push(formatRow(["تحليل نقاط القوة والضعف مع الأنيمشن"], true));
+    summaryData.push(formatRow([`تاريخ التقرير: ${new Date().toLocaleString("ar-EG")}`], false));
+    
+    // إجمالي النقاط
+    const totalStrength = arr.reduce((sum, cand) => sum + cand.strengthPoints, 0);
+    const totalWeakness = arr.reduce((sum, cand) => sum + cand.weaknessPoints, 0);
+    const ratio = totalWeakness > 0 ? ((totalStrength / totalWeakness) * 100).toFixed(1) : "عالية";
+    
+    summaryData.push(formatRow(["إجمالي نقاط القوة:", totalStrength], false));
+    summaryData.push(formatRow(["إجمالي نقاط الضعف:", totalWeakness], false));
+    summaryData.push(formatRow(["نسبة القوة/الضعف:", totalWeakness > 0 ? `${ratio}%` : "عالية جداً"], false));
+    summaryData.push(formatRow([""], false));
+    
+    // تفاصيل المرشحين
+    summaryData.push(formatRow(["الترتيب", "المرشح", "الأصوات", "نقاط القوة", "نقاط الضعف", "نسبة القوة/الضعف"], true));
+    
+    displayArr.forEach((cand, index) => {
+        const swRatio = cand.weaknessPoints > 0 ? 
+            ((cand.strengthPoints / cand.weaknessPoints) * 100).toFixed(1) : "عالية";
+        
+        summaryData.push(formatRow([
+            index + 1,
+            cand.fullName,
+            cand.votes,
+            cand.strengthPoints,
+            cand.weaknessPoints,
+            swRatio + (swRatio === "عالية" ? "" : "%")
+        ], false));
+    });
+    
+    const ws = XLSX.utils.aoa_to_sheet(summaryData);
+    ws['!cols'] = [
+        { wch: 8 }, { wch: 30 }, { wch: 12 }, { wch: 12 },
+        { wch: 12 }, { wch: 15 }
+    ];
+    XLSX.utils.book_append_sheet(wb, ws, "تحليل الأنيمشن");
+    
+    saveStyledWorkbook(wb, "SW_Animation_Analysis.xlsx");
+    alert("✅ تم تصدير تحليل الأنيمشن بنجاح!");
+}
+
 function exportPredictions() {
     db.ref("predictions").once("value", function(snapshot) {
         const predictionsData = snapshot.val();
-        if (!predictionsData) {
-            alert("لا توجد توقعات مسجلة");
-            return;
-        }
         
         const wb = XLSX.utils.book_new();
         
@@ -1321,75 +2258,81 @@ function exportPredictions() {
         let statsData = [];
         statsData.push(formatRow(["إحصائيات توقعات الفائزين في جولة الإعادة"], true));
         statsData.push(formatRow([`تاريخ التقرير: ${new Date().toLocaleString("ar-EG")}`], false));
-        statsData.push(formatRow([`عدد المشاركين: ${Object.keys(predictionsData).length}`], false));
+        statsData.push(formatRow([`عدد المشاركين: ${predictionsData ? Object.keys(predictionsData).length : 0}`], false));
         statsData.push(formatRow([""], false));
         
-        // حساب الإحصائيات
-        const stats = {};
-        let totalVotes = 0;
-        
-        // تهيئة الإحصائيات
-        topFourCandidates.forEach(cand => {
-            stats[cand.id] = {
-                name: cand.fullName,
-                votes: 0
-            };
-        });
-        
-        // جمع التصويتات
-        Object.values(predictionsData).forEach(prediction => {
-            if (prediction.selectedCandidates) {
-                prediction.selectedCandidates.forEach(candidateId => {
-                    if (stats[candidateId]) {
-                        stats[candidateId].votes++;
-                        totalVotes++;
-                    }
-                });
-            }
-        });
-        
-        statsData.push(formatRow(["الترتيب", "المرشح", "عدد التصويتات", "النسبة %"], true));
-        
-        const statsArray = Object.values(stats).sort((a, b) => b.votes - a.votes);
-        statsArray.forEach((stat, index) => {
-            const percentage = totalVotes > 0 ? ((stat.votes / totalVotes) * 100).toFixed(1) : 0;
-            statsData.push(formatRow([
-                index + 1,
-                stat.name,
-                stat.votes,
-                percentage + "%"
-            ], false));
-        });
+        if (predictionsData) {
+            // حساب الإحصائيات
+            const stats = {};
+            let totalVotes = 0;
+            
+            // تهيئة الإحصائيات
+            topFourCandidates.forEach(cand => {
+                stats[cand.id] = {
+                    name: cand.fullName,
+                    votes: 0
+                };
+            });
+            
+            // جمع التصويتات
+            Object.values(predictionsData).forEach(prediction => {
+                if (prediction.selectedCandidates) {
+                    prediction.selectedCandidates.forEach(candidateId => {
+                        if (stats[candidateId]) {
+                            stats[candidateId].votes++;
+                            totalVotes++;
+                        }
+                    });
+                }
+            });
+            
+            statsData.push(formatRow(["الترتيب", "المرشح", "عدد التصويتات", "النسبة %"], true));
+            
+            const statsArray = Object.values(stats).sort((a, b) => b.votes - a.votes);
+            statsArray.forEach((stat, index) => {
+                const percentage = totalVotes > 0 ? ((stat.votes / totalVotes) * 100).toFixed(1) : 0;
+                statsData.push(formatRow([
+                    index + 1,
+                    stat.name,
+                    stat.votes,
+                    percentage + "%"
+                ], false));
+            });
+        } else {
+            statsData.push(formatRow(["لا توجد توقعات مسجلة بعد"], false));
+        }
         
         const ws1 = XLSX.utils.aoa_to_sheet(statsData);
         ws1['!cols'] = [{ wch: 8 }, { wch: 30 }, { wch: 15 }, { wch: 12 }];
         XLSX.utils.book_append_sheet(wb, ws1, "إحصائيات التوقع");
         
-        // صفحة تفاصيل التوقعات
-        let detailsData = [];
-        detailsData.push(formatRow(["تفاصيل توقعات جميع المستخدمين"], true));
-        detailsData.push(formatRow([""], false));
-        detailsData.push(formatRow(["المستخدم", "المرشح الأول", "المرشح الثاني", "التاريخ", "النوع"], true));
-        
-        Object.entries(predictionsData).forEach(([userId, prediction]) => {
-            const cand1 = candidates.find(c => c[0] === prediction.selectedCandidates[0]);
-            const cand2 = candidates.find(c => c[0] === prediction.selectedCandidates[1]);
+        if (predictionsData) {
+            // صفحة تفاصيل التوقعات
+            let detailsData = [];
+            detailsData.push(formatRow(["تفاصيل توقعات جميع المستخدمين"], true));
+            detailsData.push(formatRow([""], false));
+            detailsData.push(formatRow(["المستخدم", "المرشح الأول", "المرشح الثاني", "التاريخ", "النوع"], true));
             
-            if (cand1 && cand2) {
-                const date = new Date(prediction.timestamp).toLocaleString("ar-EG");
-                detailsData.push(formatRow([
-                    userId.substring(0, 8) + "...",
-                    cand1[1],
-                    cand2[1],
-                    date,
-                    prediction.userType
-                ], false));
-            }
-        });
-        
-        const ws2 = XLSX.utils.aoa_to_sheet(detailsData);
-        ws2['!cols'] = [{ wch: 15 }, { wch: 25 }, { wch: 25 }, { wch: 25 }, { wch: 12 }];
-        XLSX.utils.book_append_sheet(wb, ws2, "التفاصيل");
+            Object.entries(predictionsData).forEach(([userId, prediction]) => {
+                const cand1 = candidates.find(c => c[0] === prediction.selectedCandidates[0]);
+                const cand2 = candidates.find(c => c[0] === prediction.selectedCandidates[1]);
+                
+                if (cand1 && cand2) {
+                    const date = new Date(prediction.timestamp).toLocaleString("ar-EG");
+                    detailsData.push(formatRow([
+                        userId.substring(0, 8) + "...",
+                        cand1[1],
+                        cand2[1],
+                        date,
+                        prediction.userType
+                    ], false));
+                }
+            });
+            
+            const ws2 = XLSX.utils.aoa_to_sheet(detailsData);
+            ws2['!cols'] = [{ wch: 15 }, { wch: 25 }, { wch: 25 }, { wch: 25 }, { wch: 12 }];
+            XLSX.utils.book_append_sheet(wb, ws2, "التفاصيل");
+        }
         
         saveStyledWorkbook(wb, "Predictions_Analysis.xlsx");
         alert("✅ تم تصدير بيانات التوقعات بنجاح!");
@@ -2340,6 +3283,9 @@ function renderAll() {
   updateCompare();
   updateStrengthWeaknessAnalysis();
   updatePredictionDisplay();
+  
+  // تشغيل التوقع التلقائي
+  autoPredictionResults = runAutoPrediction();
 }
 
 function resetData() {
