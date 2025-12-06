@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<title>جولة الإعادة - نظام إدارة الانتخابات</title>
+<title>جولة الإعادة - نظام إدارة الانتخابات المتطور</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -207,6 +207,75 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
   .table-scroll-wrapper { max-height: none !important; overflow: visible !important; }
   #print-date-footer { display: block !important; text-align: center; margin-top: 20px; }
 }
+
+/* تنسيقات إضافية لنظام التوقع الذكي */
+.prediction-section {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border: 2px solid var(--primary);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 30px;
+}
+
+.prediction-winner {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(251, 191, 36, 0.05) 100%);
+  border: 2px solid #fbbf24;
+  border-radius: 12px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.prediction-winner::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100px;
+  height: 100px;
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.1) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.prediction-second {
+  background: linear-gradient(135deg, rgba(148, 163, 184, 0.1) 0%, rgba(148, 163, 184, 0.05) 100%);
+  border: 2px solid #94a3b8;
+  border-radius: 12px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.prediction-progress-bar {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 10px 0;
+}
+
+.prediction-progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 1s ease-in-out;
+}
+
+.accuracy-indicator {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  margin-left: 10px;
+}
+
+.accuracy-high { background: var(--success); color: white; }
+.accuracy-medium { background: var(--warning); color: white; }
+.accuracy-low { background: var(--danger); color: white; }
+
+.prediction-trend-up { color: var(--success); }
+.prediction-trend-down { color: var(--danger); }
+.prediction-trend-stable { color: var(--text-muted); }
 </style>
 </head>
 <body>
@@ -227,6 +296,54 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
   </header>
 
   <div class="stat-grid" id="stat-cards"></div>
+
+  <!-- قسم نظام التوقع الذكي الجديد -->
+  <div class="prediction-section">
+    <div class="box-header">
+      <span class="box-title">🔮 نظام التوقع الذكي للفائزين</span>
+      <div>
+        <button class="mini-export-btn mini-print-btn" onclick="printPredictionSection()">🖨️ طباعة</button>
+        <button class="mini-export-btn" onclick="exportPredictions()">📥 تقرير التوقعات</button>
+      </div>
+    </div>
+    
+    <div style="margin: 20px 0; padding: 15px; background: rgba(59, 130, 246, 0.1); border-radius: 8px; border-right: 4px solid var(--primary);">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <div style="font-weight: bold; color: var(--warning); font-size: 1.1rem;">
+            📊 تم إدخال <span id="pred-entered">0</span> من 60 لجنة 
+            (<span id="pred-percentage">0%</span>)
+          </div>
+          <div style="font-size: 0.9rem; color: var(--text-muted); margin-top: 5px;">
+            النظام يحلل الأنماط الحالية ويتوقع الفائزين بناءً على الذكاء الاصطناعي
+          </div>
+        </div>
+        <div style="text-align: center;">
+          <div style="font-size: 2rem; font-weight: bold; color: var(--success);" id="pred-remaining">60</div>
+          <div style="font-size: 0.8rem; color: var(--text-muted);">لجنة متبقية</div>
+        </div>
+      </div>
+    </div>
+    
+    <div id="winners-prediction" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+      <!-- سيتم ملؤها ديناميكياً -->
+    </div>
+    
+    <div style="margin-top: 20px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <span style="font-weight: bold; color: var(--text-main);">📈 توقعات تفصيلية لكل مرشح</span>
+        <span style="font-size: 0.8rem; color: var(--text-muted);">
+          دقة التوقع: 
+          <span id="accuracy-indicator" class="accuracy-indicator accuracy-medium">تحت التطوير</span>
+        </span>
+      </div>
+      <div id="detailed-predictions">
+        <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+          قم بإدخال بيانات اللجان لرؤية التوقعات الذكية...
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div class="analysis-row">
     <div class="analysis-box">
@@ -679,6 +796,301 @@ function animateValue(id, start, end, duration) {
   window.requestAnimationFrame(step);
 }
 
+// ================== نظام التوقع الذكي للفائزين ==================
+function calculatePredictions() {
+    const t = getTotals();
+    const enteredCommittees = t.list.length;
+    const remainingCommittees = 60 - enteredCommittees;
+    
+    if (enteredCommittees === 0) return null;
+    
+    // تحليل البيانات الحالية
+    let predictions = candidates.map(([id, name, emoji]) => {
+        const currentVotes = t.cands[id] || 0;
+        
+        // حساب المتوسط لكل لجنة
+        const avgPerCommittee = currentVotes / enteredCommittees;
+        
+        // تقدير الأصوات في اللجان المتبقية (مع عامل تصحيح)
+        const estimatedFutureVotes = avgPerCommittee * remainingCommittees * 0.95;
+        
+        // الإجمالي المتوقع
+        const totalPredicted = currentVotes + estimatedFutureVotes;
+        
+        // نسبة التقدم الحالي
+        const currentProgress = (currentVotes / 40000) * 100;
+        
+        // مؤشر الفوز (0-100)
+        let winProbability = 0;
+        if (totalPredicted >= 35000) {
+            winProbability = Math.min(100, ((totalPredicted - 35000) / 5000) * 100);
+        }
+        
+        // حساب اتجاه التغيير (للأعلى أو للأسفل)
+        const trend = estimatedFutureVotes > (avgPerCommittee * remainingCommittees * 0.9) ? 'up' : 
+                     estimatedFutureVotes < (avgPerCommittee * remainingCommittees * 0.9) ? 'down' : 'stable';
+        
+        return {
+            id,
+            name,
+            emoji,
+            currentVotes,
+            avgPerCommittee: avgPerCommittee.toFixed(1),
+            estimatedFutureVotes: Math.round(estimatedFutureVotes),
+            totalPredicted: Math.round(totalPredicted),
+            currentProgress: currentProgress.toFixed(1),
+            winProbability: winProbability.toFixed(1),
+            trend: trend,
+            isTop2: false
+        };
+    });
+    
+    // تحديد المرشحين المتوقع فوزهم
+    predictions.sort((a, b) => b.totalPredicted - a.totalPredicted);
+    
+    predictions.forEach((pred, index) => {
+        pred.rank = index + 1;
+        pred.isTop2 = index < 2;
+    });
+    
+    // حساب دقة التوقع بناءً على عدد اللجان المدخلة
+    let accuracy = 'منخفضة';
+    if (enteredCommittees >= 30) accuracy = 'عالية';
+    else if (enteredCommittees >= 15) accuracy = 'متوسطة';
+    
+    return {
+        predictions,
+        enteredCommittees,
+        remainingCommittees,
+        completionPercentage: ((enteredCommittees / 60) * 100).toFixed(1),
+        expectedWinners: predictions.slice(0, 2),
+        accuracy: accuracy
+    };
+}
+
+// ================== تحديث واجهة التوقعات ==================
+function updatePredictions() {
+    const predictionData = calculatePredictions();
+    
+    if (!predictionData) {
+        // إذا لم تكن هناك بيانات كافية
+        document.getElementById('pred-entered').textContent = '0';
+        document.getElementById('pred-percentage').textContent = '0%';
+        document.getElementById('pred-remaining').textContent = '60';
+        document.getElementById('accuracy-indicator').textContent = 'بانتظار البيانات';
+        document.getElementById('accuracy-indicator').className = 'accuracy-indicator accuracy-low';
+        
+        document.getElementById('winners-prediction').innerHTML = `
+            <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted);">
+                <div style="font-size: 3rem; margin-bottom: 20px;">🔮</div>
+                <div style="font-size: 1.2rem; margin-bottom: 10px;">بدء إدخال بيانات اللجان</div>
+                <div>قم بإدخال بيانات اللجان لتفعيل نظام التوقع الذكي</div>
+            </div>
+        `;
+        
+        document.getElementById('detailed-predictions').innerHTML = `
+            <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+                النظام جاهز لتحليل البيانات وتوقع الفائزين بمجرد إدخال معلومات اللجان
+            </div>
+        `;
+        return;
+    }
+    
+    // تحديث المعلومات العامة
+    document.getElementById('pred-entered').textContent = predictionData.enteredCommittees;
+    document.getElementById('pred-percentage').textContent = predictionData.completionPercentage + '%';
+    document.getElementById('pred-remaining').textContent = predictionData.remainingCommittees;
+    
+    // تحديث مؤشر الدقة
+    document.getElementById('accuracy-indicator').textContent = `دقة ${predictionData.accuracy}`;
+    document.getElementById('accuracy-indicator').className = `accuracy-indicator accuracy-${predictionData.accuracy === 'عالية' ? 'high' : predictionData.accuracy === 'متوسطة' ? 'medium' : 'low'}`;
+    
+    // تحديث توقع الفائزين
+    const winnersContainer = document.getElementById('winners-prediction');
+    if (winnersContainer) {
+        winnersContainer.innerHTML = predictionData.expectedWinners.map((winner, index) => `
+            <div class="${index === 0 ? 'prediction-winner' : 'prediction-second'}">
+                <div style="position: absolute; top: 10px; right: 10px; font-size: 2rem;">
+                    ${index === 0 ? '🥇' : '🥈'}
+                </div>
+                <div style="text-align: center; margin-bottom: 15px;">
+                    <div style="font-size: 1.5rem; font-weight: bold; color: ${index === 0 ? '#fbbf24' : '#94a3b8'};">
+                        ${winner.emoji} ${winner.name}
+                    </div>
+                    <div style="font-size: 0.9rem; color: var(--text-muted);">المركز المتوقع: ${winner.rank}</div>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; margin-bottom: 10px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <span style="color: var(--text-muted);">الأصوات الحالية:</span>
+                        <span style="font-weight: bold; color: var(--success);">${winner.currentVotes.toLocaleString()}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <span style="color: var(--text-muted);">المتوقع إضافتها:</span>
+                        <span style="font-weight: bold; color: var(--warning);">${winner.estimatedFutureVotes.toLocaleString()}</span>
+                    </div>
+                </div>
+                
+                <div style="text-align: center;">
+                    <div style="font-size: 1.8rem; font-weight: bold; color: ${index === 0 ? '#fbbf24' : '#94a3b8'};">
+                        ${winner.totalPredicted.toLocaleString()}
+                    </div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);">إجمالي الأصوات المتوقعة</div>
+                </div>
+                
+                <div style="margin-top: 15px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <span style="color: var(--text-muted); font-size: 0.8rem;">نسبة الفوز:</span>
+                        <span style="font-weight: bold; color: ${winner.winProbability > 50 ? 'var(--success)' : 'var(--warning)'};">
+                            ${winner.winProbability}%
+                            ${winner.trend === 'up' ? '↗️' : winner.trend === 'down' ? '↘️' : '➡️'}
+                        </span>
+                    </div>
+                    <div class="prediction-progress-bar">
+                        <div class="prediction-progress-fill" style="width: ${winner.winProbability}%; background: ${winner.winProbability > 50 ? 'var(--success)' : 'var(--warning)'};"></div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    // تحديث التوقعات التفصيلية
+    const detailedContainer = document.getElementById('detailed-predictions');
+    if (detailedContainer) {
+        detailedContainer.innerHTML = `
+            <div class="scroll-list" style="max-height: 300px;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background: #111827;">
+                            <th style="padding: 10px; text-align: right; color: var(--text-muted);">المرشح</th>
+                            <th style="padding: 10px; text-align: center; color: var(--text-muted);">الحالي</th>
+                            <th style="padding: 10px; text-align: center; color: var(--text-muted);">المتوسط/لجنة</th>
+                            <th style="padding: 10px; text-align: center; color: var(--text-muted);">المتوقع</th>
+                            <th style="padding: 10px; text-align: center; color: var(--text-muted);">الإجمالي المتوقع</th>
+                            <th style="padding: 10px; text-align: center; color: var(--text-muted);">نسبة الفوز</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${predictionData.predictions.map(pred => `
+                            <tr style="border-bottom: 1px solid #334155; ${pred.isTop2 ? 'background: rgba(59, 130, 246, 0.05);' : ''}">
+                                <td style="padding: 10px; text-align: right;">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <span style="font-size: 1.2rem;">${pred.emoji}</span>
+                                        <span style="font-weight: ${pred.isTop2 ? 'bold' : 'normal'}; color: ${pred.isTop2 ? 'var(--warning)' : 'var(--text-main)'}">
+                                            ${pred.name}
+                                            ${pred.isTop2 ? '<span style="color: var(--success); font-size: 0.8rem;"> (متوقع فوز)</span>' : ''}
+                                        </span>
+                                    </div>
+                                </td>
+                                <td style="padding: 10px; text-align: center; font-weight: bold; color: var(--primary);">
+                                    ${pred.currentVotes.toLocaleString()}
+                                </td>
+                                <td style="padding: 10px; text-align: center; color: var(--text-muted);">
+                                    ${pred.avgPerCommittee}
+                                </td>
+                                <td style="padding: 10px; text-align: center; color: var(--warning);">
+                                    ${pred.estimatedFutureVotes.toLocaleString()}
+                                </td>
+                                <td style="padding: 10px; text-align: center; font-weight: bold; color: ${pred.totalPredicted >= 35000 ? 'var(--success)' : 'var(--warning)'};">
+                                    ${pred.totalPredicted.toLocaleString()}
+                                    ${pred.totalPredicted >= 35000 ? ' ✅' : ''}
+                                </td>
+                                <td style="padding: 10px; text-align: center;">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <div style="flex-grow: 1; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden;">
+                                            <div style="height: 100%; width: ${pred.winProbability}%; background: ${pred.winProbability > 50 ? 'var(--success)' : 'var(--warning)'}; border-radius: 3px;"></div>
+                                        </div>
+                                        <span style="font-weight: bold; color: ${pred.winProbability > 50 ? 'var(--success)' : 'var(--warning)'}; min-width: 40px;">
+                                            ${pred.winProbability}%
+                                        </span>
+                                    </div>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+}
+
+// ================== تصدير تقرير التوقعات ==================
+function exportPredictions() {
+    const predictionData = calculatePredictions();
+    if (!predictionData) {
+        alert("لا توجد بيانات كافية لعمل توقعات");
+        return;
+    }
+    
+    const wb = XLSX.utils.book_new();
+    let wsData = [];
+    
+    // عنوان التقرير
+    wsData.push([`تقرير التوقعات الذكية - نظام تحليل الفائزين`]);
+    wsData.push([`تاريخ التقرير: ${new Date().toLocaleString("ar-EG")}`]);
+    wsData.push([`تم إدخال ${predictionData.enteredCommittees} من 60 لجنة (${predictionData.completionPercentage}%)`]);
+    wsData.push([`دقة التوقع: ${predictionData.accuracy}`]);
+    wsData.push([]);
+    
+    // الفائزون المتوقعون
+    wsData.push([`الفائزون المتوقعون (بناءً على البيانات الحالية):`]);
+    wsData.push([]);
+    wsData.push([`الترتيب`, `المرشح`, `الأصوات الحالية`, `المتوسط/لجنة`, `المتوقع إضافته`, `الإجمالي المتوقع`, `نسبة الفوز`, `الحالة`]);
+    
+    predictionData.predictions.forEach((pred, index) => {
+        wsData.push([
+            pred.rank,
+            pred.name,
+            pred.currentVotes,
+            pred.avgPerCommittee,
+            pred.estimatedFutureVotes,
+            pred.totalPredicted,
+            `${pred.winProbability}%`,
+            pred.isTop2 ? 'متوقع الفوز' : 'غير متوقع'
+        ]);
+    });
+    
+    wsData.push([]);
+    wsData.push([`ملاحظات التحليل:`]);
+    wsData.push([`- الحد الأدنى للفوز المتوقع: 35,000 صوت`]);
+    wsData.push([`- الحد الأقصى للفوز المتوقع: 40,000 صوت`]);
+    wsData.push([`- النظام يعتمد على تحليل الأنماط الإحصائية للبيانات المدخلة`]);
+    wsData.push([`- التوقعات تتغير مع إدخال المزيد من البيانات`]);
+    wsData.push([`- كلما زادت عدد اللجان المدخلة، زادت دقة التوقعات`]);
+    
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    
+    // تنسيق الخلايا
+    ws['!cols'] = [
+        { wch: 10 },  // الترتيب
+        { wch: 25 },  // المرشح
+        { wch: 15 },  // الأصوات الحالية
+        { wch: 15 },  // المتوسط/لجنة
+        { wch: 15 },  // المتوقع إضافته
+        { wch: 15 },  // الإجمالي المتوقع
+        { wch: 12 },  // نسبة الفوز
+        { wch: 15 }   // الحالة
+    ];
+    
+    XLSX.utils.book_append_sheet(wb, ws, "توقعات الفائزين");
+    
+    // حفظ الملف
+    const dateStr = new Date().toISOString().split('T')[0];
+    XLSX.writeFile(wb, `توقعات_الانتخابات_${dateStr}.xlsx`);
+    
+    alert("✅ تم تصدير تقرير التوقعات بنجاح!");
+}
+
+// ================== طباعة قسم التوقعات ==================
+function printPredictionSection() {
+    document.getElementById("p-date-val").textContent = new Date().toLocaleString("ar-EG");
+    const section = document.querySelector('.prediction-section');
+    section.classList.add("section-to-print");
+    window.print();
+    section.classList.remove("section-to-print");
+}
+
+// ================== دوال النظام الأساسية (السابقة) ==================
 function updateCompare() {
     const t = getTotals();
     const id1 = document.getElementById("comp1").value;
@@ -1452,6 +1864,9 @@ function renderAll() {
   });
   
   updateCompare();
+  updateBestComm();
+  updateRegionsAnalysis();
+  updatePredictions(); // تحديث التوقعات الذكية
 }
 
 function resetData() {
