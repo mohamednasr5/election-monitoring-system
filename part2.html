@@ -154,8 +154,7 @@ header { text-align: center; margin-bottom: 25px; border-bottom: 1px solid #3341
 }
 .cand-result-votes {
     font-size: 1.3rem;
-    font-weight: bold;
-    color: var(--primary);
+    font-weight: bold; color: var(--primary);
 }
 
 table { width: 100%; border-collapse: collapse; background: var(--bg-card); }
@@ -170,6 +169,7 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
 .btn-danger { background: var(--danger); }
 
 .admin-only { display: none; }
+.viewer-hide { display: none; }
 
 .form-section { background: var(--bg-card); padding: 25px; border-radius: 16px; margin-bottom: 30px; border: 1px solid #334155; }
 .input-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 15px; }
@@ -276,6 +276,16 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
 .prediction-trend-up { color: var(--success); }
 .prediction-trend-down { color: var(--danger); }
 .prediction-trend-stable { color: var(--text-muted); }
+
+/* تنسيقات للعرض فقط */
+.viewer-mode .controls-hide { display: none !important; }
+.viewer-mode .btn { display: none !important; }
+.viewer-mode .mini-export-btn { display: none !important; }
+.viewer-mode .mini-print-btn { display: none !important; }
+.viewer-mode select:not(.vs-select):not(#comp1):not(#comp2):not(#best-cand-select):not(#region-cand-select):not(#specific-comm-select):not(#mahdar-comm-select) { display: none !important; }
+.viewer-mode .form-section { display: none !important; }
+.viewer-mode .box-header .mini-export-btn { display: none !important; }
+.viewer-mode .box-header .mini-print-btn { display: none !important; }
 </style>
 </head>
 <body>
@@ -286,6 +296,10 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
     <input type="password" id="login-pass" placeholder="كود الدخول" class="login-input" />
     <button class="login-btn" onclick="loginNow()">دخول</button>
     <div id="login-error" style="color:red; margin-top:10px"></div>
+    <div style="margin-top: 15px; font-size: 0.9rem; color: var(--text-muted);">
+      <div>كود العرض فقط: 123456</div>
+      <div>كود الأدمن: 521988</div>
+    </div>
   </div>
 </div>
 
@@ -293,6 +307,7 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
 
   <header>
     <h1 class="headline">🗳️ جولة الإعادة - نظام تحليل الانتخابات المتطور</h1>
+    <div id="user-role-indicator" style="margin-top: 10px; font-size: 0.9rem; color: var(--warning);"></div>
   </header>
 
   <div class="stat-grid" id="stat-cards"></div>
@@ -301,7 +316,7 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
   <div class="prediction-section">
     <div class="box-header">
       <span class="box-title">🔮 نظام التوقع الذكي للفائزين</span>
-      <div>
+      <div class="controls-hide">
         <button class="mini-export-btn mini-print-btn" onclick="printPredictionSection()">🖨️ طباعة</button>
         <button class="mini-export-btn" onclick="exportPredictions()">📥 تقرير التوقعات</button>
       </div>
@@ -349,7 +364,9 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
     <div class="analysis-box">
       <div class="box-header">
           <span class="box-title">⚔️ مقارنة بين مرشحين</span>
-          <button class="mini-export-btn" onclick="exportComparison()">📥 Excel</button>
+          <div class="controls-hide">
+            <button class="mini-export-btn" onclick="exportComparison()">📥 Excel</button>
+          </div>
       </div>
       <div class="vs-container">
         <select id="comp1" class="vs-select" onchange="updateCompare()"></select>
@@ -364,7 +381,7 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
     <div class="analysis-box">
       <div class="box-header">
           <span class="box-title">💎 سجل المرشح في اللجان</span>
-          <div style="display:flex; align-items:center;">
+          <div class="controls-hide" style="display:flex; align-items:center;">
             <select id="best-comm-sort" class="sort-select" onchange="updateBestComm()">
               <option value="desc">الأكثر إلى الأقل</option>
               <option value="asc">الأقل إلى الأكثر</option>
@@ -384,7 +401,9 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
     <div class="analysis-box">
       <div class="box-header">
           <span class="box-title">🔎 تحليل لجنة محددة</span>
-          <button class="mini-export-btn" onclick="exportSpecificComm()">📥 Excel</button>
+          <div class="controls-hide">
+            <button class="mini-export-btn" onclick="exportSpecificComm()">📥 Excel</button>
+          </div>
       </div>
       <div style="margin-bottom:15px;">
         <select id="specific-comm-select" class="vs-select" onchange="showCommStats()" style="width:100%">
@@ -402,7 +421,7 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
     <div class="analysis-box" style="grid-column: 1 / -1;">
       <div class="box-header">
           <span class="box-title">📋 محضر اللجنة الكامل</span>
-          <div style="display:flex; gap:5px;">
+          <div class="controls-hide" style="display:flex; gap:5px;">
               <button class="mini-export-btn mini-print-btn" onclick="printMahdar()">🖨️ طباعة</button>
               <button class="mini-export-btn" onclick="exportMahdar()">📥 Excel</button>
           </div>
@@ -422,7 +441,7 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
     <div class="analysis-box" style="grid-column: 1 / -1;">
       <div class="box-header">
           <span class="box-title">📍 تحليل المرشح حسب المناطق</span>
-          <div style="display:flex; align-items:center;">
+          <div class="controls-hide" style="display:flex; align-items:center;">
             <select id="region-sort" class="sort-select" onchange="updateRegionsAnalysis()">
               <option value="desc">الأكثر إلى الأقل</option>
               <option value="asc">الأقل إلى الأكثر</option>
@@ -463,10 +482,10 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
     <button type="submit" class="btn btn-save">💾 حفظ البيانات</button>
   </form>
 
-  <div style="display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap;">
+  <div class="controls-hide" style="display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap;">
     <button class="btn btn-export" onclick="exportToExcel()">📤 تصدير قاعدة البيانات كاملة</button>
     <button class="btn" style="background:#8b5cf6" onclick="exportComparisonMatrix()">📊 تصدير مصفوفة المقارنة الشاملة</button>
-    <button class="btn btn-danger admin-only" onclick="resetData()">🗑️ تصفير</button>
+    <button class="btn btn-danger admin-only" onclick="confirmReset()">🗑️ تصفير</button>
     <button class="btn" style="background:#8b5cf6" onclick="location.reload()">🔄 تحديث</button>
   </div>
 
@@ -478,7 +497,7 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
     <div id="ranking-section" style="background:var(--bg-card); border-radius:16px; overflow:hidden; margin-bottom:20px;">
         <div style="padding:15px; font-weight:bold; background:#111827; border-bottom:1px solid #333; display:flex; justify-content:space-between; align-items:center;">
             <span>🏆 الترتيب العام للمرشحين</span>
-            <div style="display:flex;">
+            <div class="controls-hide" style="display:flex;">
                 <button class="mini-export-btn mini-print-btn" onclick="printSection('ranking-section')">🖨️ طباعة</button>
                 <button class="mini-export-btn" onclick="exportRanking()">📥 Excel</button>
             </div>
@@ -489,7 +508,7 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
     <div id="log-section" style="background:var(--bg-card); border-radius:16px; overflow:hidden;">
         <div style="padding:15px; font-weight:bold; background:#111827; display:flex; justify-content:space-between; align-items:center;">
             <span>📋 سجل اللجان</span>
-            <div style="display:flex; align-items:center;">
+            <div class="controls-hide" style="display:flex; align-items:center;">
                 <select id="log-sort" class="sort-select" onchange="renderAll()">
                   <option value="num">رقم اللجنة (1-60)</option>
                   <option value="total-desc">الحضور (الأكثر→الأقل)</option>
@@ -523,6 +542,20 @@ td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
   </span>
 </footer>
 
+</div>
+
+<!-- نافذة تأكيد كلمة سر التصفير -->
+<div id="reset-confirm-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center;">
+  <div style="background:var(--bg-card); padding:30px; border-radius:12px; width:90%; max-width:400px;">
+    <h3 style="color:var(--danger); text-align:center; margin-bottom:20px;">⚠️ تأكيد تصفير البيانات</h3>
+    <p style="text-align:center; margin-bottom:20px;">لتصفير جميع البيانات، يرجى إدخال كلمة سر الأدمن:</p>
+    <input type="password" id="reset-password" placeholder="كلمة سر الأدمن" style="width:100%; padding:12px; background:var(--bg-input); border:1px solid var(--danger); border-radius:8px; color:white; text-align:center; margin-bottom:15px;">
+    <div style="display:flex; gap:10px;">
+      <button onclick="performReset()" style="flex:1; padding:12px; background:var(--danger); color:white; border:none; border-radius:8px; font-weight:bold;">تصفير</button>
+      <button onclick="cancelReset()" style="flex:1; padding:12px; background:var(--text-muted); color:white; border:none; border-radius:8px; font-weight:bold;">إلغاء</button>
+    </div>
+    <div id="reset-error" style="color:var(--danger); text-align:center; margin-top:10px;"></div>
+  </div>
 </div>
 
 <script>
@@ -641,22 +674,41 @@ function getRegionByCommittee(commNum) {
   return null;
 }
 
-let isAdmin = false;
+let userRole = null; // 'viewer', 'admin', 'superAdmin'
 
 function loginNow() {
   const pass = document.getElementById("login-pass").value;
-  if(pass === "742018") {
-    isAdmin = true;
-    document.getElementById("login-screen").style.display="none";
-    document.getElementById("main-app").style.display="block";
-    document.querySelectorAll('.admin-only').forEach(e => e.style.display = 'block');
-  } else if(pass === "521988") {
-    isAdmin = false;
+  const errorDiv = document.getElementById("login-error");
+  
+  if(pass === "123456") {
+    userRole = 'viewer';
     document.getElementById("login-screen").style.display="none";
     document.getElementById("main-app").style.display="block";
     document.querySelectorAll('.admin-only').forEach(e => e.style.display = 'none');
+    document.querySelectorAll('.controls-hide').forEach(e => e.style.display = 'none');
+    document.body.classList.add('viewer-mode');
+    document.getElementById("user-role-indicator").textContent = "👁️ وضع العرض فقط - يمكنك مشاهدة البيانات فقط";
+    document.getElementById("user-role-indicator").style.color = "var(--primary)";
+  } else if(pass === "521988") {
+    userRole = 'admin';
+    document.getElementById("login-screen").style.display="none";
+    document.getElementById("main-app").style.display="block";
+    document.querySelectorAll('.admin-only').forEach(e => e.style.display = 'block');
+    document.querySelectorAll('.controls-hide').forEach(e => e.style.display = 'flex');
+    document.body.classList.remove('viewer-mode');
+    document.getElementById("user-role-indicator").textContent = "👑 وضع الأدمن - يمكنك الإدخال والتحليل";
+    document.getElementById("user-role-indicator").style.color = "var(--warning)";
+  } else if(pass === "742018") {
+    userRole = 'superAdmin';
+    document.getElementById("login-screen").style.display="none";
+    document.getElementById("main-app").style.display="block";
+    document.querySelectorAll('.admin-only').forEach(e => e.style.display = 'block');
+    document.querySelectorAll('.controls-hide').forEach(e => e.style.display = 'flex');
+    document.body.classList.remove('viewer-mode');
+    document.getElementById("user-role-indicator").textContent = "⚡ وضع الأدمن المميز - كافة الصلاحيات";
+    document.getElementById("user-role-indicator").style.color = "var(--success)";
   } else { 
-    document.getElementById("login-error").textContent = "❌ كود خطأ"; 
+    errorDiv.textContent = "❌ كود خطأ - جرب: 123456 للعرض، 521988 للأدمن"; 
   }
 }
 
@@ -724,6 +776,12 @@ db.ref("committees").on("value", snap => {
 
 document.getElementById("add-form").onsubmit = function(e) {
   e.preventDefault();
+  
+  if(userRole === 'viewer') {
+    alert("⛔ غير مسموح - صلاحيات محدودة للعرض فقط");
+    return;
+  }
+  
   const dt = new FormData(e.target);
   const num = parseInt(dt.get("num"));
   const total = parseInt(dt.get("total"));
@@ -1016,6 +1074,11 @@ function updatePredictions() {
 
 // ================== تصدير تقرير التوقعات ==================
 function exportPredictions() {
+    if(userRole === 'viewer') {
+        alert("⛔ غير مسموح - صلاحيات محدودة للعرض فقط");
+        return;
+    }
+    
     const predictionData = calculatePredictions();
     if (!predictionData) {
         alert("لا توجد بيانات كافية لعمل توقعات");
@@ -1090,7 +1153,41 @@ function printPredictionSection() {
     section.classList.remove("section-to-print");
 }
 
-// ================== دوال النظام الأساسية (السابقة) ==================
+// ================== تأكيد وتصفير البيانات ==================
+function confirmReset() {
+    if(userRole !== 'admin' && userRole !== 'superAdmin') {
+        alert("⛔ غير مسموح - صلاحيات محدودة");
+        return;
+    }
+    
+    document.getElementById("reset-confirm-modal").style.display = "flex";
+}
+
+function cancelReset() {
+    document.getElementById("reset-confirm-modal").style.display = "none";
+    document.getElementById("reset-password").value = "";
+    document.getElementById("reset-error").textContent = "";
+}
+
+function performReset() {
+    const password = document.getElementById("reset-password").value;
+    
+    if(password !== "742018") {
+        document.getElementById("reset-error").textContent = "❌ كلمة سر خاطئة";
+        return;
+    }
+    
+    // تأكيد التصفير
+    if(confirm("⚠️ هل أنت متأكد من تصفير كل البيانات؟ هذا الإجراء لا يمكن التراجع عنه.")) {
+        db.ref("committees").remove(() => {
+            alert("✅ تم تصفير البيانات");
+            cancelReset();
+            location.reload();
+        });
+    }
+}
+
+// ================== دوال النظام الأساسية ==================
 function updateCompare() {
     const t = getTotals();
     const id1 = document.getElementById("comp1").value;
@@ -1338,6 +1435,11 @@ function saveStyledWorkbook(wb, filename) {
 }
 
 function exportMahdar() {
+    if(userRole === 'viewer') {
+        alert("⛔ غير مسموح - صلاحيات محدودة للعرض فقط");
+        return;
+    }
+    
     const commId = parseInt(document.getElementById("mahdar-comm-select").value);
     if(!commId) { alert("اختر لجنة"); return; }
     
@@ -1513,6 +1615,11 @@ function updateRegionsAnalysis() {
 }
 
 function exportRegionsAnalysis() {
+    if(userRole === 'viewer') {
+        alert("⛔ غير مسموح - صلاحيات محدودة للعرض فقط");
+        return;
+    }
+    
     const candId = document.getElementById("region-cand-select").value;
     const sortOrder = document.getElementById("region-sort").value;
     if(!candId) { alert("اختر مرشحاً"); return; }
@@ -1573,6 +1680,11 @@ function exportRegionsAnalysis() {
 }
 
 function exportComparisonMatrix() {
+    if(userRole === 'viewer') {
+        alert("⛔ غير مسموح - صلاحيات محدودة للعرض فقط");
+        return;
+    }
+    
     const wb = XLSX.utils.book_new();
     let wsData = [];
 
@@ -1612,6 +1724,11 @@ function exportComparisonMatrix() {
 }
 
 function exportComparison() {
+    if(userRole === 'viewer') {
+        alert("⛔ غير مسموح - صلاحيات محدودة للعرض فقط");
+        return;
+    }
+    
     const id1 = document.getElementById("comp1").value;
     const id2 = document.getElementById("comp2").value;
     if(!id1 || !id2) { alert("اختر مرشحين"); return; }
@@ -1636,6 +1753,11 @@ function exportComparison() {
 }
 
 function exportBestComm() {
+    if(userRole === 'viewer') {
+        alert("⛔ غير مسموح - صلاحيات محدودة للعرض فقط");
+        return;
+    }
+    
     const candId = document.getElementById("best-cand-select").value;
     const sortOrder = document.getElementById("best-comm-sort").value;
     if(!candId) { alert("اختر مرشحاً"); return; }
@@ -1677,6 +1799,11 @@ function exportBestComm() {
 }
 
 function exportSpecificComm() {
+    if(userRole === 'viewer') {
+        alert("⛔ غير مسموح - صلاحيات محدودة للعرض فقط");
+        return;
+    }
+    
     const commId = parseInt(document.getElementById("specific-comm-select").value);
     if(!commId) { alert("اختر لجنة"); return; }
     
@@ -1716,6 +1843,11 @@ function exportSpecificComm() {
 }
 
 function exportRanking() {
+    if(userRole === 'viewer') {
+        alert("⛔ غير مسموح - صلاحيات محدودة للعرض فقط");
+        return;
+    }
+    
     const t = getTotals();
     const wb = XLSX.utils.book_new();
     let wsData = [];
@@ -1740,6 +1872,11 @@ function exportRanking() {
 }
 
 function exportLog() {
+    if(userRole === 'viewer') {
+        alert("⛔ غير مسموح - صلاحيات محدودة للعرض فقط");
+        return;
+    }
+    
     const t = getTotals();
     const sortValue = document.getElementById("log-sort").value;
     const sortedList = getSortedList(t.list, sortValue);
@@ -1764,6 +1901,11 @@ function exportLog() {
 }
 
 function exportToExcel() {
+    if(userRole === 'viewer') {
+        alert("⛔ غير مسموح - صلاحيات محدودة للعرض فقط");
+        return;
+    }
+    
     const t = getTotals();
     const wb = XLSX.utils.book_new();
     
@@ -1867,20 +2009,6 @@ function renderAll() {
   updateBestComm();
   updateRegionsAnalysis();
   updatePredictions(); // تحديث التوقعات الذكية
-}
-
-function resetData() {
-  if(!isAdmin) {
-    alert("⛔ غير مسموح - صلاحيات محدودة");
-    return;
-  }
-  
-  if(confirm("⚠️ هل أنت متأكد من تصفير كل البيانات؟")) {
-    db.ref("committees").remove(() => {
-      alert("✅ تم تصفير البيانات");
-      location.reload();
-    });
-  }
 }
 
 function printSection(sectionId) {
