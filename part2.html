@@ -12,7 +12,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
 <style>
-/* جميع أنماط CSS الأصلية */
 :root {
   --bg-body: #0a0e27;
   --bg-card: #1a1f3a;
@@ -74,7 +73,6 @@ body::before {
   z-index: 1;
 }
 
-/* Header Styles */
 header { 
   text-align: center; 
   margin-bottom: 40px; 
@@ -121,7 +119,6 @@ header::before {
   50% { background-position: 100% center; }
 }
 
-/* Login Screen */
 .login-screen { 
   position: fixed; 
   inset: 0; 
@@ -265,7 +262,6 @@ header::before {
   to { transform: rotate(360deg); }
 }
 
-/* Particles */
 .particles {
   position: fixed;
   top: 0;
@@ -292,7 +288,6 @@ header::before {
   100% { transform: translateY(-100vh) translateX(50px); opacity: 0; }
 }
 
-/* Stats Cards */
 .stat-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -354,7 +349,6 @@ header::before {
   z-index: 1;
 }
 
-/* Advanced Stats */
 .advanced-stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -417,7 +411,6 @@ header::before {
   color: var(--text-muted);
 }
 
-/* Prediction Section */
 .prediction-section {
   background: linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 41, 59, 0.8));
   padding: 40px;
@@ -527,12 +520,6 @@ header::before {
   100% { transform: translateX(100%); }
 }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-
-/* Form Section */
 .form-section {
   background: var(--bg-card);
   padding: 30px;
@@ -608,7 +595,6 @@ header::before {
   box-shadow: 0 6px 25px rgba(16, 185, 129, 0.5);
 }
 
-/* Analysis Box */
 .analysis-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
@@ -742,7 +728,6 @@ header::before {
   background: var(--primary-light);
 }
 
-/* Buttons */
 .btn {
   padding: 12px 25px;
   border: none;
@@ -806,7 +791,6 @@ header::before {
   color: white;
 }
 
-/* Table Styles */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -867,7 +851,6 @@ tbody td {
   border-radius: 5px;
 }
 
-/* Footer */
 .main-footer {
   text-align: center;
   padding: 30px;
@@ -908,7 +891,40 @@ tbody td {
   20%, 40% { transform: scale(1); }
 }
 
-/* Print Styles */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#regions-result [id^="region-details-"] {
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary) rgba(255, 255, 255, 0.1);
+}
+
+#regions-result [id^="region-details-"]::-webkit-scrollbar {
+  width: 8px;
+}
+
+#regions-result [id^="region-details-"]::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+#regions-result [id^="region-details-"]::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 4px;
+}
+
+#regions-result [id^="region-details-"]::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-light);
+}
+
 @media print {
   body { background: white; color: black; }
   .login-screen, header button, .controls-hide, .admin-only, .particles { display: none !important; }
@@ -920,7 +936,6 @@ tbody td {
   }
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .headline { font-size: 1.8rem; }
   .login-box { padding: 30px 20px; max-width: 90%; }
@@ -931,7 +946,6 @@ tbody td {
   .sort-controls { flex-direction: column; }
 }
 
-/* Viewer Mode */
 .viewer-mode .admin-only {
   display: none !important;
 }
@@ -943,7 +957,6 @@ tbody td {
 </head>
 <body>
 
-<!-- Particle Background -->
 <div class="particles" id="particles"></div>
 
 <div id="login-screen" class="login-screen">
@@ -972,10 +985,8 @@ tbody td {
     </div>
   </header>
 
-  <!-- إحصائيات رئيسية -->
   <div class="stat-grid" id="stat-cards"></div>
 
-  <!-- إحصائيات متقدمة -->
   <div class="advanced-stats">
     <div class="advanced-card">
       <div class="advanced-card-icon">📊</div>
@@ -1006,7 +1017,6 @@ tbody td {
     </div>
   </div>
 
-  <!-- نظام التوقعات الذكي -->
   <div id="prediction-section" class="prediction-section" style="position:relative;">
     <div style="text-align:center; margin-bottom:30px; position:relative; z-index:1;">
       <div style="font-size:2rem; font-weight:bold; color:var(--warning); margin-bottom:15px; text-shadow: 0 2px 10px rgba(245, 158, 11, 0.3);">
@@ -1053,7 +1063,6 @@ tbody td {
     </div>
   </div>
 
-  <!-- Form to add committee data -->
   <div class="form-section admin-only">
     <h3 style="margin-bottom:25px; color:var(--warning); font-size:1.5rem; text-align:center;">
       ➕ إضافة بيانات لجنة جديدة
@@ -1086,9 +1095,7 @@ tbody td {
     </form>
   </div>
 
-  <!-- Analysis Sections -->
   <div class="analysis-row">
-    <!-- Comparison -->
     <div class="analysis-box">
       <div class="box-header">
         <span class="box-title">⚔️ مقارنة بين مرشحين</span>
@@ -1109,7 +1116,6 @@ tbody td {
       </div>
     </div>
 
-    <!-- Best Committees per Candidate -->
     <div class="analysis-box">
       <div class="box-header">
         <span class="box-title">🏅 ترتيب اللجان لكل مرشح</span>
@@ -1135,7 +1141,6 @@ tbody td {
   </div>
 
   <div class="analysis-row">
-    <!-- Specific Committee Stats -->
     <div class="analysis-box">
       <div class="box-header">
         <span class="box-title">📊 إحصائيات لجنة محددة</span>
@@ -1159,7 +1164,6 @@ tbody td {
       </div>
     </div>
 
-    <!-- Regional Analysis -->
     <div class="analysis-box">
       <div class="box-header">
         <span class="box-title">🗺️ التحليل المناطقي</span>
@@ -1183,7 +1187,6 @@ tbody td {
     </div>
   </div>
 
-  <!-- Mahdar Section -->
   <div class="analysis-box">
     <div class="box-header">
       <span class="box-title">📋 محضر اللجنة</span>
@@ -1196,7 +1199,6 @@ tbody td {
     <div id="mahdar-content"></div>
   </div>
 
-  <!-- Export and Reset Buttons -->
   <div style="text-align:center; margin:40px 0;" class="controls-hide">
     <button class="btn btn-export" onclick="exportToExcel()">📥 تصدير قاعدة البيانات الكاملة (Excel)</button>
     <button class="btn btn-export" onclick="exportPredictions()">📊 تصدير التوقعات (Excel)</button>
@@ -1204,17 +1206,15 @@ tbody td {
     <button class="btn btn-danger admin-only" onclick="showResetConfirm()">🗑️ تصفير جميع البيانات</button>
   </div>
 
-  <!-- Charts Section -->
   <div id="chart-section" style="background:var(--bg-card); border-radius:20px; padding:25px; margin-bottom:40px; border:2px solid rgba(59, 130, 246, 0.2); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);">
     <div style="font-weight:bold; font-size:1.3rem; margin-bottom:25px; text-align:center; color:var(--warning);">
-      📈 الرسوم البيانية التفاعلية
+      📈 الرسوم البيانية التفاعلية (مرتب حسب الأعلى)
     </div>
     <div style="max-width:900px; margin:0 auto; background:white; padding:25px; border-radius:16px; position:relative; height:500px;">
       <canvas id="main-chart"></canvas>
     </div>
   </div>
 
-  <!-- Ranking Table -->
   <div id="ranking-section" style="background:var(--bg-card); border-radius:20px; overflow:hidden; margin-bottom:40px; border:2px solid rgba(59, 130, 246, 0.2); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);">
     <div style="padding:20px; font-weight:bold; background:linear-gradient(135deg, #111827, #1f2937); display:flex; justify-content:space-between; align-items:center;">
       <span style="font-size:1.2rem;">🏆 ترتيب المرشحين</span>
@@ -1236,7 +1236,6 @@ tbody td {
     </table>
   </div>
 
-  <!-- Log Section -->
   <div id="log-section" style="background:var(--bg-card); border-radius:20px; overflow:hidden; border:2px solid rgba(59, 130, 246, 0.2); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);">
     <div style="padding:20px; font-weight:bold; background:linear-gradient(135deg, #111827, #1f2937); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
       <span style="font-size:1.2rem;">📋 سجل اللجان</span>
@@ -1285,7 +1284,6 @@ tbody td {
 
 </div>
 
-<!-- نافذة تأكيد التصفير -->
 <div id="reset-confirm-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); backdrop-filter:blur(10px); z-index:1000; justify-content:center; align-items:center;">
   <div style="background:var(--bg-card); padding:40px; border-radius:20px; width:90%; max-width:450px; border:2px solid var(--danger); box-shadow:0 20px 60px rgba(239, 68, 68, 0.4);">
     <h3 style="color:var(--danger); text-align:center; margin-bottom:25px; font-size:1.8rem;">⚠️ تأكيد تصفير البيانات</h3>
@@ -1300,7 +1298,6 @@ tbody td {
 </div>
 
 <script>
-// ================= البيانات الأساسية =================
 const commMap = {
   1: { name: "الفروسات", address: "مدرسة احمد القصبى الابتدائية" },
   2: { name: "الفروسات", address: "مدرسة احمد القصبى الابتدائية" },
@@ -1397,7 +1394,6 @@ let userRole = null;
 let allCommittees = [];
 let chartInstance;
 
-// ================= Firebase Configuration =================
 const firebaseConfig = {
   apiKey: "AIzaSyDmZbk7WVAal2ZJIagWjsFQ8qRaj8tAtgg",
   authDomain: "part-4a8bd.firebaseapp.com",
@@ -1409,7 +1405,6 @@ const firebaseConfig = {
   measurementId: "G-K46GB707MS"
 };
 
-// تهيئة Firebase
 try {
   if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
@@ -1420,7 +1415,6 @@ try {
 
 const db = firebase.database();
 
-// ================= Particle System =================
 function createParticles() {
   const particlesContainer = document.getElementById('particles');
   if (!particlesContainer) return;
@@ -1436,13 +1430,11 @@ function createParticles() {
   }
 }
 
-// ================= Improved Login System =================
 function checkSavedLogin() {
   try {
     const savedLogin = localStorage.getItem('electionSystemLogin');
     if (savedLogin) {
       const { role, timestamp } = JSON.parse(savedLogin);
-      // تحقق إذا مرت أقل من 24 ساعة
       if (Date.now() - timestamp < 24 * 60 * 60 * 1000) {
         userRole = role;
         completeLogin(role);
@@ -1501,7 +1493,6 @@ function completeLogin(role) {
         break;
     }
     
-    // تحميل البيانات بعد تسجيل الدخول
     renderAll();
     showLoginSuccess(role);
   } catch (error) {
@@ -1552,7 +1543,6 @@ function loginNow() {
   errorDiv.textContent = "";
   hintDiv.textContent = "جاري التحقق...";
   
-  // إضافة تأثير تحميل
   const originalBtnText = loginBtn.textContent;
   loginBtn.textContent = "جاري التحقق...";
   loginBtn.disabled = true;
@@ -1584,7 +1574,6 @@ function loginNow() {
       
       completeLogin(role);
       
-      // إعادة تعيين زر الدخول
       loginBtn.textContent = originalBtnText;
       loginBtn.disabled = false;
       hintDiv.textContent = "تم تسجيل الدخول بنجاح!";
@@ -1595,13 +1584,11 @@ function loginNow() {
       hintDiv.textContent = "يرجى المحاولة مرة أخرى";
       hintDiv.style.color = "var(--text-muted)";
       
-      // تأثير اهتزاز
       passInput.style.animation = "none";
       setTimeout(() => {
         passInput.style.animation = "shake 0.5s";
       }, 10);
       
-      // إعادة تعيين زر الدخول
       loginBtn.textContent = originalBtnText;
       loginBtn.disabled = false;
     }
@@ -1629,7 +1616,6 @@ function logout() {
         hintDiv.style.color = "var(--text-muted)";
       }
       
-      // إعادة تعيين checkbox
       const rememberMeCheckbox = document.getElementById("remember-me");
       if (rememberMeCheckbox) rememberMeCheckbox.checked = false;
       
@@ -1640,7 +1626,6 @@ function logout() {
   }
 }
 
-// ================= Initialize Selects =================
 function populateSelects() {
   try {
     const candOpts = candidates.map(([id, n]) => `<option value="${id}">${id}. ${n}</option>`).join("");
@@ -1693,7 +1678,6 @@ function showCommName(val) {
   }
 }
 
-// ================= Database Listener =================
 db.ref("committees").on("value", snap => {
   try {
     allCommittees = [];
@@ -1710,7 +1694,6 @@ db.ref("committees").on("value", snap => {
   }
 });
 
-// ================= Form Submit =================
 const addForm = document.getElementById("add-form");
 if (addForm) {
   addForm.onsubmit = function(e) {
@@ -1768,7 +1751,7 @@ if (addForm) {
     });
   };
 }
-// ================= Rendering Functions =================
+
 function renderAll() {
   try {
     if (!allCommittees || allCommittees.length === 0) {
@@ -1807,12 +1790,11 @@ function calculateStats() {
       }
     });
     
-    const expectedVoters = 120000; // عدد الناخبين المتوقع
+    const expectedVoters = 120000;
     const votingPercentage = ((totalVotes / expectedVoters) * 100).toFixed(2);
     const avgVotesPerCommittee = allCommittees.length > 0 ? Math.round(totalVotes / allCommittees.length) : 0;
     const validPercentage = totalVotes > 0 ? ((validVotes / totalVotes) * 100).toFixed(2) : 0;
     
-    // ترتيب المرشحين
     const sortedCands = candidates.map(([id, name]) => ({
       id, name, votes: candTotals[id]
     })).sort((a, b) => b.votes - a.votes);
@@ -1820,7 +1802,6 @@ function calculateStats() {
     const firstSecondDiff = sortedCands.length >= 2 ? 
       (sortedCands[0].votes - sortedCands[1].votes) : 0;
     
-    // تحديث الكروت الرئيسية
     const statCardsHTML = `
       <div class="card blue">
         <div class="card-title">📥 إجمالي الحضور</div>
@@ -1843,7 +1824,6 @@ function calculateStats() {
     const statCards = document.getElementById("stat-cards");
     if (statCards) statCards.innerHTML = statCardsHTML;
     
-    // تحديث الإحصائيات المتقدمة
     const votingPercentageEl = document.getElementById("voting-percentage");
     const avgVotesCommitteeEl = document.getElementById("avg-votes-committee");
     const validPercentageEl = document.getElementById("valid-percentage");
@@ -1969,9 +1949,22 @@ function renderChart() {
       }
     });
     
-    const labels = candidates.map(([id, name, emoji]) => `${emoji} ${name}`);
-    const data = candidates.map(([id]) => candTotals[id]);
-    const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'];
+    const sortedCandidates = candidates.map(([id, name, emoji]) => ({
+      id,
+      name,
+      emoji,
+      votes: candTotals[id]
+    })).sort((a, b) => b.votes - a.votes);
+    
+    const labels = sortedCandidates.map(c => `${c.emoji} ${c.name}`);
+    const data = sortedCandidates.map(c => c.votes);
+    
+    const colors = [
+      '#f59e0b', // ذهبي للأول
+      '#3b82f6', // أزرق للثاني
+      '#10b981', // أخضر للثالث
+      '#8b5cf6'  // بنفسجي للرابع
+    ];
     
     if (chartInstance) {
       chartInstance.destroy();
@@ -2001,7 +1994,7 @@ function renderChart() {
           },
           title: {
             display: true,
-            text: 'توزيع الأصوات على المرشحين',
+            text: 'توزيع الأصوات على المرشحين (مرتب حسب الأعلى)',
             font: {
               size: 18,
               weight: 'bold',
@@ -2018,7 +2011,30 @@ function renderChart() {
               family: 'Cairo'
             },
             color: '#1f2937',
-            formatter: (value) => value.toLocaleString()
+            formatter: (value, context) => {
+              const rank = context.dataIndex + 1;
+              const medal = rank === 1 ? '🥇 ' : rank === 2 ? '🥈 ' : rank === 3 ? '🥉 ' : '';
+              return medal + value.toLocaleString();
+            }
+          },
+          tooltip: {
+            rtl: true,
+            textDirection: 'rtl',
+            callbacks: {
+              title: function(context) {
+                return context[0].label;
+              },
+              label: function(context) {
+                const rank = context.dataIndex + 1;
+                const totalVotes = context.dataset.data.reduce((a, b) => a + b, 0);
+                const percentage = totalVotes > 0 ? ((context.parsed.y / totalVotes) * 100).toFixed(2) : 0;
+                return [
+                  `الترتيب: ${rank}`,
+                  `الأصوات: ${context.parsed.y.toLocaleString()}`,
+                  `النسبة: ${percentage}%`
+                ];
+              }
+            }
           }
         },
         scales: {
@@ -2029,7 +2045,10 @@ function renderChart() {
                 size: 12,
                 family: 'Cairo'
               },
-              color: '#1f2937'
+              color: '#1f2937',
+              callback: function(value) {
+                return value.toLocaleString();
+              }
             },
             grid: {
               color: 'rgba(0, 0, 0, 0.1)'
@@ -2061,7 +2080,6 @@ function renderChart() {
   }
 }
 
-// ================= Predictions System =================
 function updatePredictions() {
   try {
     const entered = allCommittees.length;
@@ -2077,7 +2095,6 @@ function updatePredictions() {
     if (predRemaining) predRemaining.textContent = remaining;
     if (predPercentage) predPercentage.textContent = percentage + "%";
     
-    // تحديد دقة التوقع
     let accuracyClass = "accuracy-low";
     let accuracyText = "منخفضة";
     
@@ -2100,7 +2117,6 @@ function updatePredictions() {
       accuracyIndicator.textContent = accuracyText;
     }
     
-    // حساب التوقعات
     let candTotals = {};
     candidates.forEach(([id]) => candTotals[id] = 0);
     
@@ -2112,20 +2128,17 @@ function updatePredictions() {
       }
     });
     
-    // حساب المتوسط لكل مرشح
     const avgPerComm = {};
     candidates.forEach(([id]) => {
       avgPerComm[id] = entered > 0 ? candTotals[id] / entered : 0;
     });
     
-    // التوقع النهائي
     const predictions = candidates.map(([id, name, emoji]) => {
       const currentVotes = candTotals[id];
       const predictedTotal = Math.round(avgPerComm[id] * 60);
       return { id, name, emoji, currentVotes, predictedTotal };
     }).sort((a, b) => b.predictedTotal - a.predictedTotal);
     
-    // عرض المتوقع فوزهم (أول 2)
     const winnersDiv = document.getElementById("winners-prediction");
     if (winnersDiv) {
       winnersDiv.innerHTML = predictions.slice(0, 2).map((p, idx) => {
@@ -2167,7 +2180,6 @@ function updatePredictions() {
       }).join("");
     }
     
-    // عرض تفاصيل جميع المرشحين
     const detailedDiv = document.getElementById("detailed-predictions");
     if (detailedDiv) {
       const totalPredicted = predictions.reduce((sum, c) => sum + c.predictedTotal, 0);
@@ -2223,7 +2235,6 @@ function updatePredictions() {
   }
 }
 
-// ================= Comparison Functions =================
 function updateCompare() {
   try {
     const comp1 = document.getElementById("comp1");
@@ -2303,7 +2314,6 @@ function updateCompare() {
   }
 }
 
-// ================= Best Committees per Candidate =================
 function updateBestComm() {
   try {
     const selectEl = document.getElementById("best-cand-select");
@@ -2381,7 +2391,6 @@ function updateBestComm() {
   }
 }
 
-// ================= Specific Committee Stats =================
 function showCommStats() {
   try {
     const selectEl = document.getElementById("specific-comm-select");
@@ -2484,7 +2493,6 @@ function showCommStats() {
   }
 }
 
-// ================= Regional Analysis =================
 function updateRegionsAnalysis() {
   try {
     const selectEl = document.getElementById("region-cand-select");
@@ -2504,19 +2512,32 @@ function updateRegionsAnalysis() {
     const cand = candidates.find(([id]) => id === candId);
     if (!cand) return;
     
-    // حساب الأصوات لكل منطقة
     let regionData = Object.keys(regions).map(key => {
       const region = regions[key];
       let votes = 0;
       let enteredComm = 0;
+      let committeeDetails = [];
       
       region.committees.forEach(commNum => {
         const comm = allCommittees.find(c => c.number === commNum);
+        const commInfo = commMap[commNum] || { name: "غير معروف", address: "" };
+        const commVotes = (comm && comm.candidates && comm.candidates[candId]) ? comm.candidates[candId] : 0;
+        
         if (comm && comm.candidates && comm.candidates[candId]) {
           votes += comm.candidates[candId];
           enteredComm++;
         }
+        
+        committeeDetails.push({
+          number: commNum,
+          name: commInfo.name,
+          address: commInfo.address,
+          votes: commVotes,
+          entered: !!comm
+        });
       });
+      
+      committeeDetails.sort((a, b) => b.votes - a.votes);
       
       return {
         key,
@@ -2526,7 +2547,8 @@ function updateRegionsAnalysis() {
         totalComm: region.committees.length,
         enteredComm,
         percentage: region.committees.length > 0 ? 
-          ((enteredComm / region.committees.length) * 100).toFixed(1) : 0
+          ((enteredComm / region.committees.length) * 100).toFixed(1) : 0,
+        committeeDetails
       };
     });
     
@@ -2547,11 +2569,13 @@ function updateRegionsAnalysis() {
       </div>
       
       <div style="display:grid; gap:15px;">
-        ${regionData.map(r => {
+        ${regionData.map((r, idx) => {
           const votePercent = totalVotes > 0 ? ((r.votes / totalVotes) * 100).toFixed(2) : 0;
           
           return `
-            <div style="padding:20px; background:rgba(15, 23, 42, 0.6); border-radius:12px; border:2px solid rgba(59, 130, 246, 0.2); cursor:pointer; transition:all 0.3s ease;" 
+            <div style="padding:20px; background:rgba(15, 23, 42, 0.6); border-radius:12px; border:2px solid rgba(59, 130, 246, 0.2); cursor:pointer; transition:all 0.3s ease; position:relative;" 
+                 id="region-card-${idx}"
+                 onclick="toggleRegionDetails(${idx})"
                  onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 20px rgba(59, 130, 246, 0.3)';"
                  onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
               <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px;">
@@ -2581,6 +2605,66 @@ function updateRegionsAnalysis() {
                        style="width:${votePercent}%; background:var(--primary);"></div>
                 </div>
               </div>
+              
+              <div id="region-details-${idx}" style="display:none; margin-top:20px; padding:20px; background:rgba(10, 14, 39, 0.95); border-radius:12px; border:2px solid var(--primary); max-height:400px; overflow-y:auto;">
+                <div style="font-weight:bold; font-size:1.1rem; margin-bottom:15px; color:var(--warning); text-align:center;">
+                  📋 تفاصيل اللجان في ${r.name}
+                </div>
+                <div style="display:grid; gap:10px;">
+                  ${r.committeeDetails.map(comm => {
+                    const commPercent = r.votes > 0 ? ((comm.votes / r.votes) * 100).toFixed(1) : 0;
+                    const statusColor = comm.entered ? 'var(--success)' : 'var(--danger)';
+                    const statusIcon = comm.entered ? '✅' : '❌';
+                    
+                    return `
+                      <div style="padding:12px; background:rgba(30, 41, 59, 0.8); border-radius:8px; border:1px solid rgba(59, 130, 246, 0.2); transition:all 0.3s ease;"
+                           onmouseover="this.style.background='rgba(30, 41, 59, 1)'; this.style.borderColor='var(--primary)';"
+                           onmouseout="this.style.background='rgba(30, 41, 59, 0.8)'; this.style.borderColor='rgba(59, 130, 246, 0.2)';">
+                        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+                          <div style="flex:1; min-width:200px;">
+                            <div style="font-weight:bold; font-size:1rem; margin-bottom:4px; color:var(--primary-light);">
+                              ${statusIcon} لجنة ${comm.number}: ${comm.name}
+                            </div>
+                            <div style="font-size:0.8rem; color:var(--text-muted);">
+                              ${comm.address}
+                            </div>
+                          </div>
+                          <div style="text-align:left;">
+                            <div style="font-size:1.5rem; font-weight:bold; color:${comm.entered ? 'var(--warning)' : statusColor};">
+                              ${comm.votes.toLocaleString()}
+                            </div>
+                            ${comm.entered ? `
+                              <div style="font-size:0.75rem; color:var(--text-muted);">
+                                ${commPercent}% من المنطقة
+                              </div>
+                            ` : `
+                              <div style="font-size:0.75rem; color:${statusColor};">
+                                لم يتم الإدخال
+                              </div>
+                            `}
+                          </div>
+                        </div>
+                      </div>
+                    `;
+                  }).join("")}
+                </div>
+                <div style="margin-top:15px; padding-top:15px; border-top:2px solid rgba(59, 130, 246, 0.2); text-align:center;">
+                  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:10px;">
+                    <div>
+                      <div style="font-size:0.8rem; color:var(--text-muted);">إجمالي اللجان</div>
+                      <div style="font-size:1.3rem; font-weight:bold; color:var(--primary);">${r.totalComm}</div>
+                    </div>
+                    <div>
+                      <div style="font-size:0.8rem; color:var(--text-muted);">تم إدخالها</div>
+                      <div style="font-size:1.3rem; font-weight:bold; color:var(--success);">${r.enteredComm}</div>
+                    </div>
+                    <div>
+                      <div style="font-size:0.8rem; color:var(--text-muted);">إجمالي الأصوات</div>
+                      <div style="font-size:1.3rem; font-weight:bold; color:var(--warning);">${r.votes.toLocaleString()}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           `;
         }).join("")}
@@ -2591,7 +2675,28 @@ function updateRegionsAnalysis() {
   }
 }
 
-// ================= Mahdar Function =================
+function toggleRegionDetails(regionIndex) {
+  try {
+    const detailsDiv = document.getElementById(`region-details-${regionIndex}`);
+    if (!detailsDiv) return;
+    
+    document.querySelectorAll('[id^="region-details-"]').forEach(div => {
+      if (div.id !== `region-details-${regionIndex}`) {
+        div.style.display = 'none';
+      }
+    });
+    
+    if (detailsDiv.style.display === 'none' || detailsDiv.style.display === '') {
+      detailsDiv.style.display = 'block';
+      detailsDiv.style.animation = 'slideDown 0.3s ease-out';
+    } else {
+      detailsDiv.style.display = 'none';
+    }
+  } catch (error) {
+    console.error("خطأ في عرض تفاصيل المنطقة:", error);
+  }
+}
+
 function showMahdar() {
   try {
     const selectEl = document.getElementById("mahdar-comm-select");
@@ -2722,7 +2827,6 @@ function showMahdar() {
   }
 }
 
-// ================= Export Functions =================
 function exportToExcel() {
   try {
     if (typeof XLSX === 'undefined') {
@@ -2732,7 +2836,6 @@ function exportToExcel() {
     
     const wb = XLSX.utils.book_new();
     
-    // ورقة 1: البيانات الأساسية
     const mainData = allCommittees.map(c => {
       const info = commMap[c.number] || { name: "", address: "" };
       const row = {
@@ -2754,7 +2857,6 @@ function exportToExcel() {
     const ws1 = XLSX.utils.json_to_sheet(mainData);
     XLSX.utils.book_append_sheet(wb, ws1, "بيانات اللجان");
     
-    // ورقة 2: الإحصائيات
     let totals = {};
     candidates.forEach(([id]) => totals[id] = 0);
     
@@ -2832,10 +2934,7 @@ function exportPredictions() {
 
 function exportComparison() {
   try {
-    if (typeof XLSX === 'undefined') {
-      alert("مكتبة Excel غير محملة");
-      return;
-    }
+    if (typeof XLSX === 'undefined') return;
     
     const comp1 = document.getElementById("comp1");
     const comp2 = document.getElementById("comp2");
@@ -2885,16 +2984,12 @@ function exportComparison() {
     alert("✅ تم تصدير المقارنة بنجاح");
   } catch (error) {
     console.error("خطأ في تصدير المقارنة:", error);
-    alert("❌ حدث خطأ أثناء التصدير");
   }
 }
 
 function exportComparisonMatrix() {
   try {
-    if (typeof XLSX === 'undefined') {
-      alert("مكتبة Excel غير محملة");
-      return;
-    }
+    if (typeof XLSX === 'undefined') return;
     
     let totals = {};
     candidates.forEach(([id]) => totals[id] = 0);
@@ -2929,7 +3024,6 @@ function exportComparisonMatrix() {
     alert("✅ تم تصدير مصفوفة المقارنة بنجاح");
   } catch (error) {
     console.error("خطأ في تصدير مصفوفة المقارنة:", error);
-    alert("❌ حدث خطأ أثناء التصدير");
   }
 }
 
@@ -3020,8 +3114,6 @@ function exportSpecificComm() {
       alert("لم يتم إدخال بيانات هذه اللجنة");
       return;
     }
-    
-    const info = commMap[commNum] || { name: "", address: "" };
     
     const data = candidates.map(([id, name]) => ({
       'المرشح': name,
@@ -3166,7 +3258,6 @@ function exportMahdar() {
   }
 }
 
-// ================= Print Function =================
 function printSection(sectionId) {
   try {
     const dateFooter = document.getElementById("print-date-footer");
@@ -3190,7 +3281,6 @@ function printSection(sectionId) {
   }
 }
 
-// ================= Reset Functions =================
 function showResetConfirm() {
   const modal = document.getElementById("reset-confirm-modal");
   if (modal) {
@@ -3238,15 +3328,12 @@ function performReset() {
   });
 }
 
-// ================= Initialize on Load =================
 window.addEventListener('DOMContentLoaded', () => {
   try {
     createParticles();
     populateSelects();
     
-    // فحص إذا كان المستخدم مسجل دخول مسبقاً
     if (!checkSavedLogin()) {
-      // إذا لم يكن مسجل دخول، عرض شاشة تسجيل الدخول
       const loginScreen = document.getElementById("login-screen");
       const mainApp = document.getElementById("main-app");
       
@@ -3254,7 +3341,6 @@ window.addEventListener('DOMContentLoaded', () => {
       if (mainApp) mainApp.style.display = "none";
     }
     
-    // إضافة مستمع لزر Enter في حقل كلمة المرور
     const loginPassInput = document.getElementById("login-pass");
     if (loginPassInput) {
       loginPassInput.addEventListener('keypress', (e) => {
@@ -3264,7 +3350,6 @@ window.addEventListener('DOMContentLoaded', () => {
       });
     }
     
-    // إضافة مستمع لزر Enter في حقل كلمة سر التصفير
     const resetPassInput = document.getElementById("reset-password");
     if (resetPassInput) {
       resetPassInput.addEventListener('keypress', (e) => {
@@ -3281,7 +3366,6 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// معالجة الأخطاء العامة
 window.addEventListener('error', (e) => {
   console.error("خطأ غير متوقع:", e.error);
 });
