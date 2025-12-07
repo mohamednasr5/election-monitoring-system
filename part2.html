@@ -1769,37 +1769,78 @@ function loginNow() {
   const pass = document.getElementById("login-pass").value;
   const errorDiv = document.getElementById("login-error");
   
-  if(pass === "123456") {
+  // مسح أي رسائل خطأ سابقة
+  errorDiv.textContent = "";
+  
+  if (pass === "123456") {
     userRole = 'viewer';
-    document.getElementById("login-screen").style.display="none";
-    document.getElementById("main-app").style.display="block";
+    document.getElementById("login-screen").style.display = "none";
+    document.getElementById("main-app").style.display = "block";
     document.querySelectorAll('.admin-only').forEach(e => e.style.display = 'none');
     document.querySelectorAll('.controls-hide').forEach(e => e.style.display = 'none');
     document.body.classList.add('viewer-mode');
-    document.getElementById("user-role-indicator").innerHTML = "👁️ وضع العرض فقط - يمكنك مشاهدة البيانات فقط";
-    document.getElementById("user-role-indicator").style.color = "var(--primary)";
-  } else if(pass === "198825") {
+    
+    const roleIndicator = document.getElementById("user-role-indicator");
+    if (roleIndicator) {
+      roleIndicator.textContent = "👁️ وضع العرض فقط - يمكنك مشاهدة البيانات فقط";
+      roleIndicator.style.color = "var(--primary)";
+    }
+    
+    renderAll();
+    
+  } else if (pass === "198825") {
     userRole = 'admin';
-    document.getElementById("login-screen").style.display="none";
-    document.getElementById("main-app").style.display="block";
+    document.getElementById("login-screen").style.display = "none";
+    document.getElementById("main-app").style.display = "block";
     document.querySelectorAll('.admin-only').forEach(e => e.style.display = 'block');
     document.querySelectorAll('.controls-hide').forEach(e => e.style.display = 'flex');
     document.body.classList.remove('viewer-mode');
-    document.getElementById("user-role-indicator").innerHTML = "👑 وضع الأدمن - يمكنك الإدخال والتحليل";
-    document.getElementById("user-role-indicator").style.color = "var(--warning)";
-  } else if(pass === "742018") {
+    
+    const roleIndicator = document.getElementById("user-role-indicator");
+    if (roleIndicator) {
+      roleIndicator.textContent = "👑 وضع الأدمن - يمكنك الإدخال والتحليل";
+      roleIndicator.style.color = "var(--warning)";
+    }
+    
+    renderAll();
+    
+  } else if (pass === "742018") {
     userRole = 'superAdmin';
-    document.getElementById("login-screen").style.display="none";
-    document.getElementById("main-app").style.display="block";
+    document.getElementById("login-screen").style.display = "none";
+    document.getElementById("main-app").style.display = "block";
     document.querySelectorAll('.admin-only').forEach(e => e.style.display = 'block');
     document.querySelectorAll('.controls-hide').forEach(e => e.style.display = 'flex');
     document.body.classList.remove('viewer-mode');
-    document.getElementById("user-role-indicator").innerHTML = "⚡ وضع الأدمن المميز - كافة الصلاحيات";
-    document.getElementById("user-role-indicator").style.color = "var(--success)";
+    
+    const roleIndicator = document.getElementById("user-role-indicator");
+    if (roleIndicator) {
+      roleIndicator.textContent = "⚡ وضع الأدمن المميز - كافة الصلاحيات";
+      roleIndicator.style.color = "var(--success)";
+    }
+    
+    renderAll();
+    
   } else { 
     errorDiv.textContent = "❌ كود خطأ - حاول مرة أخرى"; 
+    // اهتزاز حقل الإدخال للإشارة إلى الخطأ
+    const inputField = document.getElementById("login-pass");
+    inputField.style.animation = "none";
+    setTimeout(() => {
+      inputField.style.animation = "shake 0.5s";
+    }, 10);
   }
 }
+
+// إضافة animation للاهتزاز في حال الخطأ
+const style = document.createElement('style');
+style.textContent = `
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+`;
+document.head.appendChild(style);
 
 // ================= Initialize Selects =================
 function populateSelects() {
