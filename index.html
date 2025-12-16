@@ -347,15 +347,7 @@ window.handleLogin = async function() {
   // === COMMITTEE LOGIN ===
   const num = parseInt(val) - 900000;
   if(num >= 1 && num <= 60) {
-    const sessionRef = ref(db, `active_sessions/${num}`);
-    const snapshot = await get(sessionRef);
-    
-    if(snapshot.exists()) {
-      errText.innerText = "⚠️ يوجد مندوب آخر متصل بهذه اللجنة!";
-      errBox.style.display = "block";
-      return;
-    }
-
+    // تم إزالة الشرط الذي يمنع دخول أكثر من مستخدم لنفس اللجنة
     myCommittee = num;
     loginTime = Date.now();
     const info = committeesDB[num];
@@ -369,10 +361,10 @@ window.handleLogin = async function() {
         </span>
     `;
     
-    set(sessionRef, { status: 'online', timestamp: Date.now(), id: sessionID });
-    onDisconnect(sessionRef).remove();
+    set(ref(db, `active_sessions/${num}`), { status: 'online', timestamp: Date.now(), id: sessionID });
+    onDisconnect(ref(db, `active_sessions/${num}`)).remove();
 
-    onValue(sessionRef, (snap) => {
+    onValue(ref(db, `active_sessions/${num}`), (snap) => {
       if(!snap.exists() && myCommittee !== 0) {
         alert("تم تسجيل خروجك بواسطة الأدمن!");
         location.reload();
@@ -502,10 +494,10 @@ window.sendCommitteeReport = function() {
   const message = `لجنة رقم ${myCommittee}`;
 
   // ترميز النص ليتوافق مع عنوان URL
-  const encodedMsg = encodeURIComponent(message); // [web:9]
+  const encodedMsg = encodeURIComponent(message);
 
   // رابط Click-to-Chat لواتساب
-  const waLink = `https://wa.me/${phone}?text=${encodedMsg}`; // [web:1][web:5][web:24]
+  const waLink = `https://wa.me/${phone}?text=${encodedMsg}`;
 
   // فتح الواتساب (موبايل: التطبيق، كمبيوتر: واتساب ويب)
   window.open(waLink, "_blank");
@@ -622,6 +614,7 @@ function renderActiveList() {
     list.appendChild(div);
   });
 }
+
 function showFlashMsg(txt) {
   const msg = document.getElementById("flash-msg");
   if(msg) {
@@ -632,6 +625,7 @@ function showFlashMsg(txt) {
     alert(txt);
   }
 }
+
 window.kickUser = function(id) {
   if(confirm(`طرد مشرف لجنة ${id}؟`)) {
     remove(ref(db, `active_sessions/${id}`))
