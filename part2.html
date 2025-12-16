@@ -3179,6 +3179,7 @@ function exportToExcel() {
     
     const wb = XLSX.utils.book_new();
     
+    // تحضير البيانات للجداول الرئيسية
     const mainData = allCommittees.map(c => {
       const info = commMap[c.number] || { name: "", address: "" };
       const row = {
@@ -3197,9 +3198,75 @@ function exportToExcel() {
       return row;
     });
     
+    // إنشاء ورقة البيانات الرئيسية
     const ws1 = XLSX.utils.json_to_sheet(mainData);
+    
+    // تطبيق التنسيق على ورقة البيانات الرئيسية
+    const range = XLSX.utils.decode_range(ws1['!ref']);
+    
+    // نمط الرأس
+    const headerStyle = {
+      fill: { fgColor: { rgb: "2E75B6" } },
+      font: { name: "Cairo", sz: 12, bold: true, color: { rgb: "FFFFFF" } },
+      alignment: { horizontal: "center", vertical: "center" },
+      border: {
+        top: { style: "medium", color: { rgb: "1F4E78" } },
+        bottom: { style: "medium", color: { rgb: "1F4E78" } },
+        left: { style: "medium", color: { rgb: "1F4E78" } },
+        right: { style: "medium", color: { rgb: "1F4E78" } }
+      }
+    };
+    
+    // نمط البيانات
+    const cellStyle = (row, col) => {
+      const isEvenRow = row % 2 === 0;
+      return {
+        fill: { fgColor: { rgb: isEvenRow ? "F2F2F2" : "FFFFFF" } },
+        font: { name: "Cairo", sz: 11 },
+        alignment: { horizontal: "center", vertical: "center" },
+        border: {
+          top: { style: "thin", color: { rgb: "000000" } },
+          bottom: { style: "thin", color: { rgb: "000000" } },
+          left: { style: "thin", color: { rgb: "000000" } },
+          right: { style: "thin", color: { rgb: "000000" } }
+        }
+      };
+    };
+    
+    // تطبيق الأنماط
+    for(let R = range.s.r; R <= range.e.r; ++R) {
+      for(let C = range.s.c; C <= range.e.c; ++C) {
+        const cell_address = {c: C, r: R};
+        const cell_ref = XLSX.utils.encode_cell(cell_address);
+        
+        if(!ws1[cell_ref]) continue;
+        
+        if(R === 0) {
+          ws1[cell_ref].s = headerStyle;
+        } else {
+          ws1[cell_ref].s = cellStyle(R, C);
+        }
+      }
+    }
+    
+    // ضبط عرض الأعمدة
+    ws1['!cols'] = [
+      { wch: 10 },  // رقم اللجنة
+      { wch: 20 },  // اسم اللجنة
+      { wch: 30 },  // العنوان
+      { wch: 15 },  // إجمالي الحضور
+      { wch: 15 },  // الأصوات الصحيحة
+      { wch: 15 }   // الأصوات الباطلة
+    ];
+    
+    // إضافة أعمدة المرشحين
+    candidates.forEach(() => {
+      ws1['!cols'].push({ wch: 12 });
+    });
+    
     XLSX.utils.book_append_sheet(wb, ws1, "بيانات اللجان");
     
+    // ورقة الإحصائيات
     let totals = {};
     candidates.forEach(([id]) => totals[id] = 0);
     
@@ -3214,13 +3281,61 @@ function exportToExcel() {
     const statsData = candidates.map(([id, name]) => ({
       'المرشح': name,
       'إجمالي الأصوات': totals[id]
-    }));
+    })).sort((a, b) => b['إجمالي الأصوات'] - a['إجمالي الأصوات']);
     
     const ws2 = XLSX.utils.json_to_sheet(statsData);
+    
+    // تنسيق ورقة الإحصائيات
+    const range2 = XLSX.utils.decode_range(ws2['!ref']);
+    for(let R = range2.s.r; R <= range2.e.r; ++R) {
+      for(let C = range2.s.c; C <= range2.e.c; ++C) {
+        const cell_address = {c: C, r: R};
+        const cell_ref = XLSX.utils.encode_cell(cell_address);
+        
+        if(!ws2[cell_ref]) continue;
+        
+        if(R === 0) {
+          ws2[cell_ref].s = {
+            fill: { fgColor: { rgb: "4472C4" } },
+            font: { name: "Cairo", sz: 12, bold: true, color: { rgb: "FFFFFF" } },
+            alignment: { horizontal: "center", vertical: "center" },
+            border: {
+              top: { style: "medium", color: { rgb: "2F5597" } },
+              bottom: { style: "medium", color: { rgb: "2F5597" } },
+              left: { style: "medium", color: { rgb: "2F5597" } },
+              right: { style: "medium", color: { rgb: "2F5597" } }
+            }
+          };
+        } else {
+          const isFirst = R === 1;
+          ws2[cell_ref].s = {
+            fill: { fgColor: { rgb: isFirst ? "FFF2CC" : (R % 2 === 0 ? "D9E1F2" : "FFFFFF") } },
+            font: { 
+              name: "Cairo", 
+              sz: 11, 
+              bold: isFirst,
+              color: { rgb: "000000" }
+            },
+            alignment: { horizontal: "center", vertical: "center" },
+            border: {
+              top: { style: "thin", color: { rgb: "000000" } },
+              bottom: { style: "thin", color: { rgb: "000000" } },
+              left: { style: "thin", color: { rgb: "000000" } },
+              right: { style: "thin", color: { rgb: "000000" } }
+            }
+          };
+        }
+      }
+    }
+    
+    ws2['!cols'] = [{ wch: 25 }, { wch: 15 }];
     XLSX.utils.book_append_sheet(wb, ws2, "الإحصائيات");
     
-    XLSX.writeFile(wb, `election_data_${new Date().getTime()}.xlsx`);
-    alert("✅ تم تصدير البيانات بنجاح");
+    // حفظ الملف
+    const filename = `election_data_${new Date().getTime()}.xlsx`;
+    XLSX.writeFile(wb, filename);
+    
+    alert(`✅ تم تصدير البيانات بنجاح إلى ${filename}`);
   } catch (error) {
     console.error("خطأ في التصدير:", error);
     alert("❌ حدث خطأ أثناء التصدير");
@@ -3265,6 +3380,57 @@ function exportPredictions() {
     
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.json_to_sheet(predictions);
+    
+    // تنسيق ورقة التوقعات
+    const range = XLSX.utils.decode_range(ws['!ref']);
+    for(let R = range.s.r; R <= range.e.r; ++R) {
+      for(let C = range.s.c; C <= range.e.c; ++C) {
+        const cell_address = {c: C, r: R};
+        const cell_ref = XLSX.utils.encode_cell(cell_address);
+        
+        if(!ws[cell_ref]) continue;
+        
+        if(R === 0) {
+          ws[cell_ref].s = {
+            fill: { fgColor: { rgb: "7030A0" } },
+            font: { name: "Cairo", sz: 12, bold: true, color: { rgb: "FFFFFF" } },
+            alignment: { horizontal: "center", vertical: "center" },
+            border: {
+              top: { style: "medium", color: { rgb: "5B2C8A" } },
+              bottom: { style: "medium", color: { rgb: "5B2C8A" } },
+              left: { style: "medium", color: { rgb: "5B2C8A" } },
+              right: { style: "medium", color: { rgb: "5B2C8A" } }
+            }
+          };
+        } else {
+          const isFirst = R === 1;
+          ws[cell_ref].s = {
+            fill: { fgColor: { rgb: isFirst ? "E2EFDA" : (R % 2 === 0 ? "FCE4D6" : "FFFFFF") } },
+            font: { 
+              name: "Cairo", 
+              sz: 11, 
+              bold: isFirst,
+              color: { rgb: isFirst ? "000000" : "000000" }
+            },
+            alignment: { horizontal: "center", vertical: "center" },
+            border: {
+              top: { style: "thin", color: { rgb: "000000" } },
+              bottom: { style: "thin", color: { rgb: "000000" } },
+              left: { style: "thin", color: { rgb: "000000" } },
+              right: { style: "thin", color: { rgb: "000000" } }
+            }
+          };
+        }
+      }
+    }
+    
+    ws['!cols'] = [
+      { wch: 25 },
+      { wch: 15 },
+      { wch: 20 },
+      { wch: 25 }
+    ];
+    
     XLSX.utils.book_append_sheet(wb, ws, "التوقعات");
     
     XLSX.writeFile(wb, `predictions_${new Date().getTime()}.xlsx`);
@@ -3321,6 +3487,57 @@ function exportComparison() {
     
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.json_to_sheet(data);
+    
+    // تنسيق ورقة المقارنة
+    const range = XLSX.utils.decode_range(ws['!ref']);
+    for(let R = range.s.r; R <= range.e.r; ++R) {
+      for(let C = range.s.c; C <= range.e.c; ++C) {
+        const cell_address = {c: C, r: R};
+        const cell_ref = XLSX.utils.encode_cell(cell_address);
+        
+        if(!ws[cell_ref]) continue;
+        
+        if(R === 0) {
+          ws[cell_ref].s = {
+            fill: { fgColor: { rgb: "FFC000" } },
+            font: { name: "Cairo", sz: 12, bold: true, color: { rgb: "000000" } },
+            alignment: { horizontal: "center", vertical: "center" },
+            border: {
+              top: { style: "medium", color: { rgb: "BF9000" } },
+              bottom: { style: "medium", color: { rgb: "BF9000" } },
+              left: { style: "medium", color: { rgb: "BF9000" } },
+              right: { style: "medium", color: { rgb: "BF9000" } }
+            }
+          };
+        } else if(R === 3) {
+          ws[cell_ref].s = {
+            fill: { fgColor: { rgb: "FCE4D6" } },
+            font: { name: "Cairo", sz: 11, bold: true, color: { rgb: "000000" } },
+            alignment: { horizontal: "center", vertical: "center" },
+            border: {
+              top: { style: "medium", color: { rgb: "000000" } },
+              bottom: { style: "medium", color: { rgb: "000000" } },
+              left: { style: "thin", color: { rgb: "000000" } },
+              right: { style: "thin", color: { rgb: "000000" } }
+            }
+          };
+        } else {
+          ws[cell_ref].s = {
+            fill: { fgColor: { rgb: R === 1 ? "D9EAD3" : "DAE3F3" } },
+            font: { name: "Cairo", sz: 11, bold: R < 3 },
+            alignment: { horizontal: "center", vertical: "center" },
+            border: {
+              top: { style: "thin", color: { rgb: "000000" } },
+              bottom: { style: "thin", color: { rgb: "000000" } },
+              left: { style: "thin", color: { rgb: "000000" } },
+              right: { style: "thin", color: { rgb: "000000" } }
+            }
+          };
+        }
+      }
+    }
+    
+    ws['!cols'] = [{ wch: 25 }, { wch: 15 }];
     XLSX.utils.book_append_sheet(wb, ws, "المقارنة");
     
     XLSX.writeFile(wb, `comparison_${new Date().getTime()}.xlsx`);
@@ -3361,6 +3578,72 @@ function exportComparisonMatrix() {
     
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.json_to_sheet(matrix);
+    
+    // تنسيق مصفوفة المقارنة
+    const range = XLSX.utils.decode_range(ws['!ref']);
+    for(let R = range.s.r; R <= range.e.r; ++R) {
+      for(let C = range.s.c; C <= range.e.c; ++C) {
+        const cell_address = {c: C, r: R};
+        const cell_ref = XLSX.utils.encode_cell(cell_address);
+        
+        if(!ws[cell_ref]) continue;
+        
+        if(R === 0) {
+          ws[cell_ref].s = {
+            fill: { fgColor: { rgb: "5B9BD5" } },
+            font: { name: "Cairo", sz: 12, bold: true, color: { rgb: "FFFFFF" } },
+            alignment: { horizontal: "center", vertical: "center" },
+            border: {
+              top: { style: "medium", color: { rgb: "4472C4" } },
+              bottom: { style: "medium", color: { rgb: "4472C4" } },
+              left: { style: "medium", color: { rgb: "4472C4" } },
+              right: { style: "medium", color: { rgb: "4472C4" } }
+            }
+          };
+        } else {
+          const isFirst = R === 1;
+          const bgColor = isFirst ? "FFF2CC" : (R % 2 === 0 ? "E2EFDA" : "FFFFFF");
+          
+          ws[cell_ref].s = {
+            fill: { fgColor: { rgb: bgColor } },
+            font: { 
+              name: "Cairo", 
+              sz: 11, 
+              bold: isFirst || C === range.e.c,
+              color: { rgb: "000000" }
+            },
+            alignment: { horizontal: "center", vertical: "center" },
+            border: {
+              top: { style: "thin", color: { rgb: "000000" } },
+              bottom: { style: "thin", color: { rgb: "000000" } },
+              left: { style: "thin", color: { rgb: "000000" } },
+              right: { style: "thin", color: { rgb: "000000" } }
+            }
+          };
+          
+          // تلوين الخلايا الموجبة والسالبة
+          if (R > 0 && C > 0 && C < range.e.c) {
+            const cellValue = ws[cell_ref].v;
+            if (typeof cellValue === 'string') {
+              if (cellValue.startsWith('+')) {
+                ws[cell_ref].s.fill.fgColor.rgb = "C6EFCE";
+                ws[cell_ref].s.font.color.rgb = "006100";
+              } else if (parseInt(cellValue) < 0) {
+                ws[cell_ref].s.fill.fgColor.rgb = "FFC7CE";
+                ws[cell_ref].s.font.color.rgb = "9C0006";
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    // ضبط عرض الأعمدة
+    const colWidths = [{ wch: 20 }];
+    candidates.forEach(() => colWidths.push({ wch: 12 }));
+    colWidths.push({ wch: 15 });
+    ws['!cols'] = colWidths;
+    
     XLSX.utils.book_append_sheet(wb, ws, "مصفوفة المقارنة");
     
     XLSX.writeFile(wb, `comparison_matrix_${new Date().getTime()}.xlsx`);
@@ -3395,6 +3678,60 @@ function exportRanking() {
     
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.json_to_sheet(data);
+    
+    // تنسيق ورقة الترتيب
+    const range = XLSX.utils.decode_range(ws['!ref']);
+    for(let R = range.s.r; R <= range.e.r; ++R) {
+      for(let C = range.s.c; C <= range.e.c; ++C) {
+        const cell_address = {c: C, r: R};
+        const cell_ref = XLSX.utils.encode_cell(cell_address);
+        
+        if(!ws[cell_ref]) continue;
+        
+        if(R === 0) {
+          ws[cell_ref].s = {
+            fill: { fgColor: { rgb: "00B050" } },
+            font: { name: "Cairo", sz: 12, bold: true, color: { rgb: "FFFFFF" } },
+            alignment: { horizontal: "center", vertical: "center" },
+            border: {
+              top: { style: "medium", color: { rgb: "007033" } },
+              bottom: { style: "medium", color: { rgb: "007033" } },
+              left: { style: "medium", color: { rgb: "007033" } },
+              right: { style: "medium", color: { rgb: "007033" } }
+            }
+          };
+        } else {
+          const isFirst = R === 1;
+          const isSecond = R === 2;
+          const isThird = R === 3;
+          
+          let bgColor = "FFFFFF";
+          if (isFirst) bgColor = "FFD966";
+          else if (isSecond) bgColor = "D9D9D9";
+          else if (isThird) bgColor = "E2A76F";
+          else if (R % 2 === 0) bgColor = "F2F2F2";
+          
+          ws[cell_ref].s = {
+            fill: { fgColor: { rgb: bgColor } },
+            font: { 
+              name: "Cairo", 
+              sz: 11, 
+              bold: isFirst || isSecond || isThird,
+              color: { rgb: "000000" }
+            },
+            alignment: { horizontal: "center", vertical: "center" },
+            border: {
+              top: { style: "thin", color: { rgb: "000000" } },
+              bottom: { style: "thin", color: { rgb: "000000" } },
+              left: { style: "thin", color: { rgb: "000000" } },
+              right: { style: "thin", color: { rgb: "000000" } }
+            }
+          };
+        }
+      }
+    }
+    
+    ws['!cols'] = [{ wch: 25 }, { wch: 15 }, { wch: 10 }];
     XLSX.utils.book_append_sheet(wb, ws, "الترتيب");
     
     XLSX.writeFile(wb, `ranking_${new Date().getTime()}.xlsx`);
@@ -3431,6 +3768,57 @@ function exportBestComm() {
     
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.json_to_sheet(data);
+    
+    // تنسيق ورقة أفضل اللجان
+    const range = XLSX.utils.decode_range(ws['!ref']);
+    for(let R = range.s.r; R <= range.e.r; ++R) {
+      for(let C = range.s.c; C <= range.e.c; ++C) {
+        const cell_address = {c: C, r: R};
+        const cell_ref = XLSX.utils.encode_cell(cell_address);
+        
+        if(!ws[cell_ref]) continue;
+        
+        if(R === 0) {
+          ws[cell_ref].s = {
+            fill: { fgColor: { rgb: "ED7D31" } },
+            font: { name: "Cairo", sz: 12, bold: true, color: { rgb: "FFFFFF" } },
+            alignment: { horizontal: "center", vertical: "center" },
+            border: {
+              top: { style: "medium", color: { rgb: "BF5F1F" } },
+              bottom: { style: "medium", color: { rgb: "BF5F1F" } },
+              left: { style: "medium", color: { rgb: "BF5F1F" } },
+              right: { style: "medium", color: { rgb: "BF5F1F" } }
+            }
+          };
+        } else {
+          const isTop = R <= 3;
+          ws[cell_ref].s = {
+            fill: { fgColor: { rgb: isTop ? "FFE699" : (R % 2 === 0 ? "FCE4D6" : "FFFFFF") } },
+            font: { 
+              name: "Cairo", 
+              sz: 11, 
+              bold: isTop,
+              color: { rgb: "000000" }
+            },
+            alignment: { horizontal: "center", vertical: "center" },
+            border: {
+              top: { style: "thin", color: { rgb: "000000" } },
+              bottom: { style: "thin", color: { rgb: "000000" } },
+              left: { style: "thin", color: { rgb: "000000" } },
+              right: { style: "thin", color: { rgb: "000000" } }
+            }
+          };
+        }
+      }
+    }
+    
+    ws['!cols'] = [
+      { wch: 10 },
+      { wch: 20 },
+      { wch: 30 },
+      { wch: 15 }
+    ];
+    
     XLSX.utils.book_append_sheet(wb, ws, cand[1]);
     
     XLSX.writeFile(wb, `best_committees_${cand[1]}_${new Date().getTime()}.xlsx`);
@@ -3461,10 +3849,55 @@ function exportSpecificComm() {
     const data = candidates.map(([id, name]) => ({
       'المرشح': name,
       'الأصوات': (comm.candidates && comm.candidates[id]) ? comm.candidates[id] : 0
-    }));
+    })).sort((a, b) => b['الأصوات'] - a['الأصوات']);
     
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.json_to_sheet(data);
+    
+    // تنسيق ورقة اللجنة المحددة
+    const range = XLSX.utils.decode_range(ws['!ref']);
+    for(let R = range.s.r; R <= range.e.r; ++R) {
+      for(let C = range.s.c; C <= range.e.c; ++C) {
+        const cell_address = {c: C, r: R};
+        const cell_ref = XLSX.utils.encode_cell(cell_address);
+        
+        if(!ws[cell_ref]) continue;
+        
+        if(R === 0) {
+          ws[cell_ref].s = {
+            fill: { fgColor: { rgb: "954F72" } },
+            font: { name: "Cairo", sz: 12, bold: true, color: { rgb: "FFFFFF" } },
+            alignment: { horizontal: "center", vertical: "center" },
+            border: {
+              top: { style: "medium", color: { rgb: "6D3B58" } },
+              bottom: { style: "medium", color: { rgb: "6D3B58" } },
+              left: { style: "medium", color: { rgb: "6D3B58" } },
+              right: { style: "medium", color: { rgb: "6D3B58" } }
+            }
+          };
+        } else {
+          const isFirst = R === 1;
+          ws[cell_ref].s = {
+            fill: { fgColor: { rgb: isFirst ? "D9EAD3" : (R % 2 === 0 ? "EAD1DC" : "FFFFFF") } },
+            font: { 
+              name: "Cairo", 
+              sz: 11, 
+              bold: isFirst,
+              color: { rgb: "000000" }
+            },
+            alignment: { horizontal: "center", vertical: "center" },
+            border: {
+              top: { style: "thin", color: { rgb: "000000" } },
+              bottom: { style: "thin", color: { rgb: "000000" } },
+              left: { style: "thin", color: { rgb: "000000" } },
+              right: { style: "thin", color: { rgb: "000000" } }
+            }
+          };
+        }
+      }
+    }
+    
+    ws['!cols'] = [{ wch: 25 }, { wch: 15 }];
     XLSX.utils.book_append_sheet(wb, ws, `لجنة ${commNum}`);
     
     XLSX.writeFile(wb, `committee_${commNum}_${new Date().getTime()}.xlsx`);
@@ -3509,6 +3942,56 @@ function exportRegionsAnalysis() {
     
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.json_to_sheet(data);
+    
+    // تنسيق ورقة التحليل المناطقي
+    const range = XLSX.utils.decode_range(ws['!ref']);
+    for(let R = range.s.r; R <= range.e.r; ++R) {
+      for(let C = range.s.c; C <= range.e.c; ++C) {
+        const cell_address = {c: C, r: R};
+        const cell_ref = XLSX.utils.encode_cell(cell_address);
+        
+        if(!ws[cell_ref]) continue;
+        
+        if(R === 0) {
+          ws[cell_ref].s = {
+            fill: { fgColor: { rgb: "4F81BD" } },
+            font: { name: "Cairo", sz: 12, bold: true, color: { rgb: "FFFFFF" } },
+            alignment: { horizontal: "center", vertical: "center" },
+            border: {
+              top: { style: "medium", color: { rgb: "365F91" } },
+              bottom: { style: "medium", color: { rgb: "365F91" } },
+              left: { style: "medium", color: { rgb: "365F91" } },
+              right: { style: "medium", color: { rgb: "365F91" } }
+            }
+          };
+        } else {
+          const isFirst = R === 1;
+          ws[cell_ref].s = {
+            fill: { fgColor: { rgb: isFirst ? "DCE6F1" : (R % 2 === 0 ? "F2F2F2" : "FFFFFF") } },
+            font: { 
+              name: "Cairo", 
+              sz: 11, 
+              bold: isFirst,
+              color: { rgb: "000000" }
+            },
+            alignment: { horizontal: "center", vertical: "center" },
+            border: {
+              top: { style: "thin", color: { rgb: "000000" } },
+              bottom: { style: "thin", color: { rgb: "000000" } },
+              left: { style: "thin", color: { rgb: "000000" } },
+              right: { style: "thin", color: { rgb: "000000" } }
+            }
+          };
+        }
+      }
+    }
+    
+    ws['!cols'] = [
+      { wch: 25 },
+      { wch: 15 },
+      { wch: 15 }
+    ];
+    
     XLSX.utils.book_append_sheet(wb, ws, "المناطق");
     
     XLSX.writeFile(wb, `regions_${cand[1]}_${new Date().getTime()}.xlsx`);
@@ -3535,6 +4018,53 @@ function exportLog() {
     
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.json_to_sheet(data);
+    
+    // تنسيق ورقة السجل
+    const range = XLSX.utils.decode_range(ws['!ref']);
+    for(let R = range.s.r; R <= range.e.r; ++R) {
+      for(let C = range.s.c; C <= range.e.c; ++C) {
+        const cell_address = {c: C, r: R};
+        const cell_ref = XLSX.utils.encode_cell(cell_address);
+        
+        if(!ws[cell_ref]) continue;
+        
+        if(R === 0) {
+          ws[cell_ref].s = {
+            fill: { fgColor: { rgb: "808080" } },
+            font: { name: "Cairo", sz: 12, bold: true, color: { rgb: "FFFFFF" } },
+            alignment: { horizontal: "center", vertical: "center" },
+            border: {
+              top: { style: "medium", color: { rgb: "595959" } },
+              bottom: { style: "medium", color: { rgb: "595959" } },
+              left: { style: "medium", color: { rgb: "595959" } },
+              right: { style: "medium", color: { rgb: "595959" } }
+            }
+          };
+        } else {
+          ws[cell_ref].s = {
+            fill: { fgColor: { rgb: R % 2 === 0 ? "F2F2F2" : "FFFFFF" } },
+            font: { name: "Cairo", sz: 11 },
+            alignment: { horizontal: "center", vertical: "center" },
+            border: {
+              top: { style: "thin", color: { rgb: "000000" } },
+              bottom: { style: "thin", color: { rgb: "000000" } },
+              left: { style: "thin", color: { rgb: "000000" } },
+              right: { style: "thin", color: { rgb: "000000" } }
+            }
+          };
+        }
+      }
+    }
+    
+    ws['!cols'] = [
+      { wch: 10 },
+      { wch: 20 },
+      { wch: 30 },
+      { wch: 15 },
+      { wch: 15 },
+      { wch: 15 }
+    ];
+    
     XLSX.utils.book_append_sheet(wb, ws, "السجل");
     
     XLSX.writeFile(wb, `log_${new Date().getTime()}.xlsx`);
@@ -3587,11 +4117,87 @@ function exportMahdar() {
     const candData = candidates.map(([id, name]) => ({
       'المرشح': name,
       'الأصوات': (comm.candidates && comm.candidates[id]) ? comm.candidates[id] : 0
-    }));
+    })).sort((a, b) => b['الأصوات'] - a['الأصوات']);
     
     const wb = XLSX.utils.book_new();
     const ws1 = XLSX.utils.json_to_sheet(generalData);
     const ws2 = XLSX.utils.json_to_sheet(candData);
+    
+    // تنسيق ورقة البيانات العامة
+    const range1 = XLSX.utils.decode_range(ws1['!ref']);
+    for(let R = range1.s.r; R <= range1.e.r; ++R) {
+      for(let C = range1.s.c; C <= range1.e.c; ++C) {
+        const cell_address = {c: C, r: R};
+        const cell_ref = XLSX.utils.encode_cell(cell_address);
+        
+        if(!ws1[cell_ref]) continue;
+        
+        ws1[cell_ref].s = {
+          fill: { fgColor: { rgb: R === 0 ? "5B9BD5" : (R % 2 === 0 ? "DDEBF7" : "FFFFFF") } },
+          font: { 
+            name: "Cairo", 
+            sz: R === 0 ? 12 : 11,
+            bold: R === 0,
+            color: { rgb: R === 0 ? "FFFFFF" : "000000" }
+          },
+          alignment: { horizontal: "right", vertical: "center" },
+          border: {
+            top: { style: R === 0 ? "medium" : "thin", color: { rgb: "000000" } },
+            bottom: { style: R === 0 ? "medium" : "thin", color: { rgb: "000000" } },
+            left: { style: R === 0 ? "medium" : "thin", color: { rgb: "000000" } },
+            right: { style: R === 0 ? "medium" : "thin", color: { rgb: "000000" } }
+          }
+        };
+      }
+    }
+    
+    ws1['!cols'] = [{ wch: 25 }, { wch: 30 }];
+    
+    // تنسيق ورقة نتائج المرشحين
+    const range2 = XLSX.utils.decode_range(ws2['!ref']);
+    for(let R = range2.s.r; R <= range2.e.r; ++R) {
+      for(let C = range2.s.c; C <= range2.e.c; ++C) {
+        const cell_address = {c: C, r: R};
+        const cell_ref = XLSX.utils.encode_cell(cell_address);
+        
+        if(!ws2[cell_ref]) continue;
+        
+        if(R === 0) {
+          ws2[cell_ref].s = {
+            fill: { fgColor: { rgb: "70AD47" } },
+            font: { name: "Cairo", sz: 12, bold: true, color: { rgb: "FFFFFF" } },
+            alignment: { horizontal: "center", vertical: "center" },
+            border: {
+              top: { style: "medium", color: { rgb: "538135" } },
+              bottom: { style: "medium", color: { rgb: "538135" } },
+              left: { style: "medium", color: { rgb: "538135" } },
+              right: { style: "medium", color: { rgb: "538135" } }
+            }
+          };
+        } else {
+          const isFirst = R === 1;
+          ws2[cell_ref].s = {
+            fill: { fgColor: { rgb: isFirst ? "E2EFDA" : (R % 2 === 0 ? "F2F2F2" : "FFFFFF") } },
+            font: { 
+              name: "Cairo", 
+              sz: 11, 
+              bold: isFirst,
+              color: { rgb: "000000" }
+            },
+            alignment: { horizontal: "center", vertical: "center" },
+            border: {
+              top: { style: "thin", color: { rgb: "000000" } },
+              bottom: { style: "thin", color: { rgb: "000000" } },
+              left: { style: "thin", color: { rgb: "000000" } },
+              right: { style: "thin", color: { rgb: "000000" } }
+            }
+          };
+        }
+      }
+    }
+    
+    ws2['!cols'] = [{ wch: 25 }, { wch: 15 }];
+    
     XLSX.utils.book_append_sheet(wb, ws1, "البيانات العامة");
     XLSX.utils.book_append_sheet(wb, ws2, "نتائج المرشحين");
     
