@@ -142,6 +142,7 @@ body {
 .btn-reset { background: var(--danger); } 
 .btn-broadcast { background: var(--primary-dark); } 
 .btn-direct-nav { background: var(--primary); }
+.btn-logout { background: #6b7280; }
 
 .comm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
 .comm-card {
@@ -226,6 +227,22 @@ body {
 .btn-send-msg { background: #0f172a; color: white; padding: 12px; border-radius: 10px; width: 100%; border: none; font-weight: bold; cursor: pointer; margin-bottom: 10px; }
 .btn-cancel { background: #94a3b8; color: white; padding: 12px; border-radius: 10px; width: 100%; border: none; font-weight: bold; cursor: pointer; }
 
+.remember-me {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 15px 0;
+  color: #64748b;
+  font-size: 0.95em;
+  justify-content: center;
+}
+
+.remember-me input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
 @keyframes pulseGreen { 0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); border-color: #10b981; } 70% { box-shadow: 0 0 0 15px rgba(16, 185, 129, 0); border-color: #10b981; } 100% { border-color: var(--border); } }
 .update-anim { animation: pulseGreen 1.5s ease-out; }
 
@@ -241,6 +258,14 @@ body {
     <h2 style="margin-bottom:10px; color:#1e293b; font-weight:900;">غرفة العمليات المركزية</h2>
     <p style="color:#64748b; font-size:0.95em; margin-bottom:20px;">يرجى إدخال كود الدخول للمتابعة</p>
     <input type="password" id="pass-input" class="login-input" placeholder="الكود السري" autofocus>
+    
+    <div class="remember-me">
+      <input type="checkbox" id="remember-me-checkbox">
+      <label for="remember-me-checkbox" style="cursor: pointer;">
+        تذكر كلمة المرور لمدة 42 ساعة
+      </label>
+    </div>
+    
     <button class="btn-login" onclick="handleLogin()">تسجيل الدخول</button>
     <div id="login-err" style="color:var(--danger); margin-top:15px; display:none; font-weight:bold;">الكود غير صحيح</div>
   </div>
@@ -318,6 +343,7 @@ body {
         <button class="btn btn-direct-nav" onclick="openDirectModal('')"><i class="fa-solid fa-paper-plane"></i> رسالة خاصة</button>
         <button class="btn btn-excel" onclick="exportToExcel()"><i class="fa-solid fa-file-excel"></i> تقرير Excel</button>
         <button class="btn btn-reset" onclick="confirmReset()"><i class="fa-solid fa-trash"></i></button>
+        <button class="btn btn-logout" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> خروج</button>
       </div>
     </div>
   </div>
@@ -400,6 +426,72 @@ let currentMsgMode = 'all';
 let top10Chart = null;
 let pieChart = null;
 
+// =========== وظائف تذكر كلمة المرور ===========
+
+function checkSavedPassword() {
+  const savedPass = localStorage.getItem('savedPass');
+  const passExpiry = localStorage.getItem('passExpiry');
+  const now = Date.now();
+  
+  if(savedPass && passExpiry && now < parseInt(passExpiry)) {
+    // كلمة المرور لا تزال صالحة
+    document.getElementById('pass-input').value = savedPass;
+    document.getElementById('remember-me-checkbox').checked = true;
+    
+    // تسجيل الدخول التلقائي
+    document.getElementById('login-modal').classList.add('hidden');
+    document.getElementById('dashboard-content').style.display = 'block';
+    initDashboard();
+    initChart();
+    initPieChart();
+    return true;
+  } else {
+    // كلمة المرور منتهية أو غير موجودة، قم بمسحها
+    localStorage.removeItem('savedPass');
+    localStorage.removeItem('passExpiry');
+    return false;
+  }
+}
+
+window.handleLogin = () => {
+  const passInput = document.getElementById('pass-input');
+  const rememberMe = document.getElementById('remember-me-checkbox');
+  
+  if(passInput.value === "521988") {
+    // تخزين كلمة المرور في localStorage إذا تم اختيار تذكرني
+    if(rememberMe && rememberMe.checked) {
+      const expiryTime = Date.now() + (42 * 60 * 60 * 1000); // 42 ساعة بالملي ثانية
+      localStorage.setItem('savedPass', passInput.value);
+      localStorage.setItem('passExpiry', expiryTime.toString());
+    } else {
+      // إذا لم يتم اختيار تذكرني، قم بمسح أي بيانات محفوظة
+      localStorage.removeItem('savedPass');
+      localStorage.removeItem('passExpiry');
+    }
+    
+    document.getElementById('login-modal').classList.add('hidden');
+    document.getElementById('dashboard-content').style.display = 'block';
+    initDashboard();
+    initChart();
+    initPieChart();
+  } else {
+    document.getElementById('login-err').style.display = 'block';
+    passInput.value = ""; 
+    passInput.focus();
+  }
+};
+
+// زر تسجيل الخروج
+window.logout = () => {
+  if(confirm("هل تريد تسجيل الخروج؟")) {
+    localStorage.removeItem('savedPass');
+    localStorage.removeItem('passExpiry');
+    location.reload(); // إعادة تحميل الصفحة للعودة لشاشة تسجيل الدخول
+  }
+};
+
+// =========== نهاية وظائف تذكر كلمة المرور ===========
+
 function initChart() {
   const ctx = document.getElementById('top10Chart').getContext('2d');
   top10Chart = new Chart(ctx, {
@@ -418,19 +510,6 @@ function initPieChart() {
   });
 }
 
-window.handleLogin = () => {
-  const passInput = document.getElementById('pass-input');
-  if(passInput.value === "521988") {
-    document.getElementById('login-modal').classList.add('hidden');
-    document.getElementById('dashboard-content').style.display = 'block';
-    initDashboard();
-    initChart();
-    initPieChart();
-  } else {
-    document.getElementById('login-err').style.display = 'block';
-    passInput.value = ""; passInput.focus();
-  }
-};
 document.getElementById("pass-input").addEventListener("keypress", (e) => { if (e.key === "Enter") handleLogin(); });
 
 window.openBroadcastModal = () => { currentMsgMode = 'all'; setupModalUI(); document.getElementById('msg-modal-overlay').style.display = 'flex'; };
@@ -728,7 +807,6 @@ window.exportToExcel=()=>{
   XLSX.writeFile(wb,"Election_Report_Pro.xlsx");
 };
 
-
 window.showCommitteesSum = () => {
   const val = document.getElementById('sum-committees-input').value;
   if (!val.trim()) return document.getElementById('sum-committees-result').innerText = "يرجى إدخال أرقام اللجان";
@@ -738,9 +816,10 @@ window.showCommitteesSum = () => {
   document.getElementById('sum-committees-result').innerText = `المجموع: ${sum.toLocaleString()}`;
 }
 
-
+// عند تحميل الصفحة، تحقق من وجود كلمة مرور محفوظة
+document.addEventListener('DOMContentLoaded', function() {
+  checkSavedPassword();
+});
 </script>
 </body>
 </html>
-
-
