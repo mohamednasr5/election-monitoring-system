@@ -80,6 +80,56 @@ body {
 #dashboard-content { display: none; width: 100%; max-width: 1400px; animation: fadeIn 0.8s ease; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
+.aggregates-section {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+  gap: 15px; margin-bottom: 20px;
+}
+
+.aggregate-card {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  padding: 20px; border-radius: 16px; 
+  box-shadow: 0 8px 16px rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  position: relative; overflow: hidden;
+  text-align: center;
+  transition: transform 0.3s, box-shadow 0.3s;
+  color: white;
+}
+
+.aggregate-card:hover { 
+  transform: translateY(-5px); 
+  box-shadow: 0 12px 20px rgba(16, 185, 129, 0.3);
+}
+
+.aggregate-card::before {
+  content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
+  background: rgba(255, 255, 255, 0.5); 
+}
+
+.aggregate-value { 
+  font-size: 2.2em; font-weight: 900; margin: 10px 0; 
+  color: white;
+  direction: ltr;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.aggregate-label { 
+  color: rgba(255, 255, 255, 0.95); font-size: 0.9em; 
+  font-weight: 700; margin-top: 5px;
+  line-height: 1.3;
+}
+
+.aggregate-subtitle {
+  font-size: 0.75em; color: rgba(255, 255, 255, 0.8); 
+  margin-top: 3px;
+}
+
+.aggregate-icon {
+  font-size: 1.5em;
+  margin-bottom: 10px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
 .header-stats { 
   display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
   gap: 20px; margin-bottom: 30px; 
@@ -285,6 +335,37 @@ body {
 </div>
 
 <div id="dashboard-content">
+  <!-- بطاقات المجاميع الجديدة - الحضور الفعلي فقط -->
+  <div class="aggregates-section">
+    <div class="aggregate-card">
+      <div class="aggregate-icon"><i class="fa-solid fa-tree-city"></i></div>
+      <div class="aggregate-value" id="aggregate-villages-current">0</div>
+      <div class="aggregate-label">مجموع القرى (1-23, 26-37)</div>
+      <div class="aggregate-subtitle">الحضور الفعلي - بدون 24 و 25</div>
+    </div>
+    
+    <div class="aggregate-card" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);">
+      <div class="aggregate-icon"><i class="fa-solid fa-building"></i></div>
+      <div class="aggregate-value" id="aggregate-alazizah-current">0</div>
+      <div class="aggregate-label">مجموع العزيزة (24+25)</div>
+      <div class="aggregate-subtitle">الحضور الفعلي</div>
+    </div>
+    
+    <div class="aggregate-card" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+      <div class="aggregate-icon"><i class="fa-solid fa-city"></i></div>
+      <div class="aggregate-value" id="aggregate-matareya-current">0</div>
+      <div class="aggregate-label">مجموع المطرية (38-52)</div>
+      <div class="aggregate-subtitle">الحضور الفعلي</div>
+    </div>
+    
+    <div class="aggregate-card" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+      <div class="aggregate-icon"><i class="fa-solid fa-home"></i></div>
+      <div class="aggregate-value" id="aggregate-manzalah-current">0</div>
+      <div class="aggregate-label">مجموع المنزلة (53-60)</div>
+      <div class="aggregate-subtitle">الحضور الفعلي</div>
+    </div>
+  </div>
+
   <div class="header-stats">
     <div class="stat-card" style="color: #0f172a;">
       <div class="stat-value" id="total-original-static">350,757</div>
@@ -569,7 +650,47 @@ function initDashboard(){
     d.innerHTML=`<div class="status-badge st-idle" id="badge-${i}">خاملة</div><div class="comm-header"><span class="badge-id">#${i}</span></div><div><div class="comm-name">${info.name}</div><small class="mini-stat">آخر 5 دق: <span id="rt-${i}">0</span></small></div><div class="stats-display"><div class="val-current" id="val-${i}">0</div><div class="val-total">/${info.original.toLocaleString()}</div></div><div class="progress-bg"><div class="progress-fill" id="bar-${i}"></div></div>`;
     c.appendChild(d);
   }
+  
+  // حساب المجاميع الأولية
+  updateAggregates();
+  
   onValue(ref(db,"/"),(snap)=>processData(snap.val()));
+}
+
+// دالة لحساب وتحديد المجاميع للحضور الفعلي فقط
+function updateAggregates() {
+  let villagesCurrent = 0;
+  let alazizahCurrent = 0;
+  let matareyaCurrent = 0;
+  let manzalahCurrent = 0;
+  
+  // القرى: اللجان من 1 إلى 23، و 26 إلى 37 (بدون 24 و 25)
+  for(let i=1; i<=23; i++) {
+    villagesCurrent += (commStats[i]?.current || 0);
+  }
+  
+  for(let i=26; i<=37; i++) {
+    villagesCurrent += (commStats[i]?.current || 0);
+  }
+  
+  // العزيزة: اللجنة 24 و 25
+  alazizahCurrent = (commStats[24]?.current || 0) + (commStats[25]?.current || 0);
+  
+  // المطرية: اللجان من 38 إلى 52
+  for(let i=38; i<=52; i++) {
+    matareyaCurrent += (commStats[i]?.current || 0);
+  }
+  
+  // المنزلة: اللجان من 53 إلى 60
+  for(let i=53; i<=60; i++) {
+    manzalahCurrent += (commStats[i]?.current || 0);
+  }
+  
+  // تحديث القيم في واجهة المستخدم
+  document.getElementById('aggregate-villages-current').innerText = villagesCurrent.toLocaleString();
+  document.getElementById('aggregate-alazizah-current').innerText = alazizahCurrent.toLocaleString();
+  document.getElementById('aggregate-matareya-current').innerText = matareyaCurrent.toLocaleString();
+  document.getElementById('aggregate-manzalah-current').innerText = manzalahCurrent.toLocaleString();
 }
 
 function processData(data){
@@ -599,6 +720,7 @@ function processData(data){
   }
   commStats=tempStats;
   updateUI();
+  updateAggregates(); // تحديث المجاميع بعد تحديث البيانات
   if(currentOpenCommitteeId)renderModalContent(currentOpenCommitteeId);
   isFirstLoad=false;
   previousCommStats=JSON.parse(JSON.stringify(commStats));
@@ -725,7 +847,7 @@ window.filterCommittees = () => {
     return;
   }
   
-  const numbers = v.split(/[،,\s]+/)
+  const numbers = v.split(/[،, ]+/)
     .map(n => parseInt(n.trim()))
     .filter(n => !isNaN(n) && n >= 1 && n <= 60);
   
