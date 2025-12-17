@@ -372,13 +372,6 @@ window.handleLogin = async function() {
     set(sessionRef, { status: 'online', timestamp: Date.now(), id: sessionID });
     onDisconnect(sessionRef).remove();
 
-    onValue(sessionRef, (snap) => {
-      if(!snap.exists() && myCommittee !== 0) {
-        alert("تم تسجيل خروجك بواسطة الأدمن!");
-        location.reload();
-      }
-    });
-
     document.getElementById("login-modal").classList.add("hidden");
     document.getElementById("committee-panel").classList.remove("hidden");
     
@@ -502,10 +495,10 @@ window.sendCommitteeReport = function() {
   const message = `لجنة رقم ${myCommittee}`;
 
   // ترميز النص ليتوافق مع عنوان URL
-  const encodedMsg = encodeURIComponent(message); // [web:9]
+  const encodedMsg = encodeURIComponent(message);
 
   // رابط Click-to-Chat لواتساب
-  const waLink = `https://wa.me/${phone}?text=${encodedMsg}`; // [web:1][web:5][web:24]
+  const waLink = `https://wa.me/${phone}?text=${encodedMsg}`;
 
   // فتح الواتساب (موبايل: التطبيق، كمبيوتر: واتساب ويب)
   window.open(waLink, "_blank");
@@ -529,8 +522,19 @@ function startMessageListener() {
 }
 
 function showInboxMessage(text, type, time) {
+  // التحقق إذا كانت رسالة طرد من الأدمن
+  if (text.includes("تم طردك من قبل الأدمن")) {
+    setTimeout(() => {
+      alert("تم طردك من قبل الأدمن. سيتم تسجيل الخروج.");
+      logout();
+    }, 500);
+    return; // لا تعرض الرسالة في البوكس العادي
+  }
+  
+  // إذا لم تكن رسالة طرد، عرضها بشكل طبيعي
   const audio = document.getElementById("notif-sound");
   audio.play().catch(e => console.log("Audio blocked"));
+  
   const container = document.getElementById("msg-container");
   const isPrivate = type === 'private';
   const headerText = isPrivate ? '📩 رسالة خاصة لك' : '📢 رسالة للجميع';
@@ -632,11 +636,24 @@ function showFlashMsg(txt) {
     alert(txt);
   }
 }
-window.kickUser = function(id) {
-  if(confirm(`طرد مشرف لجنة ${id}؟`)) {
-    remove(ref(db, `active_sessions/${id}`))
-      .then(() => showFlashMsg("تم طرد المشرف"))
-      .catch((e) => alert("خطأ: " + e));
+window.kickUser = async function(id) {
+  if(confirm(`هل تريد طرد مشرف لجنة ${id}؟`)) {
+    try {
+      // حذف الجلسة النشطة
+      await remove(ref(db, `active_sessions/${id}`));
+      
+      // إرسال رسالة إخطار للمستخدم المطرود
+      const key = Date.now();
+      await set(ref(db, `notifications/${key}`), {
+        target: parseInt(id),
+        body: "تم طردك من قبل الأدمن",
+        timestamp: key
+      });
+      
+      showFlashMsg(`تم طرد مشرف لجنة ${id}`);
+    } catch(e) {
+      alert("خطأ: " + e);
+    }
   }
 };
 
