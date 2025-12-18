@@ -85,6 +85,33 @@ body {
   gap: 15px; margin-bottom: 20px;
 }
 
+/* قسم بطاقات اليوم السابق */
+.yesterday-section {
+  margin-bottom: 25px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  padding: 20px;
+  border-radius: 20px;
+  border: 2px solid #e2e8f0;
+}
+
+.yesterday-section .aggregates-section {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+}
+
+@media (max-width: 1200px) {
+  .yesterday-section .aggregates-section {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .yesterday-section .aggregates-section {
+    grid-template-columns: 1fr;
+  }
+}
+
 .aggregate-card {
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   padding: 20px; border-radius: 16px; 
@@ -94,6 +121,10 @@ body {
   text-align: center;
   transition: transform 0.3s, box-shadow 0.3s;
   color: white;
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .aggregate-card:hover { 
@@ -335,7 +366,50 @@ body {
 </div>
 
 <div id="dashboard-content">
-  <!-- بطاقات المجاميع الجديدة - الحضور الفعلي فقط -->
+  <!-- بطاقات اليوم السابق - أفقية بألوان مختلفة -->
+  <div class="yesterday-section">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+      <h3 style="color: #64748b; font-weight: 800; display: flex; align-items: center; gap: 10px;">
+        <i class="fa-solid fa-calendar-day"></i> إحصائيات اليوم السابق
+      </h3>
+      <div style="font-size: 0.85em; color: #94a3b8; display: flex; align-items: center; gap: 5px;">
+        <i class="fa-solid fa-info-circle"></i>
+        <span>بيانات ثابتة - غير متغيرة</span>
+      </div>
+    </div>
+    
+    <div class="aggregates-section">
+      <div class="aggregate-card" style="background: linear-gradient(135deg, #a7f3d0 0%, #6ee7b7 100%);">
+        <div class="aggregate-icon"><i class="fa-solid fa-tree-city"></i></div>
+        <div class="aggregate-value">13,309</div>
+        <div class="aggregate-label">مجموع القرى (1-23, 26-37)</div>
+        <div class="aggregate-subtitle">الحضور الفعلي للأمس</div>
+      </div>
+      
+      <div class="aggregate-card" style="background: linear-gradient(135deg, #bfdbfe 0%, #93c5fd 100%);">
+        <div class="aggregate-icon"><i class="fa-solid fa-building"></i></div>
+        <div class="aggregate-value">4,850</div>
+        <div class="aggregate-label">مجموع العزيزة (24+25)</div>
+        <div class="aggregate-subtitle">الحضور الفعلي للأمس</div>
+      </div>
+      
+      <div class="aggregate-card" style="background: linear-gradient(135deg, #ddd6fe 0%, #c4b5fd 100%);">
+        <div class="aggregate-icon"><i class="fa-solid fa-city"></i></div>
+        <div class="aggregate-value">5,715</div>
+        <div class="aggregate-label">مجموع المطرية (38-52)</div>
+        <div class="aggregate-subtitle">الحضور الفعلي للأمس</div>
+      </div>
+      
+      <div class="aggregate-card" style="background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);">
+        <div class="aggregate-icon"><i class="fa-solid fa-home"></i></div>
+        <div class="aggregate-value">6,342</div>
+        <div class="aggregate-label">مجموع المنزلة (53-60)</div>
+        <div class="aggregate-subtitle">الحضور الفعلي للأمس</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- بطاقات اليوم الحالي - أسفل اليوم السابق -->
   <div class="aggregates-section">
     <div class="aggregate-card">
       <div class="aggregate-icon"><i class="fa-solid fa-tree-city"></i></div>
@@ -945,4 +1019,3 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 </body>
 </html>
-
