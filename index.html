@@ -345,7 +345,7 @@ window.handleLogin = async function() {
   }
 
   // === COMMITTEE LOGIN ===
-  const num = parseInt(val) - 900000;
+  const num = parseInt(val) - 700000;
   if(num >= 1 && num <= 60) {
     const sessionRef = ref(db, `active_sessions/${num}`);
     const snapshot = await get(sessionRef);
@@ -714,3 +714,4 @@ window.resetCommittee = window.resetCommittee;
 </script>
 </body>
 </html>
+
