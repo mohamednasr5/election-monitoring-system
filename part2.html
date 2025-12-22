@@ -2859,6 +2859,7 @@ function updateRegionsAnalysis() {
       const region = regions[key];
       let votes = 0;
       let enteredComm = 0;
+      let attendance = 0; // إضافة متغير للحضور
       let committeeDetails = [];
       
       region.committees.forEach(commNum => {
@@ -2866,9 +2867,12 @@ function updateRegionsAnalysis() {
         const commInfo = commMap[commNum] || { name: "غير معروف", address: "" };
         const commVotes = (comm && comm.candidates && comm.candidates[candId]) ? comm.candidates[candId] : 0;
         
-        if (comm && comm.candidates && comm.candidates[candId]) {
-          votes += comm.candidates[candId];
+        if (comm) {
+          if (comm.candidates && comm.candidates[candId]) {
+            votes += comm.candidates[candId];
+          }
           enteredComm++;
+          attendance += comm.totalVotes || 0; // إضافة الحضور الإجمالي للمنطقة
         }
         
         committeeDetails.push({
@@ -2876,7 +2880,8 @@ function updateRegionsAnalysis() {
           name: commInfo.name,
           address: commInfo.address,
           votes: commVotes,
-          entered: !!comm
+          entered: !!comm,
+          attendance: comm ? (comm.totalVotes || 0) : 0 // إضافة الحضور لكل لجنة
         });
       });
       
@@ -2889,6 +2894,7 @@ function updateRegionsAnalysis() {
         votes,
         totalComm: region.committees.length,
         enteredComm,
+        attendance, // إضافة الحضور الإجمالي للمنطقة
         percentage: region.committees.length > 0 ? 
           ((enteredComm / region.committees.length) * 100).toFixed(1) : 0,
         committeeDetails
@@ -2931,6 +2937,9 @@ function updateRegionsAnalysis() {
                     <div style="font-size:0.9rem; color:var(--text-muted);">
                       ${r.enteredComm} من ${r.totalComm} لجنة (${r.percentage}% مكتمل)
                     </div>
+                    <div style="font-size:0.9rem; color:var(--success); margin-top:5px;">
+                      إجمالي الحضور: ${r.attendance.toLocaleString()} صوت
+                    </div>
                   </div>
                 </div>
                 <div style="text-align:left;">
@@ -2971,6 +2980,11 @@ function updateRegionsAnalysis() {
                             <div style="font-size:0.8rem; color:var(--text-muted);">
                               ${comm.address}
                             </div>
+                            ${comm.entered ? `
+                              <div style="font-size:0.8rem; color:var(--success); margin-top:4px;">
+                                الحضور: ${comm.attendance.toLocaleString()} صوت
+                              </div>
+                            ` : ''}
                           </div>
                           <div style="text-align:left;">
                             <div style="font-size:1.5rem; font-weight:bold; color:${comm.entered ? 'var(--warning)' : statusColor};">
@@ -3004,6 +3018,10 @@ function updateRegionsAnalysis() {
                     <div>
                       <div style="font-size:0.8rem; color:var(--text-muted);">إجمالي الأصوات</div>
                       <div style="font-size:1.3rem; font-weight:bold; color:var(--warning);">${r.votes.toLocaleString()}</div>
+                    </div>
+                    <div>
+                      <div style="font-size:0.8rem; color:var(--text-muted);">إجمالي الحضور</div>
+                      <div style="font-size:1.3rem; font-weight:bold; color:var(--info);">${r.attendance.toLocaleString()}</div>
                     </div>
                   </div>
                 </div>
@@ -3922,23 +3940,54 @@ function exportRegionsAnalysis() {
     const cand = candidates.find(([id]) => id === candId);
     if (!cand) return;
     
+    // حساب إجمالي الحضور لكل منطقة بالإضافة للأصوات
     const data = Object.keys(regions).map(key => {
       const region = regions[key];
       let votes = 0;
+      let totalAttendance = 0; // إجمالي الحضور للمنطقة
+      let enteredCommittees = 0; // عدد اللجان المدخلة
       
       region.committees.forEach(commNum => {
         const comm = allCommittees.find(c => c.number === commNum);
         if (comm && comm.candidates && comm.candidates[candId]) {
           votes += comm.candidates[candId];
         }
+        if (comm) {
+          totalAttendance += comm.totalVotes || 0;
+          enteredCommittees++;
+        }
       });
+      
+      // حساب النسبة المئوية للمرحلة إذا كانت هناك لجان مدخلة
+      const completionRate = region.committees.length > 0 ? 
+        ((enteredCommittees / region.committees.length) * 100).toFixed(1) : 0;
       
       return {
         'المنطقة': region.name,
-        'عدد اللجان': region.committees.length,
-        'الأصوات': votes
+        'عدد اللجان الكلي': region.committees.length,
+        'اللجان المدخلة': enteredCommittees,
+        'نسبة الإكمال': completionRate + '%',
+        'إجمالي الحضور': totalAttendance,
+        'أصوات المرشح': votes
       };
-    }).sort((a, b) => b['الأصوات'] - a['الأصوات']);
+    }).sort((a, b) => b['أصوات المرشح'] - a['أصوات المرشح']);
+    
+    // إضافة صف للإجمالي العام
+    const totalRow = {
+      'المنطقة': 'الإجمالي العام',
+      'عدد اللجان الكلي': data.reduce((sum, item) => sum + item['عدد اللجان الكلي'], 0),
+      'اللجان المدخلة': data.reduce((sum, item) => sum + item['اللجان المدخلة'], 0),
+      'نسبة الإكمال': '',
+      'إجمالي الحضور': data.reduce((sum, item) => sum + item['إجمالي الحضور'], 0),
+      'أصوات المرشح': data.reduce((sum, item) => sum + item['أصوات المرشح'], 0)
+    };
+    
+    // حساب نسبة الإكمال العامة
+    const totalCompletion = totalRow['عدد اللجان الكلي'] > 0 ? 
+      ((totalRow['اللجان المدخلة'] / totalRow['عدد اللجان الكلي']) * 100).toFixed(1) : 0;
+    totalRow['نسبة الإكمال'] = totalCompletion + '%';
+    
+    data.push(totalRow);
     
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.json_to_sheet(data);
@@ -3953,9 +4002,15 @@ function exportRegionsAnalysis() {
         if(!ws[cell_ref]) continue;
         
         if(R === 0) {
+          // تنسيق الرأس
           ws[cell_ref].s = {
             fill: { fgColor: { rgb: "4F81BD" } },
-            font: { name: "Cairo", sz: 12, bold: true, color: { rgb: "FFFFFF" } },
+            font: { 
+              name: "Cairo", 
+              sz: 12, 
+              bold: true, 
+              color: { rgb: "FFFFFF" } 
+            },
             alignment: { horizontal: "center", vertical: "center" },
             border: {
               top: { style: "medium", color: { rgb: "365F91" } },
@@ -3964,10 +4019,33 @@ function exportRegionsAnalysis() {
               right: { style: "medium", color: { rgb: "365F91" } }
             }
           };
+        } else if(R === range.e.r) {
+          // تنسيق صف الإجمالي العام
+          ws[cell_ref].s = {
+            fill: { fgColor: { rgb: "FFD966" } },
+            font: { 
+              name: "Cairo", 
+              sz: 11, 
+              bold: true,
+              color: { rgb: "000000" }
+            },
+            alignment: { horizontal: "center", vertical: "center" },
+            border: {
+              top: { style: "medium", color: { rgb: "BF9000" } },
+              bottom: { style: "medium", color: { rgb: "BF9000" } },
+              left: { style: "thin", color: { rgb: "000000" } },
+              right: { style: "thin", color: { rgb: "000000" } }
+            }
+          };
         } else {
+          // تنسيق البيانات العادية
           const isFirst = R === 1;
           ws[cell_ref].s = {
-            fill: { fgColor: { rgb: isFirst ? "DCE6F1" : (R % 2 === 0 ? "F2F2F2" : "FFFFFF") } },
+            fill: { 
+              fgColor: { 
+                rgb: isFirst ? "DCE6F1" : (R % 2 === 0 ? "F2F2F2" : "FFFFFF") 
+              } 
+            },
             font: { 
               name: "Cairo", 
               sz: 11, 
@@ -3983,20 +4061,146 @@ function exportRegionsAnalysis() {
             }
           };
         }
+        
+        // تلوين خلايا إجمالي الحضور
+        if (C === 4 && R > 0 && R < range.e.r) {
+          const attendanceValue = ws[cell_ref].v;
+          if (typeof attendanceValue === 'number') {
+            ws[cell_ref].s.fill.fgColor.rgb = "E2EFDA";
+            ws[cell_ref].s.font.color.rgb = "006100";
+            ws[cell_ref].s.font.bold = true;
+          }
+        }
       }
     }
     
+    // ضبط عرض الأعمدة
     ws['!cols'] = [
-      { wch: 25 },
-      { wch: 15 },
-      { wch: 15 }
+      { wch: 25 },  // المنطقة
+      { wch: 15 },  // عدد اللجان الكلي
+      { wch: 15 },  // اللجان المدخلة
+      { wch: 15 },  // نسبة الإكمال
+      { wch: 18 },  // إجمالي الحضور (عرض أكبر)
+      { wch: 15 }   // أصوات المرشح
     ];
     
-    XLSX.utils.book_append_sheet(wb, ws, "المناطق");
+    // إضافة ملاحظة توضيحية في الأسفل
+    const noteRow = [
+      { v: 'ملاحظة: إجمالي الحضور هو مجموع الحضور في اللجان المدخلة فقط', t: 's' }
+    ];
+    XLSX.utils.sheet_add_aoa(ws, [noteRow], { origin: -1 });
     
-    XLSX.writeFile(wb, `regions_${cand[1]}_${new Date().getTime()}.xlsx`);
+    XLSX.utils.book_append_sheet(wb, ws, `المناطق - ${cand[1]}`);
+    
+    // إنشاء ورقة إضافية للتفاصيل الدقيقة لكل منطقة
+    const detailSheets = [];
+    
+    Object.keys(regions).forEach(key => {
+      const region = regions[key];
+      let regionDetailData = [];
+      
+      region.committees.forEach(commNum => {
+        const comm = allCommittees.find(c => c.number === commNum);
+        const info = commMap[commNum] || { name: "", address: "" };
+        
+        regionDetailData.push({
+          'رقم اللجنة': commNum,
+          'اسم اللجنة': info.name,
+          'العنوان': info.address,
+          'إدخال البيانات': comm ? '✅ مدخلة' : '❌ غير مدخلة',
+          'إجمالي الحضور': comm ? (comm.totalVotes || 0) : 0,
+          'أصوات المرشح': comm && comm.candidates ? (comm.candidates[candId] || 0) : 0
+        });
+      });
+      
+      // إضافة صف الإجمالي للمنطقة
+      const regionTotal = regionDetailData.reduce((acc, item) => {
+        acc['إجمالي الحضور'] += item['إجمالي الحضور'];
+        acc['أصوات المرشح'] += item['أصوات المرشح'];
+        return acc;
+      }, { 'إجمالي الحضور': 0, 'أصوات المرشح': 0 });
+      
+      regionDetailData.push({
+        'رقم اللجنة': 'الإجمالي',
+        'اسم اللجنة': '',
+        'العنوان': '',
+        'إدخال البيانات': '',
+        'إجمالي الحضور': regionTotal['إجمالي الحضور'],
+        'أصوات المرشح': regionTotal['أصوات المرشح']
+      });
+      
+      const detailWs = XLSX.utils.json_to_sheet(regionDetailData);
+      
+      // تنسيق ورقة التفاصيل
+      const detailRange = XLSX.utils.decode_range(detailWs['!ref']);
+      for(let R = detailRange.s.r; R <= detailRange.e.r; ++R) {
+        for(let C = detailRange.s.c; C <= detailRange.e.c; ++C) {
+          const cell_address = {c: C, r: R};
+          const cell_ref = XLSX.utils.encode_cell(cell_address);
+          
+          if(!detailWs[cell_ref]) continue;
+          
+          if(R === 0) {
+            detailWs[cell_ref].s = {
+              fill: { fgColor: { rgb: "5B9BD5" } },
+              font: { name: "Cairo", sz: 11, bold: true, color: { rgb: "FFFFFF" } },
+              alignment: { horizontal: "center", vertical: "center" },
+              border: {
+                top: { style: "medium", color: { rgb: "4472C4" } },
+                bottom: { style: "medium", color: { rgb: "4472C4" } },
+                left: { style: "thin", color: { rgb: "000000" } },
+                right: { style: "thin", color: { rgb: "000000" } }
+              }
+            };
+          } else if(R === detailRange.e.r) {
+            // صف الإجمالي
+            detailWs[cell_ref].s = {
+              fill: { fgColor: { rgb: "FFF2CC" } },
+              font: { name: "Cairo", sz: 11, bold: true, color: { rgb: "000000" } },
+              alignment: { horizontal: "center", vertical: "center" },
+              border: {
+                top: { style: "medium", color: { rgb: "BF9000" } },
+                bottom: { style: "medium", color: { rgb: "BF9000" } },
+                left: { style: "thin", color: { rgb: "000000" } },
+                right: { style: "thin", color: { rgb: "000000" } }
+              }
+            };
+          } else {
+            detailWs[cell_ref].s = {
+              fill: { fgColor: { rgb: R % 2 === 0 ? "F2F2F2" : "FFFFFF" } },
+              font: { name: "Cairo", sz: 10 },
+              alignment: { horizontal: "center", vertical: "center" },
+              border: {
+                top: { style: "thin", color: { rgb: "000000" } },
+                bottom: { style: "thin", color: { rgb: "000000" } },
+                left: { style: "thin", color: { rgb: "000000" } },
+                right: { style: "thin", color: { rgb: "000000" } }
+              }
+            };
+          }
+        }
+      }
+      
+      detailWs['!cols'] = [
+        { wch: 10 },
+        { wch: 20 },
+        { wch: 30 },
+        { wch: 12 },
+        { wch: 15 },
+        { wch: 15 }
+      ];
+      
+      XLSX.utils.book_append_sheet(wb, detailWs, region.name.substring(0, 30));
+    });
+    
+    const filename = `regions_analysis_${cand[1]}_${new Date().getTime()}.xlsx`;
+    XLSX.writeFile(wb, filename);
+    
+    alert(`✅ تم تصدير بيانات التحليل المناطقي بنجاح إلى ${filename}\n\nيشمل الملف:\n1. ملخص المناطق مع إجمالي الحضور\n2. صفحات تفصيلية لكل منطقة`);
+    
   } catch (error) {
-    console.error("خطأ في التصدير:", error);
+    console.error("خطأ في تصدير التحليل المناطقي:", error);
+    alert("❌ حدث خطأ أثناء تصدير التحليل المناطقي");
   }
 }
 
